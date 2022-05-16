@@ -1,0 +1,53 @@
+{% extends "article/base.html" %}
+{% load static %}
+
+{% block script %}
+<script src="{% static 'main.js' %}"></script>
+{% endblock script %}
+{% block content %}
+
+{% load appname_tags %}
+<div class="container mt-5 mb-5 pt-3 pb-3">
+    <div class="list-group list-group-flush">
+    <div class="justify-content-center" style="color: #1434A4;"><h1 style=" font-size: calc(1.375rem + 1.5vw)!important;">Uncheduled Posts</h1></div>
+    <p>Total posts count: {{ posts|length }}</p>
+
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th scope="col">Post Description</th>
+          <th scope="col">Channel</th>
+          <th scope="col">Image</th>
+          <th scope="col">Set Date</th>
+          <th scope="col">Schedule</th>
+        </tr>
+      </thead>
+      <tbody>
+            <tr>
+            {% for post in posts %}
+            <tr>
+                <form class="" action="{% url 'generate_article:post-scheduler' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" value="{{ post|mongo_id }}">
+
+              <td scope="col">{{post.Topic_description}}</td>
+              <td scope="col">{{post.channel}}</td>
+              <td scope="col"><img src="{{post.mega_drive_link}}" alt="Image"></td>
+              <td><label for="schedule">Schedule:</label><input type="date" id="schedule" name="schedule_date"></td>
+              <td><a href="#" class="btn btn-primary">Schedule</a></td>
+                <td><input type="submit" class="btn btn-dark btn-sm" formaction="{% url 'generate_article:write-yourself' %}" value="Write Yourself" /></td>
+            </tr>
+            </form>
+            {% endfor %}
+              <td>Post description</td>
+              <td>Post channel</td>
+              <td>Post Image</td>
+              <td><label for="schedule">Schedule:</label><input type="date" id="schedule" name="schedule"></td>
+              <td><a href="#" class="btn btn-primary">Schedule</a></td>
+            </tr>
+      </tbody>
+    </table>
+
+</div>
+</div>
+{% endblock content %}

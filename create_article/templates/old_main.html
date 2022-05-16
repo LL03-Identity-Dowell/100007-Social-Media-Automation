@@ -1,0 +1,86 @@
+{% extends "article/base.html" %}
+{% load static %}
+
+{% block script %}
+<script src="{% static 'main.js' %}"></script>
+{% endblock script %}
+{% block content %}
+<!-- <p>Django Event Calendar</p> -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Schedule Posts</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Please select one.</p>
+      </div>
+      <div class="modal-footer">
+        <a href="{% url 'generate_article:scheduled-posts' %}" class="btn btn-primary">Scheduled Posts</a>
+        <a href="{% url 'generate_article:unscheduled-posts' %}" class="btn btn-dark">Unscheduled Posts</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid p-5 ">
+    <div id="titleForm">
+        <div class="row mb-2" style="background-color: #dfe6fc; color: #207beb">
+            <h1>Social Media Automation</h1>
+        </div>
+        <div class ="row justify-content-center">
+            <div class="col-1">
+                <i class="fas fa-tasks"></i>
+            </div>
+            <div class="col-3">
+                <a style="text-decoration:none; color:black;" href="https://100007.pythonanywhere.com/website/"><h2>Topic</h2></a>
+            </div>
+        </div>
+        <div class ="row justify-content-center">
+            <div class="col-1">
+                <i class="fas fa-edit"></i>
+            </div>
+            <div class="col-3">
+                <a style="text-decoration:none; color:black;" href="{% url 'generate_article:index-view' %}"><h2>Article</h2></a>
+            </div>
+        </div>
+        <div class ="row justify-content-center">
+            <div class="col-1">
+                <i class="fas fa-clipboard"></i>
+            </div>
+            <div class="col-3">
+                <!--<a style="text-decoration:none; color:black;" href="https://100042.pythonanywhere.com/final"><h2>Post</h2></a>-->
+                <a style="text-decoration:none; color:black;" href="{% url 'generate_article:article-list' %}"><h2>Post</h2></a>
+            </div>
+
+        </div>
+        <div class ="row justify-content-center">
+            <div class="col-1">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="col-3">
+                <a style="text-decoration:none; color:black;" href="#" data-bs-toggle="modal" data-bs-target="#exampleModal"><h2>Schedule</h2></a>
+            </div>
+        </div>
+        <div class ="row justify-content-center">
+            <div class="col-1">
+                <i class="fas fa-comment"></i>
+            </div>
+            <div class="col-3">
+                <a style="text-decoration:none; color:black;" href="#"><h2>Comment</h2></a>
+            </div>
+        </div>
+        <div class ="row justify-content-evenly mt-2">
+            <div class="col-2">
+                <button class="btn btn-secondary btn-lg">Admin</button>
+            </div>
+            <div class="col-2">
+                <button class="btn btn-primary btn-lg">Back </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
