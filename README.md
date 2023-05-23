@@ -26,9 +26,9 @@ _POST_ `/api/v1/data-in-collection/`
 Request Body
 ```json
 {
-    'name': 'Manish',
-    'data_type': 'Real_data',
-    'company_id': '12345'
+    "name": 'Manish',
+    "data_type": 'Real_data',
+    "company_id": '12345'
 }
 ```
 Response 201
