@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+        crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+<!--<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>-->
+<script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js" ></script>
+
+<style>
+    {#    todo transfer it to an independent #}
+    * {
+        box-sizing: border-box;
+    }
+
+    /*body {*/
+    /*    background-color: #f1f1f1;*/
+    /*}*/
+
+    #ansDisplay {
+        background-color: #ffffff;
+        margin: 100px auto;
+        font-family: Raleway;
+        padding: 40px;
+        width: 70%;
+        min-width: 300px;
+    }
+
+    .answer {
+        height: 40px;
+        background-color: #D3D3D3;
+        border-radius: 4px;
+        padding: 4px
+    }
+
+    .answer_rank {
+        float: right;
+    }
+
+    .s-alert {
+    background:#ffdc9d;
+    padding: 20px 40px;
+    min-width:420px;
+    position:fixed;
+    right:0px;
+    top:75px;
+    border-radius:4px;
+    border-left: 7px solid #ffa502;
+    z-index:50;
+}
+    .s-alert.show{
+        animation: show_slide 1s ease forwards;
+    }
+    @keyframes show_slide {
+        0%{
+            transform: translateX(100%);
+        }
+        40%{
+            transform: translateX(-10%);
+        }
+        80%{
+            transform: translateX(0%);
+        }
+        100%{
+            transform: translateX(-10%);
+        }
+    }
+
+.s-alert.hide{
+        display:none;
+    }
+</style>
+
+
+
+
+<body>
+        {% if non_zero_ranks >= 3 %}
+      <div class="s-alert hide">
+        <span class="fas fa-exclamation-circle"></span>
+        <span class="msg">Your Sentences have been submitted</span>
+    </div>
+    {% endif %}
+
+<div id="ansDisplay">
+    <form name="form1" id='rateForm' method="post" action="{% url 'selected_result' %}">
+
+
+        {% csrf_token %}
+
+        {% for sentence in sentences %}
+            <p>{{ sentence.sentence_type }}</p>
+            <div class="answer">
+                <p>{{ sentence.sentence }}
+
+                    <span class="answer_rank"><label>
+{#                        attach counter to class and name tags values for uniqueness#}
+<select name="rank_{{ forloop.counter }}" class="required" id="selector_{{ forloop.counter }}">
+                <option selected="selected" value="0" disabled="disabled">Rank</option>
+
+</select>
+</label></span></p>
+
+            </div>
+
+            <br>
+        {% endfor %}
+        <input type=button value="Preview text" onClick="preview()">
+        <button type="submit" class="btn btn-success" >SUBMIT</button>
+
+    </form>
+
+</div>
+{#    fixme it sucks to use a library for one task, but I'll find  a solution for this#}
+
+<script>
+
+
+
+
+
+
+
+    let non_zero_ranks=0;
+    function preview()
+    {
+
+        console.log(document.form1.rank_1.value);
+        console.log(document.form1.rank_2.value);
+        console.log(document.form1.rank_3.value);
+        console.log(document.form1.rank_4.value);
+
+    }
+
+    $(function () {
+
+//code to populate the selects
+        let data = [];
+        let selected_counter = 0;
+        for (var count = 1; count <= 12; count++) {
+            data[count - 1] = {"code": count, "name": count}
+        }
+
+        function populate(data) {
+            data.forEach(function (e, i) {
+                $('select').append($('<option></option>').val(e.code).text(e.name));
+
+            });
+        }
+
+        populate(data);
+
+        function updateOptionClickableAbility() {
+
+            // Keep an array of all used ranks.
+            var used_ranks = [];
+            // Get all select elements.
+            var selects = document.getElementsByTagName("select");
+
+            Array(...selects).forEach(select => {
+                // Add the selected value to the used ranks.
+                if (select.value !== '0') {
+                    used_ranks.push(select.value);
+                }
+                // Go over all options for that select element
+                Array(...select.getElementsByTagName("option")).forEach(option => {
+
+                    // If the option is not an integer, skip
+                    if (!parseInt(option.value)) {
+                        return;
+                    }
+                    // If that option's value is not selected and the value has been used, disable the option.
+                    if ((option.value !== select.value) && (used_ranks.includes(option.value))) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                    }
+                });
+            });
+        }
+
+        updateOptionClickableAbility();
+
+        $('select').on('change', function (event) { // This binds listeners to the change event on all the select elements
+            var sId = this.id; // store off the changed element id
+            var vId = this.value; // store off the changed element value
+            non_zero_ranks = 0;//always initialize number of ranks which are zero
+            $('select').each(function () { // this loops across the same set of elements
+                if (this.id !== sId && this.value === vId) { // If it is not the triggering element and the value is the same, do something
+                    this.options.selectedIndex = 0; // reset the value to 'rank'
+                }
+                if (this.value != 0) {
+                    non_zero_ranks++
+                }
+                    updateOptionClickableAbility()
+
+            });
+        });
+    });
+
+
+
+
+
+        $('#rateForm').submit(function () {
+            $('.s-alert').removeClass("hide");
+			   $('.s-alert').addClass("show");
+			    setTimeout(function(){
+			    $('.s-alert').removeClass("show");
+			    $('.s-alert').addClass("hide");
+			},12000);
+        // Check the number of ranks selected...
+
+        if (non_zero_ranks >= 3) {
+        AmagiLoader.show();
+        setTimeout(() => {
+        AmagiLoader.hide();
+          $('.s-alert').removeClass("hide");
+          $('.s-alert').addClass
+        }, 50000);
+            return true;
+
+
+        } else {
+
+            alert("You need to rank more than three sentences to submit.")
+            return false; // return false to cancel form action
+
+        }
+    });
+
+
+
+
+
+
+
+
+
+const AmagiLoader = {
+    __loader: null,
+    show: function () {
+
+        if (this.__loader == null) {
+            var divContainer = document.createElement('div');
+            divContainer.style.position = 'fixed';
+            divContainer.style.left = '0';
+            divContainer.style.top = '0';
+            divContainer.style.width = '100%';
+            divContainer.style.height = '100%';
+            divContainer.style.zIndex = '9998';
+            divContainer.style.backgroundColor = 'rgba(250, 250, 250, 0.80)';
+
+            var div = document.createElement('div');
+            div.style.position = 'absolute';
+            div.style.left = '50%';
+            div.style.top = '50%';
+            div.style.zIndex = '9999';
+            div.style.height = '64px';
+            div.style.width = '64px';
+            div.style.margin = '-76px 0 0 -76px';
+            div.style.border = '8px solid #e1e1e1';
+            div.style.borderRadius = '50%';
+            div.style.borderTop = '8px solid #F36E21';
+            div.animate([
+                { transform: 'rotate(0deg)' },
+                { transform: 'rotate(360deg)' }
+              ], {
+                duration: 2000,
+                iterations: Infinity
+              });
+            divContainer.appendChild(div);
+            this.__loader = divContainer
+            document.body.appendChild(this.__loader);
+        }
+        this.__loader.style.display="";
+    },
+    hide: function(){
+        if(this.__loader!=null)
+        {
+            this.__loader.style.display="none";
+        }
+    }
+}
+
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+        crossorigin="anonymous"></script>
+
+
+</body>
+</html>

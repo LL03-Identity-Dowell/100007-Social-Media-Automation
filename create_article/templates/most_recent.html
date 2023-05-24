@@ -1,0 +1,74 @@
+{% extends "article/base_steps.html" %}
+{% load static %}
+{% load appname_tags %}
+
+{% block content %}
+   <div class="container mt-5 mb-5 pt-3 pb-3">
+    <div class="list-group list-group-flush">
+    <div class="justify-content-center d-flex" style="color: #1434A4;">
+         <div>
+                <h4 style="font-family: 'Amazon Ember', sans-serif; font-size: 30px;
+            font-weight: bold; padding: 30px;  text-decoration: underline; ">Most Recent</h4>
+
+        </div>
+        <div>
+            <a href="{% url 'generate_article:unscheduled-posts' %}">
+                <h4 style="font-family: 'Amazon Ember', sans-serif; font-size: 30px;
+                 font-weight: bold; padding: 30px;">Unscheduled Posts</h4>
+            </a>
+        </div>
+        <div>
+            <a  href="{% url 'generate_article:scheduled-posts' %}">
+                <h4 style="font-family: 'Amazon Ember', sans-serif; font-size: 30px;
+            font-weight: bold; padding: 30px;">Scheduled Posts</h4>
+            </a>
+        </div>
+    </div>
+
+
+
+    <p>Total posts: {{ post|length }}</p>
+
+   <table class="table table-borderless">
+
+      <tbody>
+
+
+            {% for post in post %}
+        <form class="" action="">
+
+        <tr>
+              <td style="border-style: none; " ><p style="font-family: 'Amazon Ember', sans-serif;
+              font-size: 16px; font-weight: regular; color: #0000007c;">{{post.source}}</p>
+              </td>
+
+              <td rowspan="4" style="border-style: none;">
+                  <div style="padding-top:20px">
+                      <img src={{post.image}} title="Title of image" alt="alt text here"
+                      style="width: 160px; border-radius: 8px;" />
+                  </div>
+              </td>
+        </tr>
+
+
+                <tr>
+                    <td style="border-style: none;"><h4 style="font-size:27px; font-weight: bold; color: blue; margin-top:-25px;">{{post.title}}</h4></td>
+                </tr>
+                <tr>
+                    <td style="border-style: none;"><p>{{post.paragraph}}</p></td>
+                </tr>
+                <tr>
+                    <td style="text-align:right; border-style: none;">
+                        <p style="font-size:15px;color:gray"><i class="fas fa-clock" ></i> Posted:{{post.Date|timesince }} ago</p></td>
+                </tr>
+        </form>
+            {% endfor %}
+
+      </tbody>
+    </table>
+
+</div>
+</div>
+
+
+{% endblock content %}

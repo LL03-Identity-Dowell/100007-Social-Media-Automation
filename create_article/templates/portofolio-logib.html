@@ -1,0 +1,20 @@
+{% extends "article/base.html" %}
+{% load static %}
+
+{% block script %}
+	<script src="{% static 'main.js' %}"></script>
+{% endblock script %}
+{% block title %}Get started with Samanta by logging in with your portfolio{% endblock %}
+{% block content %}
+
+    <center>
+
+	<h1>Welcome to Samanta!</h1>
+	<p>Please log in to your portfolio to get started.</p><br>
+    <p>Welcome to Samanta! We’re excited to have you here. To get started, please click the button below to connect using your portfolio object.<br>
+        Once you’re connected with a portfolio, you’ll be able to access the site and start exploring all we have to offer.</p>
+    <a class="btn btn-lg btn-info" href="https://100093.pythonanywhere.com/">Go to Living Lab</a>
+
+    </center>
+
+{% endblock %}

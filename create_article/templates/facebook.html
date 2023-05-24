@@ -1,0 +1,52 @@
+{% extends "article/base_background.html" %}
+{% load static %}
+
+{% block style %}
+  {{ block.super }}
+  <style type="text/css">
+    form {
+      width: 400px;
+      max-width: 90%;
+    }
+
+    .btn-dark-blue {
+      color: white;
+      background-color: var(--dark-blue);
+      border-color: var(--dark-blue);
+    }
+
+    .btn-dark-blue:hover {
+      color: white;
+      background-color: rgb(20, 38, 85);
+    }
+  </style>
+{% endblock %}
+
+{% block stuff %}
+  <div class="m-2">
+    <i class="fa-brands fa-facebook fa-4x"></i>
+  </div>
+
+  <form class="" id="titleForm" action="{% url 'generate_article:facebook-form' %}" method="post" onsubmit='showLoading();'>
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="page_id">Page ID</label>
+      <input type="text" class="form-control" name="page_id" id="page_id" placeholder="Enter page ID" required>
+    </div>
+    <div class="mb-3">
+      <label for="page_link">Page Link</label>
+      <input type="url" class="form-control" name="page_link" id="page_link" placeholder="Enter page link" required>
+    </div>
+    <div class="mb-3">
+      <label for="page_password">Page Password</label>
+      <input type="password" class="form-control" name="page_password" id="page_password" placeholder="Enter password" required>
+    </div>
+    <div class="mb-3">
+      <label for="posts_no">Number Of Posts</label>
+      <input type="number" min="1" max="5" class="form-control" name="posts_no" id="posts_no" placeholder="Enter no. of posts per day" required>
+    </div>
+    <div class="text-center">
+      <button type='submit' class="btn btn-dark-blue px-5 fw-bold">Done</button>
+    </div>
+  </form>
+{% endblock %}
