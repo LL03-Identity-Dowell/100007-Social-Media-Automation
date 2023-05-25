@@ -1,0 +1,169 @@
+{% extends "article/base_steps.html" %}
+{% load static %}
+{% load appname_tags %}
+
+{% block style %}
+  {{ block.super }}
+  <style>
+    .blue-text {
+      color: var(--dark-blue);
+    }
+
+    form {
+      width: 70%;
+    }
+
+    .btn-dark-blue {
+        width: 40%;
+      color: white;
+      background-color: var(--dark-blue);
+      border-color: var(--dark-blue);
+    }
+
+    .btn-dark-blue:hover {
+      color: white;
+      background-color: rgb(20, 38, 85);
+    }
+    .products{
+        font-weight: 500;
+        font-size: 20px;
+        color: grey;
+        margin-bottom: 14px;
+    }
+    .form-select{
+        outline: none;
+
+        background-color:#DCD6D0;
+        color: grey;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1">
+    <h2 class="m-3 text-center grey-text">Comment</h2>
+
+    <form id="titleForm" action="{% url 'generate_article:generate-comments' %}" method="post" onsubmit='showLoading();'>
+      {% csrf_token %}
+
+      <!--<div class="mb-3">-->
+      <!--  <label for="Dowellhandlerselect">DoWell Handler</label>-->
+      <!--  <select name="Dowellhandler" id="Dowellhandlerselect" class="form-select" required>-->
+      <!--    <option disabled>Select your DoWell handler</option>-->
+      <!--    <option value="UXLivingLab">UXLivingLab</option>-->
+      <!--  </select>-->
+      <!--</div>-->
+
+      <div class="mb-3">
+        <label for="ProductsSelect" class ="products">Your Products</label>
+        <select name="Product" id="ProductsSelect" class="form-select" required>
+          <option disabled>Select your products</option>
+          {% for topic in topics %}
+            <option value="">{{ topic.target_product }}</option>
+            <!--mongo id goes in the vlaue section-->
+          {% endfor %}
+        </select>
+      </div>
+
+      <!--<div class="mb-3">-->
+      <!--  <label for="TopicSelect">Our Topic/Event (link)</label>-->
+      <!--  <select name="Topic" id="TopicSelect" class="form-select" required>-->
+      <!--    <option disabled>Select your topic/event</option>-->
+      <!--    {% for topic in topics %}-->
+      <!--      <option data-value="" value="{{ topic.subject_determinant }}">{{topic.subject_determinant}}</option>-->
+      <!--      <option data-value="" value="{{ topic.object_determinant }}">{{topic.object_determinant}}</option>-->
+      <!--      <option data-value="" value="{{ topic.object }}">{{topic.object}}</option>-->
+      <!--    {% endfor %}-->
+      <!--  </select>-->
+      <!--</div>-->
+
+      <!--<div class="mb-3">-->
+      <!--  <label for="HashtagSelect">Hashtag</label>-->
+      <!--  <select name="Hashtag" id="HashtagSelect" class="form-select" required>-->
+      <!--    <option disabled>Select your hashtag</option>-->
+      <!--      {% for hashtag_group in hashtags %}-->
+      <!--        {% for hashtag in hashtag_group.hashtag %}-->
+      <!--          <option value="{{ hashtag }} {{ hashtag_group.group_no }}">{{ hashtag }}</option>-->
+      <!--        {% endfor %}-->
+      <!--      {% endfor %}-->
+      <!--  </select>-->
+      <!--</div>-->
+
+      <!--<div class="mb-3">-->
+      <!--  <label for="SmiliesSelect">Smilies</label>-->
+      <!--  <select id="SmiliesSelect" class="form-select" required>-->
+      <!--    <option disabled>Select your smilies</option>-->
+      <!--    <option value="UXLivingLab">UXLivingLab</option>-->
+      <!--  </select>-->
+      <!--</div>-->
+
+      <div class="mb-3">
+        <label for="SocialMediaSelect" class ="products">Social Media Channels</label>
+        <select id="SocialMediaSelect" class="form-select" required>
+          <option disabled>Select your social media channels</option>
+          <option value="Facebook">Facebook</option>
+          <option value="Twitter">Twitter</option>
+          <option value="Youtube">Youtube</option>
+          <option value="Instagram">Instagram</option>
+          <option value="LinkedIn">LinkedIn</option>
+        </select>
+      </div>
+
+        {% if profile == 'Admin' %}
+      <div class="text-center">
+        <button type='submit' class="btn btn-dark-blue">Generate comments</button>
+      </div>
+      {% endif %}
+
+    </form>
+  </div>
+{% endblock %}
+
+
+{% block script %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function() {
+        // Save all selects' id in an array
+        // to determine which select's option and value would be changed
+        // after you select an option in another select.
+        var selectors = ['Dowellhandlerselect', 'ProductsSelect','TopicSelect','HashtagSelect']
+        $('select').on('change', function() {
+          var index = selectors.indexOf(this.id)
+          if (index == 1) {
+            var value = this.value
+            var next = $('#' + selectors[index + 1])
+            // Show all the options in next select
+            $(next).find('option').show()
+            if (value != "") {
+              // if this select's value is not empty
+              // hide some of the options
+              $(next).find('option[data-value!=' + value + ']').hide()
+            }
+          // set next select's value to be the first option's value
+          // and trigger change()
+          $(next).val($(next).find("option:first").val()).change()
+          }
+        })
+      });
+        // var value = this.value
+        // // check if is the last one or not
+        // if (index < selectors.length - 1) {
+        //   var next = $('#' + selectors[index + 1])
+
+        //   // Show all the options in next select
+        //   $(next).find('option').show()
+        //   if (value != "") {
+        //     // if this select's value is not empty
+        //     // hide some of the options
+        //     $(next).find('option[data-value!=' + value + ']').hide()
+        //   }
+
+        //   // set next select's value to be the first option's value
+        //   // and trigger change()
+        //   $(next).val($(next).find("option:first").val()).change()
+        // }
+        // })
+        // });
+  </script>
+{% endblock %}

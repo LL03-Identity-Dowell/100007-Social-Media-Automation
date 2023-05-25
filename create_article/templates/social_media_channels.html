@@ -1,0 +1,48 @@
+{% extends "article/base_background.html" %}
+{% load static %}
+
+{% block style %}
+  {{ block.super }}
+  <style type="text/css">
+    .btn-dark-blue {
+      color: white;
+      background-color: var(--dark-blue);
+      border-color: var(--dark-blue);
+    }
+
+    .btn-dark-blue:hover {
+      color: white;
+      background-color: rgb(20, 38, 85);
+    }
+  </style>
+{% endblock %}
+
+{% block stuff %}
+  <h2 class="mb-5 blue-text">My Channels</h2>
+
+  <div class="d-flex flex-wrap justify-content-center">
+
+    <a href="{% url 'generate_article:facebook' %}">
+      <i class="fa-brands fa-facebook fa-4x m-2"></i>
+    </a>
+
+		<a href="{% url 'generate_article:twitter' %}">
+      <i class="fa-brands fa-twitter fa-4x m-2"></i>
+    </a>
+
+		<a href="{% url 'generate_article:instagram' %}">
+      <i class="fa-brands fa-instagram-square fa-4x m-2"></i>
+    </a>
+
+		<a href="{% url 'generate_article:linkedin' %}">
+      <i class="fa-brands fa-linkedin fa-4x m-2"></i>
+    </a>
+
+		<a href="{% url 'generate_article:youtube' %}">
+      <i class="fa-brands fa-youtube fa-4x m-2"></i>
+    </a>
+
+  </div>
+
+  <a class="mt-5 px-5 btn btn-dark-blue" href="javascript:history.back()">Done</a>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "article/base.html" %}
+{% load static %}
+
+{% block script %}
+<script src="{% static 'main.js' %}"></script>
+{% endblock script %}
+{% block content %}
+{% load appname_tags %}
+<div class="container mt-5 mb-5 pt-3 pb-3" >
+    <div class="list-group list-group-flush">
+    <div class="justify-content-center" style="color: #1434A4;"><h1 style=" font-size: calc(1.375rem + 1.5vw)!important;">Comments</h1></div>
+
+    <!--<form class="" id="titleForm" action="{% url 'generate_article:verify-article' %}" method="post" onsubmit='showLoading();'>-->
+    <form class="" id="titleForm" action="#" method="post" onsubmit='showLoading();'>
+    {% csrf_token %}
+      <select class="form-select form-select-lg mb-3" aria-label="Default select example">
+            <option selected>Select your products</option>
+            {% for product in products %}
+            <option value="{{ product|mongo_id }}">{{product.target_product}}</option>
+            {% endfor %}
+        </select>
+        <select class="form-select form-select-lg mb-3" aria-label="Social Media Channels">
+          <option selected>Select your social media channels</option>
+          <option value="Facebook">Facebook</option>
+          <option value="Twitter">Twitter</option>
+          <option value="Youtube">Youtube</option>
+          <option value="Instagram">Instagram</option>
+          <option value="LinkedIn">LinkedIn</option>
+        </select>
+        <div class="text-center"><button type="submit" class="btn btn-primary">Generate Comments</button></div>
+
+    </form>
+
+</div>
+</div>
+{% endblock content %}

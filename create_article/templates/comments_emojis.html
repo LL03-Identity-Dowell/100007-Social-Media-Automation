@@ -1,0 +1,146 @@
+{% extends "article/base.html" %}
+{% load static %}
+
+{% block script %}
+<script src="{% static 'main.js' %}"></script>
+{% endblock script %}
+{% block content %}
+{% load appname_tags %}
+<!--new comments page-->
+<style type="text/css">
+		.grid-container3
+		{
+			display: grid;
+			grid-template-columns: 10% 90%;
+			grid-template-rows: 5fr 95fr;
+		}
+		.item1
+		{
+			background-color: #203474;
+			grid-column-start: 1;
+			grid-column-end: 3;
+		}
+		.item2
+		{
+			background-color: #e8e4e4;
+			text-align: center;
+			grid-column-start: 1;
+			grid-column-end: 2;
+		}
+		.mylist
+		{
+			display: flex;
+			list-style: none;
+			padding: 5px;
+			color: white;
+		}
+		.form-elt-bgcolor
+		{
+			background-color: #e0e4fc;
+		}
+		.form-elt-label
+		{
+			color: #203474;
+			font-weight: bold;
+		}
+		span.content {
+            width: 100px;
+            height: 100px;
+            position:relative;
+            padding:15px;
+            box-sizing:border-box;
+            border-color:purple;
+        }
+	</style>
+	<div class="grid-container3">
+		<div class="item item1">
+			<ul class="mylist">
+				<li>
+				    <a href="#" style="color:white;">
+						<i class="fa-solid fa-arrow-left-long fa-xl"></i>
+						SAMANTA
+					</a>
+				</li>
+				<li>User Name <i class="fa-solid fa-circle-user fa-xl"></i></li>
+			</ul>
+		</div>
+		<div class="item item2">
+			<div style=	"margin-top:20%;">
+				<a href="#">
+				    <span class="content" style="border-style: solid;border-radius:5px; background-color:purple; color:white;padding-top:20px;"><i class="fa-solid fa-user-check fa-2xl"></i></span>
+				    <h6 style="padding-top:20px;">Topic</h6>
+				</a>
+			</div>
+			<div style=	"margin-top:20%;">
+				<span class="content" style="border-style: solid;border-radius:5px; background-color:purple; color:white;padding-top:20px;"><i class="fa-solid fa-file-signature fa-2xl"></i></span>
+
+				<h6 style="padding-top:20px;">Article</h6>
+			</div>
+			<div style=	"margin-top:20%;">
+				<span class="content" style="border-style: solid;border-radius:5px; background-color:purple; color:white;padding-top:20px;"><i class="fa-solid fa-calendar-check fa-2xl"></i></span>
+
+				<h6 style="padding-top:20px;">Post</h6>
+			</div>
+			<div style=	"margin-top:20%;">
+				<span class="content" style="border-style: solid;border-radius:5px; background-color:purple; color:white;padding-top:20px;"><i class="fa-solid fa-calendar-days fa-2xl"></i></span>
+
+				<h6 style="padding-top:20px;">Schedule</h6>
+			</div>
+			<div style=	"margin-top:20%;">
+				<span class="content" style="border-style: solid;border-color:white; border-radius:5px; background-color:purple; color:white;padding-top:20px;"><i class="fa-solid fa-comment fa-2xl"></i></span>
+
+				<h6 style="padding-top:20px;">Comment</h6>
+			</div>
+		</div>
+<div>
+<div class="container">
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4">
+			<label class="form-elt-label" style="margin-top:20%;">Comment</label>
+		</div>
+		<div class="col-md-4"></div>
+	</div>
+	<form class="" id="titleForm" action="{% url 'generate_article:comment-emoji' %}" method="post" onsubmit='showLoading();'>
+	     {% csrf_token %}
+	     <div class="row">
+			<div class="col-md-2"></div>
+			<div class="col-md-8">
+				<label class="form-elt-label">Selected Comment</label>
+				<input type="hidden" name="comment" value="{{ comment }}">
+				<p>{{ comment }}</p>
+			</div>
+			<div class="col-md-2"></div>
+		</div>
+
+
+	    <div class="row">
+			<div class="col-md-2"></div>
+			<div class="col-md-8">
+				<label class="form-elt-label">Select Emoji</label>
+				<select name="emoji" id="emoji" class="form-control" style="border-radius: 5px;" required>
+		        	<option value="">Select Your Emoji</option>
+		        	{% for emoji in emojis %}
+
+                        <option value="{{ emoji }}">{{emoji}}</option>
+
+                    {% endfor %}
+		        </select>
+			</div>
+			<div class="col-md-2"></div>
+		</div>
+
+
+		<div class="row">
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<br>
+				<button type='submit' class="form-control btn  btn-primary my-btn-primary" style="background: #203474; font-weight: bolder;">Generate comments</button>
+			</div>
+			<div class="col-md-4"></div>
+		</div>
+	</form>
+</div>
+</div>
+</div>
+{% endblock content %}
