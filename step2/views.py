@@ -287,7 +287,7 @@ def main(request):
         print('this is  the user info')
         print(request.session.get('userinfo'))
         print('This is the new event id')
-        print(create_event(request))
+        print(create_event(request)['event_id'])
         return render(request, 'main.html')
     else:
         return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
@@ -347,7 +347,7 @@ def user_approval_form(request):
         test_date = str(localdate())
         date_obj = datetime.strptime(test_date, '%Y-%m-%d')
         date  = datetime.strftime(date_obj,'%Y-%m-%d %H:%M:%S')
-        eventId = create_event(request)
+        event_id = create_event(request)['event_id']
 
         url = "http://100002.pythonanywhere.com/"
 
@@ -358,25 +358,28 @@ def user_approval_form(request):
             "document": "user_info",
             "team_member_ID": "1071",
             "function_ID": "ABCDE",
+             "eventId" : event_id,
             "command": "insert",
-            "eventId" : eventId,
+
             "field": {
                 "user_id": request.session['user_id'],
                 "topic": topic,
                 "post": post,
                 "article": article,
                 "schedule": schedule,
-
                 "session_id": session_id,
-                "eventId" : eventId,
+                 "eventId" : event_id,
                 'client_admin_id': request.session['userinfo']['client_admin_id'],
-
                 "date": date,
                 "time": str(time),
 
             },
             "update_field": {
                 "approvals": {
+                            "topic": topic,
+                            "post": post,
+                            "article": article,
+                            "schedule": schedule,
 
                             },
             },
@@ -388,6 +391,7 @@ def user_approval_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
+        print(event_id)
 
         return HttpResponseRedirect(reverse("generate_article:client"))
 
@@ -1384,7 +1388,7 @@ def generate_article_automatically(request):
         print(p["paragraph_text"])
         save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
                                                     "session_id": session_id,
-                                                    "eventId" : create_event(request),
+                                                    "eventId" :create_event(request)['event_id'],
                                                     #organization id,
                                                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                     "title": title,
@@ -1407,7 +1411,7 @@ def generate_article_automatically(request):
 
     save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
                                         "session_id":session_id,
-                                        "eventId" : create_event(request),
+                                        "eventId" : create_event(request)['event_id'],
                                         'client_admin_id': request.session['userinfo']['client_admin_id'],
                                         "title":title, "target_industry":target_industry,
                                         "paragraph": para,
@@ -1432,7 +1436,7 @@ def generate_article_automatically(request):
             article_sub_verb = article_sub_verb.split("See also")
             save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
                                                 "session_id": session_id,
-                                                "eventId" : create_event(request),
+                                                "eventId" :create_event(request)['event_id'],
                                                 'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                 "title": title_sub_verb,
                                                 "target_industry":target_industry,
@@ -1448,7 +1452,7 @@ def generate_article_automatically(request):
                     save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
                                                                 "session_id": session_id,
                                                                 'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                                "eventId" : create_event(request),
+                                                                "eventId" : create_event(request)['event_id'],
                                                                 "title": title,
                                                                 "target_industry":target_industry,
                                                                 "qualitative_categorization":qualitative_categorization,
@@ -1473,7 +1477,7 @@ def generate_article_automatically(request):
             article_subject = article_subject.split("See also")
             save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
                                                 "session_id": session_id,
-                                                "eventId" : create_event(request),
+                                                "eventId" : create_event(request)['event_id'],
                                                 'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                 "title": subject,
                                                 "target_industry":target_industry,
@@ -1488,7 +1492,7 @@ def generate_article_automatically(request):
                     print(para_list[i])
                     save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
                                                                 "session_id": session_id,
-                                                                "eventId" : create_event(request),
+                                                                "eventId" : create_event(request)['event_id'],
                                                                 'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                 "title": title,
                                                                 "target_industry":target_industry,
@@ -1517,7 +1521,7 @@ def generate_article_automatically(request):
         article = article.split("See also")
         save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
                                             "session_id": session_id,
-                                            "eventId" : create_event(request),
+                                            "eventId" : create_event(request)['event_id'],
                                             'client_admin_id': request.session['userinfo']['client_admin_id'],
                                             "title": title,
                                             "target_industry":target_industry,
@@ -1531,7 +1535,7 @@ def generate_article_automatically(request):
             if para_list[i] != '':
                 save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
                                                             "session_id": session_id,
-                                                            "eventId" : create_event(request),
+                                                            "eventId" : create_event(request)['event_id'],
                                                             'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                             "title": title,
                                                             "target_industry":target_industry,
@@ -1676,7 +1680,7 @@ def generate_article(request):
             # go through all rewritten paragraphs and print them
             save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
                                                             "session_id": session_id,
-                                                            "eventId" : create_event(request),
+                                                            "eventId" : create_event(request)['event_id'],
                                                             'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                             "title": RESEARCH_QUERY,
                                                             "target_industry":target_industry,
@@ -1697,7 +1701,7 @@ def generate_article(request):
             try:
                 save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
                                                     "session_id": session_id,
-                                                    "eventId" : create_event(request),
+                                                    "eventId" : create_event(request)['event_id'],
                                                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                     "title":RESEARCH_QUERY,
                                                     "target_industry":target_industry,
@@ -1745,7 +1749,7 @@ def generate_article_wiki(request):
                     article_sub_verb = article_sub_verb.split("See also")
                     save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
                                                         "session_id": session_id,
-                                                        "eventId" : create_event(request),
+                                                        "eventId" : create_event(request)['event_id'],
                                                         'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                         "title": title_sub_verb,
                                                         "target_industry":target_industry,
@@ -1760,7 +1764,7 @@ def generate_article_wiki(request):
                         if para_list[i] != '':
                             save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
                                                                         "session_id": session_id,
-                                                                        "eventId" : create_event(request),
+                                                                        "eventId" : create_event(request)['event_id'],
                                                                         'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                         "title": title,
                                                                         "target_industry":target_industry,
@@ -1786,7 +1790,7 @@ def generate_article_wiki(request):
                     article_subject = article_subject.split("See also")
                     save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
                                                         "session_id": session_id,
-                                                        "eventId" : create_event(request),
+                                                        "eventId" : create_event(request)['event_id'],
                                                         'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                         "title": subject,
                                                         "target_industry":target_industry,
@@ -1801,7 +1805,7 @@ def generate_article_wiki(request):
                             print(para_list[i])
                             save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
                                                                         "session_id": session_id,
-                                                                        "eventId" : create_event(request),
+                                                                        "eventId" : create_event(request)['event_id'],
                                                                         'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                         "title": title,
                                                                         "target_industry":target_industry,
@@ -1830,7 +1834,7 @@ def generate_article_wiki(request):
                 article = article.split("See also")
                 save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
                                                     "session_id": session_id,
-                                                    "eventId" : create_event(request),
+                                                    "eventId" : create_event(request)['event_id'],
                                                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                     "title": title,
                                                     "target_industry":target_industry,
@@ -1844,7 +1848,7 @@ def generate_article_wiki(request):
                     if para_list[i] != '':
                         save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
                                                                     "session_id": session_id,
-                                                                    "eventId" : create_event(request),
+                                                                    "eventId" : create_event(request)['event_id'],
                                                                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                     "title": title,
                                                                     "target_industry":target_industry,
@@ -1926,7 +1930,7 @@ def verify_article(request):
                         #saving paragraphs in article
                         save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
                                                                     "session_id": session_id,
-                                                                    "eventId" : create_event(request),
+                                                                    "eventId" : create_event(request)['event_id'],
                                                                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                     "title": title,
                                                                     "target_industry":target_industry,
@@ -1942,7 +1946,7 @@ def verify_article(request):
                                                                     }, '34567897799')
                         save_data('step4_data','step4_data', {"user_id": request.session['user_id'],
                                                         "session_id": session_id,
-                                                        "eventId" :  create_event(request),
+                                                        "eventId" :  create_event(request)['event_id'],
                                                         'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                         "title": title,
                                                         "qualitative_categorization":qualitative_categorization,
@@ -1959,7 +1963,7 @@ def verify_article(request):
                     #saving article
                     save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
                                                         "session_id": session_id,
-                                                        "eventId" : create_event(request),
+                                                        "eventId" : create_event(request)['event_id'],
                                                         'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                         "title": title,
                                                         "target_industry":target_industry,
@@ -2214,7 +2218,7 @@ def Save_Post(request):
         test_date = str(localdate())
         date_obj = datetime.strptime(test_date, '%Y-%m-%d')
         date  = datetime.strftime(date_obj,'%Y-%m-%d %H:%M:%S')
-        eventId = create_event(request)
+        eventId = create_event(request)['event_id'],
         if request.method =="POST":
             title = request.POST.get("title")
             paragraph = request.POST.get("text")
