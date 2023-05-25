@@ -182,7 +182,7 @@ def index(request):
                 data_dictionary["org_id"]= request.session['org_id']
                 data_dictionary["username"]= request.session['username']
                 data_dictionary["session_id"]= request.session.get('session_id',None)
-                data_dictionary['event_id']=create_event(request)
+                data_dictionary['event_id']=create_event(request)['event_id']
                 data_dictionary['email'] = email
                 #data_dictionary["client_admin_id"] = request.session['userinfo']['client_admin_id'],
                 try:
