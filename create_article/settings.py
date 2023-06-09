@@ -30,7 +30,7 @@ SECRET_KEY = '#&2i(s#=e#3ez2m6q#w!p+ok^rp@3(q7g%iqj*bkr6piklhd52'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['100007.pythonanywhere.com']
+ALLOWED_HOSTS = ['100007.pythonanywhere.com', '127.0.0.1']
 
 
 # Application definition
@@ -65,7 +65,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'djangobower.finders.BowerFinder',
+    # 'djangobower.finders.BowerFinder',
 ]
 
 ROOT_URLCONF = 'create_article.urls'
@@ -99,14 +99,14 @@ WSGI_APPLICATION = 'create_article.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-        # 'default': {
-        # 'ENGINE': 'djongo',
-        # 'NAME': 'social-media-auto',
-        # 'CLIENT': {
-        #     'host': 'mongodb+srv://qruser:qr_12345@cluster0.n2ih9.mongodb.net/DB_IMAGE?retryWrites=true&w=majority',
-        #     }
-        #     },
-        'default': {
+    # 'default': {
+    # 'ENGINE': 'djongo',
+    # 'NAME': 'social-media-auto',
+    # 'CLIENT': {
+    #     'host': 'mongodb+srv://qruser:qr_12345@cluster0.n2ih9.mongodb.net/DB_IMAGE?retryWrites=true&w=majority',
+    #     }
+    #     },
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
@@ -156,7 +156,8 @@ STATICFILES_DIRS = [BASE_DIR/'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LINGUA_KEY = '1ab6a8ab35msh454e13d4febb540p1f0fe3jsn5303c2162430'  # todo replace with your key
+# todo replace with your key
+LINGUA_KEY = '1ab6a8ab35msh454e13d4febb540p1f0fe3jsn5303c2162430'
 
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
@@ -165,4 +166,4 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_SAMESITE = 'None'  # As a string
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
-#SESSION_COOKIE_SAMESITE = 'Lax'  # or 'Strict'
+# SESSION_COOKIE_SAMESITE = 'Lax'  # or 'Strict'
