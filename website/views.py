@@ -1,33 +1,29 @@
 import requests
-# Create your views here.
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from datetime import datetime
 from create_article import settings
-from website.forms import UserEmailForm, IndustryForm, SentencesForm
+from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from django.urls import reverse
-from django.http import HttpResponseRedirect
 from website.models import User
-from datetime import datetime
-import json
-
 from step2.views import create_event
+from django.db import transaction
 
 @csrf_exempt
 @xframe_options_exempt
+@transaction.atomic
 def index(request):
-    session_id=request.GET.get('session_id',None)
+    session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
         industryForm = IndustryForm()
         sentencesForm = SentencesForm()
         try:
-            profile = str( request.session['operations_right'])
+            profile = str(request.session['operations_right'])
         except:
             profile = 'member'
-        forms = {'industryForm': industryForm, 'sentencesForm': sentencesForm,'profile':profile}
-
+        forms = {'industryForm': industryForm, 'sentencesForm': sentencesForm, 'profile': profile}
 
         if request.method == "POST":
             industryForm = IndustryForm(request.POST)
@@ -36,115 +32,35 @@ def index(request):
             print(industryForm.is_valid())
             if industryForm.is_valid() and sentencesForm.is_valid():
                 url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
-                email=request.session['userinfo'].get('email')
-                user=User.objects.filter(email=email)
-                if user:
-                    user=user.first()
-                else:
-                    user=User.objects.create(email=email)
-
+                email = request.session['userinfo'].get('email')
+                user = User.objects.create(email=email)
                 industry = industryForm.save(commit=False)
                 industry.user = user
                 industry.save()
+
                 object = sentencesForm.cleaned_data['object'].lower()
                 subject = sentencesForm.cleaned_data['subject']
                 verb = sentencesForm.cleaned_data['verb']
                 objdet = sentencesForm.cleaned_data['object_determinant']
-                objnum = sentencesForm.cleaned_data['object_number']
-                subjdet = sentencesForm.cleaned_data['subject_determinant']
-                subjnum = sentencesForm.cleaned_data['subject_number']
                 adjective = sentencesForm.cleaned_data['adjective']
-
-                # this code below is commented because the team lead requested that the code generates different sentences
-                # # now for the grammar part of the sentence
-                # tense = sentencesForm.cleaned_data['tense']
-                # progressive = sentencesForm.cleaned_data['progressive']
-                #
-                # perfect = sentencesForm.cleaned_data['perfect']
-                #
-                # negated = sentencesForm.cleaned_data['negated']
-                #
-                # passive = sentencesForm.cleaned_data['passive']
-                #
-                # sentence_art = sentencesForm.cleaned_data['sentence_art']
-                # modal_verb = sentencesForm.cleaned_data['modal_verb']
-                # # save to database
-                # sentence = Sentences(user=user,
-                #                      object=object,
-                #                      subject=subject,
-                #                      verb=verb,
-                #                      adjective=adjective,
-                #                      object_determinant=objdet,
-                #                      subject_determinant=subjdet,
-                #                      object_number=objnum,
-                #                      subject_number=subjnum,
-                #                      tense=tense,
-                #                      progressive=progressive,
-                #                      passive=passive,
-                #                      perfect=perfect,
-                #                      negated=negated,
-                #                      sentence_art=sentence_art,
-                #                      modal_verb=modal_verb
-                #
-                #                      )
-                # if progressive:
-                #     progressive = 'progressive'
-                # if perfect:
-                #     perfect = 'perfect'
-                # if negated:
-                #     negated = 'negated'
-                # if passive:
-                #     passive = 'passive'
-                # # create an api query string
-                # querystring = {
-                #     "object": object,
-                #     "subject": subject,
-                #     "verb": verb,
-                #     "objmod": adjective,
-                #     'subjdet': subjdet,
-                #     'objdet': objdet,
-                #     'objnum': objnum,
-                #     'passive': passive,
-                #     'progressive': progressive,
-                #     'modal': modal_verb,
-                #     'perfect': perfect,
-                #     'subjnum': subjnum,
-                #     'sentencetype': sentence_art,
-                #     'negated': negated,
-                #     'tense': tense
-                #
-                # }
-                # headers = {
-                #     'x-rapidapi-host': "linguatools-sentence-generating.p.rapidapi.com",
-                #     'x-rapidapi-key': settings.LINGUA_KEY
-                # }
-                #
-                # response = requests.request("GET", url, headers=headers, params=querystring)
-                #
-                # # sentence.sentence = response.json()['sentence']
-                # # sentence.save()
-                # return render(request, 'answer_display.html', {'sentence': response.json()['sentence']})
 
                 def api_call(grammar_arguments=None):
                     if grammar_arguments is None:
                         grammar_arguments = {}
+
                     querystring = {
                         "object": object,
                         "subject": subject,
                         "verb": verb,
-                        #rememmber you commented out this section
-                        # "objmod": adjective,
-                        # 'subjdet': subjdet,
-                        # 'objdet': objdet,
-                        # 'objnum': objnum,
-                        # 'subjnum': subjnum,
-
+                        "objdet": objdet,
+                        "objmod": adjective,
                     }
+
                     iter_sentence_type = []
                     if 'tense' in grammar_arguments:
-                        # print('Current tense is {}'.format(grammar_arguments['tense']))
                         querystring['tense'] = grammar_arguments['tense'].capitalize()
                         iter_sentence_type.append(grammar_arguments['tense'].capitalize())
+
                     if 'progressive' in grammar_arguments:
                         querystring['progressive'] = 'progressive'
                         iter_sentence_type.append(grammar_arguments['progressive'])
@@ -173,114 +89,125 @@ def index(request):
                         'x-rapidapi-host': "linguatools-sentence-generating.p.rapidapi.com",
                         'x-rapidapi-key': settings.LINGUA_KEY
                     }
-                    return [requests.request("GET", url, headers=headers, params=querystring).json()['sentence'],
-                            type_of_sentence]
+                    response = requests.request("GET", url, headers=headers, params=querystring).json()
+                    return [response['sentence'], type_of_sentence]
 
                 data_dictionary = request.POST.dict()
-                data_dictionary["user_id"]= request.session['user_id']
-                data_dictionary["session_id"]= session_id
-                data_dictionary["org_id"]= request.session['org_id']
-                data_dictionary["username"]= request.session['username']
-                data_dictionary["session_id"]= request.session.get('session_id',None)
-                data_dictionary['event_id']=create_event(request)['event_id']
+                data_dictionary["user_id"] = request.session['user_id']
+                data_dictionary["session_id"] = session_id
+                data_dictionary["org_id"] = request.session['org_id']
+                data_dictionary["username"] = request.session['username']
+                data_dictionary["session_id"] = request.session.get('session_id', None)
+                data_dictionary['event_id'] = create_event(request)['event_id']
                 data_dictionary['email'] = email
-                #data_dictionary["client_admin_id"] = request.session['userinfo']['client_admin_id'],
+
                 try:
                     data_dictionary.pop('csrfmiddlewaretoken')
                 except KeyError:
                     print('csrfmiddlewaretoken key not in data_dictionary')
                 request.session['data_dictionary'] = data_dictionary
 
-                # insert_form_data(request=request)
-
-                sentence_grammar = Sentences.objects.create(user=user,
-                                                            object=object,
-                                                            subject=subject,
-                                                            verb=verb,
-                                                            adjective=adjective,
-                                                            #remember you commented out this section
-                                                            # object_determinant=objdet,
-                                                            # subject_determinant=subjdet,
-                                                            # object_number=objnum,
-                                                            # subject_number=subjnum
-                                                            )
+                sentence_grammar = Sentences.objects.create(
+                    user=user,
+                    object=object,
+                    subject=subject,
+                    verb=verb,
+                    adjective=adjective,
+                )
 
                 tenses = ['past', 'present', 'future']
                 other_grammar = ['passive', 'progressive', 'perfect', 'negated']
-                results = []
-                result_ids = []
-                counter=0
+                api_results = []
+
                 for tense in tenses:
                     for grammar in other_grammar:
-                        counter+=1
-                        sentence_results = SentenceResults(sentence_grammar=sentence_grammar)
                         arguments = {'tense': tense, grammar: grammar}
                         api_result = api_call(arguments)
-                        sentence_results.sentence = api_result[0]
-                        sentence_results.sentence_type = api_result[1]
-                        sentence_results.save()
-                        results.append(sentence_results)
-                        result_ids.append(sentence_results.pk)
-                        request.session['data_dictionary'] = {
-                            # **request.session['data_dictionary'], **{"api_sentence_{}_{}".format(sentence_results.pk,counter):{
-                            **request.session['data_dictionary'], **{"api_sentence_{}".format(counter):{
+                        api_results.append(api_result)
 
-                                "sentence": api_result[0], 'sentence_type': api_result[1],
-                                'sentence_id': sentence_results.pk
-                            }}
+                with transaction.atomic():
+                    sentence_results = [
+                        SentenceResults(
+                            sentence_grammar=sentence_grammar,
+                            sentence=api_result[0],
+                            sentence_type=api_result[1]
+                        )
+                        for api_result in api_results
+                    ]
+                    SentenceResults.objects.bulk_create(sentence_results)
+
+                result_ids = SentenceResults.objects.filter(sentence_grammar=sentence_grammar).values_list('pk', flat=True)
+                request.session['result_ids'] = list(result_ids)
+
+                request.session['data_dictionary'] = {
+                    **request.session['data_dictionary'],
+                    **{
+                        f"api_sentence_{counter}": {
+                            "sentence": api_result[0],
+                            'sentence_type': api_result[1],
+                            'sentence_id': sentence_result.pk
                         }
-
-                request.session['result_ids'] = result_ids
-                sentences_dictionary = {
-                    'sentences': results,
+                        for counter, (api_result, sentence_result) in enumerate(zip(api_results, sentence_results), start=1)
+                    }
                 }
 
-
-            return render(request, 'answer_display.html', context=sentences_dictionary)
-        return render(request, 'stepwise.html',context=forms)
+                sentences_dictionary = {
+                    'sentences': sentence_results,
+                }
+                messages.success(request, 'Sentences have been created and ranked successfully. Click on Step 2 to generate an article.')
+                return render(request, 'answer_display.html', context=sentences_dictionary)
+            else:
+                messages.error(request, 'Please fix the errors below!')
+                forms = {'industryForm': industryForm, 'sentencesForm': sentencesForm, 'profile': profile}
+        messages.info(request, 'Step 1: Generate sentences for social media posts')
+        return render(request, 'stepwise.html', context=forms)
     else:
         return render(request, 'error.html')
+
 @csrf_exempt
 @xframe_options_exempt
+@transaction.atomic
 def selected_result(request):
-    if 'session_id' and 'username' in request.session:
-        if request.method == 'POST':
-            # sentences = request.session.get('sentences')
-            sentence_ids = request.session.get('result_ids')
-            loop_counter = 1
-            print("*************************************")
-            #print(request.session['data_dictionary'])
-            for sentence_id in sentence_ids:
-                selected_rank = request.POST.get('rank_{}'.format(loop_counter))
-                # print(request.POST.get('rank_1'))
-                # print(selected_rank)
-                loop_counter += 1
-                sentence_result = SentenceResults.objects.get(pk=sentence_id)
-                selected_result_obj = SentenceRank.objects.create(
-                    sentence_result=sentence_result, sentence_rank=selected_rank
-                )
+    try:
+        if 'session_id' and 'username' in request.session:
+            if request.method == 'POST':
+                sentence_ids = request.session.get('result_ids')
+                loop_counter = 1
+                for sentence_id in sentence_ids:
+                    selected_rank = request.POST.get('rank_{}'.format(loop_counter))
+                    loop_counter += 1
+                    sentence_result = SentenceResults.objects.get(pk=sentence_id)
+                    selected_result_obj = SentenceRank.objects.create(
+                        sentence_result=sentence_result, sentence_rank=selected_rank
+                    )
 
+                    request.session['data_dictionary'] = {
+                        **request.session['data_dictionary'],
+                        **{
+                            "sentence_rank_{}".format(loop_counter - 1): {
+                                "sentence_rank": selected_rank,
+                                'sentence_result': sentence_result.sentence,
+                                'sentence_id': sentence_id
+                            }
+                        }
+                    }
 
-                request.session['data_dictionary'] = {**request.session['data_dictionary'],
-                                                    #   **{"sentence_rank_{}_{}".format(sentence_id,loop_counter):{
-                                                    **{"sentence_rank_{}".format(loop_counter-1):{
-                                                          "sentence_rank": selected_rank,
-                                                          'sentence_result': sentence_result.sentence,
-                                                          'sentence_id': sentence_id
-                                                      }}}
-            print(request.session['data_dictionary'])
-            print(f"----------------{loop_counter}----------------------------")
-            data_dictionary = request.POST.dict()
-            data_dictionary.pop('csrfmiddlewaretoken')
-            request.session['data_dictionary'] = {**request.session['data_dictionary'], **data_dictionary}
-            print("--------------------------------------------")
-            print(insert_form_data(request.session['data_dictionary']))
+                data_dictionary = request.POST.dict()
+                data_dictionary.pop('csrfmiddlewaretoken')
+                request.session['data_dictionary'] = {
+                    **request.session['data_dictionary'],
+                    **data_dictionary
+                }
 
+                # del request.session['data_dictionary']
 
-            del request.session['data_dictionary']
-            # return render(request, 'display_selected_result.html')
-            return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
-    else:
+                insert_form_data(request.session['data_dictionary'])
+
+                return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
+        else:
+            return render(request, 'error.html')
+    except Exception as e:
+        print(str(e))
         return render(request, 'error.html')
 
 def get_event_id():

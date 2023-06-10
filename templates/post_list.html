@@ -4,6 +4,12 @@
 
 {% block content %}
 <!--{% load appname_tags %}-->
+<style>
+    .btn-primary {
+        background: #0d6efd;
+    }
+
+</style>
 <div class="container mt-5 mb-5 pt-3 pb-3">
     <div class="list-group list-group-flush">
     <div class="justify-content-center" style="color: #1434A4;"><h1 style=" font-size: calc(1.375rem + 1.5vw)!important;">Posts List</h1></div>
@@ -27,7 +33,7 @@
                 <input type="hidden" name="paragraph" value="{{ posts.paragraph }}">
                 <input type="hidden" name="source" value="{{ posts.source }}">
                 <td scope="col">{{posts.title}}</p></td>
-                <th><button type="submit" class="btn btn-primary">View Article</button></th>
+                <th><button type="submit" class="btn btn-primary" >View Article</button></th>
                 <tr><td scope="col">{{posts.paragraph|truncatewords:50}}</td></tr>
         </form>
         {% endfor %}

@@ -2,6 +2,11 @@
 {% load static %}
 {% block content %}
 <!-- <p>Django Event Calendar</p> -->
+<style>
+    .btn-dark {
+        background:#565e64;
+    }
+</style>
 <div class="container-fluid p-5 ">
   <form class="" id="titleForm" action="{% url 'generate_article:verify-article' %}" name="my_form"  method="post" onsubmit='showLoading();'>
     {% csrf_token %}
@@ -14,7 +19,9 @@
           <div class="col-9">
                 <div class="mb-3">
                   <label for="articletextarea" class="form-label">Article</label>
-                  <textarea class="form-control" name="articletextarea" rows="9"  onKeyPress=check_length(this.form); onKeyDown=check_length(this.form); ></textarea>
+                  {{ form.articletextarea }}
+                  <!--<textarea class="form-control" name="articletextarea" rows="9"  onKeyPress=check_length(this.form); onKeyDown=check_length(this.form); ></textarea>-->
+                  {{ form.articletextarea.errors }}
                 </div>
           </div>
         </div>
@@ -22,7 +29,9 @@
           <div class="col-9">
                 <div class="mb-3">
                   <label for="url" class="form-label">Source of Article</label>
-                  <input type="url" class="form-control" name="url">
+                  {{ form.url }}
+                  <!--<input type="url" class="form-control" name="url" required>-->
+                  {{ form.url.errors }}
                 </div>
           </div>
         </div>

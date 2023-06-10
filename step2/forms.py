@@ -61,3 +61,19 @@ class StepFourForm(forms.ModelForm):
     # class Meta:
     #     model = User
     #     fields = '__all__'
+
+
+class VerifyArticleForm(forms.Form):
+    url = forms.URLField(max_length=500, required=True, )
+    articletextarea = forms.CharField(widget=forms.Textarea, max_length=2000, required=True, )
+
+    class Meta:
+        fields = ('url', 'articletextarea',)
+
+    def __init__(self, *args, **kwargs):
+        super(VerifyArticleForm, self).__init__(*args, **kwargs)
+        self.fields['url'].widget.attrs['placeholder'] = 'Enter source url of the article'
+        self.fields['articletextarea'].widget.attrs['placeholder'] = 'Type here......'
+
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
