@@ -18,6 +18,7 @@ urlpatterns = [
     path('forget_password/', views.forget_password, name='forget_password'),
     path('user/approval/',views.user_approval, name='user-approval'),
     path('user/approval/form/',views.user_approval_form, name='user-approval-form'),
+    path('user/approval/form_update/',views.user_approval_form_update, name='user-approval-update'),
     path('social_media_channels/',views.social_media_channels, name='social_media_channels'),
     path('link/facebook/',views.facebook, name='facebook'),
     path('link/facebook/form/',views.facebook_form, name='facebook-form'),

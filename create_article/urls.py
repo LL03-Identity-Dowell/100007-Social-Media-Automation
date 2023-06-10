@@ -17,10 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from server import serverReports
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('step2.urls')),
+    path('server/', serverReports),
     path('website/', include('website.urls')),
 ]
 

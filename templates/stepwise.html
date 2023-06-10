@@ -97,6 +97,7 @@
 
 </style>
 <body>
+
 <form id="regForm" action="{% url 'index' %}" method="post">
 
     <!-- One "tab" for each step in the form: -->
@@ -174,32 +175,75 @@
     {#        <p class="hashtag">Step 7 - Select relevant social media channel to post</p>#}
     {#    </div>#}
 
-    <div class="tab">
-        <h1><b>Industry Information:</b></h1>
-        {% for input in industryForm %}
-            <p><span>{{ input.label }}: {% if input.field.required %} <span class=" required_field">*</span>&nbsp;
-                &nbsp;{% endif %} </span>{{ input }}</p>
-        {% endfor %}
+<div class="tab">
+    <h1><b>Industry Information:</b></h1>
+    {% for input in industryForm %}
+        <p>
+            <span>{{ input.label }}:
+                {% if input.field.required %}
+                    <span class="required_field">*</span>&nbsp;&nbsp;
+                {% endif %}
+            </span>
+            {{ input }}
+            {{input.errors}}
+        </p>
+    {% endfor %}
 
-        <span class="input-group mb-3"><span>{{ sentencesForm.subject_determinant.label }}:
-             </span>&nbsp;{{ sentencesForm.subject_determinant }}&nbsp;&nbsp;
-            <span>{{ sentencesForm.subject.label }}:{% if sentencesForm.subject.field.required %}
-                <span class=" required_field">*</span>&nbsp;&nbsp; {% endif %} </span>&nbsp;{{ sentencesForm.subject }}
-            &nbsp;{{ sentencesForm.subject_number }}
-
-        </span>&nbsp;&nbsp;
-        <span class="input-group mb-3"><span>{{ sentencesForm.object_determinant.label }}:
-            </span>&nbsp;{{ sentencesForm.object_determinant }}&nbsp;&nbsp;
-                <span>{{ sentencesForm.object.label }}: {% if sentencesForm.object_determinant.field.required %}
-                    <span class=" required_field">*</span>&nbsp;
-                    &nbsp; {% endif %} </span>&nbsp;{{ sentencesForm.object }}
-            &nbsp;{{ sentencesForm.object_number }}
+    <span class="input-group mb-3">
+        <span>{{ sentencesForm.subject_determinant.label }}:</span>&nbsp;
+        {{ sentencesForm.subject_determinant }}
+        &nbsp;&nbsp;
+           <span class="help_text">{{ sentencesForm.subject_determinant.help_text }}</span>
+        <span>{{ sentencesForm.subject.label }}:
+            {% if sentencesForm.subject.field.required %}
+                <span class="required_field">*</span>&nbsp;&nbsp;
+            {% endif %}
+            <span class="help_text">{{ sentencesForm.subject.help_text }}</span>
         </span>
-        <span class="row"><span>{{ sentencesForm.verb.label }}:{% if sentencesForm.verb.field.required %}
-            <span class=" required_field">*</span>&nbsp;&nbsp;{% endif %} </span>{{ sentencesForm.verb }}</span>
-        <span class="row"><span>{{ sentencesForm.adjective.label }}: {% if sentencesForm.adjective.field.required %}
-            <span class=" required_field">*</span>&nbsp;&nbsp; {% endif %}</span>{{ sentencesForm.adjective }}</span>
-    </div>
+        &nbsp;{{ sentencesForm.subject }}
+        &nbsp;{{ sentencesForm.subject_number }}
+        {{ sentencesForm.subject.errors }}
+    </span>
+
+    <span class="input-group mb-3">
+        <span>{{ sentencesForm.object_determinant.label }}:</span>&nbsp;
+        {{ sentencesForm.object_determinant }}
+        &nbsp;&nbsp;
+        <span>{{ sentencesForm.object.label }}:
+            {% if sentencesForm.object_determinant.field.required %}
+                <span class="required_field">*</span>&nbsp;&nbsp;
+            {% endif %}
+            <span class="help_text">{{ sentencesForm.object.help_text }}</span>
+            <span class="help_text">{{ sentencesForm.object_determinant.help_text }}</span>
+        </span>
+        &nbsp;{{ sentencesForm.object }}
+        &nbsp;{{ sentencesForm.object_number }}
+        {{ sentencesForm.object.errors }}
+    </span>
+
+    <span class="row">
+        <span>{{ sentencesForm.verb.label }}:
+            {% if sentencesForm.verb.field.required %}
+                <span class="required_field">*</span>&nbsp;&nbsp;
+            {% endif %}
+            <span class="help_text">{{ sentencesForm.verb.help_text }}</span>
+        </span>
+        {{ sentencesForm.verb }}
+        {{ sentencesForm.verb.errors }}
+    </span>
+
+    <span class="row">
+        <span>{{ sentencesForm.adjective.label }}:
+            {% if sentencesForm.adjective.field.required %}
+                <span class="required_field">*</span>&nbsp;&nbsp;
+            {% endif %}
+            <span class="help_text">{{ sentencesForm.adjective.help_text }}</span>
+        </span>
+        {{ sentencesForm.adjective }}
+        {{ sentencesForm.adjective.errors }}
+    </span>
+</div>
+
     {#todo remove final part in order to generate different messages#}
     {#    <div class="tab"><h1><b>Sentence Grammar</b></h1>#}
     {#        <span class=" row input-group mb-3"><span>{{ sentencesForm.tense.label }}: {% if sentencesForm.tense.field.required %} <span class=" required_field">*</span>{% endif %}</span>{{ sentencesForm.tense }}&nbsp;&nbsp</span>&nbsp;&nbsp;#}

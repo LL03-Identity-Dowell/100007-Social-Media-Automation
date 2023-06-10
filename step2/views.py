@@ -29,7 +29,7 @@ from django.contrib import messages
 from pexels_api import API
 import random
 from .models import stepFour
-from .forms import StepFourForm
+from .forms import StepFourForm, VerifyArticleForm
 from ayrshare import SocialPost
 from django.utils import timezone
 # image resizing
@@ -45,13 +45,18 @@ from create_article.settings import STATIC_ROOT, BASE_DIR
 import shutil
 import math
 import traceback
+import urllib.parse
 
+
+from django.db import transaction
 
 # helper functions
 
 global PEXELS_API_KEY
 
 PEXELS_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
+
+PRODUCT_NAME = 'Social Media Automation'
 
 
 def get_image(urls):
@@ -189,7 +194,7 @@ def create_event(request=None):
         "dbcode": "pfm",
         "ip_address": ip_address,  # get from dowell track my ip function
         "login_id": "lav",  # get from login function
-        "session_id": "new",  # get from login function
+        "session_id": "session",  # get from login function
         "processcode": "1",
         "location": "22446576",  # get from dowell track my ip function
         "regional_time": time,
@@ -215,97 +220,115 @@ def create_event(request=None):
         return json.loads(r.text)['error']
 
 
+def maintenance(request):
+    return render(request, 'maintenance.html')
+
+
+def has_access(portfolio_info):
+
+    if not portfolio_info:
+        return False
+    if portfolio_info[0].get('product') != PRODUCT_NAME:
+        return False
+    return True
+
+
 @csrf_exempt
 @xframe_options_exempt
 def main(request):
-    session_id = request.GET.get("session_id", None)
-    # saving the session_id in the custom session store
-    # session = CustomSessionStore()
-    # session.create()
-    # session_id = session.session_key
-    user_map = {}
-    if session_id is not None:
-        request.session["session_id"] = session_id
-        # First API
-        url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-        # headers = {"Authorization": f"Bearer {session_id}"}
-        response_1 = requests.post(url_1, data={"session_id": session_id})
-        if response_1.status_code == 200 and "portfolio_info" in response_1.json():
-            # First API response contains portfolio_info data
-            print("You connected from the client admin: ", response_1.text)
-            profile_details = response_1.json()
-            request.session['portfolio_info'] = profile_details['portfolio_info']
-            print('This is the portfolio info  has data for you: ',
-                  profile_details['portfolio_info'])
-            print('This is the user the userID: ',
-                  profile_details['userinfo']['userID'])
-            user_map[profile_details['userinfo']['userID']
-                     ] = profile_details['userinfo']['username']
-            if not profile_details['portfolio_info']:
-                return render(request, 'portofolio-logib.html')
-        else:
-            # Second API
-            url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
-            response_2 = requests.post(url_2, data={"session_id": session_id})
-            if response_2.status_code == 200 and "portfolio_info" in response_2.json():
-                # Second API response contains portfolio_info data
-                print("You connected from 100014 ", response_2.json())
-                profile_details = response_2.json()
+    try:
+        session_id = request.GET.get("session_id", None)
+        # saving the session_id in the custom session store
+        # session = CustomSessionStore()
+        # session.create()
+        # session_id = session.session_key
+        user_map = {}
+        redirect_to_living_lab = True
+        if session_id is not None:
+            request.session["session_id"] = session_id
+            # First API
+            url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
+            # headers = {"Authorization": f"Bearer {session_id}"}
+            response_1 = requests.post(url_1, data={"session_id": session_id})
+            if response_1.status_code == 200 and "portfolio_info" in response_1.json():
+                # First API response contains portfolio_info data
+                print("You connected from the client admin: ", response_1.text)
+                profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
-                print('This is the portfolio info  is empty for you: ',
+                print('This is the portfolio info  has data for you: ',
                       profile_details['portfolio_info'])
                 print('This is the user the userID: ',
                       profile_details['userinfo']['userID'])
                 user_map[profile_details['userinfo']['userID']
                          ] = profile_details['userinfo']['username']
-                if not profile_details['portfolio_info']:
-                    return render(request, 'portofolio-logib.html')
-            else:
-                # Neither API returned portfolio_info data
-                profile_details = {}
-                request.session['portfolio_info'] = []
-                return render(request, 'portofolio-logib.html')
-        if "userinfo" in profile_details:
-            request.session['userinfo'] = profile_details['userinfo']
-            request.session['username'] = profile_details['userinfo']['username']
-            request.session['user_id'] = profile_details['userinfo']['userID']
-            request.session['timezone'] = profile_details['userinfo']['timezone']
 
-        if request.session['portfolio_info'] == []:
-            request.session['operations_right'] = 'member'
-            request.session['org_id'] = '0001'
-        else:
-            for info in request.session['portfolio_info']:
-                if info['product'] == 'Social Media Automation':
-                    request.session['operations_right'] = info['operations_right']
-                    request.session['org_id'] = info['org_id']
-                    break
+                # if has_access(profile_details['portfolio_info']):
+
+                #     messages.error(request,'You are not allowed to access this page')
+                #     return render(request, 'portofolio-logib.html')
             else:
+                # Second API
+                url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
+                response_2 = requests.post(
+                    url_2, data={"session_id": session_id})
+                if response_2.status_code == 200 and "portfolio_info" in response_2.json():
+                    # Second API response contains portfolio_info data
+                    print("You connected from 100014 ", response_2.json())
+                    profile_details = response_2.json()
+                    request.session['portfolio_info'] = profile_details['portfolio_info']
+                    print('This is the portfolio info  is empty for you: ',
+                          profile_details['portfolio_info'])
+                    print('This is the user the userID: ',
+                          profile_details['userinfo']['userID'])
+                    user_map[profile_details['userinfo']['userID']
+                             ] = profile_details['userinfo']['username']
+                    # if has_access(profile_details['portfolio_info']):
+                    #     messages.error(request,'You are not allowed to access this page')
+                    #     return render(request, 'portofolio-logib.html')
+                else:
+                    # Neither API returned portfolio_info data
+                    profile_details = {}
+                    request.session['portfolio_info'] = []
+
+            if "userinfo" in profile_details:
+                request.session['userinfo'] = profile_details['userinfo']
+                request.session['username'] = profile_details['userinfo']['username']
+                request.session['user_id'] = profile_details['userinfo']['userID']
+                request.session['timezone'] = profile_details['userinfo']['timezone']
+
+            if request.session['portfolio_info'] == []:
                 request.session['operations_right'] = 'member'
-                request.session['org_id'] = info['org_id'] if info else ''
+                request.session['org_id'] = '0001'
+            else:
+                for info in request.session['portfolio_info']:
+                    if info['product'] == 'Social Media Automation':
+                        request.session['operations_right'] = info['operations_right']
+                        request.session['org_id'] = info['org_id']
+                        break
+                else:
+                    request.session['operations_right'] = 'member'
+                    request.session['org_id'] = info['org_id'] if info else ''
 
-        # Map the username with the userID
-        username = user_map.get(request.session['user_id'], None)
-        print(user_map)
+            # Map the username with the userID
+            username = user_map.get(request.session['user_id'], None)
+            print(user_map)
 
-        # Adding session id to the session
-        request.session['session_id'] = session_id
-        if username:
-            username_with_userID = request.session['username'] = username
-            print("Use this to filter out the data for: ", username_with_userID)
-        event_id = get_event_id()
-        print('this it the event id')
-        print(event_id)
-        print('this is the user session keys')
-        print(request.session.keys())
-        print('this is  the user info')
-        print(request.session.get('userinfo'))
-        print('This is the new event id')
-        print(create_event(request)['event_id'])
-        return render(request, 'main.html')
-    else:
-        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
-        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+            # Adding session id to the session
+            request.session['session_id'] = session_id
+            if username:
+                username_with_userID = request.session['username'] = username
+                print("Use this to filter out the data for: ",
+                      username_with_userID)
+
+            if not has_access(request.session['portfolio_info']):
+                return render(request, 'portofolio-logib.html')
+            return render(request, 'main.html')
+        else:
+            # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
+            return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+    except Exception as e:
+        print(str(e))
+        return render(request, 'error.html')
 
 
 def forget_password(request):
@@ -348,7 +371,79 @@ def register(request):
 @csrf_exempt
 @xframe_options_exempt
 def user_approval(request):
-    return render(request, 'user_approval.html')
+    session_id = request.GET.get("session_id", None)
+    url = 'http://100032.pythonanywhere.com/api/targeted_population/'
+
+    database_details = {
+        'database_name': 'mongodb',
+        'collection': 'user_info',
+        'database': 'social-media-auto',
+        'fields': ['_id']
+    }
+
+    # number of variables for sampling rule
+    number_of_variables = -1
+
+    """
+        period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
+        if custom is given then need to specify start_point and end_point
+        for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
+        the the value of that selection in 'm_or_A_value'
+        error is the error allowed in percentage
+    """
+
+    time_input = {
+        'column_name': 'Date',
+        'split': 'week',
+        'period': 'life_time',
+        'start_point': '2021/01/08',
+        'end_point': '2023/06/25',
+    }
+
+    stage_input_list = [
+    ]
+
+    # distribution input
+    distribution_input = {
+        'normal': 1,
+        'poisson': 0,
+        'binomial': 0,
+        'bernoulli': 0
+
+    }
+
+    request_data = {
+        'database_details': database_details,
+        'distribution_input': distribution_input,
+        'number_of_variable': number_of_variables,
+        'stages': stage_input_list,
+        'time_input': time_input,
+    }
+
+    headers = {'content-type': 'application/json'}
+
+    response = requests.post(url, json=request_data, headers=headers)
+    print(response.json())
+
+    # get user_id of user
+    user_id = str(request.session['user_id'])
+    print(user_id, 'chidi')
+    try:
+        # get the data in file
+        posts = response.json()['normal']['data']
+        for values in posts:
+            for names in values:
+                if names['user_id'] == user_id:
+                    status = 'update'
+                    print(status)
+                    break
+                else:
+                    status = 'insert'
+                    print(status)
+    except:
+        print('no data')
+
+    return render(request, 'user_approval.html', {'status': status})
     # return HttpResponseRedirect(reverse("generate_article:main-view"))
 
 
@@ -363,7 +458,6 @@ def user_approval_form(request):
         article = request.POST.get("article")
         post = request.POST.get("post")
         schedule = request.POST.get("schedule")
-        print(topic, article, post, schedule)
         time = localtime()
         test_date = str(localdate())
         date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -415,6 +509,60 @@ def user_approval_form(request):
         print(event_id)
 
         return HttpResponseRedirect(reverse("generate_article:client"))
+
+
+@csrf_exempt
+@xframe_options_exempt
+def user_approval_form_update(request):
+    session_id = request.GET.get("session_id", None)
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("generate_article:client"))
+    else:
+        topic = request.POST.get("topic")
+        article = request.POST.get("article")
+        post = request.POST.get("post")
+        schedule = request.POST.get("schedule")
+        time = localtime()
+        test_date = str(localdate())
+        date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+        date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+        event_id = create_event(request)['event_id']
+
+        url = "http://100002.pythonanywhere.com/"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+
+            "field": {
+                'user_id': request.session['user_id']
+
+
+            },
+            "update_field": {
+
+                "topic": topic,
+                "post": post,
+                "article": article,
+                "schedule": schedule,
+
+
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+
+    return HttpResponseRedirect(reverse("generate_article:client"))
 
 
 @csrf_exempt
@@ -1145,7 +1293,8 @@ def unscheduled(request):
 
         except:
             pass
-
+        messages.info(
+            request, 'Click on post now to choose where to post the articles.')
         return render(request, 'unscheduled.html', {'post': post, 'profile': profile})
     else:
         return render(request, 'error.html')
@@ -1385,6 +1534,8 @@ def index(request):
             traceback.print_exc()
             print('================================')
             topics = []
+        messages.info(
+            request, 'Step 3: Generate articles for the sentences you created.')
         return render(request, 'article/main.html', {'topics': topics, 'profile': profile, 'page': page})
     else:
         return render(request, 'error.html')
@@ -1610,94 +1761,12 @@ def generate_article_automatically(request):
         # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl, 'subject': subject, 'article_AI': para, 'AI_src': src})
         return HttpResponseRedirect(reverse("generate_article:main-view"))
 
-# @csrf_exempt
-# @xframe_options_exempt
-# def generate_article(request):
-#     if 'session_id' and 'username' in request.session:
-#         if request.method!="POST":
-#             return HttpResponseRedirect(reverse("generate_article:main-view"))
-#         else:
-#             RESEARCH_QUERY = request.POST.get("title")
-#             subject = request.POST.get("subject")
-#             verb = request.POST.get("verb")
-#             target_industry = request.POST.get("target_industry")
-#             qualitative_categorization = request.POST.get("qualitative_categorization")
-#             targeted_for = request.POST.get("targeted_for")
-#             designed_for = request.POST.get("designed_for")
-#             targeted_category = request.POST.get("targeted_category")
-#             image = request.POST.get("image")
-#             dowellclock = get_dowellclock()
 
-#         SERVER = "https://panel.ai-writer.com/"
-#         API_KEY = "B91ACB505A7392D27356C26747EDD70D"
-
-#         # first, we create a new research request for the keyword "marketing"
-#         research_request_obj = requests.post(SERVER + '/aiw/apiendpoint2/put_research_request/'+requests.utils.quote(RESEARCH_QUERY), params={"api_key":API_KEY, "identifier": "test_identifier"}).json()
-
-#         # show output
-#         print("NEW REQUEST", research_request_obj,)
-
-
-#         # now get the research result, we will wait for a while and keep asking the server about it
-#         for _ in range(30):
-
-#             # request the result of the query
-#             research_result = requests.get(SERVER + '/aiw/apiendpoint2/get_research_result/'+research_request_obj["id"], params={"api_key":API_KEY}).json()
-
-#             # if the result is here, we will break the waiting loop
-#             if "result" in research_result and research_result["result"] is not None:
-#                 break
-
-#             # the sleep makes sure we do not bomb the API endpoints
-#             time.sleep(30)
-
-#         para = ''
-#         src = ''
-#         # go through all rewritten paragraphs and print them
-#         for p in research_result["result"]["article"]:
-#             print(p["paragraph_text"])
-#             save_data('step3_data','step3_data', {"user_id": request.session['user_id'],
-#                                                         "session_id": request.session['session_id'],
-#                                                         "eventId" : get_event_id(),
-#                                                         "title": RESEARCH_QUERY,
-#                                                         "target_industry":target_industry,
-#                                                         "qualitative_categorization":qualitative_categorization,
-#                                                         "targeted_for":targeted_for,
-#                                                         "designed_for":designed_for,
-#                                                         "targeted_category":targeted_category,
-#                                                         "image":image,
-#                                                         "paragraph": p["paragraph_text"],
-#                                                         "citation_and_url": p["paragraph_sources"],
-#                                                         'subject': subject,
-#                                                         'dowelltime': dowellclock
-#                                                         }, '34567897799')
-#             para = para + p["paragraph_text"] + '\n'
-#         # print all cited sources
-#         for src_url in research_result["result"]["cited_sources"]:
-#             print("Source:", src_url)
-#             src = src + src_url + '\n'
-
-#         try:
-#             save_data('step2_data',"step2_data",{"user_id": request.session['user_id'],
-#                                                 "session_id": request.session['session_id'],
-#                                                 "title":RESEARCH_QUERY,
-#                                                 "target_industry":target_industry,
-#                                                 "paragraph": para,
-#                                                 "source": src,
-#                                                 'subject': subject,
-#                                                 'dowelltime': dowellclock
-#                                                 }, "9992828281")
-#             # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'title': RESEARCH_QUERY, 'article': para, 'source': src})
-#             return HttpResponseRedirect(reverse("generate_article:main-view"))
-#         except:
-#             return render(request, 'article/article.html',{'message': "Article did not save Successfully.", 'title': RESEARCH_QUERY})
-#     else:
-#         return render(request, 'error.html')
 @csrf_exempt
 @xframe_options_exempt
 def generate_article(request):
     session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
+    if 'session_id' in request.session and 'username' in request.session:
         if request.method != "POST":
             return HttpResponseRedirect(reverse("generate_article:main-view"))
         else:
@@ -1711,17 +1780,18 @@ def generate_article(request):
             designed_for = request.POST.get("designed_for")
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("image")
-            # dowellclock = get_dowellclock()
-            openai.api_key = "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"
-            # limit the number of words prompt generates
-            prompt_limit = 280
+
+            # Set your OpenAI API key here
+            openai.api_key = "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"
+
             # Build prompt
+            prompt_limit = 280
             prompt = f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."[
                 :prompt_limit] + "..."
 
             # Generate article using OpenAI's GPT-3
             response = openai.Completion.create(
-                engine="text-davinci-002",
+                engine="text-davinci-003",
                 prompt=prompt,
                 temperature=0.5,
                 max_tokens=1024,
@@ -1730,50 +1800,62 @@ def generate_article(request):
                 timeout=60,
             )
             article = response.choices[0].text
-            print(article)
-            para = ''
-            src = ''
-
-            # Extract rewritten paragraphs and sources
             paragraphs = article.split("\n\n")
             article_str = "\n\n".join(paragraphs)
-            # go through all rewritten paragraphs and print them
-            save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                   "session_id": session_id,
-                                                   "eventId": create_event(request)['event_id'],
-                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                   "title": RESEARCH_QUERY,
-                                                   "target_industry": target_industry,
-                                                   "qualitative_categorization": qualitative_categorization,
-                                                   "targeted_for": targeted_for,
-                                                   "designed_for": designed_for,
-                                                   "targeted_category": targeted_category,
-                                                   "image": image,
-                                                   "paragraph": article_str,
-                                                   "citation_and_url": "",
-                                                   'subject': subject,
-                                                   # 'dowelltime': dowellclock
-                                                   }, '34567897799')
-            sources = ''
+
+            sources = urllib.parse.unquote("https://openai.com")
             matches = re.findall(r'(https?://[^\s]+)', article)
             for match in matches:
                 sources += match.strip() + '\n'
+
             try:
-                save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                       "session_id": session_id,
-                                                       "eventId": create_event(request)['event_id'],
-                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                       "title": RESEARCH_QUERY,
-                                                       "target_industry": target_industry,
-                                                       "paragraph": para,
-                                                       "source": sources,
-                                                       'subject': subject,
-                                                       # 'dowelltime': dowellclock
-                                                       }, "9992828281")
-                # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'title': RESEARCH_QUERY, 'article': para, 'source': src})
+                with transaction.atomic():
+                    event_id = create_event(request)['event_id']
+                    user_id = request.session['user_id']
+                    client_admin_id = request.session['userinfo']['client_admin_id']
+
+                    # Save data for step 3
+                    step3_data = {
+                        "user_id": user_id,
+                        "session_id": session_id,
+                        "eventId": event_id,
+                        'client_admin_id': client_admin_id,
+                        "title": RESEARCH_QUERY,
+                        "target_industry": target_industry,
+                        "qualitative_categorization": qualitative_categorization,
+                        "targeted_for": targeted_for,
+                        "designed_for": designed_for,
+                        "targeted_category": targeted_category,
+                        "source": sources,
+                        "image": image,
+                        "paragraph": article_str,
+                        "citation_and_url": sources,
+                        "subject": subject,
+                    }
+                    save_data('step3_data', 'step3_data',
+                              step3_data, '34567897799')
+
+                    # Save data for step 2
+                    step2_data = {
+                        "user_id": user_id,
+                        "session_id": session_id,
+                        "eventId": event_id,
+                        'client_admin_id': client_admin_id,
+                        "title": RESEARCH_QUERY,
+                        "target_industry": target_industry,
+                        "paragraph": '',
+                        "source": sources,
+                        "subject": subject,
+                        "citation_and_url": sources,
+                    }
+                    save_data('step2_data', 'step2_data',
+                              step2_data, '9992828281')
+
+                messages.success(
+                    request, 'Article has been generated successfully. Click on step 3 to post the article')
                 return HttpResponseRedirect(reverse("generate_article:main-view"))
             except:
-                return render(request, 'article/article.html', {'message': "Article did not save Successfully.", 'title': RESEARCH_QUERY})
+                return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
     else:
         return render(request, 'error.html')
 
@@ -1893,6 +1975,8 @@ def generate_article_wiki(request):
 
                     else:
                         # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article_subject[0], 'source': page.fullurl,  'title': title})
+                        messages.success(
+                            request, 'Article has been generated successfully. Click step 3 to post the article')
                         return HttpResponseRedirect(reverse("generate_article:main-view"))
             else:
                 print("For Title: "+title+" Page exists.")
@@ -1929,6 +2013,8 @@ def generate_article_wiki(request):
                                                                'dowelltime': dowellclock
                                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
+                messages.success(
+                    request, 'Article has been generated successfully. Click step 3 to post the article')
                 return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
@@ -1939,15 +2025,18 @@ def generate_article_wiki(request):
 def write_yourself(request):
     if 'session_id' and 'username' in request.session:
         if request.method != "POST":
-            return HttpResponseRedirect(reverse("main-view"))
+            messages.error(
+                request, 'You have to choose a sentence first to write its article!')
+            return HttpResponseRedirect(reverse("generate_article:index-view"))
         else:
+            form = VerifyArticleForm()
             title = request.POST.get("title")
             print("title in write view: ", title)
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
             target_industry = request.POST.get("target_industry")
             print("target_industry in write: ", target_industry)
-        return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry})
+        return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
     else:
         return render(request, 'error.html')
 
@@ -1960,6 +2049,7 @@ def verify_article(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("generate_article:main-view"))
         else:
+            print('this is running')
             title = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -1974,9 +2064,19 @@ def verify_article(request):
             # dowellclock = get_dowellclock()
             article = request.POST.get("articletextarea")
             source = request.POST.get("url")
+            form = VerifyArticleForm(request.POST)
+            if not form.is_valid():
+                messages.success(request, 'Please fix the errors below')
+                return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
             headers = {
                 'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
-            response = requests.get(source, headers=headers)
+            try:
+                response = requests.get(source, headers=headers)
+            except Exception as e:
+                print(str(e))
+                messages.error(
+                    request, 'The url of the article has not been authorized!')
+                return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
 
             if response.status_code == 403:
                 message = "Error code 403 Forbidden: Website does not allow to verify the article."
@@ -2134,6 +2234,9 @@ def list_article(request):
                 else:
                     pass
 
+        messages.info(
+            request, 'Almost there. Click view artcle to finilize the article before posting')
+
         return render(request, 'post_list.html', {'posts': posts})
     else:
         return render(request, 'error.html')
@@ -2255,7 +2358,7 @@ def article_detail(request):
         a = random.randint(1, 9)
         category = ['ocean', 'sky', 'food', 'football', 'house',
                     'animals', 'cars', 'History', 'Tech', 'People']
-        query = category[a]
+        query = title
         output = []
         api = API(PEXELS_API_KEY)
         # api.popular(results_per_page=10, page=5)
@@ -2270,6 +2373,7 @@ def article_detail(request):
                 output.append(pictures)
         images = output[1]
         print(profile)
+
         return render(request, 'post_detail.html', {'post': post, 'categories': categories, 'images': images, 'profile': profile})
     else:
         return render(request, 'error.html')
