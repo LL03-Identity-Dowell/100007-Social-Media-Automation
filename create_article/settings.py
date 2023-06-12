@@ -30,7 +30,7 @@ SECRET_KEY = '#&2i(s#=e#3ez2m6q#w!p+ok^rp@3(q7g%iqj*bkr6piklhd52'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['100007.pythonanywhere.com', '127.0.0.1','localhost']
+ALLOWED_HOSTS = ['100007.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'website',
     'djangobower',
     'bootstrap4',
+    'rest_framework',
 
     'tempus_dominus',
     'sorl.thumbnail',
