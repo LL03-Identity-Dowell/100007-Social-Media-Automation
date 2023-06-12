@@ -30,7 +30,7 @@ SECRET_KEY = '#&2i(s#=e#3ez2m6q#w!p+ok^rp@3(q7g%iqj*bkr6piklhd52'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['100007.pythonanywhere.com', '127.0.0.1']
+ALLOWED_HOSTS = ['100007.pythonanywhere.com', '127.0.0.1','localhost']
 
 
 # Application definition
@@ -167,3 +167,10 @@ SESSION_COOKIE_SAMESITE = 'None'  # As a string
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
 # SESSION_COOKIE_SAMESITE = 'Lax'  # or 'Strict'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
