@@ -93,6 +93,51 @@
         font-size: 1em;
         color: red;
     }
+    
+
+
+    .popup {
+    position: fixed;
+    top: 20px; /* Adjust the top position as per your needs */
+    right: 20px; /* Adjust the right position as per your needs */
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* Adjust the alpha value (0.8 in this example) */
+    border: none;
+    box-shadow: none;
+    z-index: 9999;
+    animation: slideIn 0.5s ease-in-out;
+}
+.cancel-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.popup p {
+  margin: 0;
+  padding: 0;
+}
+
+
+.popup::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px; /* Adjust the width as per your needs */
+    height: 4px;
+    background-color: green;
+}
+
+@keyframes slideIn {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0); }
+}
+
+
+
 
 
 </style>
@@ -111,6 +156,7 @@
     <!--            <span class="required_field">*</span>{% endif %} </span>{{ input }}</span>-->
     <!--    {% endfor %}-->
     <!--</div>-->
+    <!-- <div id="popupMessage" class="popup"></div> -->
     {#    <div class="tab">#}
     {##}
     {##}
@@ -322,17 +368,39 @@ function notAdmin() {
         currentTab = currentTab + n;
         // if you have reached the end of the form...
         if (currentTab >= x.length) {
-            // ... the form gets submitted:
-            document.getElementById("regForm").submit();
-            AmagiLoader.show();
-            setTimeout(() => {
-            AmagiLoader.hide();
-            }, 10000);
-            return false;
-        }
+      // ... the form gets submitted:
+      document.getElementById("regForm").submit();
+      showPopup("Form submitted successfully!");
+      AmagiLoader.show();
+      setTimeout(() => {
+        AmagiLoader.hide();
+      }, 30000);
+      return false;
+    }
         // Otherwise, display the correct tab:
         showTab(currentTab);
     }
+
+    function showPopup(message) {
+  const popup = document.createElement("div");
+  popup.className = "popup";
+  popup.innerHTML = `
+    <span class="cancel-icon">&times;</span>
+    <p>${message}</p>
+  `;
+
+  const cancelIcon = popup.querySelector(".cancel-icon");
+  cancelIcon.addEventListener("click", () => {
+    popup.remove();
+  });
+
+  document.body.appendChild(popup);
+
+  setTimeout(() => {
+    popup.remove();
+  }, 10000);
+}
+
 
     function validateForm() {
         // This function deals with validation of the form fields
