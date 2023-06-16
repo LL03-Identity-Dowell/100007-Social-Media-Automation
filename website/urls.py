@@ -5,6 +5,7 @@ from website import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('api/v1', views.GenerateSentencesAPIView.as_view(), name='index_api'),
     path('schedule/', views.schedule, name='schedule'),
     url('selected_result/', views.selected_result, name='selected_result'),
     url('topic/', views.topic, name='topic'),
