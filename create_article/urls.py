@@ -13,10 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import path, include
+
 from server import serverReports
 
 urlpatterns = [
@@ -24,6 +25,7 @@ urlpatterns = [
     path('', include('step2.urls')),
     path('server/', serverReports),
     path('website/', include('website.urls')),
+    path('api/', include('article_api.urls')),
 ]
 
 # Set static url in urls.py file of project
