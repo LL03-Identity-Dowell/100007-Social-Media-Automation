@@ -126,9 +126,23 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 50px; /* Adjust the width as per your needs */
+    width: 100%; /* Set initial width to full */
+  transition: width 30s linear; 
     height: 4px;
     background-color: green;
+}
+
+.popup.timeout::after {
+  animation: decreaseWidth 10s linear forwards; /* Use animation for decreasing width */
+}
+
+@keyframes decreaseWidth {
+  0% {
+    width: 100%; /* Set initial width to full */
+  }
+  100% {
+    width: 0; /* Decrease width to 0 */
+  }
 }
 
 @keyframes slideIn {
@@ -358,30 +372,36 @@ function notAdmin() {
     }
 
     function nextPrev(n) {
-        // This function will figure out which tab to display
-        var x = document.getElementsByClassName("tab");
-        // Exit the function if any field in the current tab is invalid:
-        if (n == 1 && !validateForm()) return false;
-        // Hide the current tab:
-        x[currentTab].style.display = "none";
-        // Increase or decrease the current tab by 1:
-        currentTab = currentTab + n;
-        // if you have reached the end of the form...
-        if (currentTab >= x.length) {
-      // ... the form gets submitted:
-      document.getElementById("regForm").submit();
-      showPopup("Form submitted successfully!");
-      AmagiLoader.show();
-      setTimeout(() => {
-        AmagiLoader.hide();
-      }, 30000);
-      return false;
-    }
-        // Otherwise, display the correct tab:
-        showTab(currentTab);
-    }
+  // This function will figure out which tab to display
+  var x = document.getElementsByClassName("tab");
+  // Exit the function if any field in the current tab is invalid:
+  if (n == 1 && !validateForm()) return false;
+  // Hide the current tab:
+  x[currentTab].style.display = "none";
+  // Increase or decrease the current tab by 1:
+  currentTab = currentTab + n;
+  // if you have reached the end of the form...
+  if (currentTab >= x.length) {
+    // ... the form gets submitted:
+    document.getElementById("regForm").submit();
+    showPopup("Form submitted successfully!");
+    AmagiLoader.show();
+    const popup = document.querySelector(".popup");
+    popup.classList.add("timeout"); 
+    setTimeout(() => {
+      popup.remove();
+    }, 10000);
+    setTimeout(() => {
+      AmagiLoader.hide();
+    },30000); 
+    return false;
+  }
+  // Otherwise, display the correct tab:
+  showTab(currentTab);
+}
 
-    function showPopup(message) {
+
+function showPopup(message) {
   const popup = document.createElement("div");
   popup.className = "popup";
   popup.innerHTML = `
@@ -395,10 +415,6 @@ function notAdmin() {
   });
 
   document.body.appendChild(popup);
-
-//   setTimeout(() => {
-//     popup.remove();
-//   }, 10000);
 }
 
 
@@ -433,7 +449,7 @@ function notAdmin() {
         //... and adds the "active" class on the current step:
         x[n].className += " active";
     }
-  const AmagiLoader = {
+    const AmagiLoader = {
   __loader: null,
   __progressBar: null,
   __progressText: null,
