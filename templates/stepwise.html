@@ -433,51 +433,96 @@ function notAdmin() {
         //... and adds the "active" class on the current step:
         x[n].className += " active";
     }
- const AmagiLoader = {
-    __loader: null,
-    show: function () {
+  const AmagiLoader = {
+  __loader: null,
+  __progressBar: null,
+  __progressText: null,
+  show: function () {
+    if (this.__loader == null) {
+      var divContainer = document.createElement('div');
+      divContainer.style.position = 'fixed';
+      divContainer.style.left = '0';
+      divContainer.style.top = '0';
+      divContainer.style.width = '100%';
+      divContainer.style.height = '100%';
+      divContainer.style.zIndex = '9998';
+      divContainer.style.backgroundColor = 'rgba(250, 250, 250, 0.80)';
 
-        if (this.__loader == null) {
-            var divContainer = document.createElement('div');
-            divContainer.style.position = 'fixed';
-            divContainer.style.left = '0';
-            divContainer.style.top = '0';
-            divContainer.style.width = '100%';
-            divContainer.style.height = '100%';
-            divContainer.style.zIndex = '9998';
-            divContainer.style.backgroundColor = 'rgba(250, 250, 250, 0.80)';
+      var div = document.createElement('div');
+      div.style.position = 'absolute';
+      div.style.left = '50%';
+      div.style.top = '50%';
+      div.style.zIndex = '9999';
+      div.style.height = '64px';
+      div.style.width = '64px';
+      div.style.margin = '-76px 0 0 -76px';
+      div.style.border = '8px solid #e1e1e1';
+      div.style.borderRadius = '50%';
+      div.style.borderTop = '8px solid #F36E21';
+      div.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], {
+        duration: 2000,
+        iterations: Infinity,
+      });
+      divContainer.appendChild(div);
+      this.__loader = divContainer;
 
-            var div = document.createElement('div');
-            div.style.position = 'absolute';
-            div.style.left = '50%';
-            div.style.top = '50%';
-            div.style.zIndex = '9999';
-            div.style.height = '64px';
-            div.style.width = '64px';
-            div.style.margin = '-76px 0 0 -76px';
-            div.style.border = '8px solid #e1e1e1';
-            div.style.borderRadius = '50%';
-            div.style.borderTop = '8px solid #F36E21';
-            div.animate([
-                { transform: 'rotate(0deg)' },
-                { transform: 'rotate(360deg)' }
-              ], {
-                duration: 2000,
-                iterations: Infinity
-              });
-            divContainer.appendChild(div);
-            this.__loader = divContainer
-            document.body.appendChild(this.__loader);
-        }
-        this.__loader.style.display="";
-    },
-    hide: function(){
-        if(this.__loader!=null)
-        {
-            this.__loader.style.display="none";
-        }
+      var progressBar = document.createElement('div');
+      progressBar.style.position = 'absolute';
+      progressBar.style.left = '50%';
+      progressBar.style.top = '65%';
+      progressBar.style.transform = 'translateX(-50%)';
+      progressBar.style.width = '200px';
+      progressBar.style.height = '10px';
+      progressBar.style.backgroundColor = '#e1e1e1';
+      divContainer.appendChild(progressBar);
+      this.__progressBar = progressBar;
+
+      var progressText = document.createElement('div');
+      progressText.style.position = 'absolute';
+      progressText.style.left = '50%';
+      progressText.style.top = '75%';
+      progressText.style.transform = 'translateX(-50%)';
+      progressText.style.fontSize = '14px';
+      progressText.style.fontWeight = 'bold';
+      progressText.style.color = '#333';
+      progressText.style.textAlign = 'center';
+      progressText.style.width = '100%'; // Set width to ensure the text is centered
+      divContainer.appendChild(progressText);
+      this.__progressText = progressText;
+
+      document.body.appendChild(this.__loader);
     }
-}
+    this.__loader.style.display = '';
+
+    var loadTime = 20000; // Adjust the load time duration in milliseconds
+    var increment = 8; // Increment in percentage for each interval
+
+    var currentProgress = 0;
+    var interval = setInterval(() => {
+      currentProgress += increment;
+      if (currentProgress > 100) {
+        clearInterval(interval);
+        this.hide();
+      } else {
+        this.updateProgress(currentProgress);
+      }
+    }, loadTime / (100 / increment));
+  },
+  hide: function () {
+    if (this.__loader != null) {
+      this.__loader.style.display = 'none';
+    }
+  },
+  updateProgress: function (percentage) {
+    if (this.__progressBar) {
+      this.__progressBar.style.width = `${percentage}%`;
+    }
+    if (this.__progressText) {
+      this.__progressText.textContent = `${percentage}%`;
+    }
+  },
+};
+
 </script>
 {% endblock content %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
