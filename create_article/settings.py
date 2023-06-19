@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'website',
     'djangobower',
     'bootstrap4',
+    'rest_framework',
     'tempus_dominus',
     'sorl.thumbnail',
     'article_api',

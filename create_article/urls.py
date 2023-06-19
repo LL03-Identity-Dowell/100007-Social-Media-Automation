@@ -25,7 +25,9 @@ urlpatterns = [
     path('', include('step2.urls')),
     path('server/', serverReports),
     path('website/', include('website.urls')),
+
     path('api/', include('article_api.urls')),
+
 ]
 
 # Set static url in urls.py file of project

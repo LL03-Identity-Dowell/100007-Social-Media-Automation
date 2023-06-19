@@ -225,11 +225,10 @@ def maintenance(request):
 
 
 def has_access(portfolio_info):
-
     if not portfolio_info:
         return False
     if portfolio_info[0].get('product') != PRODUCT_NAME:
-        return False
+        return True  # Update to return True when the product name doesn't match
     return True
 
 
