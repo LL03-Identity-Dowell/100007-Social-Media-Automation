@@ -10,7 +10,7 @@
 <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js" ></script>
 
 <style>
-    {#    todo transfer it to an independent #}
+    /* {#    todo transfer it to an independent #} */
     * {
         box-sizing: border-box;
     }
@@ -39,137 +39,126 @@
         float: right;
     }
 
+   
     .s-alert {
-    background:#ffdc9d;
-    padding: 20px 40px;
-    min-width:420px;
-    position:fixed;
-    right:0px;
-    top:75px;
-    border-radius:4px;
-    border-left: 7px solid #ffa502;
-    z-index:50;
-}
-    .s-alert.show{
-        animation: show_slide 1s ease forwards;
-    }
-    @keyframes show_slide {
-        0%{
-            transform: translateX(100%);
-        }
-        40%{
-            transform: translateX(-10%);
-        }
-        80%{
-            transform: translateX(0%);
-        }
-        100%{
-            transform: translateX(-10%);
-        }
+        position: fixed;
+        right: 0;
+        top: 75px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 20px 40px;
+        min-width: 420px;
+        border-radius: 4px;
+        border-left: 7px solid green;
+        z-index: 50;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(100%);
+        transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+        backdrop-filter: blur(0);
+        -webkit-backdrop-filter: blur(0);
     }
 
-.s-alert.hide{
-        display:none;
+    .s-alert.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0%);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px); 
+        z-index: 100; 
     }
+
+    .s-alert.hide {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(100%);
+        backdrop-filter: blur(0);
+        -webkit-backdrop-filter: blur(0);
+    }
+    .close-icon {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 26px;
+        cursor: pointer;
+    }
+
+    .loader-container {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9998;
+        background-color: rgba(250, 250, 250, 0.80);
+    }
+
+    .loader {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        z-index: 9999;
+        height: 64px;
+        width: 64px;
+        margin: -76px 0 0 -76px;
+        border: 8px solid #e1e1e1;
+        border-radius: 50%;
+        border-top: 8px solid #F36E21;
+        animation: rotation 2s linear infinite;
+    }
+
+    @keyframes rotation {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
 </style>
 
-
-
-
 <body>
-        {% if non_zero_ranks >= 3 %}
-      <div class="s-alert hide">
-        <span class="fas fa-exclamation-circle"></span>
-        <span class="msg">Your Sentences have been submitted</span>
-    </div>
-    {% endif %}
+
 
 <div id="ansDisplay">
     <form name="form1" id='rateForm' method="post" action="{% url 'selected_result' %}">
-
-
         {% csrf_token %}
-
         {% for sentence in sentences %}
-            <p>{{ sentence.sentence_type }}</p>
-            <div class="answer">
-                <p>{{ sentence.sentence }}
-
-                    <span class="answer_rank"><label>
-{#                        attach counter to class and name tags values for uniqueness#}
-<select name="rank_{{ forloop.counter }}" class="required" id="selector_{{ forloop.counter }}">
-                <option selected="selected" value="0" disabled="disabled">Rank</option>
-
-</select>
-</label></span></p>
-
-            </div>
-
-            <br>
+        <p>{{ sentence.sentence_type }}</p>
+        <div class="answer">
+            <p>{{ sentence.sentence }}
+                <span class="answer_rank"><label>
+                        {#                        attach counter to class and name tags values for uniqueness#}
+                        <select name="rank_{{ forloop.counter }}" class="required"
+                                id="selector_{{ forloop.counter }}">
+                            <option selected="selected" value="0" disabled="disabled">Rank</option>
+                        </select>
+                    </label></span></p>
+        </div>
+        <br>
         {% endfor %}
         <input type=button value="Preview text" onClick="preview()">
-        <button type="submit" class="btn btn-success" >SUBMIT</button>
-
+        <button type="submit" class="btn btn-success">SUBMIT</button>
     </form>
+    
+<div class="s-alert">
+    <span class="fas fa-exclamation-circle"></span>
+    <span class="msg">Your Sentences have been submitted</span>
+    <span class="close-icon" onclick="closeAlert()">&times;</span>
+</div>
 
 </div>
+
 {#    fixme it sucks to use a library for one task, but I'll find  a solution for this#}
 
 <script>
+    let non_zero_ranks = 0;
 
-// checkstatus()
-
-// function checkstatus() {
-//   var lav = document.getElementById("useronline-status-icons");
-
-
-//         // AJAX GET request
-//         $.ajax({
-//         url: 'https://100014.pythonanywhere.com/en/live_status',
-//         type: 'GET',
-//         success: function(data) {
-//           lav.style.color="green"
-//         //   lav.innerHTML = JSON.stringify(data);
-//         },
-//         error: function(error) {
-//         //   console.error(error);
-//          lav.style.color="red"
-//         }
-//         });
-
-//         // AJAX POST request
-//         $.ajax({
-//         url: 'https://100014.pythonanywhere.com/en/live_status',
-//         type: 'POST',
-//         data: JSON.stringify({ session_id:{{ request.session.session_id }},product: "Social Media Automation"}),
-//         contentType: 'application/json',
-//         success: function(data) {
-//           console.log(data);
-//         },
-//         error: function(error) {
-//           console.error(error);
-//         }
-//         });
-//         }
-
-//         setInterval(checkstatus, 60000);
-
-
-
-    let non_zero_ranks=0;
-    function preview()
-    {
-
+    function preview() {
         console.log(document.form1.rank_1.value);
         console.log(document.form1.rank_2.value);
         console.log(document.form1.rank_3.value);
         console.log(document.form1.rank_4.value);
-
     }
 
     $(function () {
-
-//code to populate the selects
+        // code to populate the selects
         let data = [];
         let selected_counter = 0;
         for (var count = 1; count <= 12; count++) {
@@ -179,14 +168,12 @@
         function populate(data) {
             data.forEach(function (e, i) {
                 $('select').append($('<option></option>').val(e.code).text(e.name));
-
             });
         }
 
         populate(data);
 
         function updateOptionClickableAbility() {
-
             // Keep an array of all used ranks.
             var used_ranks = [];
             // Get all select elements.
@@ -199,7 +186,6 @@
                 }
                 // Go over all options for that select element
                 Array(...select.getElementsByTagName("option")).forEach(option => {
-
                     // If the option is not an integer, skip
                     if (!parseInt(option.value)) {
                         return;
@@ -216,110 +202,74 @@
 
         updateOptionClickableAbility();
 
-        $('select').on('change', function (event) { // This binds listeners to the change event on all the select elements
-            var sId = this.id; // store off the changed element id
-            var vId = this.value; // store off the changed element value
-            non_zero_ranks = 0;//always initialize number of ranks which are zero
-            $('select').each(function () { // this loops across the same set of elements
-                if (this.id !== sId && this.value === vId) { // If it is not the triggering element and the value is the same, do something
-                    this.options.selectedIndex = 0; // reset the value to 'rank'
+        $('select').on('change', function (event) {
+            var sId = this.id;
+            var vId = this.value;
+            non_zero_ranks = 0;
+            $('select').each(function () {
+                if (this.id !== sId && this.value === vId) {
+                    this.options.selectedIndex = 0;
                 }
                 if (this.value != 0) {
                     non_zero_ranks++
                 }
-                    updateOptionClickableAbility()
-
+                updateOptionClickableAbility();
             });
         });
     });
 
-
-
-
-
-        $('#rateForm').submit(function () {
-            $('.s-alert').removeClass("hide");
-			   $('.s-alert').addClass("show");
-			    setTimeout(function(){
-			    $('.s-alert').removeClass("show");
-			    $('.s-alert').addClass("hide");
-			},12000);
-        // Check the number of ranks selected...
+ 
+    $('#rateForm').submit(function () {
+        $('.s-alert').addClass("show");
+        // setTimeout(function () {
+        //     $('.s-alert').removeClass("show");
+        // }, 2000);
 
         if (non_zero_ranks >= 3) {
-        AmagiLoader.show();
-        setTimeout(() => {
-        AmagiLoader.hide();
-          $('.s-alert').removeClass("hide");
-          $('.s-alert').addClass
-        }, 50000);
+            AmagiLoader.show();
+            setTimeout(() => {
+                AmagiLoader.hide();
+                $('.s-alert').addClass("show");
+            }, 6000);
             return true;
-
-
         } else {
-
-            alert("You need to rank more than three sentences to submit.")
-            return false; // return false to cancel form action
-
+            alert("You need to rank more than three sentences to submit.");
+            return false;
         }
     });
 
+    function closeAlert() {
+        var alert = document.querySelector('.s-alert');
+        alert.style.display = 'none';
+    }
 
-
-
-
-
-
-
-
-const AmagiLoader = {
+    const AmagiLoader = {
     __loader: null,
     show: function () {
-
         if (this.__loader == null) {
-            var divContainer = document.createElement('div');
-            divContainer.style.position = 'fixed';
-            divContainer.style.left = '0';
-            divContainer.style.top = '0';
-            divContainer.style.width = '100%';
-            divContainer.style.height = '100%';
-            divContainer.style.zIndex = '9998';
-            divContainer.style.backgroundColor = 'rgba(250, 250, 250, 0.80)';
+            var loaderContainer = document.createElement('div');
+            loaderContainer.className = 'loader-container';
 
-            var div = document.createElement('div');
-            div.style.position = 'absolute';
-            div.style.left = '50%';
-            div.style.top = '50%';
-            div.style.zIndex = '9999';
-            div.style.height = '64px';
-            div.style.width = '64px';
-            div.style.margin = '-76px 0 0 -76px';
-            div.style.border = '8px solid #e1e1e1';
-            div.style.borderRadius = '50%';
-            div.style.borderTop = '8px solid #F36E21';
-            div.animate([
-                { transform: 'rotate(0deg)' },
-                { transform: 'rotate(360deg)' }
-              ], {
-                duration: 2000,
-                iterations: Infinity
-              });
-            divContainer.appendChild(div);
-            this.__loader = divContainer
+            var loader = document.createElement('div');
+            loader.className = 'loader';
+
+            loaderContainer.appendChild(loader);
+            this.__loader = loaderContainer;
+
             document.body.appendChild(this.__loader);
         }
-        this.__loader.style.display="";
+        this.__loader.style.display = '';
     },
-    hide: function(){
-        if(this.__loader!=null)
-        {
-            this.__loader.style.display="none";
+    hide: function () {
+        if (this.__loader != null) {
+            document.body.removeChild(this.__loader);
+            this.__loader = null;
         }
     }
 }
 
-
 </script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
