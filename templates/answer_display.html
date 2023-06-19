@@ -84,7 +84,7 @@
         -webkit-backdrop-filter: blur(0);
     }
     .s-alert.timeout.show::after {
-    animation: decreaseWidth 10s linear forwards;
+    animation: decreaseWidth 20s linear forwards;
 }
 
 @keyframes decreaseWidth {
@@ -223,7 +223,7 @@
             AmagiLoader.show();
             setTimeout(() => {
             $('.s-alert').addClass("hide");
-            }, 10000);
+            }, 20000);
             setTimeout(() => {
                 AmagiLoader.hide();
             }, 6000);
