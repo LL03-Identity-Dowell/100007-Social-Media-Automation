@@ -11,7 +11,7 @@ class GenerateArticleSerializer(serializers.Serializer):
 class IndustrySerializer(serializers.ModelSerializer):
     class Meta:
         model = IndustryData
-        fields = ['target_industry', 'target_product']
+        fields = ['target_industry', 'target_product', ]
         labels = {
             'target_industry': _('Category'),
             'target_product': _('Product/Services'),
@@ -19,6 +19,7 @@ class IndustrySerializer(serializers.ModelSerializer):
 
 
 class SentenceSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True, )
     NUMBERS = (
         ('singular', 'singular'),
         ('plural', 'plural'),
@@ -30,5 +31,5 @@ class SentenceSerializer(serializers.ModelSerializer):
         model = Sentences
         fields = (
             'subject_determinant', 'subject', 'subject_number', 'object_determinant', 'object', 'object_number',
-            'verb', 'adjective',
+            'verb', 'adjective', 'email',
         )
