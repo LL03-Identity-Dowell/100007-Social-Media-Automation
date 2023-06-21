@@ -1,10 +1,10 @@
 import requests
 from django.db import transaction
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from article_api.permission import HasBeenAuthenticated
 from article_api.serializers import GenerateArticleSerializer, IndustrySerializer, SentenceSerializer
 from create_article import settings
 from website.models import User, Sentences, SentenceResults
@@ -15,7 +15,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
     """
 
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (HasBeenAuthenticated,)
     serializer_class = GenerateArticleSerializer
 
     def post(self, request):
@@ -30,17 +30,17 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
             return Response(sentence_serializer.errors, status=HTTP_400_BAD_REQUEST)
 
         url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
-        email = request.user.email
+        email = sentence_serializer.validated_data['email']
         user = User.objects.create(email=email)
         industry = industry_serializer.save()
         industry.user = user
         industry.save()
 
-        object = sentence_serializer.data['object'].lower()
-        subject = sentence_serializer.data['subject']
-        verb = sentence_serializer.data['verb']
-        objdet = sentence_serializer.data['object_determinant']
-        adjective = sentence_serializer.data['adjective']
+        object = sentence_serializer.validated_data['object'].lower()
+        subject = sentence_serializer.validated_data['subject']
+        verb = sentence_serializer.validated_data['verb']
+        objdet = sentence_serializer.validated_data['object_determinant']
+        adjective = sentence_serializer.validated_data['adjective']
 
         def api_call(grammar_arguments=None):
             if grammar_arguments is None:
@@ -91,9 +91,9 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
             return [response['sentence'], type_of_sentence]
 
         data_dictionary = request.POST.dict()
-        data_dictionary["user_id"] = request.user.id
+        data_dictionary["user_id"] = user.id
         data_dictionary["session_id"] = session_id
-        data_dictionary["username"] = request.user.username
+        data_dictionary["email"] = email
 
         data_dictionary['email'] = email
 
