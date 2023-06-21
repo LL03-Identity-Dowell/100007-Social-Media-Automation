@@ -177,10 +177,11 @@ def create_event(request=None):
     """
     This method accepts a django request object as an argument. The argument is optional
     """
-    if request:
-        user_info = request.session.get('userinfo')
-        ip_address = user_info.get('userIP', '192.168.0.4')
-    else:
+    try:
+        if request:
+            user_info = request.session.get('userinfo')
+            ip_address = user_info.get('userIP', '192.168.0.4')
+    except:
         ip_address = '192.168.0.4'
 
     url = "https://uxlivinglab.pythonanywhere.com/create_event"

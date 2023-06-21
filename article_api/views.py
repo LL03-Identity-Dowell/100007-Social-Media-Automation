@@ -3,6 +3,7 @@ from django.db import transaction
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from step2.views import create_event
 
 from article_api.permission import HasBeenAuthenticated
 from article_api.serializers import GenerateArticleSerializer, IndustrySerializer, SentenceSerializer
@@ -94,7 +95,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         data_dictionary["user_id"] = user.id
         data_dictionary["session_id"] = session_id
         data_dictionary["email"] = email
-
+        data_dictionary['event_id'] = create_event(request)['event_id']
         data_dictionary['email'] = email
 
         try:
