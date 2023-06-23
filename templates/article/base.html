@@ -96,51 +96,59 @@
 }
 
 .notification {
-  width: 450px;
-  background-color: #f5f5f5;
-  padding: 10px;
+  width: auto;
+  background-color: rgba(245, 245, 245, 0.8); /* Adjust the alpha value for transparency */
+  padding: 6px;
+  font-style: italic;
   margin-top: 10px;
-  border-radius:4px;
+  border-radius: 8px;
   position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a box shadow */
 }
+
+
 .notification::after {
   content: "";
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 100%; /* Set initial width to full */
-transition: width 30s linear; 
+  width: var(--after-width, 100%);
+  transition: width 0.2s linear; /* Adjust the duration as needed */
   height: 4px;
   background-color: green;
 }
 
 .notification.timeout::after {
-animation: decreaseWidth 10s linear forwards; /* Use animation for decreasing width */
+  animation: decreaseWidth 5s linear forwards; /* Adjust the duration as needed */
 }
 
-@keyframes decreaseWidth {
-0% {
-  width: 100%; /* Set initial width to full */
-}
-100% {
-  width: 0; /* Decrease width to 0 */
-}
-}
 .close-button {
-  position: absolute;
-  top: 0;
-  right: 5px;
   font-size: 18px;
-
   background: transparent;
   border: none;
   cursor: pointer;
 }
 
-@keyframes slideIn {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(0); }
+@keyframes decreaseWidth {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+  }
 }
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+
+
   </style>
   {% block style %}{% endblock style %}
 
@@ -246,8 +254,8 @@ animation: decreaseWidth 10s linear forwards; /* Use animation for decreasing wi
   <div class="custom-notification">
     {% for message in messages %}
       <div class="notification">
-        <button type="button" class="close-button" aria-label="Close">&times;</button>
         {{ message }}
+        <button type="button" class="close-button" aria-label="Close">&times;</button>
       </div>
     {% endfor %}
   </div>
@@ -269,45 +277,44 @@ animation: decreaseWidth 10s linear forwards; /* Use animation for decreasing wi
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var closeButtons = document.querySelectorAll('.close-button');
-    closeButtons.forEach(function(button) {
-      button.addEventListener('click', function() {
-        var notification = this.parentNode.parentNode;
-        notification.style.display = 'none';
+    document.addEventListener('DOMContentLoaded', function() {
+      var closeButtons = document.querySelectorAll('.close-button');
+      closeButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+          var notification = this.parentNode.parentNode;
+          notification.style.display = 'none';
+        });
       });
-    });
-
-    setTimeout(function() {
-      var notification = document.querySelector('.custom-notification');
-      notification.classList.add('timeout');
-
-      var contentElement = notification.querySelector('.notification');
-      var pseudoElement = contentElement.querySelector('.notification::after');
-      var animationDuration = 10000; // Animation duration in milliseconds
-      var animationStartTime = Date.now();
-
-      function decreaseWidth() {
-        var currentTime = Date.now();
-        var elapsedTime = currentTime - animationStartTime;
-        var progress = elapsedTime / animationDuration;
-        var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
-
-        pseudoElement.style.width = updatedWidth + '%';
-
-        if (progress < 1) {
-          requestAnimationFrame(decreaseWidth);
-        } else {
-          notification.style.opacity = '0'; // Fade out the notification
-          setTimeout(function() {
-            notification.style.display = 'none'; // Hide the notification after fading out
-          }, 500); // Adjust the delay as needed
+    
+      setTimeout(function() {
+        var notification = document.querySelector('.custom-notification');
+        notification.classList.add('timeout');
+    
+        var contentElement = notification.querySelector('.notification');
+        var pseudoElement = getComputedStyle(contentElement, 'after');
+        var animationDuration = 10000; // Animation duration in milliseconds
+        var animationStartTime = Date.now();
+    
+        function decreaseWidth() {
+          var currentTime = Date.now();
+          var elapsedTime = currentTime - animationStartTime;
+          var progress = elapsedTime / animationDuration;
+          var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
+    
+          contentElement.style.setProperty('--after-width', updatedWidth + '%');
+    
+          if (progress < 1) {
+            requestAnimationFrame(decreaseWidth);
+          } else {
+            notification.style.display = 'none'; // Hide the notification
+          }
         }
-      }
-
-      requestAnimationFrame(decreaseWidth);
-    }, 5000);
-  });
+    
+        requestAnimationFrame(decreaseWidth);
+      }, 10000);
+    });
+    
+    
 </script>
 
   
