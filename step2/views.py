@@ -1,54 +1,42 @@
-from django.contrib.sessions.models import Session
-from create_article.custom_session_backend import CustomSessionStore
-from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse
-from django.http import HttpResponseRedirect, JsonResponse
-import requests
-import json
-import time
-from datetime import datetime
+from django.shortcuts import render, redirect
 import datetime
+import json
+import random
+import re
+import time
+import traceback
+import urllib
+import urllib.parse
+from datetime import datetime, date
+# image resizing
+from io import BytesIO
+
+import openai
+import pytz
+import requests
+import wikipediaapi
+from PIL import Image
+from ayrshare import SocialPost
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-import wikipediaapi
+from bson import ObjectId
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db import transaction
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime, timedelta, date
 from mega import Mega
-from create_article import settings
-from pymongo import MongoClient
-from django.core.paginator import Paginator
-from bson import ObjectId
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.timezone import localdate, localtime
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Page
-from website.models import Sentences, SentenceResults, SentenceRank, MTopic
-import urllib
-from urllib.request import urlopen
-from django.contrib import messages
 from pexels_api import API
-import random
-from .models import stepFour
-from .forms import StepFourForm, VerifyArticleForm
-from ayrshare import SocialPost
-from django.utils import timezone
-# image resizing
-import base64
-from io import BytesIO
-from PIL import Image, UnidentifiedImageError
-from pytz import timezone
-import pytz
-import openai
-import re
-import os
-from create_article.settings import STATIC_ROOT, BASE_DIR
-import shutil
-import math
-import traceback
-import urllib.parse
+from pymongo import MongoClient
 
-
-from django.db import transaction
+from create_article import settings
+from website.models import Sentences, SentenceResults
+from .forms import VerifyArticleForm
 
 # helper functions
 
@@ -1300,6 +1288,7 @@ def unscheduled(request):
 
         except:
             pass
+        post = list(reversed(post))  # Reverse the order of the posts list
         messages.info(
             request, 'Click on post now to choose where to post the articles.')
         return render(request, 'unscheduled.html', {'post': post, 'profile': profile})
@@ -1413,6 +1402,7 @@ def scheduled(request):
                             pass
         except:
             pass
+        post = list(reversed(post))  # Reverse the order of the posts list
         return render(request, 'scheduled.html', {'post': post})
     else:
         return render(request, 'error.html')
@@ -2240,11 +2230,16 @@ def list_article(request):
                     posts.append(articles)
                 else:
                     pass
+        posts = list(reversed(posts))  # Reverse the order of the posts list
+
+        context = {
+            'posts': posts
+        }
 
         messages.info(
             request, 'Almost there. Click view artcle to finilize the article before posting')
 
-        return render(request, 'post_list.html', {'posts': posts})
+        return render(request, 'post_list.html', context)
     else:
         return render(request, 'error.html')
 
@@ -2569,6 +2564,7 @@ def most_recent(request):
                             pass
         except:
             print('no post')
+        post = list(reversed(post))  # Reverse the order of the posts list
         context = {
             'post': post
         }
@@ -2577,12 +2573,32 @@ def most_recent(request):
         return render(request, 'error.html')
 
 
+def can_post_on_social_media(request):
+    """
+    This function check of a user can post an article on social media sites
+    """
+    portfolio_info = request.session.get('portfolio_info')
+    if not portfolio_info:
+        return False
+    if not isinstance(portfolio_info, list):
+        return False
+    portfolio_info = portfolio_info[0]
+    if portfolio_info.get('member_type') == 'owner' and portfolio_info.get('username') == 'socialmedia':
+        return True
+    elif portfolio_info.get('member_type') == 'member_type' and portfolio_info.get('username') == 'socialmedia':
+        return True
+    return False
+
+
 @csrf_exempt
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
 
         if request.method == "POST":
+            can_post = can_post_on_social_media(request)
+            if not can_post:
+                return render(request, 'not-allowed-to-post.html')
             facebook = request.POST.get("facebook")
             paragraph = request.POST.get("paragraph")
             twitter = request.POST.get("twitter")
