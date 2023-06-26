@@ -233,102 +233,109 @@ def has_access(portfolio_info):
     return True
 
 
+def home(request):
+    session_id = request.GET.get("session_id", None)
+    if session_id:
+        request.session["session_id"] = session_id
+        # return redirect("https://100007.pythonanywhere.com/main")
+        return redirect("http://127.0.0.1:8000/main")
+    else:
+        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+
+
 @csrf_exempt
 @xframe_options_exempt
 def main(request):
-    try:
-        session_id = request.GET.get("session_id", None)
+    if request.session.get("session_id"):
         # saving the session_id in the custom session store
         # session = CustomSessionStore()
         # session.create()
         # session_id = session.session_key
         user_map = {}
         redirect_to_living_lab = True
-        if session_id is not None:
-            request.session["session_id"] = session_id
-            # First API
-            url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-            # headers = {"Authorization": f"Bearer {session_id}"}
-            response_1 = requests.post(url_1, data={"session_id": session_id})
-            if response_1.status_code == 200 and "portfolio_info" in response_1.json():
-                # First API response contains portfolio_info data
-                print("You connected from the client admin: ", response_1.text)
-                profile_details = response_1.json()
+        # First API
+        url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
+        # headers = {"Authorization": f"Bearer {session_id}"}
+        session_id = request.session["session_id"]
+        response_1 = requests.post(url_1, data={"session_id": session_id})
+        if response_1.status_code == 200 and "portfolio_info" in response_1.json():
+            # First API response contains portfolio_info data
+            print("You connected from the client admin: ", response_1.text)
+            profile_details = response_1.json()
+            print(profile_details, "api details")
+            request.session['portfolio_info'] = profile_details['portfolio_info']
+            print('This is the portfolio info  has data for you: ',
+                  profile_details['portfolio_info'])
+            print('This is the user the userID: ',
+                  profile_details['userinfo']['userID'])
+            user_map[profile_details['userinfo']['userID']
+                     ] = profile_details['userinfo']['username']
+
+            # if has_access(profile_details['portfolio_info']):
+
+            #     messages.error(request,'You are not allowed to access this page')
+            #     return render(request, 'portofolio-logib.html')
+        else:
+            # Second API
+            url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
+            response_2 = requests.post(
+                url_2, data={"session_id": session_id})
+            if response_2.status_code == 200 and "portfolio_info" in response_2.json():
+                # Second API response contains portfolio_info data
+                print("You connected from 100014 ", response_2.json())
+                profile_details = response_2.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
-                print('This is the portfolio info  has data for you: ',
+                print('This is the portfolio info  is empty for you: ',
                       profile_details['portfolio_info'])
                 print('This is the user the userID: ',
                       profile_details['userinfo']['userID'])
                 user_map[profile_details['userinfo']['userID']
                          ] = profile_details['userinfo']['username']
-
                 # if has_access(profile_details['portfolio_info']):
-
                 #     messages.error(request,'You are not allowed to access this page')
                 #     return render(request, 'portofolio-logib.html')
             else:
-                # Second API
-                url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
-                response_2 = requests.post(
-                    url_2, data={"session_id": session_id})
-                if response_2.status_code == 200 and "portfolio_info" in response_2.json():
-                    # Second API response contains portfolio_info data
-                    print("You connected from 100014 ", response_2.json())
-                    profile_details = response_2.json()
-                    request.session['portfolio_info'] = profile_details['portfolio_info']
-                    print('This is the portfolio info  is empty for you: ',
-                          profile_details['portfolio_info'])
-                    print('This is the user the userID: ',
-                          profile_details['userinfo']['userID'])
-                    user_map[profile_details['userinfo']['userID']
-                             ] = profile_details['userinfo']['username']
-                    # if has_access(profile_details['portfolio_info']):
-                    #     messages.error(request,'You are not allowed to access this page')
-                    #     return render(request, 'portofolio-logib.html')
-                else:
-                    # Neither API returned portfolio_info data
-                    profile_details = {}
-                    request.session['portfolio_info'] = []
+                # Neither API returned portfolio_info data
+                profile_details = {}
+                request.session['portfolio_info'] = []
 
-            if "userinfo" in profile_details:
-                request.session['userinfo'] = profile_details['userinfo']
-                request.session['username'] = profile_details['userinfo']['username']
-                request.session['user_id'] = profile_details['userinfo']['userID']
-                request.session['timezone'] = profile_details['userinfo']['timezone']
+        if "userinfo" in profile_details:
+            request.session['userinfo'] = profile_details['userinfo']
+            request.session['username'] = profile_details['userinfo']['username']
+            request.session['user_id'] = profile_details['userinfo']['userID']
+            request.session['timezone'] = profile_details['userinfo']['timezone']
 
-            if request.session['portfolio_info'] == []:
-                request.session['operations_right'] = 'member'
-                request.session['org_id'] = '0001'
-            else:
-                for info in request.session['portfolio_info']:
-                    if info['product'] == 'Social Media Automation':
-                        request.session['operations_right'] = info['operations_right']
-                        request.session['org_id'] = info['org_id']
-                        break
-                else:
-                    request.session['operations_right'] = 'member'
-                    request.session['org_id'] = info['org_id'] if info else ''
-
-            # Map the username with the userID
-            username = user_map.get(request.session['user_id'], None)
-            print(user_map)
-
-            # Adding session id to the session
-            request.session['session_id'] = session_id
-            if username:
-                username_with_userID = request.session['username'] = username
-                print("Use this to filter out the data for: ",
-                      username_with_userID)
-
-            if not has_access(request.session['portfolio_info']):
-                return render(request, 'portofolio-logib.html')
-            return render(request, 'main.html')
+        if request.session['portfolio_info'] == []:
+            request.session['operations_right'] = 'member'
+            request.session['org_id'] = '0001'
         else:
-            # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
-            return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
-    except Exception as e:
-        print(str(e))
-        return render(request, 'error.html')
+            for info in request.session['portfolio_info']:
+                if info['product'] == 'Social Media Automation':
+                    request.session['operations_right'] = info['operations_right']
+                    request.session['org_id'] = info['org_id']
+                    break
+            else:
+                request.session['operations_right'] = 'member'
+                request.session['org_id'] = info['org_id'] if info else ''
+
+        # Map the username with the userID
+        username = user_map.get(request.session['user_id'], None)
+        print(user_map)
+
+        # Adding session id to the session
+        request.session['session_id'] = session_id
+        if username:
+            username_with_userID = request.session['username'] = username
+            print("Use this to filter out the data for: ",
+                  username_with_userID)
+
+        if not has_access(request.session['portfolio_info']):
+            return render(request, 'portofolio-logib.html')
+        return render(request, 'main.html')
+    else:
+        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
+        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+    return render(request, 'error.html')
 
 
 def forget_password(request):
