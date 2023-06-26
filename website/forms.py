@@ -21,11 +21,11 @@ class IndustryForm(forms.ModelForm):
             'target_product':_('Product/Services'),
         }
         widgets = {
-            'target_industry': forms.Select(attrs={'class': 'form-select'}),
+            'target_industry': forms.TextInput(attrs={'class': 'form-control'}),
             'target_product': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-
+# forms.Select(attrs={'class': 'form-select'}),
 
 class SentencesForm(forms.ModelForm):
     NUMBERS = (
