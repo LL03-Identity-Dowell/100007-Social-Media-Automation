@@ -1300,6 +1300,7 @@ def unscheduled(request):
 
         except:
             pass
+        post = list(reversed(post))  # Reverse the order of the posts list
         messages.info(
             request, 'Click on post now to choose where to post the articles.')
         return render(request, 'unscheduled.html', {'post': post, 'profile': profile})
@@ -1413,6 +1414,7 @@ def scheduled(request):
                             pass
         except:
             pass
+        post = list(reversed(post))  # Reverse the order of the posts list
         return render(request, 'scheduled.html', {'post': post})
     else:
         return render(request, 'error.html')
@@ -2240,11 +2242,16 @@ def list_article(request):
                     posts.append(articles)
                 else:
                     pass
+        posts = list(reversed(posts))  # Reverse the order of the posts list
+
+        context = {
+            'posts': posts
+        }
 
         messages.info(
             request, 'Almost there. Click view artcle to finilize the article before posting')
 
-        return render(request, 'post_list.html', {'posts': posts})
+        return render(request, 'post_list.html', context)
     else:
         return render(request, 'error.html')
 
@@ -2569,6 +2576,7 @@ def most_recent(request):
                             pass
         except:
             print('no post')
+        post = list(reversed(post))  # Reverse the order of the posts list
         context = {
             'post': post
         }
