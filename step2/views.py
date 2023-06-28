@@ -1,4 +1,3 @@
-from django.shortcuts import render, redirect
 import datetime
 import json
 import random
@@ -2231,13 +2230,23 @@ def list_article(request):
                 else:
                     pass
         posts = list(reversed(posts))  # Reverse the order of the posts list
+        number_of_items_per_page = 10
+        page = request.GET.get('page', 1)
 
+        paginator = Paginator(posts, number_of_items_per_page)
+        try:
+            page_post = paginator.page(page)
+        except PageNotAnInteger:
+            page_post = paginator.page(1)
+        except EmptyPage:
+            page_post = paginator.page(paginator.num_pages)
         context = {
-            'posts': posts
+            'posts': posts,
+            'page_post': page_post,
         }
 
         messages.info(
-            request, 'Almost there. Click view artcle to finilize the article before posting')
+            request, 'Almost there. Click view article to finalize the article before posting')
 
         return render(request, 'post_list.html', context)
     else:
