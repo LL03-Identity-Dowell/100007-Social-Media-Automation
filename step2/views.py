@@ -37,7 +37,6 @@ from pymongo import MongoClient
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
-from django.views.decorators.cache import cache_page
 
 # helper functions
 
@@ -1533,7 +1532,7 @@ def index(request):
             print('================================')
             topics = []
         messages.info(
-            request, 'Step 2: Generate articles from the topics you created.')
+            request, 'Step 3: Generate articles for the sentences you created.')
         return render(request, 'article/main.html', {'topics': topics, 'profile': profile, 'page': page})
     else:
         return render(request, 'error.html')
@@ -2152,7 +2151,6 @@ def verify_article(request):
         return render(request, 'error.html')
 
 
-@cache_page(60 * 15)  # Cache the view for 15 minutes.
 @xframe_options_exempt
 def list_article(request):
     # return HttpResponse(request.session.get('user_name'))
@@ -2239,7 +2237,7 @@ def list_article(request):
         }
 
         messages.info(
-            request, 'Almost there. Click on view article to fainalize the article before posting')
+            request, 'Almost there. Click view artcle to finilize the article before posting')
 
         return render(request, 'post_list.html', context)
     else:
