@@ -1779,7 +1779,7 @@ def generate_article(request):
             image = request.POST.get("image")
 
             # Set your OpenAI API key here
-            openai.api_key = "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"
+            openai.api_key = settings.OPENAI_KEY
 
             # Build prompt
             prompt_limit = 280

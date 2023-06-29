@@ -384,7 +384,7 @@ function notAdmin() {
   if (currentTab >= x.length) {
     // ... the form gets submitted:
     document.getElementById("regForm").submit();
-    showPopup("Form submitted successfully!");
+    showPopup("Generating topics/sentences...");
     AmagiLoader.show();
     const popup = document.querySelector(".popup");
     popup.classList.add("timeout"); 
