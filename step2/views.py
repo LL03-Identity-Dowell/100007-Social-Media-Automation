@@ -1288,9 +1288,21 @@ def unscheduled(request):
         except:
             pass
         post = list(reversed(post))  # Reverse the order of the posts list
+
+        number_of_items_per_page = 10
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(post, number_of_items_per_page)
+        try:
+            page_post = paginator.page(page)
+        except PageNotAnInteger:
+            page_post = paginator.page(1)
+        except EmptyPage:
+            page_post = paginator.page(paginator.num_pages)
+
         messages.info(
             request, 'Click on post now to choose where to post the articles.')
-        return render(request, 'unscheduled.html', {'post': post, 'profile': profile})
+        return render(request, 'unscheduled.html', {'post': post, 'profile': profile, 'page_post': page_post})
     else:
         return render(request, 'error.html')
 

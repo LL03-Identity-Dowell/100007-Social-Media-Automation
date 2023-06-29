@@ -539,7 +539,7 @@ $(document).ready(function()
     <p>Total posts count: {{ post|length }}</p>
     <table class="table table-borderless">
       <tbody>
-          {% for post in post %}
+          {% for post in page_post %}
             <tr>
                     {% csrf_token %}
                 <input type="hidden" name="post_id" value="">
@@ -571,18 +571,46 @@ $(document).ready(function()
             <td style="text-align:right; width:10%"><a href="#" class="btn" id="werit-b">Schedule</a></td>
           </tr>
         {% else %}
-          <tr>
-            <td style="text-align:right"><a href="#" class="btn" onclick="showAdminMessage()">Post Now</a></td>
-    <td style="text-align:right; width:10%"><a href="#" class="btn" onclick="showAdminMessage()">Schedule</a></td>
-  </tr>
-            </tr>
-                {% endif %}
-            {% endfor %}
+              <tr>
+                  <td style="text-align:right"><a href="#" class="btn" onclick="showAdminMessage()">Post Now</a></td>
+                  <td style="text-align:right; width:10%"><a href="#" class="btn"
+                                                             onclick="showAdminMessage()">Schedule</a></td>
+              </tr>
+              </tr>
+          {% endif %}
+          {% endfor %}
       </tbody>
     </table>
+    </div>
+
+    <center>
+        <div class="pagination">
+            {% if page_post.has_previous %}
+                <a href="?page={{ page_post.previous_page_number }}">Previous</a>
+            {% endif %}
+            {% if page_post.number|add:'-2' > 1 %}
+                <a href="?page={{ page_post.number|add:'-3' }}">&laquo;</a>
+            {% endif %}
+            {% for page_number in page_post.paginator.page_range %}
+                {% if page_post.number == page_number %}
+                    <a href="#" class="active">{{ page_number }}</a>
+                {% elif page_number > page_post.number|add:'-3' and page_number < page_post.number|add:'6' %}
+                    <a href="?page={{ page_number }}">{{ page_number }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_post.number|add:'5' > 1 %}
+                <a href="?page={{ page_post.number|add:'6' }}">&raquo;</a>
+            {% endif %}
+            {% if page_post.has_next %}
+                <a href="?page={{ page_post.next_page_number }}">Next</a>
+            {% endif %}
+
+        </div>
+
+    </center>
+
 </div>
-</div>
-  </form>
+</form>
 
 {% endblock content %}
 <!-- Timepicker -->
