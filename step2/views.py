@@ -506,7 +506,7 @@ def user_approval_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        print(event_id)
+        messages.success(request, "User approval details sucessful.")
 
         return HttpResponseRedirect(reverse("generate_article:client"))
 
@@ -561,6 +561,7 @@ def user_approval_form_update(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
+        messages.success(request, "userform details updated.")
 
     return HttpResponseRedirect(reverse("generate_article:client"))
 
@@ -624,6 +625,7 @@ def facebook_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
+        messages.success(request, "facebook details updated.")
         print('page_id:', page_id, 'page_link:', page_link,
               'page_password:', page_password, 'post_no:', posts_no)
 
@@ -676,6 +678,7 @@ def insta_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
+        messages.success(request, "Instagram details updated.")
         print(page_id, page_link, page_password, posts_no)
 
         return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
@@ -727,6 +730,7 @@ def twitter_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
+        messages.success(request, "Twitter details updated.")
         print('page_id:', page_id, 'page_link:', page_link,
               'page_password:', page_password, 'post_no:', posts_no)
 
@@ -779,6 +783,7 @@ def linkedin_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
+        messages.success(request, "Linkedin details updated.")
         print(page_id, page_link, page_password, posts_no)
 
         return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
@@ -830,6 +835,7 @@ def youtube_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
+        messages.success(request, "Youtube details updated.")
         print(page_id, page_link, page_password, posts_no)
 
         return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
