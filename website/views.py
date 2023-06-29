@@ -172,7 +172,7 @@ def index(request):
                 forms = {'industryForm': industryForm,
                          'sentencesForm': sentencesForm, 'profile': profile}
         messages.info(
-            request, 'Step 1: Generate topics for social media posts')
+            request, 'Step 1: Generate sentences for social media posts')
         return render(request, 'stepwise.html', context=forms)
     else:
         return render(request, 'error.html')
