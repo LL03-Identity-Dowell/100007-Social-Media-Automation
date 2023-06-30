@@ -32,6 +32,7 @@ class IndustryData(models.Model):
     )
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     target_industry = models.CharField(max_length=100, blank=False, choices=CHOICES)
+    # target_industry = models.CharField(max_length=100, blank=False)
     target_product = models.CharField(max_length=100, blank=False)
 
     def __str__(self):
