@@ -1797,73 +1797,88 @@ def generate_article(request):
             prompt = f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."[
                 :prompt_limit] + "..."
 
-            # Generate article using OpenAI's GPT-3
-            response = openai.Completion.create(
-                engine="text-davinci-003",
-                prompt=prompt,
-                temperature=0.5,
-                max_tokens=1024,
-                n=1,
-                stop=None,
-                timeout=60,
-            )
-            article = response.choices[0].text
-            paragraphs = article.split("\n\n")
-            article_str = "\n\n".join(paragraphs)
+            # Variables for loop control
+            duration = 400  # Total duration in seconds
+            interval = 10  # Interval between generating articles in seconds
+            start_time = time.time()
+            current_time = time.time()
 
-            sources = urllib.parse.unquote("https://openai.com")
-            matches = re.findall(r'(https?://[^\s]+)', article)
-            for match in matches:
-                sources += match.strip() + '\n'
+            # Loop until the specified duration is reached
+            while current_time - start_time < duration:
+                # Generate article using OpenAI's GPT-3
+                response = openai.Completion.create(
+                    engine="text-davinci-003",
+                    prompt=prompt,
+                    temperature=0.5,
+                    max_tokens=1024,
+                    n=1,
+                    stop=None,
+                    timeout=60,
+                )
+                article = response.choices[0].text
+                paragraphs = article.split("\n\n")
+                article_str = "\n\n".join(paragraphs)
 
-            try:
-                with transaction.atomic():
-                    event_id = create_event(request)['event_id']
-                    user_id = request.session['user_id']
-                    client_admin_id = request.session['userinfo']['client_admin_id']
+                sources = urllib.parse.unquote("https://openai.com")
+                matches = re.findall(r'(https?://[^\s]+)', article)
+                for match in matches:
+                    sources += match.strip() + '\n'
 
-                    # Save data for step 3
-                    step3_data = {
-                        "user_id": user_id,
-                        "session_id": session_id,
-                        "eventId": event_id,
-                        'client_admin_id': client_admin_id,
-                        "title": RESEARCH_QUERY,
-                        "target_industry": target_industry,
-                        "qualitative_categorization": qualitative_categorization,
-                        "targeted_for": targeted_for,
-                        "designed_for": designed_for,
-                        "targeted_category": targeted_category,
-                        "source": sources,
-                        "image": image,
-                        "paragraph": article_str,
-                        "citation_and_url": sources,
-                        "subject": subject,
-                    }
-                    save_data('step3_data', 'step3_data',
-                              step3_data, '34567897799')
+                try:
+                    with transaction.atomic():
+                        event_id = create_event(request)['event_id']
+                        user_id = request.session['user_id']
+                        client_admin_id = request.session['userinfo']['client_admin_id']
 
-                    # Save data for step 2
-                    step2_data = {
-                        "user_id": user_id,
-                        "session_id": session_id,
-                        "eventId": event_id,
-                        'client_admin_id': client_admin_id,
-                        "title": RESEARCH_QUERY,
-                        "target_industry": target_industry,
-                        "paragraph": '',
-                        "source": sources,
-                        "subject": subject,
-                        "citation_and_url": sources,
-                    }
-                    save_data('step2_data', 'step2_data',
-                              step2_data, '9992828281')
+                        # Save data for step 3
+                        step3_data = {
+                            "user_id": user_id,
+                            "session_id": session_id,
+                            "eventId": event_id,
+                            'client_admin_id': client_admin_id,
+                            "title": RESEARCH_QUERY,
+                            "target_industry": target_industry,
+                            "qualitative_categorization": qualitative_categorization,
+                            "targeted_for": targeted_for,
+                            "designed_for": designed_for,
+                            "targeted_category": targeted_category,
+                            "source": sources,
+                            "image": image,
+                            "paragraph": article_str,
+                            "citation_and_url": sources,
+                            "subject": subject,
+                        }
+                        save_data('step3_data', 'step3_data',
+                                  step3_data, '34567897799')
 
-                messages.success(
-                    request, 'Article has been generated successfully. Click on step 3 to post the article')
-                return HttpResponseRedirect(reverse("generate_article:main-view"))
-            except:
-                return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
+                        # Save data for step 2
+                        step2_data = {
+                            "user_id": user_id,
+                            "session_id": session_id,
+                            "eventId": event_id,
+                            'client_admin_id': client_admin_id,
+                            "title": RESEARCH_QUERY,
+                            "target_industry": target_industry,
+                            "paragraph": '',
+                            "source": sources,
+                            "subject": subject,
+                            "citation_and_url": sources,
+                        }
+                        save_data('step2_data', 'step2_data',
+                                  step2_data, '9992828281')
+
+                except:
+                    return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
+
+                # Wait for the specified interval before generating the next article
+                time.sleep(interval)
+
+                # Update current time
+                current_time = time.time()
+
+            messages.success(
+                request, 'Article generation completed. Click on step 3 to view the articles')
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
 
