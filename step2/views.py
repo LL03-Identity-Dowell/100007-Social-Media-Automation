@@ -23,7 +23,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.timezone import localdate, localtime
@@ -2724,6 +2724,27 @@ def Media_Post(request):
     else:
         return render(request, 'error.html')
 
+
+@xframe_options_exempt
+def get_organization_portfolio(request):
+    """
+    This function returns the portfolio details of an organization
+    """
+    username = request.session.get('username')
+    url = 'https://100093.pythonanywhere.com/api/get-portfolio/'
+    payload = json.dumps(
+        {
+            "username": username,
+            "product": "Social Media Automation",
+        })
+
+    headers = {'Content-Type': 'application/json'}
+    response = requests.request(
+        "POST", url, headers=headers, data=payload)
+    context_data = {
+        'portfolio_list': response.json(),
+    }
+    return JsonResponse(context_data, safe=True)
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)
