@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 app_name = 'generate_article'
@@ -62,6 +63,7 @@ urlpatterns = [
     path('recent/', views.most_recent, name='recent-post'),
     path('save_post/', views.Save_Post, name='save-post'),
     path('media_post/', views.Media_Post, name='media-post'),
+    path('organization-portfolio/', views.get_organization_portfolio, name='organization-portfolio'),
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]
