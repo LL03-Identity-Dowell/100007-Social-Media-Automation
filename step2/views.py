@@ -1691,8 +1691,9 @@ def generate_article_automatically(request):
         page = wiki_language.page(subject)
         if page.exists() == False:
             print("Page - Exists: %s" % page.exists())
-            message = "Article for Title " + title_sub_verb + \
-                " and Title "+subject+" does not exist."
+            # message = "Article for Title " + title_sub_verb + \
+            #     " and Title "+subject+" does not exist."
+            message = "Article does not exist in wikipedia"
             return render(request, 'article/article.html', {'message': message, 'title': title})
         else:
             article_subject = page.text
@@ -1907,7 +1908,7 @@ def generate_article_wiki(request):
             designed_for = request.POST.get("designed_for")
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("image")
-            dowellclock = get_dowellclock()
+            # dowellclock = get_dowellclock()
             wiki_language = wikipediaapi.Wikipedia(
                 language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
             page = wiki_language.page(title)
@@ -1932,7 +1933,7 @@ def generate_article_wiki(request):
                                                            "paragraph": article_sub_verb[0],
                                                            "source": page.fullurl,
                                                            'subject': subject,
-                                                           'dowelltime': dowellclock
+                                                           # 'dowelltime': dowellclock
                                                            }, "9992828281")
                     para_list = article_sub_verb[0].split("\n\n")
                     source_verb = page.fullurl
@@ -1952,14 +1953,15 @@ def generate_article_wiki(request):
                                                                    "paragraph": para_list[i],
                                                                    "citation_and_url": page.fullurl,
                                                                    'subject': subject,
-                                                                   'dowelltime': dowellclock
+                                                                   # 'dowelltime': dowellclock
                                                                    }, '34567897799')
                 print("Using subject: " + subject + " to create an article.")
                 page = wiki_language.page(title_sub_verb)
                 if page.exists() == False:
                     print("Page - Exists: %s" % page.exists())
-                    message = "Article for Title " + title_sub_verb + \
-                        " and Title "+subject+" does not exist."
+                    # message = "Article for Title " + title_sub_verb + \
+                    #     " and Title "+subject+" does not exist."
+                    message = "Article does not exist in wikipedia"
                     return render(request, 'article/article.html', {'message': message})
                 else:
                     article_subject = page.text
@@ -1974,7 +1976,7 @@ def generate_article_wiki(request):
                                                            "paragraph": article_subject[0],
                                                            "source": page.fullurl,
                                                            'subject': subject,
-                                                           'dowelltime': dowellclock
+                                                           # 'dowelltime': dowellclock
                                                            }, "9992828281")
                     para_list = article_subject[0].split("\n\n")
                     for i in range(len(para_list)):
@@ -1994,7 +1996,7 @@ def generate_article_wiki(request):
                                                                    "paragraph": para_list[i],
                                                                    "citation_and_url": page.fullurl,
                                                                    'subject': subject,
-                                                                   'dowelltime': dowellclock
+                                                                   # 'dowelltime': dowellclock
                                                                    }, '34567897799')
                             print("\n")
                     if 'article_sub_verb' in locals():
@@ -2020,7 +2022,7 @@ def generate_article_wiki(request):
                                                        "paragraph": article[0],
                                                        "source": page.fullurl,
                                                        'subject': subject,
-                                                       'dowelltime': dowellclock
+                                                       # 'dowelltime': dowellclock
                                                        }, "9992828281")
                 para_list = article[0].split("\n\n")
                 for i in range(len(para_list)):
@@ -2039,7 +2041,7 @@ def generate_article_wiki(request):
                                                                "paragraph": para_list[i],
                                                                "citation_and_url": page.fullurl,
                                                                'subject': subject,
-                                                               'dowelltime': dowellclock
+                                                               # 'dowelltime': dowellclock
                                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
                 messages.success(
