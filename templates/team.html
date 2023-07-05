@@ -1,0 +1,89 @@
+{% extends "article/base_background.html" %}
+{% load static %}
+
+{% block style %}
+    {{ block.super }}
+    <style type="text/css">
+        .btn-dark-blue {
+            color: white;
+            background-color: var(--dark-blue);
+            border-color: var(--dark-blue);
+        }
+
+        .btn-dark-blue:hover {
+            color: white;
+            background-color: rgb(20, 38, 85);
+        }
+
+        .form-switch .form-check-input {
+            height: 30px;
+            width: 70px;
+        }
+
+        .form-switch .form-check-input:focus + .form-check-label {
+            outline: none;
+            box-shadow: none;
+        }
+    </style>
+{% endblock %}
+
+{% block navbar_heading %}
+{% endblock %}
+
+{% block stuff %}
+    <h2 class="mb-5 blue-text"> Approve users that can post on social media</h2>
+    {% if status == 'insert' %}
+        <form class="fw-bold fs-5 blue-text" id="titleForm" action="{% url 'generate_article:user-approval-form' %}"
+              method="post" onsubmit='showLoading();'>
+            {% csrf_token %}
+            {% for portfolio in portfolio_list %}
+                <div class="row mb-5">
+                    <div class="col">
+                        <label for="member_type">{{ portfolio.username }}</label>
+                    </div>
+                    <div class="col-3 d-flex">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="username" id="topic_toggle"
+                                   value="True">
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+
+
+            <div class="text-center">
+                <button type='submit' class="btn btn-dark-blue px-5 fw-bold">Done</button>
+            </div>
+
+        </form>
+    {% else %}
+
+        <form class="fw-bold fs-5 blue-text" id="titleForm" action="{% url 'generate_article:user-approval-update' %}"
+              method="post" onsubmit='showLoading();'>
+            {% csrf_token %}
+
+            {% for portfolio in portfolio_list %}
+                <div class="row mb-5">
+                    <div class="col">
+                        <label for="member_type">{{ portfolio.username }}</label>
+                    </div>
+                    <div class="col-3 d-flex">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="username" id="topic_toggle"
+                                   value="True">
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="text-center">
+                <button type='submit' class="btn btn-dark-blue px-5 fw-bold">Done</button>
+            </div>
+
+        </form>
+
+
+    {% endif %}
+
+{% endblock %}

@@ -23,7 +23,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.timezone import localdate, localtime
@@ -2741,10 +2741,12 @@ def get_organization_portfolio(request):
     headers = {'Content-Type': 'application/json'}
     response = requests.request(
         "POST", url, headers=headers, data=payload)
+    portfolio_list = response.json()
     context_data = {
         'portfolio_list': response.json(),
     }
-    return JsonResponse(context_data, safe=True)
+
+    return render(request, 'team.html', context_data)
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)
