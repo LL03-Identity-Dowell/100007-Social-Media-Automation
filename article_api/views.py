@@ -21,10 +21,10 @@ class APIKeyProcessor(APIView):
     def __init__(self):
         self.api_key_endpoint = 'https://100105.pythonanywhere.com/api/v1/process-api-key/'
 
-    def validate_api_data(self, api_key, api_services):
+    def validate_api_data(self, api_key, api_service_id):
         payload = {
             'api_key': api_key,
-            'api_services': api_services
+            'api_service_id': api_service_id
         }
 
         response = requests.post(self.api_key_endpoint, json=payload)
@@ -58,10 +58,10 @@ class APIKeyProcessor(APIView):
                     "success": True,
                     "message": "Limit exceeded"
                 }
-            elif api_key_data.get('message') == 'API key does not exist or the combination is invalid':
+            elif api_key_data.get('message') == 'API key does not exist':
                 return False, {
                     "success": False,
-                    "message": "API key does not exist or the combination is invalid"
+                    "message": "API key does not exist"
                 }
             else:
                 return False, {
@@ -71,15 +71,18 @@ class APIKeyProcessor(APIView):
 
     def post(self, request):
         api_key = request.data.get('api_key')
-        api_services = request.data.get('api_services')
-        if not api_key or not api_services:
-            raise AuthenticationFailed('API key and API services are required.')
+        api_service_id = request.data.get('api_service_id')
+        if not api_key:
+            raise AuthenticationFailed('API key is required.')
+
+        api_service_id = 'DOWELL10001'
 
         validation_endpoint = 'https://100105.pythonanywhere.com/api/v1/process-api-key/'
-        response = requests.post(validation_endpoint, json={'api_key': api_key, 'api_services': api_services})
+        response = requests.post(validation_endpoint, json={
+                                 'api_key': api_key, 'api_service_id': api_service_id})
         api_key_data = response.json()
         print("here is", api_key_data)
-        
+
         if response.status_code == 200 and api_key_data.get('success'):
             # API key is valid, you can perform additional checks if needed
             count = api_key_data.get('count')
@@ -95,7 +98,6 @@ class APIKeyProcessor(APIView):
                 'success': False,
                 'message': message
             }, status=status.HTTP_401_UNAUTHORIZED)
-
 
 
 class GenerateSentencesAPIView(generics.CreateAPIView):
