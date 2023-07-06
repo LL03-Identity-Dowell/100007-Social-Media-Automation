@@ -12,10 +12,10 @@ class HasBeenAuthenticated(BaseAuthentication):
     def __init__(self):
         self.api_key_endpoint = 'https://100105.pythonanywhere.com/api/v1/process-api-key/'
 
-    def validate_api_data(self, api_key, api_services):
+    def validate_api_data(self, api_key, api_service_id):
         payload = {
             'api_key': api_key,
-            'api_services': api_services
+            'api_service_id': api_service_id
         }
 
         response = requests.post(self.api_key_endpoint, json=payload)
@@ -62,14 +62,16 @@ class HasBeenAuthenticated(BaseAuthentication):
 
     def has_permission(self, request, view):
         api_key = request.data.get('api_key')
-        api_services = request.data.get('api_services')
-        if not api_key or not api_services:
+        api_service_id = request.data.get('api_service_id')
+        if not api_key:
             raise AuthenticationFailed(
-                'API key and API services are required.')
+                'API key are required.')
+
+        api_service_id = 'DOWELL10001'
 
         validation_endpoint = 'https://100105.pythonanywhere.com/api/v1/process-api-key/'
         response = requests.post(validation_endpoint, json={
-                                 'api_key': api_key, 'api_services': api_services})
+                                 'api_key': api_key, 'api_service_id': api_service_id})
         api_key_data = response.json()
         print("here is", api_key_data)
 
