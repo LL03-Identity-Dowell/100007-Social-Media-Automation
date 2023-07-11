@@ -1405,14 +1405,22 @@ def scheduled(request):
         user_id = str(request.session['user_id'])
         status = 'scheduled'
         post = []
+
         try:
             for column in posts:
                 for row in column:
                     if user_id == str(row['user_id']):
                         try:
+
                             if status == row['status']:
-                                data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
-                                        'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date()}
+                                data = {
+                                    'title': row['title'],
+                                    'paragraph': row['paragraph'],
+                                    'image': row['image'],
+                                    'pk': row['_id'],
+                                    'source': row['source'],
+                                    'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                                }
                                 post.append(data)
 
                         except:
