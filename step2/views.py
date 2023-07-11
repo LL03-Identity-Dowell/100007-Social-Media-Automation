@@ -57,29 +57,12 @@ def get_image(urls):
     return file
 
 
-def get_event_id():
-    dd = datetime.now()
-    time = dd.strftime("%d:%m:%Y,%H:%M:%S")
-    url = "https://100003.pythonanywhere.com/event_creation"
-    data = {"platformcode": "FB", "citycode": "101", "daycode": "0",
-            "dbcode": "pfm", "ip_address": "192.168.0.41",
-            "login_id": "lav", "session_id": "new",
-            "processcode": "1", "regional_time": time,
-            "dowell_time": time, "location": "22446576",
-            "objectcode": "1", "instancecode": "100051", "context": "afdafa ",
-            "document_id": "3004", "rules": "some rules", "status": "work"
-            }
-
-    r = requests.post(url, json=data)
-    return r.text
-
-
 def save_data(collection, document, field, team_member_ID):
-    url = "http://100002.pythonanywhere.com/"
+    url = "http://uxlivinglab.pythonanywhere.com"
 
     # adding eddited field in article
     field['edited'] = 0
-    field['eventId'] = get_event_id()
+    field['eventId'] = create_event(request=None)
     payload = json.dumps({
         "cluster": "socialmedia",
         "database": "socialmedia",
@@ -108,7 +91,7 @@ def save_comments(field):
     with open("save_comments.txt", 'w') as f:
         f.write(str(field))
 
-    url = "http://100002.pythonanywhere.com/"
+    url = "http://uxlivinglab.pythonanywhere.com"
 
     payload = json.dumps({
         "cluster": "socialmedia",
@@ -458,7 +441,7 @@ def user_approval_form(request):
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
         event_id = create_event(request)['event_id']
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -522,7 +505,7 @@ def user_approval_form_update(request):
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
         event_id = create_event(request)['event_id']
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -590,7 +573,7 @@ def facebook_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -643,7 +626,7 @@ def insta_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -695,7 +678,7 @@ def twitter_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -748,7 +731,7 @@ def linkedin_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -800,7 +783,7 @@ def youtube_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -852,7 +835,7 @@ def client_profile_form(request):
         product = request.POST.get("product")
         logo = request.FILES.get("logo")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -914,7 +897,7 @@ def comments(request):
     if 'session_id' and 'username' in request.session:
 
         # fetching topics according to the user logged in
-        url = 'http://100002.pythonanywhere.com/'
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         data = {
             "cluster": "socialmedia",
@@ -942,7 +925,7 @@ def comments(request):
         topics = response.json()
 
         # fetching hastags from database
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = {
             "cluster": "client_scans",
@@ -1002,7 +985,7 @@ def generate_comments(request):
             Hashtag = hashtag_split[0]
             Hashtag_group = hashtag_split[1]
 
-            url = 'http://100002.pythonanywhere.com/'
+            url = "http://uxlivinglab.pythonanywhere.com"
 
             data = {
                 "cluster": "socialmedia",
@@ -1317,7 +1300,7 @@ def unscheduled(request):
 @xframe_options_exempt
 def post_scheduler(request):
 
-    # url = "http://100002.pythonanywhere.com/"
+    # url = "http://uxlivinglab.pythonanywhere.com"
 
     # # adding eddited field in article
     # payload = json.dumps({
@@ -2309,7 +2292,7 @@ def filtered_list_article(request, filter):
     #     'start_point':0,
     #     'end_point':end_time - 1609459200,
     # }
-    url = "http://100002.pythonanywhere.com/"
+    url = "http://uxlivinglab.pythonanywhere.com"
 
     # adding eddited field in article
 
@@ -2459,7 +2442,7 @@ def Save_Post(request):
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
 
-            url = "http://100002.pythonanywhere.com/"
+            url = "http://uxlivinglab.pythonanywhere.com"
 
             payload = json.dumps({
                 "cluster": "socialmedia",
@@ -2685,7 +2668,7 @@ def Media_Post(request):
 
                 print(postitems)
                 print(postitems1)
-                url = "http://100002.pythonanywhere.com/"
+                url = "http://uxlivinglab.pythonanywhere.com"
 
                 # adding eddited field in article
                 payload = json.dumps(
@@ -2719,7 +2702,7 @@ def Media_Post(request):
                                          twitter, instagram], 'mediaUrls': [image]})
                 print(postitems)
                 print(postitems1)
-                url = "http://100002.pythonanywhere.com/"
+                url = "http://uxlivinglab.pythonanywhere.com"
 
                 # adding eddited field in article
                 payload = json.dumps(

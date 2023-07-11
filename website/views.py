@@ -255,7 +255,7 @@ def get_dowellclock():
 def insert_form_data(data_dict):
     print("----------------> insert form data-- start---------")
 
-    url = 'http://100002.pythonanywhere.com/'
+    url = "http://uxlivinglab.pythonanywhere.com"
     if not data_dict.get('eventId'):
         data_dict['eventId'] = get_event_id()
     # data_dict['dowelltime'] = get_dowellclock()
