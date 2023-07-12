@@ -157,27 +157,27 @@
                 <select name="rank_{{ forloop.counter }}" class="required" id="selector_{{ forloop.counter }}">
                     <option value="0" disabled selected>Rank</option>
                     {% for rank in ranks %}
-                    <option value="{{ rank }}">{{ rank }}</option>
+                        <option value="{{ rank }}">{{ rank }}</option>
                     {% endfor %}
                 </select>
             </label>
         </span>
     </p>
-</div>
+    </div>
 
-        <br>
+            <br>
         {% endfor %}
-        <input type=button value="Cancel" class="btn btn-danger">
+        <a href="{% url 'index' %}" type=button class="btn btn-danger">Cancel</a>
         <button type="submit" class="btn btn-success">SUBMIT</button>
     </form>
 
-<div class="s-alert">
-    <span class="fas fa-exclamation-circle"></span>
-    <span class="msg">Submitting your ranked topics...</span>
-    <span class="close-icon" onclick="closeAlert()">&times;</span>
-</div>
-<div id="alertPopup" class="s-alert hide">
-    <span class="fas fa-exclamation-circle"></span>
+    <div class="s-alert">
+        <span class="fas fa-exclamation-circle"></span>
+        <span class="msg">Submitting your ranked topics...</span>
+        <span class="close-icon" onclick="closeAlert()">&times;</span>
+    </div>
+    <div id="alertPopup" class="s-alert hide">
+        <span class="fas fa-exclamation-circle"></span>
     <span class="msg">You need to rank more than three sentences to submit.</span>
     <span class="close-icon1" onclick="closeAlert1()">&times;</span>
 </div>
