@@ -569,7 +569,156 @@ def user_approval_form_update(request):
 @csrf_exempt
 @xframe_options_exempt
 def social_media_channels(request):
+    with open(r'C:\Users\user\Desktop\100007-Social-Media-Automation\dowellresearch.key') as f:
+        privateKey = f.read()
+    print(privateKey)
+
     return render(request, 'social_media_channels.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
+def aryshare_profile(request):
+    event_id = create_event(request)['event_id']
+    user = request.session['username']
+    payload = {'title': user}
+    headers = {'Content-Type': 'application/json',
+            'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
+
+    r = requests.post('https://app.ayrshare.com/api/profiles/profile',
+        json=payload,
+        headers=headers)
+    data = r.json()
+    print(data)
+    if data['status'] =='error':
+        messages.error(request, data['message'])
+    else:
+
+        url = "http://100002.pythonanywhere.com/"
+        test_date = str(localdate())
+
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "insert",
+            "field": {
+                "user_id": request.session['user_id'],
+                "session_id": request.session['session_id'],
+                'title':data['title'],
+                'refId':data['refId'],
+                'profileKey':data['profileKey'],
+                "eventId": event_id,
+
+            },
+            "update_field": {
+                "aryshare_details":{
+
+
+
+                }
+
+
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+        print(data)
+        messages.success(request, "Social media profile created...")
+    return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+
+
+@csrf_exempt
+@xframe_options_exempt
+def link_media_channels(request):
+    session_id = request.GET.get("session_id", None)
+    url = 'http://100032.pythonanywhere.com/api/targeted_population/'
+
+    database_details = {
+            'database_name': 'mongodb',
+            'collection': 'ayrshare_info',
+            'database': 'social-media-auto',
+            'fields': ['_id']
+        }
+
+        # number of variables for sampling rule
+    number_of_variables = -1
+
+    """
+        period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
+        if custom is given then need to specify start_point and end_point
+        for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
+        the the value of that selection in 'm_or_A_value'
+        error is the error allowed in percentage
+    """
+
+    time_input = {
+        'column_name': 'Date',
+        'split': 'week',
+        'period':'life_time',
+        'start_point': '2021/01/08',
+        'end_point': '2023/06/25',
+    }
+
+    stage_input_list = [
+        ]
+
+        # distribution input
+    distribution_input={
+            'normal': 1,
+            'poisson':0,
+            'binomial':0,
+            'bernoulli':0
+
+        }
+
+    request_data={
+            'database_details': database_details,
+            'distribution_input': distribution_input,
+            'number_of_variable':number_of_variables,
+            'stages':stage_input_list,
+            'time_input':time_input,
+        }
+
+    headers = {'content-type': 'application/json'}
+
+    response = requests.post(url, json=request_data,headers=headers)
+    print(response.json())
+    data= response.json()['normal']['data']
+    for column in data:
+        for row in column:
+            print(row['user_id'])
+            if row['user_id'] ==str( request.session['user_id']):
+                key=row[ 'profileKey']
+
+    with open(r'/home/100007/dowellresearch.key') as f:
+        privateKey = f.read()
+
+    payload = {'domain': 'dowellresearch',
+            'privateKey': privateKey,
+            'profileKey': key ,
+            'redirect' : 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
+    }
+    headers = {'Content-Type': 'application/json',
+            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
+        json=payload,
+        headers=headers)
+    link =r.json()
+    print(link)
+    return redirect(link['url'])
+
+
 
 
 @csrf_exempt
