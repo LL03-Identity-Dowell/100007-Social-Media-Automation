@@ -20,8 +20,20 @@ from website.models import User
 def index(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
+
         industryForm = IndustryForm()
         sentencesForm = SentencesForm()
+
+        # Checking if the session contains any form data for step one.
+        # If available, the forms are initialized with those values
+        industry_form_data = request.session.get('industry_form_data')
+        sentences_form_data = request.session.get('sentences_form_data')
+
+        if industry_form_data:
+            industryForm = IndustryForm(initial=industry_form_data)
+        if sentences_form_data:
+            sentencesForm = SentencesForm(initial=sentences_form_data)
+
         try:
             profile = str(request.session['operations_right'])
         except:
@@ -35,6 +47,11 @@ def index(request):
             sentencesForm = SentencesForm(request.POST)
             print(industryForm.is_valid())
             if industryForm.is_valid() and sentencesForm.is_valid():
+
+                # Adding the step 1 form data into the user session
+                request.session['industry_form_data'] = industryForm.cleaned_data
+                request.session['sentences_form_data'] = sentencesForm.cleaned_data
+
                 url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
                 email = request.session['userinfo'].get('email')
                 user = User.objects.create(email=email)
@@ -218,6 +235,11 @@ def selected_result(request):
                 # del request.session['data_dictionary']
 
                 insert_form_data(request.session['data_dictionary'])
+
+                # Removing industry form data and sentence forms data from the session
+                request.session.pop('industry_form_data', None)
+                request.session.pop('sentences_form_data', None)
+
                 # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
                 return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
