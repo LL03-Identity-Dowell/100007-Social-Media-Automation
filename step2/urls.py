@@ -1,5 +1,4 @@
 from django.urls import path
-
 from . import views
 
 app_name = 'generate_article'
@@ -20,11 +19,19 @@ urlpatterns = [
     path('confirm/reset/password/', views.confirm_reset_password,
          name='confirm-reset-password'),
     path('forget_password/', views.forget_password, name='forget_password'),
+
+    # Previously deleted endpoints
+    # path('comments/', views.comments, name='comments'),
+    # path('generate/comments/', views.generate_comments, name='generate-comments'),
+    # path('selected/comments/', views.selected_comments, name='selected-comment'),
+    # path('emoji/comments/', views.comments_emojis, name='comment-emoji'),
+    # path('topics/', views.topics, name='topics'),
+
     path('user/approval/', views.user_approval, name='user-approval'),
     path('user/approval/form/', views.user_approval_form,
          name='user-approval-form'),
-    path('user/approval/form_update/',
-         views.user_approval_form_update, name='user-approval-update'),
+    path('user/approval/form_update/', views.user_approval_form_update,
+         name='user-approval-update'),
     path('social_media_channels/', views.social_media_channels,
          name='social_media_channels'),
     path('link/facebook/', views.facebook, name='facebook'),
@@ -44,11 +51,14 @@ urlpatterns = [
     path('user/team/', views.user_team, name='user-team'),
     path('user/usage/', views.user_usage, name='user-usage'),
     path('user/plan/', views.user_plan, name='user-plan'),
+
+    #Previously deleted endpoints
     path('comments/', views.comments, name='comments'),
     path('generate/comments/', views.generate_comments, name='generate-comments'),
     path('selected/comments/', views.selected_comments, name='selected-comment'),
     path('emoji/comments/', views.comments_emojis, name='comment-emoji'),
     path('topics/', views.topics, name='topics'),
+
     path('signup/', views.register, name='register'),
     path('article/generate/', views.index, name='index-view'),
     path('article/automate/', views.generate_article_automatically,
@@ -64,6 +74,4 @@ urlpatterns = [
     path('save_post/', views.Save_Post, name='save-post'),
     path('media_post/', views.Media_Post, name='media-post'),
     path('organization-portfolio/', views.get_organization_portfolio, name='organization-portfolio'),
-    # path('list/article',views.list_article, name='list-article'),
-    # path('saved/',views.save_article,name='save-article'),
 ]
