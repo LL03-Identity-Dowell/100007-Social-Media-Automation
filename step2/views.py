@@ -1,54 +1,41 @@
-from django.contrib.sessions.models import Session
-from create_article.custom_session_backend import CustomSessionStore
-from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse
-from django.http import HttpResponseRedirect, JsonResponse
-import requests
-import json
-import time
-from datetime import datetime
 import datetime
+import json
+import random
+import re
+import time
+import traceback
+import urllib
+import urllib.parse
+from datetime import datetime, date
+# image resizing
+from io import BytesIO
+
+import openai
+import pytz
+import requests
+import wikipediaapi
+from PIL import Image
+from ayrshare import SocialPost
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-import wikipediaapi
+from bson import ObjectId
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db import transaction
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime, timedelta, date
 from mega import Mega
-from create_article import settings
-from pymongo import MongoClient
-from django.core.paginator import Paginator
-from bson import ObjectId
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.timezone import localdate, localtime
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Page
-from website.models import Sentences, SentenceResults, SentenceRank, MTopic
-import urllib
-from urllib.request import urlopen
-from django.contrib import messages
 from pexels_api import API
-import random
-from .models import stepFour
-from .forms import StepFourForm, VerifyArticleForm
-from ayrshare import SocialPost
-from django.utils import timezone
-# image resizing
-import base64
-from io import BytesIO
-from PIL import Image, UnidentifiedImageError
-from pytz import timezone
-import pytz
-import openai
-import re
-import os
-from create_article.settings import STATIC_ROOT, BASE_DIR
-import shutil
-import math
-import traceback
-import urllib.parse
+from pymongo import MongoClient
 
-
-from django.db import transaction
+from create_article import settings
+from website.models import Sentences, SentenceResults
+from .forms import VerifyArticleForm
 
 # helper functions
 
@@ -70,29 +57,12 @@ def get_image(urls):
     return file
 
 
-def get_event_id():
-    dd = datetime.now()
-    time = dd.strftime("%d:%m:%Y,%H:%M:%S")
-    url = "https://100003.pythonanywhere.com/event_creation"
-    data = {"platformcode": "FB", "citycode": "101", "daycode": "0",
-            "dbcode": "pfm", "ip_address": "192.168.0.41",
-            "login_id": "lav", "session_id": "new",
-            "processcode": "1", "regional_time": time,
-            "dowell_time": time, "location": "22446576",
-            "objectcode": "1", "instancecode": "100051", "context": "afdafa ",
-            "document_id": "3004", "rules": "some rules", "status": "work"
-            }
-
-    r = requests.post(url, json=data)
-    return r.text
-
-
 def save_data(collection, document, field, team_member_ID):
-    url = "http://100002.pythonanywhere.com/"
+    url = "http://uxlivinglab.pythonanywhere.com"
 
     # adding eddited field in article
     field['edited'] = 0
-    field['eventId'] = get_event_id()
+    field['eventId'] = create_event(request=None)
     payload = json.dumps({
         "cluster": "socialmedia",
         "database": "socialmedia",
@@ -121,7 +91,7 @@ def save_comments(field):
     with open("save_comments.txt", 'w') as f:
         f.write(str(field))
 
-    url = "http://100002.pythonanywhere.com/"
+    url = "http://uxlivinglab.pythonanywhere.com"
 
     payload = json.dumps({
         "cluster": "socialmedia",
@@ -233,102 +203,109 @@ def has_access(portfolio_info):
     return True
 
 
+def home(request):
+    session_id = request.GET.get("session_id", None)
+    if session_id:
+        request.session["session_id"] = session_id
+        # return redirect("https://100007.pythonanywhere.com/main")
+        return redirect("http://127.0.0.1:8000/main")
+    else:
+        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+
+
 @csrf_exempt
 @xframe_options_exempt
 def main(request):
-    try:
-        session_id = request.GET.get("session_id", None)
+    if request.session.get("session_id"):
         # saving the session_id in the custom session store
         # session = CustomSessionStore()
         # session.create()
         # session_id = session.session_key
         user_map = {}
         redirect_to_living_lab = True
-        if session_id is not None:
-            request.session["session_id"] = session_id
-            # First API
-            url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-            # headers = {"Authorization": f"Bearer {session_id}"}
-            response_1 = requests.post(url_1, data={"session_id": session_id})
-            if response_1.status_code == 200 and "portfolio_info" in response_1.json():
-                # First API response contains portfolio_info data
-                print("You connected from the client admin: ", response_1.text)
-                profile_details = response_1.json()
+        # First API
+        url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
+        # headers = {"Authorization": f"Bearer {session_id}"}
+        session_id = request.session["session_id"]
+        response_1 = requests.post(url_1, data={"session_id": session_id})
+        if response_1.status_code == 200 and "portfolio_info" in response_1.json():
+            # First API response contains portfolio_info data
+            print("You connected from the client admin: ", response_1.text)
+            profile_details = response_1.json()
+            print(profile_details, "api details")
+            request.session['portfolio_info'] = profile_details['portfolio_info']
+            print('This is the portfolio info  has data for you: ',
+                  profile_details['portfolio_info'])
+            print('This is the user the userID: ',
+                  profile_details['userinfo']['userID'])
+            user_map[profile_details['userinfo']['userID']
+                     ] = profile_details['userinfo']['username']
+
+            # if has_access(profile_details['portfolio_info']):
+
+            #     messages.error(request,'You are not allowed to access this page')
+            #     return render(request, 'portofolio-logib.html')
+        else:
+            # Second API
+            url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
+            response_2 = requests.post(
+                url_2, data={"session_id": session_id})
+            if response_2.status_code == 200 and "portfolio_info" in response_2.json():
+                # Second API response contains portfolio_info data
+                print("You connected from 100014 ", response_2.json())
+                profile_details = response_2.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
-                print('This is the portfolio info  has data for you: ',
+                print('This is the portfolio info  is empty for you: ',
                       profile_details['portfolio_info'])
                 print('This is the user the userID: ',
                       profile_details['userinfo']['userID'])
                 user_map[profile_details['userinfo']['userID']
                          ] = profile_details['userinfo']['username']
-
                 # if has_access(profile_details['portfolio_info']):
-
                 #     messages.error(request,'You are not allowed to access this page')
                 #     return render(request, 'portofolio-logib.html')
             else:
-                # Second API
-                url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
-                response_2 = requests.post(
-                    url_2, data={"session_id": session_id})
-                if response_2.status_code == 200 and "portfolio_info" in response_2.json():
-                    # Second API response contains portfolio_info data
-                    print("You connected from 100014 ", response_2.json())
-                    profile_details = response_2.json()
-                    request.session['portfolio_info'] = profile_details['portfolio_info']
-                    print('This is the portfolio info  is empty for you: ',
-                          profile_details['portfolio_info'])
-                    print('This is the user the userID: ',
-                          profile_details['userinfo']['userID'])
-                    user_map[profile_details['userinfo']['userID']
-                             ] = profile_details['userinfo']['username']
-                    # if has_access(profile_details['portfolio_info']):
-                    #     messages.error(request,'You are not allowed to access this page')
-                    #     return render(request, 'portofolio-logib.html')
-                else:
-                    # Neither API returned portfolio_info data
-                    profile_details = {}
-                    request.session['portfolio_info'] = []
+                # Neither API returned portfolio_info data
+                profile_details = {}
+                request.session['portfolio_info'] = []
 
-            if "userinfo" in profile_details:
-                request.session['userinfo'] = profile_details['userinfo']
-                request.session['username'] = profile_details['userinfo']['username']
-                request.session['user_id'] = profile_details['userinfo']['userID']
-                request.session['timezone'] = profile_details['userinfo']['timezone']
+        if "userinfo" in profile_details:
+            request.session['userinfo'] = profile_details['userinfo']
+            request.session['username'] = profile_details['userinfo']['username']
+            request.session['user_id'] = profile_details['userinfo']['userID']
+            request.session['timezone'] = profile_details['userinfo']['timezone']
 
-            if request.session['portfolio_info'] == []:
-                request.session['operations_right'] = 'member'
-                request.session['org_id'] = '0001'
-            else:
-                for info in request.session['portfolio_info']:
-                    if info['product'] == 'Social Media Automation':
-                        request.session['operations_right'] = info['operations_right']
-                        request.session['org_id'] = info['org_id']
-                        break
-                else:
-                    request.session['operations_right'] = 'member'
-                    request.session['org_id'] = info['org_id'] if info else ''
-
-            # Map the username with the userID
-            username = user_map.get(request.session['user_id'], None)
-            print(user_map)
-
-            # Adding session id to the session
-            request.session['session_id'] = session_id
-            if username:
-                username_with_userID = request.session['username'] = username
-                print("Use this to filter out the data for: ",
-                      username_with_userID)
-
-            if not has_access(request.session['portfolio_info']):
-                return render(request, 'portofolio-logib.html')
-            return render(request, 'main.html')
+        if request.session['portfolio_info'] == []:
+            request.session['operations_right'] = 'member'
+            request.session['org_id'] = '0001'
         else:
-            # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
-            return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
-    except Exception as e:
-        print(str(e))
-        return render(request, 'error.html')
+            for info in request.session['portfolio_info']:
+                if info['product'] == 'Social Media Automation':
+                    request.session['operations_right'] = info['operations_right']
+                    request.session['org_id'] = info['org_id']
+                    break
+            else:
+                request.session['operations_right'] = 'member'
+                request.session['org_id'] = info['org_id'] if info else ''
+
+        # Map the username with the userID
+        username = user_map.get(request.session['user_id'], None)
+        print(user_map)
+
+        # Adding session id to the session
+        request.session['session_id'] = session_id
+        if username:
+            username_with_userID = request.session['username'] = username
+            print("Use this to filter out the data for: ",
+                  username_with_userID)
+
+        if not has_access(request.session['portfolio_info']):
+            return render(request, 'portofolio-logib.html')
+        return render(request, 'main.html')
+    else:
+        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
+        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+    return render(request, 'error.html')
 
 
 def forget_password(request):
@@ -464,7 +441,7 @@ def user_approval_form(request):
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
         event_id = create_event(request)['event_id']
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -528,7 +505,7 @@ def user_approval_form_update(request):
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
         event_id = create_event(request)['event_id']
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -745,7 +722,7 @@ def facebook_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -798,7 +775,7 @@ def insta_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -850,7 +827,7 @@ def twitter_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -903,7 +880,7 @@ def linkedin_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -955,7 +932,7 @@ def youtube_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -1007,7 +984,7 @@ def client_profile_form(request):
         product = request.POST.get("product")
         logo = request.FILES.get("logo")
 
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -1069,7 +1046,7 @@ def comments(request):
     if 'session_id' and 'username' in request.session:
 
         # fetching topics according to the user logged in
-        url = 'http://100002.pythonanywhere.com/'
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         data = {
             "cluster": "socialmedia",
@@ -1097,7 +1074,7 @@ def comments(request):
         topics = response.json()
 
         # fetching hastags from database
-        url = "http://100002.pythonanywhere.com/"
+        url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = {
             "cluster": "client_scans",
@@ -1157,7 +1134,7 @@ def generate_comments(request):
             Hashtag = hashtag_split[0]
             Hashtag_group = hashtag_split[1]
 
-            url = 'http://100002.pythonanywhere.com/'
+            url = "http://uxlivinglab.pythonanywhere.com"
 
             data = {
                 "cluster": "socialmedia",
@@ -1448,9 +1425,22 @@ def unscheduled(request):
 
         except:
             pass
+        post = list(reversed(post))  # Reverse the order of the posts list
+
+        number_of_items_per_page = 10
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(post, number_of_items_per_page)
+        try:
+            page_post = paginator.page(page)
+        except PageNotAnInteger:
+            page_post = paginator.page(1)
+        except EmptyPage:
+            page_post = paginator.page(paginator.num_pages)
+
         messages.info(
             request, 'Click on post now to choose where to post the articles.')
-        return render(request, 'unscheduled.html', {'post': post, 'profile': profile})
+        return render(request, 'unscheduled.html', {'post': post, 'profile': profile, 'page_post': page_post})
     else:
         return render(request, 'error.html')
 
@@ -1459,7 +1449,7 @@ def unscheduled(request):
 @xframe_options_exempt
 def post_scheduler(request):
 
-    # url = "http://100002.pythonanywhere.com/"
+    # url = "http://uxlivinglab.pythonanywhere.com"
 
     # # adding eddited field in article
     # payload = json.dumps({
@@ -1547,20 +1537,29 @@ def scheduled(request):
         user_id = str(request.session['user_id'])
         status = 'scheduled'
         post = []
+
         try:
             for column in posts:
                 for row in column:
                     if user_id == str(row['user_id']):
                         try:
+
                             if status == row['status']:
-                                data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
-                                        'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date()}
+                                data = {
+                                    'title': row['title'],
+                                    'paragraph': row['paragraph'],
+                                    'image': row['image'],
+                                    'pk': row['_id'],
+                                    'source': row['source'],
+                                    'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                                }
                                 post.append(data)
 
                         except:
                             pass
         except:
             pass
+        post = list(reversed(post))  # Reverse the order of the posts list
         return render(request, 'scheduled.html', {'post': post})
     else:
         return render(request, 'error.html')
@@ -1832,8 +1831,9 @@ def generate_article_automatically(request):
         page = wiki_language.page(subject)
         if page.exists() == False:
             print("Page - Exists: %s" % page.exists())
-            message = "Article for Title " + title_sub_verb + \
-                " and Title "+subject+" does not exist."
+            # message = "Article for Title " + title_sub_verb + \
+            #     " and Title "+subject+" does not exist."
+            message = "Article does not exist in wikipedia"
             return render(request, 'article/article.html', {'message': message, 'title': title})
         else:
             article_subject = page.text
@@ -1937,80 +1937,95 @@ def generate_article(request):
             image = request.POST.get("image")
 
             # Set your OpenAI API key here
-            openai.api_key = "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"
+            openai.api_key = settings.OPENAI_KEY
 
             # Build prompt
             prompt_limit = 280
             prompt = f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."[
                 :prompt_limit] + "..."
 
-            # Generate article using OpenAI's GPT-3
-            response = openai.Completion.create(
-                engine="text-davinci-003",
-                prompt=prompt,
-                temperature=0.5,
-                max_tokens=1024,
-                n=1,
-                stop=None,
-                timeout=60,
-            )
-            article = response.choices[0].text
-            paragraphs = article.split("\n\n")
-            article_str = "\n\n".join(paragraphs)
+            # Variables for loop control
+            duration = 400  # Total duration in seconds
+            interval = 10  # Interval between generating articles in seconds
+            start_time = time.time()
+            current_time = time.time()
 
-            sources = urllib.parse.unquote("https://openai.com")
-            matches = re.findall(r'(https?://[^\s]+)', article)
-            for match in matches:
-                sources += match.strip() + '\n'
+            # Loop until the specified duration is reached
+            while current_time - start_time < duration:
+                # Generate article using OpenAI's GPT-3
+                response = openai.Completion.create(
+                    engine="text-davinci-003",
+                    prompt=prompt,
+                    temperature=0.5,
+                    max_tokens=1024,
+                    n=1,
+                    stop=None,
+                    timeout=60,
+                )
+                article = response.choices[0].text
+                paragraphs = article.split("\n\n")
+                article_str = "\n\n".join(paragraphs)
 
-            try:
-                with transaction.atomic():
-                    event_id = create_event(request)['event_id']
-                    user_id = request.session['user_id']
-                    client_admin_id = request.session['userinfo']['client_admin_id']
+                sources = urllib.parse.unquote("https://openai.com")
+                matches = re.findall(r'(https?://[^\s]+)', article)
+                for match in matches:
+                    sources += match.strip() + '\n'
 
-                    # Save data for step 3
-                    step3_data = {
-                        "user_id": user_id,
-                        "session_id": session_id,
-                        "eventId": event_id,
-                        'client_admin_id': client_admin_id,
-                        "title": RESEARCH_QUERY,
-                        "target_industry": target_industry,
-                        "qualitative_categorization": qualitative_categorization,
-                        "targeted_for": targeted_for,
-                        "designed_for": designed_for,
-                        "targeted_category": targeted_category,
-                        "source": sources,
-                        "image": image,
-                        "paragraph": article_str,
-                        "citation_and_url": sources,
-                        "subject": subject,
-                    }
-                    save_data('step3_data', 'step3_data',
-                              step3_data, '34567897799')
+                try:
+                    with transaction.atomic():
+                        event_id = create_event(request)['event_id']
+                        user_id = request.session['user_id']
+                        client_admin_id = request.session['userinfo']['client_admin_id']
 
-                    # Save data for step 2
-                    step2_data = {
-                        "user_id": user_id,
-                        "session_id": session_id,
-                        "eventId": event_id,
-                        'client_admin_id': client_admin_id,
-                        "title": RESEARCH_QUERY,
-                        "target_industry": target_industry,
-                        "paragraph": '',
-                        "source": sources,
-                        "subject": subject,
-                        "citation_and_url": sources,
-                    }
-                    save_data('step2_data', 'step2_data',
-                              step2_data, '9992828281')
+                        # Save data for step 3
+                        step3_data = {
+                            "user_id": user_id,
+                            "session_id": session_id,
+                            "eventId": event_id,
+                            'client_admin_id': client_admin_id,
+                            "title": RESEARCH_QUERY,
+                            "target_industry": target_industry,
+                            "qualitative_categorization": qualitative_categorization,
+                            "targeted_for": targeted_for,
+                            "designed_for": designed_for,
+                            "targeted_category": targeted_category,
+                            "source": sources,
+                            "image": image,
+                            "paragraph": article_str,
+                            "citation_and_url": sources,
+                            "subject": subject,
+                        }
+                        save_data('step3_data', 'step3_data',
+                                  step3_data, '34567897799')
 
-                messages.success(
-                    request, 'Article has been generated successfully. Click on step 3 to post the article')
-                return HttpResponseRedirect(reverse("generate_article:main-view"))
-            except:
-                return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
+                        # Save data for step 2
+                        step2_data = {
+                            "user_id": user_id,
+                            "session_id": session_id,
+                            "eventId": event_id,
+                            'client_admin_id': client_admin_id,
+                            "title": RESEARCH_QUERY,
+                            "target_industry": target_industry,
+                            "paragraph": '',
+                            "source": sources,
+                            "subject": subject,
+                            "citation_and_url": sources,
+                        }
+                        save_data('step2_data', 'step2_data',
+                                  step2_data, '9992828281')
+
+                except:
+                    return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
+
+                # Wait for the specified interval before generating the next article
+                time.sleep(interval)
+
+                # Update current time
+                current_time = time.time()
+
+            messages.success(
+                request, 'Article generation completed. Click on step 3 to view the articles')
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
 
@@ -2033,7 +2048,7 @@ def generate_article_wiki(request):
             designed_for = request.POST.get("designed_for")
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("image")
-            dowellclock = get_dowellclock()
+            # dowellclock = get_dowellclock()
             wiki_language = wikipediaapi.Wikipedia(
                 language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
             page = wiki_language.page(title)
@@ -2058,7 +2073,7 @@ def generate_article_wiki(request):
                                                            "paragraph": article_sub_verb[0],
                                                            "source": page.fullurl,
                                                            'subject': subject,
-                                                           'dowelltime': dowellclock
+                                                           # 'dowelltime': dowellclock
                                                            }, "9992828281")
                     para_list = article_sub_verb[0].split("\n\n")
                     source_verb = page.fullurl
@@ -2078,14 +2093,15 @@ def generate_article_wiki(request):
                                                                    "paragraph": para_list[i],
                                                                    "citation_and_url": page.fullurl,
                                                                    'subject': subject,
-                                                                   'dowelltime': dowellclock
+                                                                   # 'dowelltime': dowellclock
                                                                    }, '34567897799')
                 print("Using subject: " + subject + " to create an article.")
                 page = wiki_language.page(title_sub_verb)
                 if page.exists() == False:
                     print("Page - Exists: %s" % page.exists())
-                    message = "Article for Title " + title_sub_verb + \
-                        " and Title "+subject+" does not exist."
+                    # message = "Article for Title " + title_sub_verb + \
+                    #     " and Title "+subject+" does not exist."
+                    message = "Article does not exist in wikipedia"
                     return render(request, 'article/article.html', {'message': message})
                 else:
                     article_subject = page.text
@@ -2100,7 +2116,7 @@ def generate_article_wiki(request):
                                                            "paragraph": article_subject[0],
                                                            "source": page.fullurl,
                                                            'subject': subject,
-                                                           'dowelltime': dowellclock
+                                                           # 'dowelltime': dowellclock
                                                            }, "9992828281")
                     para_list = article_subject[0].split("\n\n")
                     for i in range(len(para_list)):
@@ -2120,7 +2136,7 @@ def generate_article_wiki(request):
                                                                    "paragraph": para_list[i],
                                                                    "citation_and_url": page.fullurl,
                                                                    'subject': subject,
-                                                                   'dowelltime': dowellclock
+                                                                   # 'dowelltime': dowellclock
                                                                    }, '34567897799')
                             print("\n")
                     if 'article_sub_verb' in locals():
@@ -2146,7 +2162,7 @@ def generate_article_wiki(request):
                                                        "paragraph": article[0],
                                                        "source": page.fullurl,
                                                        'subject': subject,
-                                                       'dowelltime': dowellclock
+                                                       # 'dowelltime': dowellclock
                                                        }, "9992828281")
                 para_list = article[0].split("\n\n")
                 for i in range(len(para_list)):
@@ -2165,7 +2181,7 @@ def generate_article_wiki(request):
                                                                "paragraph": para_list[i],
                                                                "citation_and_url": page.fullurl,
                                                                'subject': subject,
-                                                               'dowelltime': dowellclock
+                                                               # 'dowelltime': dowellclock
                                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
                 messages.success(
@@ -2388,11 +2404,26 @@ def list_article(request):
                     posts.append(articles)
                 else:
                     pass
+        posts = list(reversed(posts))  # Reverse the order of the posts list
+        number_of_items_per_page = 10
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(posts, number_of_items_per_page)
+        try:
+            page_post = paginator.page(page)
+        except PageNotAnInteger:
+            page_post = paginator.page(1)
+        except EmptyPage:
+            page_post = paginator.page(paginator.num_pages)
+        context = {
+            'posts': posts,
+            'page_post': page_post,
+        }
 
         messages.info(
-            request, 'Almost there. Click view artcle to finilize the article before posting')
+            request, 'Almost there. Click view article to finalize the article before posting')
 
-        return render(request, 'post_list.html', {'posts': posts})
+        return render(request, 'post_list.html', context)
     else:
         return render(request, 'error.html')
 
@@ -2410,7 +2441,7 @@ def filtered_list_article(request, filter):
     #     'start_point':0,
     #     'end_point':end_time - 1609459200,
     # }
-    url = "http://100002.pythonanywhere.com/"
+    url = "http://uxlivinglab.pythonanywhere.com"
 
     # adding eddited field in article
 
@@ -2560,7 +2591,7 @@ def Save_Post(request):
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
 
-            url = "http://100002.pythonanywhere.com/"
+            url = "http://uxlivinglab.pythonanywhere.com"
 
             payload = json.dumps({
                 "cluster": "socialmedia",
@@ -2717,6 +2748,7 @@ def most_recent(request):
                             pass
         except:
             print('no post')
+        post = list(reversed(post))  # Reverse the order of the posts list
         context = {
             'post': post
         }
@@ -2725,12 +2757,32 @@ def most_recent(request):
         return render(request, 'error.html')
 
 
+def can_post_on_social_media(request):
+    """
+    This function check of a user can post an article on social media sites
+    """
+    portfolio_info = request.session.get('portfolio_info')
+    if not portfolio_info:
+        return False
+    if not isinstance(portfolio_info, list):
+        return False
+    portfolio_info = portfolio_info[0]
+    if portfolio_info.get('member_type') == 'owner' and portfolio_info.get('username') == 'socialmedia':
+        return True
+    elif portfolio_info.get('member_type') == 'member_type' and portfolio_info.get('username') == 'socialmedia':
+        return True
+    return False
+
+
 @csrf_exempt
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
 
         if request.method == "POST":
+            can_post = can_post_on_social_media(request)
+            if not can_post:
+                return render(request, 'not-allowed-to-post.html')
             facebook = request.POST.get("facebook")
             paragraph = request.POST.get("paragraph")
             twitter = request.POST.get("twitter")
@@ -2765,7 +2817,7 @@ def Media_Post(request):
 
                 print(postitems)
                 print(postitems1)
-                url = "http://100002.pythonanywhere.com/"
+                url = "http://uxlivinglab.pythonanywhere.com"
 
                 # adding eddited field in article
                 payload = json.dumps(
@@ -2799,7 +2851,7 @@ def Media_Post(request):
                                          twitter, instagram], 'mediaUrls': [image]})
                 print(postitems)
                 print(postitems1)
-                url = "http://100002.pythonanywhere.com/"
+                url = "http://uxlivinglab.pythonanywhere.com"
 
                 # adding eddited field in article
                 payload = json.dumps(
@@ -2829,6 +2881,27 @@ def Media_Post(request):
     else:
         return render(request, 'error.html')
 
+
+@xframe_options_exempt
+def get_organization_portfolio(request):
+    """
+    This function returns the portfolio details of an organization
+    """
+    username = request.session.get('username')
+    url = 'https://100093.pythonanywhere.com/api/get-portfolio/'
+    payload = json.dumps(
+        {
+            "username": username,
+            "product": "Social Media Automation",
+        })
+
+    headers = {'Content-Type': 'application/json'}
+    response = requests.request(
+        "POST", url, headers=headers, data=payload)
+    context_data = {
+        'portfolio_list': response.json(),
+    }
+    return JsonResponse(context_data, safe=True)
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)

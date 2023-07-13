@@ -11,7 +11,95 @@ from create_article import settings
 from website.models import User, Sentences, SentenceResults
 
 
-# Create your views here.
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.exceptions import AuthenticationFailed
+
+
+class APIKeyProcessor(APIView):
+    def __init__(self):
+        self.api_key_endpoint = 'https://100105.pythonanywhere.com/api/v1/process-api-key/'
+
+    def validate_api_data(self, api_key, api_service_id):
+        payload = {
+            'api_key': api_key,
+            'api_service_id': api_service_id
+        }
+
+        response = requests.post(self.api_key_endpoint, json=payload)
+        api_key_data = response.json()
+        print("api_key_data", api_key_data)
+        print(api_key_data.get('success'))  # Returns "False"
+        print(api_key_data.get('message'))  # Returns "Limit exceeded"
+        print(response.status_code)  # Returns a 401
+
+        if response.status_code == 200 and api_key_data.get('success'):
+            if api_key_data.get('message') == 'Valid API key':
+                if 'count' in api_key_data:
+                    return True, {
+                        "success": True,
+                        "message": "The count is decremented",
+                        "count": api_key_data['count']
+                    }
+                else:
+                    return False, {
+                        "success": True,
+                        "message": "Limit exceeded"
+                    }
+            elif api_key_data.get('message') == 'API key is inactive':
+                return False, {
+                    "success": True,
+                    "message": "API key is inactive"
+                }
+        else:
+            if api_key_data.get('message') == 'Limit exceeded':
+                return False, {
+                    "success": True,
+                    "message": "Limit exceeded"
+                }
+            elif api_key_data.get('message') == 'API key does not exist':
+                return False, {
+                    "success": False,
+                    "message": "API key does not exist"
+                }
+            else:
+                return False, {
+                    "success": False,
+                    "message": "Unknown error occurred"
+                }
+
+    def post(self, request):
+        api_key = request.data.get('api_key')
+        api_service_id = request.data.get('api_service_id')
+        if not api_key:
+            raise AuthenticationFailed('API key is required.')
+
+        api_service_id = 'DOWELL10001'
+
+        validation_endpoint = 'https://100105.pythonanywhere.com/api/v1/process-api-key/'
+        response = requests.post(validation_endpoint, json={
+                                 'api_key': api_key, 'api_service_id': api_service_id})
+        api_key_data = response.json()
+        print("here is", api_key_data)
+
+        if response.status_code == 200 and api_key_data.get('success'):
+            # API key is valid, you can perform additional checks if needed
+            count = api_key_data.get('count')
+            return Response({
+                'success': True,
+                'message': 'API key is valid.',
+                'count': count
+            }, status=status.HTTP_200_OK)
+        else:
+            # API key is invalid
+            message = api_key_data.get('message', 'Invalid API key.')
+            return Response({
+                'success': False,
+                'message': message
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+
 class GenerateSentencesAPIView(generics.CreateAPIView):
     """
 
@@ -58,7 +146,8 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
             iter_sentence_type = []
             if 'tense' in grammar_arguments:
                 querystring['tense'] = grammar_arguments['tense'].capitalize()
-                iter_sentence_type.append(grammar_arguments['tense'].capitalize())
+                iter_sentence_type.append(
+                    grammar_arguments['tense'].capitalize())
 
             if 'progressive' in grammar_arguments:
                 querystring['progressive'] = 'progressive'
@@ -88,7 +177,8 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
                 'x-rapidapi-host': "linguatools-sentence-generating.p.rapidapi.com",
                 'x-rapidapi-key': settings.LINGUA_KEY
             }
-            response = requests.request("GET", url, headers=headers, params=querystring).json()
+            response = requests.request(
+                "GET", url, headers=headers, params=querystring).json()
             return [response['sentence'], type_of_sentence]
 
         data_dictionary = request.POST.dict()
@@ -133,7 +223,8 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
             ]
             SentenceResults.objects.bulk_create(sentence_results)
 
-        result_ids = SentenceResults.objects.filter(sentence_grammar=sentence_grammar).values_list('pk', flat=True)
+        result_ids = SentenceResults.objects.filter(
+            sentence_grammar=sentence_grammar).values_list('pk', flat=True)
         request.session['result_ids'] = list(result_ids)
 
         request.session['data_dictionary'] = {

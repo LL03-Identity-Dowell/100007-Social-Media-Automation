@@ -26,7 +26,8 @@ def index(request):
             profile = str(request.session['operations_right'])
         except:
             profile = 'member'
-        forms = {'industryForm': industryForm, 'sentencesForm': sentencesForm, 'profile': profile}
+        forms = {'industryForm': industryForm,
+                 'sentencesForm': sentencesForm, 'profile': profile}
 
         if request.method == "POST":
             industryForm = IndustryForm(request.POST)
@@ -62,11 +63,13 @@ def index(request):
                     iter_sentence_type = []
                     if 'tense' in grammar_arguments:
                         querystring['tense'] = grammar_arguments['tense'].capitalize()
-                        iter_sentence_type.append(grammar_arguments['tense'].capitalize())
+                        iter_sentence_type.append(
+                            grammar_arguments['tense'].capitalize())
 
                     if 'progressive' in grammar_arguments:
                         querystring['progressive'] = 'progressive'
-                        iter_sentence_type.append(grammar_arguments['progressive'])
+                        iter_sentence_type.append(
+                            grammar_arguments['progressive'])
 
                     if 'perfect' in grammar_arguments:
                         querystring['perfect'] = 'perfect'
@@ -92,7 +95,8 @@ def index(request):
                         'x-rapidapi-host': "linguatools-sentence-generating.p.rapidapi.com",
                         'x-rapidapi-key': settings.LINGUA_KEY
                     }
-                    response = requests.request("GET", url, headers=headers, params=querystring).json()
+                    response = requests.request(
+                        "GET", url, headers=headers, params=querystring).json()
                     return [response['sentence'], type_of_sentence]
 
                 data_dictionary = request.POST.dict()
@@ -100,7 +104,8 @@ def index(request):
                 data_dictionary["session_id"] = session_id
                 data_dictionary["org_id"] = request.session['org_id']
                 data_dictionary["username"] = request.session['username']
-                data_dictionary["session_id"] = request.session.get('session_id', None)
+                data_dictionary["session_id"] = request.session.get(
+                    'session_id', None)
                 data_dictionary['event_id'] = create_event(request)['event_id']
                 data_dictionary['email'] = email
 
@@ -119,7 +124,8 @@ def index(request):
                 )
 
                 tenses = ['past', 'present', 'future']
-                other_grammar = ['passive', 'progressive', 'perfect', 'negated']
+                other_grammar = ['passive',
+                                 'progressive', 'perfect', 'negated']
                 api_results = []
 
                 for tense in tenses:
@@ -139,7 +145,8 @@ def index(request):
                     ]
                     SentenceResults.objects.bulk_create(sentence_results)
 
-                result_ids = SentenceResults.objects.filter(sentence_grammar=sentence_grammar).values_list('pk', flat=True)
+                result_ids = SentenceResults.objects.filter(
+                    sentence_grammar=sentence_grammar).values_list('pk', flat=True)
                 request.session['result_ids'] = list(result_ids)
 
                 request.session['data_dictionary'] = {
@@ -157,16 +164,18 @@ def index(request):
                 sentences_dictionary = {
                     'sentences': sentence_results,
                 }
-                messages.success(request, 'Sentences have been created and ranked successfully. Click on Step 2 to generate an article.')
+                messages.success(
+                    request, 'Sentences have been created and ranked successfully. Click on Step 2 to generate an article.')
                 return render(request, 'answer_display.html', context=sentences_dictionary)
             else:
                 messages.error(request, 'Please fix the errors below!')
-                forms = {'industryForm': industryForm, 'sentencesForm': sentencesForm, 'profile': profile}
-        messages.info(request, 'Step 1: Generate sentences for social media posts')
+                forms = {'industryForm': industryForm,
+                         'sentencesForm': sentencesForm, 'profile': profile}
+        messages.info(
+            request, 'Step 1: Generate sentences for social media posts')
         return render(request, 'stepwise.html', context=forms)
     else:
         return render(request, 'error.html')
-
 
 
 @csrf_exempt
@@ -179,9 +188,11 @@ def selected_result(request):
                 sentence_ids = request.session.get('result_ids')
                 loop_counter = 1
                 for sentence_id in sentence_ids:
-                    selected_rank = request.POST.get('rank_{}'.format(loop_counter))
+                    selected_rank = request.POST.get(
+                        'rank_{}'.format(loop_counter))
                     loop_counter += 1
-                    sentence_result = SentenceResults.objects.get(pk=sentence_id)
+                    sentence_result = SentenceResults.objects.get(
+                        pk=sentence_id)
                     selected_result_obj = SentenceRank.objects.create(
                         sentence_result=sentence_result, sentence_rank=selected_rank
                     )
@@ -207,45 +218,48 @@ def selected_result(request):
                 # del request.session['data_dictionary']
 
                 insert_form_data(request.session['data_dictionary'])
+                # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
+                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
-                return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
         else:
             return render(request, 'error.html')
     except Exception as e:
         print(str(e))
         return render(request, 'error.html')
 
+
 def get_event_id():
-    dd=datetime.now()
-    time=dd.strftime("%d:%m:%Y,%H:%M:%S")
-    url="https://100003.pythonanywhere.com/event_creation"
-    data={"platformcode":"FB" ,"citycode":"101","daycode":"0",
-                    "dbcode":"pfm" ,"ip_address":"192.168.0.41",
-                    "login_id":"lav","session_id":"new",
-                    "processcode":"1","regional_time":time,
-                    "dowell_time":time,"location":"22446576",
-                    "objectcode":"1","instancecode":"100051","context":"afdafa ",
-                    "document_id":"3004","rules":"some rules","status":"work"
-                    }
+    dd = datetime.now()
+    time = dd.strftime("%d:%m:%Y,%H:%M:%S")
+    url = "https://100003.pythonanywhere.com/event_creation"
+    data = {"platformcode": "FB", "citycode": "101", "daycode": "0",
+            "dbcode": "pfm", "ip_address": "192.168.0.41",
+            "login_id": "lav", "session_id": "new",
+            "processcode": "1", "regional_time": time,
+            "dowell_time": time, "location": "22446576",
+            "objectcode": "1", "instancecode": "100051", "context": "afdafa ",
+            "document_id": "3004", "rules": "some rules", "status": "work"
+            }
 
-
-    r=requests.post(url,json=data)
+    r = requests.post(url, json=data)
     return r.text
 
+
 def get_dowellclock():
-    response_dowell = requests.get('https://100009.pythonanywhere.com/dowellclock')
+    response_dowell = requests.get(
+        'https://100009.pythonanywhere.com/dowellclock')
     data = response_dowell.json()
     return data['t1']
+
 
 def insert_form_data(data_dict):
     print("----------------> insert form data-- start---------")
 
-    url = 'http://100002.pythonanywhere.com/'
+    url = "http://uxlivinglab.pythonanywhere.com"
     if not data_dict.get('eventId'):
         data_dict['eventId'] = get_event_id()
     # data_dict['dowelltime'] = get_dowellclock()
-    print("data",data_dict)
-
+    print("data", data_dict)
 
     data = {
         "cluster": "socialmedia",
@@ -274,34 +288,53 @@ def insert_form_data(data_dict):
     print(response.json())
     print("-------------end of insert function---------------")
     return response.json()
-#added code for posts
+# added code for posts
+
+
 def posts(request):
     return render(request, 'posts.html')
-#added code for not-scheduled
+# added code for not-scheduled
+
+
 def not_scheduled(request):
-    return render(request,'not-scheduled.html')
-#added code for published
+    return render(request, 'not-scheduled.html')
+# added code for published
+
+
 def published(request):
-    return render(request,'published.html')
-#added code for article
+    return render(request, 'published.html')
+# added code for article
+
+
 def article(request):
-    return render(request,'article.html')
-#added code for articles
+    return render(request, 'article.html')
+# added code for articles
+
+
 def articles(request):
-    return render(request,'show_articles.html')
-#added code for topic
+    return render(request, 'show_articles.html')
+# added code for topic
+
+
 def topic(request):
     return render(request, 'topic.html')
-#added code for topics
+# added code for topics
+
+
 def topics(request):
     return render(request, 'topics.html')
-#added code for new_home
+# added code for new_home
+
+
 def new_home(request):
     return render(request, 'new_main.html')
-    #return render(request, 'new_home.html')
-#added code for schedule
+    # return render(request, 'new_home.html')
+# added code for schedule
+
+
 def schedule(request):
     return render(request, 'unscheduled.html')
+
+
 def login(request):
     return render(request, 'login.html')
-

@@ -77,26 +77,27 @@
 
 
 
-            <tr>
-              <!--<th scope="row"><a href="#">Post title</a></th>-->
-              <td><h3 class="head-text">{{post.title}}</h3></td>
+              <tr>
+                  <!--<th scope="row"><a href="#">Post title</a></th>-->
+                  <td><h3 class="head-text">{{ post.title }}</h3></td>
 
-            </tr>
-            <tr>
-                <td>{{post.paragraph}}</td>
-            </tr>
-            <tr>
-                <td style="text-align:right"><p class="time-ago"><i class="fas fa-clock" ></i>  {{post.Date|timesince}} ago</p></td>
-            </tr>
-
-
-
+              </tr>
+              <tr>
+                  <td>{{ post.paragraph }}</td>
+              </tr>
+              <tr>
+                  <td style="text-align:right"><p class="time-ago"><i class="fas fa-clock"></i>
+                      Created {{ post.Date|timesince }} ago</p></td>
+              </tr>
 
 
-            {% endfor %}
+
+
+
+          {% endfor %}
       </tbody>
     </table>
 
-</div>
+    </div>
 </div>
 {% endblock content %}

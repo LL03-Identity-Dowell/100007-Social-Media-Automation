@@ -86,9 +86,109 @@
         margin-left:90px;
     }
 }
+.custom-notification {
+  position: fixed;
+  top: 15%;
+  right: 35%;
+  transform: translateY(-50%);
+  margin-bottom:10px;
+  z-index: 9999;
+  animation: slideIn 0.8s ease-in-out;
+}
+
+.notification {
+  width: auto;
+  background-color: rgba(245, 245, 245, 0.8); /* Adjust the alpha value for transparency */
+  padding: 6px;
+  font-style: italic;
+  margin-top: 10px;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a box shadow */
+}
+
+
+.notification::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--after-width, 100%);
+  transition: width 0.2s linear; /* Adjust the duration as needed */
+  height: 4px;
+  background-color: green;
+}
+
+.notification.timeout::after {
+  animation: decreaseWidth 5s linear forwards; /* Adjust the duration as needed */
+}
+
+.close-button {
+  font-size: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+@keyframes decreaseWidth {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes slideIn {
+  0% {
+      transform: translateX(100%);
+  }
+    100% {
+        transform: translateX(0);
+    }
+}
+
 
   </style>
-  {% block style %}{% endblock style %}
+
+    <style>
+        .pagination {
+            display: inline-block;
+        }
+
+        .pagination a {
+            color: black;
+            float: left;
+            padding: 8px 16px;
+            text-decoration: none;
+        }
+
+        .pagination a.active {
+            background-color: #0a58ca;
+            color: white;
+            border-radius: 90px;
+        }
+
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+            border-radius: 50px;
+        }
+
+        .btn-secondary {
+
+            background-color: #6c757d;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+        }
+
+        .btn-dark {
+            background-color: #212529;
+        }
+
+    </style>
+    {% block style %}{% endblock style %}
 
 </head>
 
@@ -189,16 +289,15 @@
 
     </div>
   </nav>
-      <div class="row">
-          {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                      <span aria-hidden="true">&times</span>
-                  </button>
-                  {{ message }}
-              </div>
-          {% endfor %}
+  <div class="custom-notification">
+    {% for message in messages %}
+      <div class="notification">
+        {{ message }}
+        <button type="button" class="close-button" aria-label="Close">&times;</button>
       </div>
+    {% endfor %}
+  </div>
+  
   {% endblock %}
 
     <div class="row body-container flex-grow-1">
@@ -215,6 +314,47 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var closeButtons = document.querySelectorAll('.close-button');
+      closeButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+          var notification = this.parentNode.parentNode;
+          notification.style.display = 'none';
+        });
+      });
+  
+      var notification = document.querySelector('.custom-notification');
+      notification.classList.add('timeout');
+  
+      var contentElement = notification.querySelector('.notification');
+      var pseudoElement = getComputedStyle(contentElement, 'after');
+      var animationDuration = 10000; // Animation duration in milliseconds
+      var animationStartTime = Date.now();
+  
+      function decreaseWidth() {
+        var currentTime = Date.now();
+        var elapsedTime = currentTime - animationStartTime;
+        var progress = elapsedTime / animationDuration;
+        var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
+  
+        contentElement.style.setProperty('--after-width', updatedWidth + '%');
+  
+        if (progress < 1) {
+          requestAnimationFrame(decreaseWidth);
+        } else {
+          notification.style.display = 'none'; // Hide the notification
+        }
+      }
+  
+      requestAnimationFrame(decreaseWidth);
+    });
+  </script>
+  
+
+  
+  
+  
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
   <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js" ></script>
   <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>-->

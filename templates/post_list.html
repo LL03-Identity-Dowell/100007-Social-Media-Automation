@@ -19,27 +19,56 @@
         <thead>
         <tr>
           <th scope="col">Post Title</th>
-          <th scope="col">Post Content</th>
+            <th scope="col">Post Content</th>
         </tr>
-      </thead>
-      <tbody>
+        </thead>
+        <tbody>
 
-        {% for posts in posts %}
-        <tr>
-        <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
+        {% for post in page_post %}
+            <tr>
+            <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
                 {% csrf_token %}
 
-                <input type="hidden" name="title" value="{{ posts.title }}">
-                <input type="hidden" name="paragraph" value="{{ posts.paragraph }}">
-                <input type="hidden" name="source" value="{{ posts.source }}">
-                <td scope="col">{{posts.title}}</p></td>
-                <th><button type="submit" class="btn btn-primary" >View Article</button></th>
-                <tr><td scope="col">{{posts.paragraph|truncatewords:50}}</td></tr>
-        </form>
+                <input type="hidden" name="title" value="{{ post.title }}">
+                <input type="hidden" name="paragraph" value="{{ post.paragraph }}">
+                <input type="hidden" name="source" value="{{ post.source }}">
+                <td scope="col"><p>{{ post.title }}</p></td>
+                <th>
+                    <button type="submit" class="btn btn-primary">View Article</button>
+                </th>
+                <tr>
+                    <td scope="col">{{ post.paragraph|truncatewords:50 }}</td>
+                </tr>
+            </form>
         {% endfor %}
-      </tbody>
+        </tbody>
     </table>
+        <center>
+            <div class="pagination">
+                {% if page_post.has_previous %}
+                    <a href="?page={{ page_post.previous_page_number }}">Previous</a>
+                {% endif %}
+                {% if page_post.number|add:'-2' > 1 %}
+                    <a href="?page={{ page_post.number|add:'-3' }}">&laquo;</a>
+                {% endif %}
+                {% for page_number in page_post.paginator.page_range %}
+                    {% if page_post.number == page_number %}
+                        <a href="#" class="active">{{ page_number }}</a>
+                    {% elif page_number > page_post.number|add:'-3' and page_number < page_post.number|add:'6' %}
+                        <a href="?page={{ page_number }}">{{ page_number }}</a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_post.number|add:'5' > 1 %}
+                    <a href="?page={{ page_post.number|add:'6' }}">&raquo;</a>
+                {% endif %}
+                {% if page_post.has_next %}
+                    <a href="?page={{ page_post.next_page_number }}">Next</a>
+                {% endif %}
 
-</div>
+            </div>
+
+        </center>
+
+    </div>
 </div>
 {% endblock content %}
