@@ -40,7 +40,7 @@
         float: right;
     }
 
-   
+
     .s-alert {
         position: fixed;
         right: 0;
@@ -64,8 +64,8 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%; 
-  transition: width 30s linear; 
+    width: 100%;
+  transition: width 30s linear;
     height: 4px;
     background-color: green;
 }
@@ -74,8 +74,8 @@
         visibility: visible;
         transform: translateX(0%);
         backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px); 
-        z-index: 100; 
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 100;
     }
 
     .s-alert.hide {
@@ -98,7 +98,7 @@
     }
 }
 
-   
+
     .close-icon {
         position: absolute;
         top: 10px;
@@ -106,7 +106,39 @@
         font-size: 26px;
         cursor: pointer;
     }
+       .close-icon1 {
+        position: absolute;
+        top: 0;
+        right: 10px;
+        font-size: 26px;
+        cursor: pointer;
+    }
+#alertPopup {
+    position: fixed;
+    top: 0;
+    left: 37%;
+    transform: translateY(-100%);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 10px 20px;
+    width: 520px;
+    border-radius: 4px;
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+}
 
+
+#alertPopup.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 100;
+}
 </style>
 
 <body>
@@ -117,33 +149,45 @@
         {% csrf_token %}
         {% for sentence in sentences %}
         <p>{{ sentence.sentence_type }}</p>
-        <div class="answer" style="height: auto;">
-            <p>{{ sentence.sentence }}
-                <span class="answer_rank"><label>
-                        {#                        attach counter to class and name tags values for uniqueness#}
-                        <select name="rank_{{ forloop.counter }}" class="required"
-                                id="selector_{{ forloop.counter }}">
-                            <option selected="selected" value="0" disabled="disabled">Rank</option>
-                        </select>
-                    </label></span></p>
-        </div>
-        <br>
+    <div class="answer" style="height: auto;">
+    <p>{{ sentence.sentence }}
+        <span class="answer_rank">
+            <label>
+                {# attach counter to class and name tags values for uniqueness #}
+                <select name="rank_{{ forloop.counter }}" class="required" id="selector_{{ forloop.counter }}">
+                    <option value="0" disabled selected>Rank</option>
+                    {% for rank in ranks %}
+                        <option value="{{ rank }}">{{ rank }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </span>
+    </p>
+    </div>
+
+            <br>
         {% endfor %}
-        <input type=button value="Preview text" onClick="preview()">
+        <a href="{% url 'index' %}" type=button class="btn btn-danger">Cancel</a>
         <button type="submit" class="btn btn-success">SUBMIT</button>
     </form>
-    
-<div class="s-alert">
-    <span class="fas fa-exclamation-circle"></span>
-    <span class="msg">Your Sentences have been submitted</span>
-    <span class="close-icon" onclick="closeAlert()">&times;</span>
+
+    <div class="s-alert">
+        <span class="fas fa-exclamation-circle"></span>
+        <span class="msg">Submitting your ranked topics...</span>
+        <span class="close-icon" onclick="closeAlert()">&times;</span>
+    </div>
+    <div id="alertPopup" class="s-alert hide">
+        <span class="fas fa-exclamation-circle"></span>
+    <span class="msg">You need to rank more than three sentences to submit.</span>
+    <span class="close-icon1" onclick="closeAlert1()">&times;</span>
 </div>
 
 </div>
-
-{#    fixme it sucks to use a library for one task, but I'll find  a solution for this#}
 
 <script>
+     function goBack() {
+    history.back();
+  }
     let non_zero_ranks = 0;
 
     function preview() {
@@ -214,107 +258,38 @@
         });
     });
 
- 
+
     $('#rateForm').submit(function () {
         if (non_zero_ranks >= 3) {
-            AmagiLoader.show();
-    
+            // AmagiLoader.show();
+
             // Wait for the loader to finish loading
             setTimeout(() => {
                 $('.s-alert').addClass('show timeout');
-    
+
                 // After the alert is shown, hide it after 20 seconds
                 setTimeout(() => {
                     $('.s-alert').addClass("hide");
                 }, 20000);
-            }, 25000);
-    
+            });
+
             return true;
         } else {
-            alert("You need to rank more than three sentences to submit.");
+            $('#alertPopup').addClass('show');
             return false;
         }
     });
-    
+
 
     function closeAlert() {
         var alert = document.querySelector('.s-alert');
         alert.style.display = 'none';
     }
+    function closeAlert1() {
+        var alert = document.querySelector('#alertPopup');
+        alert.style.display = 'none';
+    }
 
-    const AmagiLoader = {
-        __loader: null,
-        __progressText: null,
-        show: function () {
-          if (this.__loader == null) {
-            var divContainer = document.createElement('div');
-            divContainer.style.position = 'fixed';
-            divContainer.style.left = '0';
-            divContainer.style.top = '0';
-            divContainer.style.width = '100%';
-            divContainer.style.height = '100%';
-            divContainer.style.zIndex = '9998';
-            divContainer.style.backgroundColor = 'rgba(250, 250, 250, 0.80)';
-      
-            var div = document.createElement('div');
-            div.style.position = 'absolute';
-            div.style.left = '50%';
-            div.style.top = '50%';
-            div.style.zIndex = '9999';
-            div.style.height = '100px';
-              div.style.width = '100px';
-            div.style.margin = '-76px 0 0 -76px';
-            div.style.border = '8px solid #e1e1e1';
-            div.style.borderRadius = '50%';
-            div.style.borderTop = '8px solid #F36E21';
-            div.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }], {
-              duration: 2000,
-              iterations: Infinity,
-            });
-            divContainer.appendChild(div);
-            this.__loader = divContainer;
-      
-            var progressText = document.createElement('div');
-            progressText.style.position = 'absolute';
-            progressText.style.left = '48%';
-            progressText.style.top = '47%';
-            progressText.style.transform = 'translate(-50%, -50%)';
-            progressText.style.fontSize = '14px';
-            progressText.style.fontWeight = 'bold';
-            progressText.style.color = '#333';
-            progressText.style.textAlign = 'center';
-            divContainer.appendChild(progressText);
-            this.__progressText = progressText;
-      
-            document.body.appendChild(this.__loader);
-          }
-          this.__loader.style.display = '';
-      
-          var loadTime = 20000; // Adjust the load time duration in milliseconds
-          var increment = 20; // Increment in percentage for each interval
-      
-          var currentProgress = 0;
-          var interval = setInterval(() => {
-            currentProgress += increment;
-            if (currentProgress > 100) {
-              clearInterval(interval);
-              this.hide();
-            } else {
-              this.updateProgress(currentProgress);
-            }
-          }, loadTime / (100 / increment));
-        },
-        hide: function () {
-          if (this.__loader != null) {
-            this.__loader.style.display = 'none';
-          }
-        },
-        updateProgress: function (percentage) {
-          if (this.__progressText) {
-            this.__progressText.textContent = `${percentage}%`;
-          }
-        },
-      };
 </script>
 
 
