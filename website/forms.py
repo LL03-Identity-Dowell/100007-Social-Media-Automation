@@ -22,8 +22,12 @@ class IndustryForm(forms.ModelForm):
         }
         widgets = {
             'target_industry': forms.Select(attrs={'class': 'form-select'}),
+            # 'target_industry': forms.TextInput(attrs={'class': 'form-select'}),
             'target_product': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+
+
 
 
 

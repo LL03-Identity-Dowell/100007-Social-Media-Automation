@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from step2.views import create_event
 
-from article_api.permission import HasBeenAuthenticated
+from article_api.permissions import HasBeenAuthenticated
 from article_api.serializers import GenerateArticleSerializer, IndustrySerializer, SentenceSerializer
 from create_article import settings
 from website.models import User, Sentences, SentenceResults
@@ -15,8 +15,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class APIKeyProcessor(APIView):
     def __init__(self):
         self.api_key_endpoint = 'https://100105.pythonanywhere.com/api/v1/process-api-key/'
@@ -98,7 +100,6 @@ class APIKeyProcessor(APIView):
                 'success': False,
                 'message': message
             }, status=status.HTTP_401_UNAUTHORIZED)
-
 
 class GenerateSentencesAPIView(generics.CreateAPIView):
     """

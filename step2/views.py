@@ -1,41 +1,55 @@
-import datetime
-import json
-import random
-import re
-import time
-import traceback
-import urllib
-import urllib.parse
-from datetime import datetime, date
-# image resizing
-from io import BytesIO
-
-import openai
-import pytz
+from django.contrib.sessions.models import Session
+from create_article.custom_session_backend import CustomSessionStore
+from create_article import settings
+from django.shortcuts import render, redirect, HttpResponse
+from django.urls import reverse
+from django.http import HttpResponseRedirect, JsonResponse
 import requests
-import wikipediaapi
-from PIL import Image
-from ayrshare import SocialPost
+import json
+import time
+from datetime import datetime
+import datetime
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-from bson import ObjectId
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db import transaction
-from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.utils.timezone import localdate, localtime
+import wikipediaapi
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timedelta, date
 from mega import Mega
-from pexels_api import API
-from pymongo import MongoClient
-
 from create_article import settings
-from website.models import Sentences, SentenceResults
-from .forms import VerifyArticleForm
+from pymongo import MongoClient
+from django.core.paginator import Paginator
+from bson import ObjectId
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.timezone import localdate, localtime
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Page
+from website.models import Sentences, SentenceResults, SentenceRank, MTopic
+import urllib
+from urllib.request import urlopen
+from django.contrib import messages
+from pexels_api import API
+import random
+from .models import stepFour
+from .forms import StepFourForm, VerifyArticleForm
+from ayrshare import SocialPost
+from django.utils import timezone
+# image resizing
+import base64
+from io import BytesIO
+from PIL import Image, UnidentifiedImageError
+from pytz import timezone
+import pytz
+import openai
+import re
+import os
+from create_article.settings import STATIC_ROOT, BASE_DIR
+import shutil
+import math
+import traceback
+import urllib.parse
+
+
+from django.db import transaction
 
 # helper functions
 
@@ -57,12 +71,29 @@ def get_image(urls):
     return file
 
 
+def get_event_id():
+    dd = datetime.now()
+    time = dd.strftime("%d:%m:%Y,%H:%M:%S")
+    url = "https://100003.pythonanywhere.com/event_creation"
+    data = {"platformcode": "FB", "citycode": "101", "daycode": "0",
+            "dbcode": "pfm", "ip_address": "192.168.0.41",
+            "login_id": "lav", "session_id": "new",
+            "processcode": "1", "regional_time": time,
+            "dowell_time": time, "location": "22446576",
+            "objectcode": "1", "instancecode": "100051", "context": "afdafa ",
+            "document_id": "3004", "rules": "some rules", "status": "work"
+            }
+
+    r = requests.post(url, json=data)
+    return r.text
+
+
 def save_data(collection, document, field, team_member_ID):
-    url = "http://uxlivinglab.pythonanywhere.com"
+    url = "http://100002.pythonanywhere.com/"
 
     # adding eddited field in article
     field['edited'] = 0
-    field['eventId'] = create_event(request=None)
+    field['eventId'] = get_event_id()
     payload = json.dumps({
         "cluster": "socialmedia",
         "database": "socialmedia",
@@ -91,7 +122,7 @@ def save_comments(field):
     with open("save_comments.txt", 'w') as f:
         f.write(str(field))
 
-    url = "http://uxlivinglab.pythonanywhere.com"
+    url = "http://100002.pythonanywhere.com/"
 
     payload = json.dumps({
         "cluster": "socialmedia",
@@ -142,7 +173,6 @@ def get_dowellclock():
     data = response_dowell.json()
     return data['t1']
 
-
 def create_event(request=None):
     """
     This method accepts a django request object as an argument. The argument is optional
@@ -190,28 +220,25 @@ def create_event(request=None):
     else:
         return json.loads(r.text)['error']
 
-
-def maintenance(request):
-    return render(request, 'maintenance.html')
-
+def under_maintenance(request):
+    return HttpResponse("Under maintenance. Please try again later.")
 
 def has_access(portfolio_info):
+
     if not portfolio_info:
         return False
     if portfolio_info[0].get('product') != PRODUCT_NAME:
-        return True  # Update to return True when the product name doesn't match
+        return False
     return True
-
 
 def home(request):
     session_id = request.GET.get("session_id", None)
     if session_id:
         request.session["session_id"] = session_id
-        # return redirect("https://100007.pythonanywhere.com/main")
         return redirect("http://127.0.0.1:8000/main")
     else:
+        #return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
-
 
 @csrf_exempt
 @xframe_options_exempt
@@ -232,14 +259,14 @@ def main(request):
             # First API response contains portfolio_info data
             print("You connected from the client admin: ", response_1.text)
             profile_details = response_1.json()
-            print(profile_details, "api details")
+            print(profile_details,"api details")
             request.session['portfolio_info'] = profile_details['portfolio_info']
             print('This is the portfolio info  has data for you: ',
-                  profile_details['portfolio_info'])
+                        profile_details['portfolio_info'])
             print('This is the user the userID: ',
-                  profile_details['userinfo']['userID'])
+                        profile_details['userinfo']['userID'])
             user_map[profile_details['userinfo']['userID']
-                     ] = profile_details['userinfo']['username']
+                        ] = profile_details['userinfo']['username']
 
             # if has_access(profile_details['portfolio_info']):
 
@@ -256,11 +283,11 @@ def main(request):
                 profile_details = response_2.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
                 print('This is the portfolio info  is empty for you: ',
-                      profile_details['portfolio_info'])
+                            profile_details['portfolio_info'])
                 print('This is the user the userID: ',
-                      profile_details['userinfo']['userID'])
+                            profile_details['userinfo']['userID'])
                 user_map[profile_details['userinfo']['userID']
-                         ] = profile_details['userinfo']['username']
+                            ] = profile_details['userinfo']['username']
                 # if has_access(profile_details['portfolio_info']):
                 #     messages.error(request,'You are not allowed to access this page')
                 #     return render(request, 'portofolio-logib.html')
@@ -297,14 +324,15 @@ def main(request):
         if username:
             username_with_userID = request.session['username'] = username
             print("Use this to filter out the data for: ",
-                  username_with_userID)
+                        username_with_userID)
 
         if not has_access(request.session['portfolio_info']):
             return render(request, 'portofolio-logib.html')
         return render(request, 'main.html')
     else:
-        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
+        #return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+
     return render(request, 'error.html')
 
 
@@ -404,7 +432,6 @@ def user_approval(request):
 
     # get user_id of user
     user_id = str(request.session['user_id'])
-    print(user_id, 'chidi')
     try:
         # get the data in file
         posts = response.json()['normal']['data']
@@ -441,7 +468,7 @@ def user_approval_form(request):
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
         event_id = create_event(request)['event_id']
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = "http://100002.pythonanywhere.com/"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -483,7 +510,7 @@ def user_approval_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        messages.success(request, "User approval details sucessful.")
+        messages.success(request, "Details updated successfully.")
 
         return HttpResponseRedirect(reverse("generate_article:client"))
 
@@ -505,7 +532,7 @@ def user_approval_form_update(request):
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
         event_id = create_event(request)['event_id']
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = "http://100002.pythonanywhere.com/"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -538,8 +565,7 @@ def user_approval_form_update(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        messages.success(request, "userform details updated.")
-
+        messages.success(request, "Approvals updated successfully.")
     return HttpResponseRedirect(reverse("generate_article:client"))
 
 
@@ -547,6 +573,152 @@ def user_approval_form_update(request):
 @xframe_options_exempt
 def social_media_channels(request):
     return render(request, 'social_media_channels.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
+def aryshare_profile(request):
+    event_id = create_event(request)['event_id']
+    user = request.session['username']
+    payload = {'title': user}
+    headers = {'Content-Type': 'application/json',
+            'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
+
+    r = requests.post('https://app.ayrshare.com/api/profiles/profile',
+        json=payload,
+        headers=headers)
+    data = r.json()
+    print(data)
+    if data['status'] =='error':
+        messages.error(request, data['message'])
+    else:
+
+        url = "http://100002.pythonanywhere.com/"
+        test_date = str(localdate())
+
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "insert",
+            "field": {
+                "user_id": request.session['user_id'],
+                "session_id": request.session['session_id'],
+                'title':data['title'],
+                'refId':data['refId'],
+                'profileKey':data['profileKey'],
+                "eventId": event_id,
+
+            },
+            "update_field": {
+                "aryshare_details":{
+
+
+
+                }
+
+
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+        print(data)
+        messages.success(request, "Social media profile created...")
+    return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+
+
+
+@csrf_exempt
+@xframe_options_exempt
+def link_media_channels(request):
+    session_id = request.GET.get("session_id", None)
+    url = 'http://100032.pythonanywhere.com/api/targeted_population/'
+
+    database_details = {
+            'database_name': 'mongodb',
+            'collection': 'ayrshare_info',
+            'database': 'social-media-auto',
+            'fields': ['_id']
+        }
+
+        # number of variables for sampling rule
+    number_of_variables = -1
+
+    """
+        period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
+        if custom is given then need to specify start_point and end_point
+        for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
+        the the value of that selection in 'm_or_A_value'
+        error is the error allowed in percentage
+    """
+
+    time_input = {
+        'column_name': 'Date',
+        'split': 'week',
+        'period':'life_time',
+        'start_point': '2021/01/08',
+        'end_point': '2023/06/25',
+    }
+
+    stage_input_list = [
+        ]
+
+        # distribution input
+    distribution_input={
+            'normal': 1,
+            'poisson':0,
+            'binomial':0,
+            'bernoulli':0
+
+        }
+
+    request_data={
+            'database_details': database_details,
+            'distribution_input': distribution_input,
+            'number_of_variable':number_of_variables,
+            'stages':stage_input_list,
+            'time_input':time_input,
+        }
+
+    headers = {'content-type': 'application/json'}
+
+    response = requests.post(url, json=request_data,headers=headers)
+    print(response.json())
+    data= response.json()['normal']['data']
+    for column in data:
+        for row in column:
+            print(row['user_id'])
+            if row['user_id'] ==str( request.session['user_id']):
+                key=row[ 'profileKey']
+
+    with open(r'/home/100007/dowellresearch.key') as f:
+        privateKey = f.read()
+
+    payload = {'domain': 'dowellresearch',
+            'privateKey': privateKey,
+            'profileKey': key ,
+            'redirect' : 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
+    }
+    headers = {'Content-Type': 'application/json',
+            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
+        json=payload,
+        headers=headers)
+    link =r.json()
+    print(link)
+    return redirect(link['url'])
+
+
 
 
 @csrf_exempt
@@ -572,8 +744,9 @@ def facebook_form(request):
         page_link = request.POST.get("page_link")
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
+        event_id = create_event(request)['event_id']
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = "http://100002.pythonanywhere.com/"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -592,6 +765,7 @@ def facebook_form(request):
                     "page_link": page_link,
                     "password": page_password,
                     "posts_per_day": posts_no,
+                    "event_id" : event_id,
                 },
             },
             "platform": "bangalore"
@@ -602,7 +776,7 @@ def facebook_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        messages.success(request, "facebook details updated.")
+        messages.success(request, "Facebook details updated successfully.")
         print('page_id:', page_id, 'page_link:', page_link,
               'page_password:', page_password, 'post_no:', posts_no)
 
@@ -626,7 +800,7 @@ def insta_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = "http://100002.pythonanywhere.com/"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -655,7 +829,7 @@ def insta_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        messages.success(request, "Instagram details updated.")
+        messages.success(request, "Instagram details updated successfully.")
         print(page_id, page_link, page_password, posts_no)
 
         return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
@@ -678,7 +852,7 @@ def twitter_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = "http://100002.pythonanywhere.com/"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -707,7 +881,7 @@ def twitter_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        messages.success(request, "Twitter details updated.")
+        messages.success(request, "Twitter details updated successfully.")
         print('page_id:', page_id, 'page_link:', page_link,
               'page_password:', page_password, 'post_no:', posts_no)
 
@@ -731,7 +905,7 @@ def linkedin_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = "http://100002.pythonanywhere.com/"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -760,7 +934,7 @@ def linkedin_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        messages.success(request, "Linkedin details updated.")
+        messages.success(request, "Linkedin details updated successfully.")
         print(page_id, page_link, page_password, posts_no)
 
         return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
@@ -783,7 +957,7 @@ def youtube_form(request):
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = "http://100002.pythonanywhere.com/"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -812,7 +986,7 @@ def youtube_form(request):
 
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.text)
-        messages.success(request, "Youtube details updated.")
+        messages.success(request, "Youtube details updated successfully.")
         print(page_id, page_link, page_password, posts_no)
 
         return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
@@ -835,7 +1009,7 @@ def client_profile_form(request):
         product = request.POST.get("product")
         logo = request.FILES.get("logo")
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = "http://100002.pythonanywhere.com/"
 
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -897,7 +1071,7 @@ def comments(request):
     if 'session_id' and 'username' in request.session:
 
         # fetching topics according to the user logged in
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = 'http://100002.pythonanywhere.com/'
 
         data = {
             "cluster": "socialmedia",
@@ -925,7 +1099,7 @@ def comments(request):
         topics = response.json()
 
         # fetching hastags from database
-        url = "http://uxlivinglab.pythonanywhere.com"
+        url = "http://100002.pythonanywhere.com/"
 
         payload = {
             "cluster": "client_scans",
@@ -985,7 +1159,7 @@ def generate_comments(request):
             Hashtag = hashtag_split[0]
             Hashtag_group = hashtag_split[1]
 
-            url = "http://uxlivinglab.pythonanywhere.com"
+            url = 'http://100002.pythonanywhere.com/'
 
             data = {
                 "cluster": "socialmedia",
@@ -1278,7 +1452,8 @@ def unscheduled(request):
             pass
         post = list(reversed(post))  # Reverse the order of the posts list
 
-        number_of_items_per_page = 10
+
+        number_of_items_per_page = 5
         page = request.GET.get('page', 1)
 
         paginator = Paginator(post, number_of_items_per_page)
@@ -1290,8 +1465,9 @@ def unscheduled(request):
             page_post = paginator.page(paginator.num_pages)
 
         messages.info(
-            request, 'Click on post now to choose where to post the articles.')
-        return render(request, 'unscheduled.html', {'post': post, 'profile': profile, 'page_post': page_post})
+            request, 'post/schedule articles.')
+
+        return render(request, 'unscheduled.html', {'post': post, 'profile': profile,'page_post': page_post})
     else:
         return render(request, 'error.html')
 
@@ -1300,7 +1476,7 @@ def unscheduled(request):
 @xframe_options_exempt
 def post_scheduler(request):
 
-    # url = "http://uxlivinglab.pythonanywhere.com"
+    # url = "http://100002.pythonanywhere.com/"
 
     # # adding eddited field in article
     # payload = json.dumps({
@@ -1384,33 +1560,24 @@ def scheduled(request):
 
         response = requests.post(url, json=request_data, headers=headers)
         posts = response.json()['normal']['data']
-        print(posts)
+
         user_id = str(request.session['user_id'])
         status = 'scheduled'
         post = []
-
         try:
             for column in posts:
                 for row in column:
                     if user_id == str(row['user_id']):
                         try:
-
                             if status == row['status']:
-                                data = {
-                                    'title': row['title'],
-                                    'paragraph': row['paragraph'],
-                                    'image': row['image'],
-                                    'pk': row['_id'],
-                                    'source': row['source'],
-                                    'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
-                                }
+                                data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
+                                        'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date()}
                                 post.append(data)
 
                         except:
                             pass
         except:
             pass
-        post = list(reversed(post))  # Reverse the order of the posts list
         return render(request, 'scheduled.html', {'post': post})
     else:
         return render(request, 'error.html')
@@ -1540,7 +1707,7 @@ def index(request):
             print('================================')
             topics = []
         messages.info(
-            request, 'Step 3: Generate articles for the sentences you created.')
+            request, 'Step 2: Generate articles from topics generated.')
         return render(request, 'article/main.html', {'topics': topics, 'profile': profile, 'page': page})
     else:
         return render(request, 'error.html')
@@ -1682,9 +1849,8 @@ def generate_article_automatically(request):
         page = wiki_language.page(subject)
         if page.exists() == False:
             print("Page - Exists: %s" % page.exists())
-            # message = "Article for Title " + title_sub_verb + \
-            #     " and Title "+subject+" does not exist."
-            message = "Article does not exist in wikipedia"
+            message = "Article for Title " + title_sub_verb + \
+                " and Title "+subject+" does not exist."
             return render(request, 'article/article.html', {'message': message, 'title': title})
         else:
             article_subject = page.text
@@ -1796,7 +1962,7 @@ def generate_article(request):
                 :prompt_limit] + "..."
 
             # Variables for loop control
-            duration = 400  # Total duration in seconds
+            duration = 200  # Total duration in seconds
             interval = 10  # Interval between generating articles in seconds
             start_time = time.time()
             current_time = time.time()
@@ -1899,7 +2065,7 @@ def generate_article_wiki(request):
             designed_for = request.POST.get("designed_for")
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("image")
-            # dowellclock = get_dowellclock()
+            #dowellclock = get_dowellclock()
             wiki_language = wikipediaapi.Wikipedia(
                 language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
             page = wiki_language.page(title)
@@ -1924,7 +2090,7 @@ def generate_article_wiki(request):
                                                            "paragraph": article_sub_verb[0],
                                                            "source": page.fullurl,
                                                            'subject': subject,
-                                                           # 'dowelltime': dowellclock
+                                                           #'dowelltime': dowellclock
                                                            }, "9992828281")
                     para_list = article_sub_verb[0].split("\n\n")
                     source_verb = page.fullurl
@@ -1944,7 +2110,7 @@ def generate_article_wiki(request):
                                                                    "paragraph": para_list[i],
                                                                    "citation_and_url": page.fullurl,
                                                                    'subject': subject,
-                                                                   # 'dowelltime': dowellclock
+                                                                   #'dowelltime': dowellclock
                                                                    }, '34567897799')
                 print("Using subject: " + subject + " to create an article.")
                 page = wiki_language.page(title_sub_verb)
@@ -1952,7 +2118,7 @@ def generate_article_wiki(request):
                     print("Page - Exists: %s" % page.exists())
                     # message = "Article for Title " + title_sub_verb + \
                     #     " and Title "+subject+" does not exist."
-                    message = "Article does not exist in wikipedia"
+                    message = f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"
                     return render(request, 'article/article.html', {'message': message})
                 else:
                     article_subject = page.text
@@ -1967,7 +2133,7 @@ def generate_article_wiki(request):
                                                            "paragraph": article_subject[0],
                                                            "source": page.fullurl,
                                                            'subject': subject,
-                                                           # 'dowelltime': dowellclock
+                                                           #'dowelltime': dowellclock
                                                            }, "9992828281")
                     para_list = article_subject[0].split("\n\n")
                     for i in range(len(para_list)):
@@ -1987,7 +2153,7 @@ def generate_article_wiki(request):
                                                                    "paragraph": para_list[i],
                                                                    "citation_and_url": page.fullurl,
                                                                    'subject': subject,
-                                                                   # 'dowelltime': dowellclock
+                                                                   #'dowelltime': dowellclock
                                                                    }, '34567897799')
                             print("\n")
                     if 'article_sub_verb' in locals():
@@ -2013,7 +2179,7 @@ def generate_article_wiki(request):
                                                        "paragraph": article[0],
                                                        "source": page.fullurl,
                                                        'subject': subject,
-                                                       # 'dowelltime': dowellclock
+                                                       #'dowelltime': dowellclock
                                                        }, "9992828281")
                 para_list = article[0].split("\n\n")
                 for i in range(len(para_list)):
@@ -2032,7 +2198,7 @@ def generate_article_wiki(request):
                                                                "paragraph": para_list[i],
                                                                "citation_and_url": page.fullurl,
                                                                'subject': subject,
-                                                               # 'dowelltime': dowellclock
+                                                               #'dowelltime': dowellclock
                                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
                 messages.success(
@@ -2256,7 +2422,8 @@ def list_article(request):
                 else:
                     pass
         posts = list(reversed(posts))  # Reverse the order of the posts list
-        number_of_items_per_page = 10
+
+        number_of_items_per_page = 5
         page = request.GET.get('page', 1)
 
         paginator = Paginator(posts, number_of_items_per_page)
@@ -2266,13 +2433,14 @@ def list_article(request):
             page_post = paginator.page(1)
         except EmptyPage:
             page_post = paginator.page(paginator.num_pages)
+
         context = {
             'posts': posts,
             'page_post': page_post,
         }
 
         messages.info(
-            request, 'Almost there. Click view article to finalize the article before posting')
+            request, 'Click on view article to finalize the article before posting')
 
         return render(request, 'post_list.html', context)
     else:
@@ -2292,7 +2460,7 @@ def filtered_list_article(request, filter):
     #     'start_point':0,
     #     'end_point':end_time - 1609459200,
     # }
-    url = "http://uxlivinglab.pythonanywhere.com"
+    url = "http://100002.pythonanywhere.com/"
 
     # adding eddited field in article
 
@@ -2442,7 +2610,7 @@ def Save_Post(request):
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
 
-            url = "http://uxlivinglab.pythonanywhere.com"
+            url = "http://100002.pythonanywhere.com/"
 
             payload = json.dumps({
                 "cluster": "socialmedia",
@@ -2582,7 +2750,6 @@ def most_recent(request):
 
         response = requests.post(url, json=request_data, headers=headers)
         posts = response.json()['normal']['data']
-        print(posts)
         user_id = str(request.session['user_id'])
         status = 'posted'
         post = []
@@ -2628,12 +2795,11 @@ def can_post_on_social_media(request):
 @csrf_exempt
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
+    # if 'session_id' and 'username'
     if 'session_id' and 'username' in request.session:
-
-        if request.method == "POST":
-            can_post = can_post_on_social_media(request)
-            if not can_post:
-                return render(request, 'not-allowed-to-post.html')
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse("generate_article:client"))
+        else:
             facebook = request.POST.get("facebook")
             paragraph = request.POST.get("paragraph")
             twitter = request.POST.get("twitter")
@@ -2642,10 +2808,73 @@ def Media_Post(request):
             youtube = request.POST.get("youtube")
             image = request.POST.get("image")
             title = request.POST.get("title")
+            print(title)
             datetime2 = request.POST.get("datetime")
             Post_id = request.POST.get("post_id")
             posts = title + ":" + paragraph
+            print("This section has postssss", posts)
+            print(paragraph[:40])
             timezone = request.session['timezone']
+            # bringing in aryshare profilekey
+            url = 'http://100032.pythonanywhere.com/api/targeted_population/'
+
+            database_details = {
+                    'database_name': 'mongodb',
+                    'collection': 'ayrshare_info',
+                    'database': 'social-media-auto',
+                    'fields': ['_id']
+                }
+
+                # number of variables for sampling rule
+            number_of_variables = -1
+
+            """
+                period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
+                if custom is given then need to specify start_point and end_point
+                for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
+                the the value of that selection in 'm_or_A_value'
+                error is the error allowed in percentage
+            """
+
+            time_input = {
+                'column_name': 'Date',
+                'split': 'week',
+                'period':'life_time',
+                'start_point': '2021/01/08',
+                'end_point': '2023/06/25',
+            }
+
+            stage_input_list = [
+                ]
+
+                # distribution input
+            distribution_input={
+                    'normal': 1,
+                    'poisson':0,
+                    'binomial':0,
+                    'bernoulli':0
+
+                }
+
+            request_data={
+                    'database_details': database_details,
+                    'distribution_input': distribution_input,
+                    'number_of_variable':number_of_variables,
+                    'stages':stage_input_list,
+                    'time_input':time_input,
+                }
+
+            headers = {'content-type': 'application/json'}
+
+            response = requests.post(url, json=request_data,headers=headers)
+            print(response.json())
+            data= response.json()['normal']['data']
+            for column in data:
+                for row in column:
+
+                    if row['user_id'] ==request.session['user_id']:
+                        key=row[ 'profileKey']
+
             "formarting time for scheduling"
             if datetime2 != "" or None:
                 strDatetime = str(datetime2)
@@ -2659,16 +2888,53 @@ def Media_Post(request):
                 Isoformart = datetime.strptime(
                     string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
                 schedule = str(Isoformart)
-                "posting to Various social media"
-                social = SocialPost('8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G')
-                postitems = social.post({'post': posts, 'platforms': [
-                                        linkedin, facebook, instagram], 'mediaUrls': [image], 'scheduleDate': schedule})
-                postitems1 = social.post({'post': posts[:280], 'platforms': [
-                                         twitter], 'mediaUrls': [image], 'scheduleDate': schedule})
 
-                print(postitems)
-                print(postitems1)
-                url = "http://uxlivinglab.pythonanywhere.com"
+                "posting to Various social media"
+                payload = {'post': posts,
+                'platforms': [facebook, instagram, linkedin],
+                'profileKey': key,
+                'mediaUrls': [image],
+                "scheduleDate": schedule}
+                headers = {'Content-Type': 'application/json',
+                        'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                r1 = requests.post('https://app.ayrshare.com/api/post',
+                    json=payload,
+                    headers=headers)
+                print(r1.json())
+                if r1.json()['status'] == 'error':
+                    messages.error(request,'error in scheduling')
+                elif r1.json()['status'] =='success' and 'warnings' not in r1.json()():
+                    messages.success(request,'post have been sucessfully scheduled')
+                else:
+                    for warnings in r1.json()['warnings']:
+                        messages.error(request,warnings['message'])
+
+                # for twitter
+                payload = {'post': posts[:280],
+                'platforms': [twitter],
+                'profileKey': key,
+                'mediaUrls': [image],
+                "scheduleDate": schedule}
+                headers = {'Content-Type': 'application/json',
+                        'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                r1 = requests.post('https://app.ayrshare.com/api/post',
+                    json=payload,
+                    headers=headers)
+                print(r1.json())
+                if r1.json()['status'] == 'error':
+                    messages.error(request,'error in scheduling Twitter')
+                elif r1.json()['status'] =='success' and 'warnings' not in r1.json():
+                    messages.success(request,'post have been sucessfully scheduled')
+                else:
+                    for warnings in r1.json()['warnings']:
+                        messages.error(request,warnings['message'])
+
+
+
+
+                url = "http://100002.pythonanywhere.com/"
 
                 # adding eddited field in article
                 payload = json.dumps(
@@ -2695,14 +2961,45 @@ def Media_Post(request):
                     "POST", url, headers=headers, data=payload)
                 return redirect('/scheduled')
             else:
-                social = SocialPost('8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G')
-                postitems = social.post(
-                    {'post': posts, 'platforms': [linkedin, facebook], 'mediaUrls': [image]})
-                postitems1 = social.post({'post': posts[:280], 'platforms': [
-                                         twitter, instagram], 'mediaUrls': [image]})
-                print(postitems)
-                print(postitems1)
-                url = "http://uxlivinglab.pythonanywhere.com"
+                payload = {'post': posts,
+                'platforms': [facebook, instagram, linkedin],
+                'profileKey': key,
+                'mediaUrls': [image]}
+                headers = {'Content-Type': 'application/json',
+                        'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                r = requests.post('https://app.ayrshare.com/api/post',
+                    json=payload,
+                    headers=headers)
+                print(r.json())
+                if r.json()['status'] =='success':
+                    messages.success(request, "Post was succesful.")
+                elif r.json()['status'] == 'error':
+                    messages.error(request,'Post was unsuccesful')
+
+
+                # for twitter
+                payload = {'post': posts[:280],
+                'platforms': [twitter],
+                'profileKey': key,
+                'mediaUrls': [image]}
+                headers = {'Content-Type': 'application/json',
+                        'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                r = requests.post('https://app.ayrshare.com/api/post',
+                    json=payload,
+                    headers=headers)
+                print(r.json())
+                if r.json()['status'] =='success':
+                    messages.success(request, "Post was succesful to twitter.")
+                elif r.json()['status'] == 'error':
+                    for error in r.json()['posts']:
+                        for message in error['errors']:
+                            messages.error(request,message['message'][:37])
+
+
+
+                url = "http://100002.pythonanywhere.com/"
 
                 # adding eddited field in article
                 payload = json.dumps(
@@ -2732,27 +3029,157 @@ def Media_Post(request):
     else:
         return render(request, 'error.html')
 
+# @csrf_exempt
+# def Media_Post(request):
+#     session_id = request.GET.get('session_id', None)
+#     # if 'session_id' and 'username'
+#     if 'session_id' and 'username' in request.session:
+#         if request.method != "POST":
+#             return HttpResponseRedirect(reverse("generate_article:client"))
+#         else:
+#             facebook = request.POST.get("facebook")
+#             paragraphs = request.POST.getlist("paragraph")  # Get the list of paragraphs
+#             twitter = request.POST.get("twitter")
+#             linkedin = request.POST.get("linkedin")
+#             instagram = request.POST.get("instagram")
+#             youtube = request.POST.get("youtube")
+#             image = request.POST.get("image")
+#             title = request.POST.get("title")
+#             print(title)
+#             datetime2 = request.POST.get("datetime")
+#             Post_id = request.POST.get("post_id")
+#             timezone = request.session['timezone']
 
-@xframe_options_exempt
-def get_organization_portfolio(request):
-    """
-    This function returns the portfolio details of an organization
-    """
-    username = request.session.get('username')
-    url = 'https://100093.pythonanywhere.com/api/get-portfolio/'
-    payload = json.dumps(
-        {
-            "username": username,
-            "product": "Social Media Automation",
-        })
+#             url = 'http://100032.pythonanywhere.com/api/targeted_population/'
+#             database_details = {
+#                 'database_name': 'mongodb',
+#                 'collection': 'ayrshare_info',
+#                 'database': 'social-media-auto',
+#                 'fields': ['_id']
+#             }
+#             number_of_variables = -1
 
-    headers = {'Content-Type': 'application/json'}
-    response = requests.request(
-        "POST", url, headers=headers, data=payload)
-    context_data = {
-        'portfolio_list': response.json(),
-    }
-    return JsonResponse(context_data, safe=True)
+#             time_input = {
+#                 'column_name': 'Date',
+#                 'split': 'week',
+#                 'period': 'life_time',
+#                 'start_point': '2021/01/08',
+#                 'end_point': '2023/06/25',
+#             }
+
+#             stage_input_list = []
+
+#             distribution_input = {
+#                 'normal': 1,
+#                 'poisson': 0,
+#                 'binomial': 0,
+#                 'bernoulli': 0
+#             }
+
+#             request_data = {
+#                 'database_details': database_details,
+#                 'distribution_input': distribution_input,
+#                 'number_of_variable': number_of_variables,
+#                 'stages': stage_input_list,
+#                 'time_input': time_input,
+#             }
+
+#             headers = {'content-type': 'application/json'}
+#             response = requests.post(url, json=request_data, headers=headers)
+#             print(response.json())
+#             data = response.json()['normal']['data']
+#             for column in data:
+#                 for row in column:
+#                     if row['user_id'] == request.session['user_id']:
+#                         key = row['profileKey']
+
+#             if datetime2 != "" or None:
+#                 strDatetime = str(datetime2)
+#                 myDatetime = strDatetime + ":00Z"
+#                 formart = datetime.strptime(myDatetime, "%Y-%m-%dT%H:%M:%SZ")
+#                 current_time = pytz.timezone(timezone)
+#                 localize = current_time.localize(formart)
+#                 utc = pytz.timezone('UTC')
+#                 scheduled = localize.astimezone(utc)
+#                 string = str(scheduled)[:-6]
+#                 Isoformart = datetime.strptime(
+#                     string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
+#                 schedule = str(Isoformart)
+
+#             for paragraph in paragraphs:
+#                 posts = title + ": " + paragraph  # Create each post separately
+#                 print("This section has posts:", posts)
+#                 print(paragraph[:40])
+
+#                 payload = {'post': posts,
+#                           'platforms': [facebook, instagram, linkedin],
+#                           'profileKey': key,
+#                           'mediaUrls': [image],
+#                           "scheduleDate": schedule if datetime2 != "" or None else None}
+#                 headers = {'Content-Type': 'application/json',
+#                           'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+#                 r1 = requests.post('https://app.ayrshare.com/api/post',
+#                                   json=payload,
+#                                   headers=headers)
+#                 print(r1.json())
+#                 if r1.json()['status'] == 'error':
+#                     messages.error(request, 'error in scheduling')
+#                 elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+#                     messages.success(request, 'post has been successfully scheduled')
+#                 else:
+#                     for warnings in r1.json()['warnings']:
+#                         messages.error(request, warnings['message'])
+
+#                 # For Twitter
+#                 payload = {'post': posts[:280],
+#                           'platforms': [twitter],
+#                           'profileKey': key,
+#                           'mediaUrls': [image],
+#                           "scheduleDate": schedule if datetime2 != "" or None else None}
+#                 headers = {'Content-Type': 'application/json',
+#                           'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+#                 r1 = requests.post('https://app.ayrshare.com/api/post',
+#                                   json=payload,
+#                                   headers=headers)
+#                 print(r1.json())
+#                 if r1.json()['status'] == 'error':
+#                     messages.error(request, 'error in scheduling Twitter')
+#                 elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+#                     messages.success(request, 'post has been successfully scheduled')
+#                 else:
+#                     for warnings in r1.json()['warnings']:
+#                         messages.error(request, warnings['message'])
+
+#             url = "http://100002.pythonanywhere.com/"
+#             payload = json.dumps(
+#                 {
+#                     "cluster": "socialmedia",
+#                     "database": "socialmedia",
+#                     "collection": "step4_data",
+#                     "document": "step4_data",
+#                     "team_member_ID": "1163",
+#                     "function_ID": "ABCDE",
+#                     "command": "update",
+#                     "field":
+#                         {
+#                             '_id': Post_id
+#                         },
+#                     "update_field":
+#                         {
+#                             "status": 'scheduled'
+#                         },
+#                     "platform": "bangalore"
+#                 })
+#             headers = {'Content-Type': 'application/json'}
+#             response = requests.request(
+#                 "POST", url, headers=headers, data=payload)
+#             return redirect('/scheduled')
+
+#     else:
+#         return render(request, 'error.html')
+
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)

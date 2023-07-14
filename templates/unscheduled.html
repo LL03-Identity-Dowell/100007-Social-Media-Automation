@@ -371,11 +371,11 @@ $(document).ready(function()
 
 <div class="container mt-5 mb-5 pt-3 pb-3">
 
-<!-- 
-    <div class="s-alert hide">
-        <span class="fas fa-exclamation-circle"></span>
-        <span class="msg">Your Post has been updated</span>
-    </div> -->
+
+    <!--<div class="s-alert hide">-->
+    <!--    <span class="fas fa-exclamation-circle"></span>-->
+    <!--    <span class="msg">Your Post has been updated</span>-->
+    <!--</div>-->
 
 
 
@@ -383,7 +383,7 @@ $(document).ready(function()
 
             <table class="table table-borderless">
             <tr>
-                <th colspan="4" style="align-items: center; text-align: center; padding-right:50px;" ><div  style="margin-left:80px"><h4 id="heder-h5">Where you want to post?</h4></div></th>
+                <th colspan="4" style="align-items: center; text-align: center; padding-right:50px;" ><div  style="margin-left:80px"><h4 id="heder-h5">Where do you want to post?</h4></div></th>
                 <th style="text-align:right">
                     <div>
                         <a class="closep"><i class="fa fa-close" style="font-size:24px"></i></a>
@@ -539,7 +539,7 @@ $(document).ready(function()
     <p>Total posts count: {{ post|length }}</p>
     <table class="table table-borderless">
       <tbody>
-          {% for post in page_post %}
+           {% for post in page_post %}
             <tr>
                     {% csrf_token %}
                 <input type="hidden" name="post_id" value="">
@@ -581,9 +581,7 @@ $(document).ready(function()
           {% endfor %}
       </tbody>
     </table>
-    </div>
-
-    <center>
+     <center>
         <div class="pagination">
             {% if page_post.has_previous %}
                 <a href="?page={{ page_post.previous_page_number }}">Previous</a>
@@ -608,9 +606,9 @@ $(document).ready(function()
         </div>
 
     </center>
-
 </div>
-</form>
+</div>
+  </form>
 
 {% endblock content %}
 <!-- Timepicker -->
