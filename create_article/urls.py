@@ -26,7 +26,7 @@ urlpatterns = [
     path('server/', serverReports),
     path('website/', include('website.urls')),
 
-    path('api/', include('article_api.urls')),
+    path('api/v1/', include('article_api.urls')),
 
 ]
 
