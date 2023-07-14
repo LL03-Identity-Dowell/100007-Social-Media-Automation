@@ -93,7 +93,7 @@
         font-size: 1em;
         color: red;
     }
-    
+
 
 
     .popup {
@@ -128,7 +128,7 @@
     bottom: 0;
     left: 0;
     width: 100%; /* Set initial width to full */
-  transition: width 30s linear; 
+  transition: width 30s linear;
     height: 4px;
     background-color: green;
 }
@@ -385,16 +385,16 @@ function notAdmin() {
   if (currentTab >= x.length) {
     // ... the form gets submitted:
     document.getElementById("regForm").submit();
-    showPopup("Form submitted successfully!");
+    showPopup("Generating topics...");
     AmagiLoader.show();
     const popup = document.querySelector(".popup");
-    popup.classList.add("timeout"); 
+    popup.classList.add("timeout");
     setTimeout(() => {
       popup.remove();
     }, 10000);
     setTimeout(() => {
       AmagiLoader.hide();
-    },30000); 
+    },30000);
     return false;
   }
   // Otherwise, display the correct tab:
@@ -463,7 +463,7 @@ function showPopup(message) {
           divContainer.style.height = '100%';
           divContainer.style.zIndex = '9998';
           divContainer.style.backgroundColor = 'rgba(250, 250, 250, 0.80)';
-    
+
           var div = document.createElement('div');
           div.style.position = 'absolute';
           div.style.left = '50%';
@@ -481,7 +481,7 @@ function showPopup(message) {
           });
           divContainer.appendChild(div);
           this.__loader = divContainer;
-    
+
           var progressText = document.createElement('div');
           progressText.style.position = 'absolute';
           progressText.style.left = '48%';
@@ -493,14 +493,14 @@ function showPopup(message) {
           progressText.style.textAlign = 'center';
           divContainer.appendChild(progressText);
           this.__progressText = progressText;
-    
+
           document.body.appendChild(this.__loader);
         }
         this.__loader.style.display = '';
-    
+
         var loadTime = 20000; // Adjust the load time duration in milliseconds
         var increment = 20; // Increment in percentage for each interval
-    
+
         var currentProgress = 0;
         var interval = setInterval(() => {
           currentProgress += increment;
@@ -523,7 +523,7 @@ function showPopup(message) {
         }
       },
     };
-    
+
 
 </script>
 {% endblock content %}

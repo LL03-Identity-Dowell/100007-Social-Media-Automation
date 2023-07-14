@@ -141,17 +141,17 @@
 
 @keyframes slideIn {
   0% {
-      transform: translateX(100%);
+    transform: translateX(100%);
   }
-    100% {
-        transform: translateX(0);
-    }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 
-  </style>
 
-    <style>
+  </style>
+  <style>
         .pagination {
             display: inline-block;
         }
@@ -188,7 +188,7 @@
         }
 
     </style>
-    {% block style %}{% endblock style %}
+  {% block style %}{% endblock style %}
 
 </head>
 
@@ -297,7 +297,7 @@
       </div>
     {% endfor %}
   </div>
-  
+
   {% endblock %}
 
     <div class="row body-container flex-grow-1">
@@ -323,38 +323,38 @@
           notification.style.display = 'none';
         });
       });
-  
+
       var notification = document.querySelector('.custom-notification');
       notification.classList.add('timeout');
-  
+
       var contentElement = notification.querySelector('.notification');
       var pseudoElement = getComputedStyle(contentElement, 'after');
       var animationDuration = 10000; // Animation duration in milliseconds
       var animationStartTime = Date.now();
-  
+
       function decreaseWidth() {
         var currentTime = Date.now();
         var elapsedTime = currentTime - animationStartTime;
         var progress = elapsedTime / animationDuration;
         var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
-  
+
         contentElement.style.setProperty('--after-width', updatedWidth + '%');
-  
+
         if (progress < 1) {
           requestAnimationFrame(decreaseWidth);
         } else {
           notification.style.display = 'none'; // Hide the notification
         }
       }
-  
+
       requestAnimationFrame(decreaseWidth);
     });
   </script>
-  
 
-  
-  
-  
+
+
+
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
   <script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js" ></script>
   <!--<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>-->

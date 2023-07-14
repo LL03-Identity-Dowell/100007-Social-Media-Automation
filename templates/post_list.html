@@ -8,6 +8,13 @@
     .btn-primary {
         background: #0d6efd;
     }
+    
+   .btn-cancel {
+        background: #0d6efd;
+        margin-right: 20px; /* Adjust the margin value as needed */
+        margin-top:4px;
+        width: 100px;
+    }
 
 </style>
 <div class="container mt-5 mb-5 pt-3 pb-3">
@@ -43,7 +50,9 @@
         {% endfor %}
         </tbody>
     </table>
+     <a href="https://100007.pythonanywhere.com/article_detail/" class="btn btn-cancel">Go back</a>
         <center>
+           
             <div class="pagination">
                 {% if page_post.has_previous %}
                     <a href="?page={{ page_post.previous_page_number }}">Previous</a>
@@ -64,11 +73,8 @@
                 {% if page_post.has_next %}
                     <a href="?page={{ page_post.next_page_number }}">Next</a>
                 {% endif %}
-
             </div>
-
         </center>
-
     </div>
 </div>
 {% endblock content %}
