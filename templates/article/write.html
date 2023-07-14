@@ -7,24 +7,9 @@
         background:#565e64;
     }
 
-    #animatedDiv {
-  width: 100px;
-  background-color: #feff00;
-  position: absolute;
-  right: -100px;
-  transition: right 1s;
-}
-
-#animatedDiv.active {
-  right: 0;
-  transition: right 1s;
-  width: auto;
-  padding: 20px;
-  border-radius: 10px 0 0 10px;
-}
- 
 
 </style>
+
 <div class="container-fluid p-5 ">
   <form class="" id="titleForm" action="{% url 'generate_article:verify-article' %}" name="my_form"  method="post" onsubmit='showLoading();'>
     {% csrf_token %}
@@ -60,7 +45,7 @@
       <div class="row  d-flex justify-content-center">
 
           <div class="col-9  d-flex justify-content-center">
-              <button class="btn btn-dark" onclick="notify()" >Save Article</button>
+              <button class="btn btn-dark" onclick="notify()">Save Article</button>
           </div>
 
       </div>
@@ -68,9 +53,7 @@
 </div>
 {% block script %}
 <script>
-  function notify() {
-  document.getElementById('animatedDiv').classList.add('active');
- }
+
     function check_length(my_form)
     {
         maxLen = 280;
