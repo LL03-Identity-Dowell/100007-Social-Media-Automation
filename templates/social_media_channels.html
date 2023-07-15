@@ -2,135 +2,194 @@
 {% load static %}
 
 {% block style %}
-  {{ block.super }}
-  <style type="text/css">
-    .btn-dark-blue {
-      color: white;
-      background-color: var(--dark-blue);
-      border-color: var(--dark-blue);
-    }
+{{ block.super }}
+<style type="text/css">
+  .btn-dark-blue {
+    color: white;
+    background-color: var(--dark-blue);
+    border-color: var(--dark-blue);
+  }
 
-    .btn-dark-blue:hover {
-      color: white;
-      background-color: rgb(20, 38, 85);
-    }
+  .btn-dark-blue:hover {
+    color: white;
+    background-color: rgb(20, 38, 85);
+  }
 
-    .connect-button {
-      color: white !important;
-    }
+  .connect-button {
+    color: white !important;
+  }
 
-    /* Added styles for the popup */
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 600px;
-      height: 400px;
-      background-color: rgba(255, 255, 255, 0.8);
-      padding: 30px;
-      border: 1px solid #ccc;
-      border-radius: 25px;
-      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
+  /* Added styles for the popup */
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 400px;
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 30px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 
-    /* Updated styles for the buttons and text */
-    .button-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-      margin-bottom: 20px;
+  /* Updated styles for the buttons and text */
+  .button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 11px;
 
-    }
+  }
 
-    .button-container button {
-      flex: 1;
+  .button-container-activate {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
 
-    }
+  }
 
-    .done-button {
-      color: white !important;
-      background-color: var(--dark-blue) !important;
-      border-color: var(--dark-blue) !important;
-      width: 100px;
-      border-radius: 5px;
-    }
+  .button-container-link {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
 
-    .done-button:hover {
-      background-color: rgb(20, 38, 85) !important;
-    }
+  }
 
-    .text-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+  .done-button {
+    color: white !important;
+    background-color: var(--dark-blue) !important;
+    border-color: var(--dark-blue) !important;
+    width: 100px;
+    border-radius: 5px;
+  }
 
-    .text-container p {
-      color: var(--dark-blue);
-      font-weight: bold;
+  .done-button:hover {
+    background-color: rgb(20, 38, 85) !important;
+  }
+
+  .text-container {
+    text-align: center;
+  }
+
+  .text-container p {
+    color: var(--dark-blue);
+    font-weight: bold;
     font-size: 18px;
-    }
+  }
 
-    .cancel-icon {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      color: var(--dark-blue);
-      cursor: pointer;
-    }
-  </style>
+  .cancel-icon {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    color: var(--dark-blue);
+    cursor: pointer;
+  }
+</style>
 {% endblock %}
 
 {% block stuff %}
-  <h2 class="mb-5 blue-text">My Channels</h2>
+<h2 class="mb-5 blue-text">My Channels</h2>
 
-  <div class="d-flex flex-wrap justify-content-center">
-    <a>
-      <i class="fa-brands fa-facebook fa-4x m-2"></i>
-    </a>
+<div class="d-flex flex-wrap justify-content-center">
+  <a>
+    <i class="fa-brands fa-facebook fa-4x m-2"></i>
+  </a>
 
-    <a>
-      <i class="fa-brands fa-twitter fa-4x m-2"></i>
-    </a>
+  <a>
+    <i class="fa-brands fa-twitter fa-4x m-2"></i>
+  </a>
 
-    <a>
-      <i class="fa-brands fa-instagram-square fa-4x m-2"></i>
-    </a>
+  <a>
+    <i class="fa-brands fa-instagram-square fa-4x m-2"></i>
+  </a>
 
-    <a>
-      <i class="fa-brands fa-linkedin fa-4x m-2"></i>
-    </a>
+  <a>
+    <i class="fa-brands fa-linkedin fa-4x m-2"></i>
+  </a>
 
-    <a>
-      <i class="fa-brands fa-youtube fa-4x m-2"></i>
-    </a>
-  </div>
+  <a>
+    <i class="fa-brands fa-youtube fa-4x m-2"></i>
+  </a>
+</div>
 
-  <a class="mt-5 px-5 btn btn-dark-blue connect-button" onclick="showPopup()">Connect</a>
+<a class="mt-5 px-5 btn btn-dark-blue connect-button" onclick="showPopup.showActivate()">Connect</a>
 
-  <script>
-    function showPopup() {
+<script>
+
+  // Show popup and delete local storage item only after reload and if local storage has item 'realoding'
+  window.onload = function () {
+    var reloading = sessionStorage.getItem("reloading");
+    console.log(reloading);
+    if (reloading) {
+      sessionStorage.removeItem("reloading");
+      showPopup.showLinkAcc();
+    }
+  }
+
+  // Function object containing all algo for the popup Element
+  const showPopup = {
+
+    showActivate() {
+      showPopup.appendContainerAndText();
+      showPopup.appendBtnContainer();
+      showPopup.appendBtnActivate();
+    },
+
+    showLinkAcc() {
+      showPopup.appendContainerAndText();
+      showPopup.appendBtnContainer();
+      showPopup.appendBtnLinkAndDone();
+    },
+
+    appendContainerAndText() {
       var popup = document.createElement("div");
       popup.className = "popup";
 
       var cancelIcon = document.createElement("i");
       cancelIcon.className = "fas fa-times cancel-icon";
-      cancelIcon.onclick = function() {
+      cancelIcon.onclick = function () {
         document.body.removeChild(popup);
       };
 
       var textContainer = document.createElement("div");
       textContainer.className = "text-container";
-
       var text = document.createElement("p");
-
       text.innerHTML = "Connect to Ayrshare to link your social media accounts";
 
+      textContainer.appendChild(text);
+      popup.appendChild(cancelIcon);
+      popup.appendChild(textContainer);
+      document.body.appendChild(popup);
+    },
+
+    appendBtnContainer() {
+      var popup = document.querySelector(".popup");
+      var buttonContainer = document.createElement("div");
+      var buttonContainerActivate = document.createElement("div");
+      var buttonContainerLink = document.createElement("div");
+      var buttonContainerDone = document.createElement("div");
+      buttonContainer.className = "button-container";
+      buttonContainerActivate.className = "button-container-activate";
+      buttonContainerLink.className = "button-container-link";
+      buttonContainerDone.className = "button-container-done"
+
+      buttonContainer.appendChild(buttonContainerActivate)
+      buttonContainer.appendChild(buttonContainerLink)
+      popup.appendChild(buttonContainer);
+      popup.appendChild(buttonContainerDone);
+    },
+
+    appendBtnActivate() {
+      var buttonContainerActivate = document.querySelector('.button-container-activate');
       var doneButton1 = document.createElement("a");
       doneButton1.href = "{% url 'generate_article:aryshare' %}";
       doneButton1.innerHTML = "activate user";
@@ -139,6 +198,17 @@
       doneButton1.style.height = "40px";
       doneButton1.style.borderRadius = "5px";
 
+      buttonContainerActivate.appendChild(doneButton1);
+      // set item 'reloading' : 'true' in the local storage only when activate user button is clicked
+      doneButton1.addEventListener('click', function () {
+        sessionStorage.setItem("reloading", "true");
+      })
+    },
+
+    appendBtnLinkAndDone() {
+      document.querySelector('.button-container-activate').style.display = 'none';
+      var buttonContainerDone = document.querySelector(".button-container-done");
+      var buttonContainerLink = document.querySelector(".button-container-link")
       var doneButton2 = document.createElement("a");
       doneButton2.href = "{% url 'generate_article:link_social_media' %}";
       doneButton2.innerHTML = "link socialmedia accounts";
@@ -153,27 +223,16 @@
       doneButton3.className = "btn btn-primary done-button";
       doneButton3.style.width = "100px";
       doneButton3.style.borderRadius = "5px";
-      doneButton3.onclick = function() {
+      doneButton3.onclick = function () {
         history.back();
       };
 
-      var buttonContainerTop = document.createElement("div");
-      buttonContainerTop.className = "button-container";
-      buttonContainerTop.appendChild(doneButton1);
-      buttonContainerTop.appendChild(doneButton2);
+      buttonContainerLink.appendChild(doneButton2);
+      buttonContainerDone.appendChild(doneButton3);
+    },
 
-      var buttonContainerBottom = document.createElement("div");
-    //   buttonContainerBottom.className = "button-container";
-      buttonContainerBottom.appendChild(doneButton3);
 
-      textContainer.appendChild(text);
-      popup.appendChild(cancelIcon);
-      popup.appendChild(textContainer);
-      popup.appendChild(buttonContainerTop);
-      popup.appendChild(buttonContainerBottom);
-
-      document.body.appendChild(popup);
-    }
-  </script>
+  }
+</script>
 
 {% endblock %}
