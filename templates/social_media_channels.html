@@ -202,6 +202,7 @@
       // set item 'reloading' : 'true' in the local storage only when activate user button is clicked
       doneButton1.addEventListener('click', function () {
         sessionStorage.setItem("reloading", "true");
+        doneButton1.innerHTML = "activating <strong>....</strong>";
       })
     },
 
