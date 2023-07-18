@@ -10,11 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from pathlib import Path
 import mimetypes
+from pathlib import Path
 
 from decouple import config
-
 
 mimetypes.add_type("text/javascript", ".js", True)
 mimetypes.add_type("text/css", ".css", True)
@@ -54,8 +53,7 @@ INSTALLED_APPS = [
     'tempus_dominus',
     'sorl.thumbnail',
     'article_api',
-
-
+    'django_q',
     'corsheaders',
 ]
 
@@ -185,3 +183,14 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+Q_CLUSTER = {
+    'name': 'DjangORM',
+    'workers': 4,
+    'timeout': 90,
+    'max_attempts': 3,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default'
+}

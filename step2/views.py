@@ -1,55 +1,38 @@
-from django.contrib.sessions.models import Session
-from create_article.custom_session_backend import CustomSessionStore
-from create_article import settings
-from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse
-from django.http import HttpResponseRedirect, JsonResponse
-import requests
-import json
-import time
-from datetime import datetime
 import datetime
+import json
+import random
+import time
+import traceback
+from datetime import datetime, date
+# image resizing
+from io import BytesIO
+
+import openai
+import pytz
+import requests
+import wikipediaapi
+from PIL import Image
+from ayrshare import SocialPost
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-import wikipediaapi
+from bson import ObjectId
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect, HttpResponse
+from django.urls import reverse
+from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime, timedelta, date
+from django_q.tasks import async_task
 from mega import Mega
-from create_article import settings
-from pymongo import MongoClient
-from django.core.paginator import Paginator
-from bson import ObjectId
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.timezone import localdate, localtime
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Page
-from website.models import Sentences, SentenceResults, SentenceRank, MTopic
-import urllib
-from urllib.request import urlopen
-from django.contrib import messages
 from pexels_api import API
-import random
-from .models import stepFour
-from .forms import StepFourForm, VerifyArticleForm
-from ayrshare import SocialPost
-from django.utils import timezone
-# image resizing
-import base64
-from io import BytesIO
-from PIL import Image, UnidentifiedImageError
-from pytz import timezone
-import pytz
-import openai
-import re
-import os
-from create_article.settings import STATIC_ROOT, BASE_DIR
-import shutil
-import math
-import traceback
-import urllib.parse
+from pymongo import MongoClient
 
-
-from django.db import transaction
+from create_article import settings
+from website.models import Sentences, SentenceResults
+from .forms import VerifyArticleForm
 
 # helper functions
 
@@ -1947,89 +1930,27 @@ def generate_article(request):
             # Build prompt
             prompt_limit = 280
             prompt = f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."[
-                :prompt_limit] + "..."
-
-            # Variables for loop control
-            duration = 200  # Total duration in seconds
-            interval = 10  # Interval between generating articles in seconds
-            start_time = time.time()
-            current_time = time.time()
-
-            # Loop until the specified duration is reached
-            while current_time - start_time < duration:
-                # Generate article using OpenAI's GPT-3
-                response = openai.Completion.create(
-                    engine="text-davinci-003",
-                    prompt=prompt,
-                    temperature=0.5,
-                    max_tokens=1024,
-                    n=1,
-                    stop=None,
-                    timeout=60,
-                )
-                article = response.choices[0].text
-                paragraphs = article.split("\n\n")
-                article_str = "\n\n".join(paragraphs)
-
-                sources = urllib.parse.unquote("https://openai.com")
-                # matches = re.findall(r'(https?://[^\s]+)', article)
-                # for match in matches:
-                #     sources += match.strip() + '\n'
-
-                try:
-                    with transaction.atomic():
-                        event_id = create_event()['event_id']
-                        user_id = request.session['user_id']
-                        client_admin_id = request.session['userinfo']['client_admin_id']
-
-                        # Save data for step 3
-                        step3_data = {
-                            "user_id": user_id,
-                            "session_id": session_id,
-                            "eventId": event_id,
-                            'client_admin_id': client_admin_id,
-                            "title": RESEARCH_QUERY,
-                            "target_industry": target_industry,
-                            "qualitative_categorization": qualitative_categorization,
-                            "targeted_for": targeted_for,
-                            "designed_for": designed_for,
-                            "targeted_category": targeted_category,
-                            "source": sources,
-                            "image": image,
-                            "paragraph": article_str,
-                            "citation_and_url": sources,
-                            "subject": subject,
-                        }
-                        save_data('step3_data', 'step3_data',
-                                  step3_data, '34567897799')
-
-                        # Save data for step 2
-                        step2_data = {
-                            "user_id": user_id,
-                            "session_id": session_id,
-                            "eventId": event_id,
-                            'client_admin_id': client_admin_id,
-                            "title": RESEARCH_QUERY,
-                            "target_industry": target_industry,
-                            "paragraph": '',
-                            "source": sources,
-                            "subject": subject,
-                            "citation_and_url": sources,
-                        }
-                        save_data('step2_data', 'step2_data',
-                                  step2_data, '9992828281')
-
-                except:
-                    return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
-
-                # Wait for the specified interval before generating the next article
-                time.sleep(interval)
-
-                # Update current time
-                current_time = time.time()
+                     :prompt_limit] + "..."
+            user_id = request.session['user_id']
+            client_admin_id = request.session['userinfo']['client_admin_id']
+            generate_article_kwargs = {
+                'prompt': prompt,
+                'user_id': user_id,
+                'client_admin_id': client_admin_id,
+                'session_id': session_id,
+                'RESEARCH_QUERY': RESEARCH_QUERY,
+                'target_industry': target_industry,
+                'qualitative_categorization': qualitative_categorization,
+                'targeted_for': targeted_for,
+                'designed_for': designed_for,
+                'targeted_category': targeted_category,
+                'image': image,
+                'subject': subject,
+            }
+            async_task('step2.open_ai_util.generate_articles_task', **generate_article_kwargs)
 
             messages.success(
-                request, 'Article generation completed. Click on step 3 to view the articles')
+                request, 'Your Articles are being generated. Click on step 3 to view the articles')
             return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
