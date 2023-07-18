@@ -44,6 +44,12 @@
         display: none;
     }
 
+    button#nextBtn {
+        border-color: #ffc107;
+        background-color: #ffc107;
+        color: #212529;
+    }
+
     button {
 
         border: none;
@@ -56,7 +62,6 @@
     button:hover {
         opacity: 0.8;
     }
-
 
     /* Make circles that indicate the steps of the form: */
     /*.step {*/
@@ -94,8 +99,6 @@
         color: red;
     }
 
-
-
     .popup {
     position: fixed;
     top: 20px; /* Adjust the top position as per your needs */
@@ -108,6 +111,7 @@
     z-index: 9999;
     animation: slideIn 0.5s ease-in-out;
 }
+
 .cancel-icon {
   position: absolute;
   top: 5px;
@@ -120,7 +124,6 @@
   margin: 0;
   padding: 0;
 }
-
 
 .popup::after {
     content: "";
@@ -150,8 +153,6 @@
     0% { transform: translateX(100%); }
     100% { transform: translateX(0); }
 }
-
-
 
 
 
