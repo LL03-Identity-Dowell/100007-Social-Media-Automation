@@ -121,7 +121,7 @@ def index(request):
                 data_dictionary["username"] = request.session['username']
                 data_dictionary["session_id"] = request.session.get(
                     'session_id', None)
-                data_dictionary['event_id'] = create_event(request)['event_id']
+                data_dictionary['event_id'] = create_event()['event_id']
                 data_dictionary['email'] = email
 
                 try:
@@ -299,7 +299,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         data_dictionary["org_id"] = request.session['org_id']
         data_dictionary["username"] = request.session['username']
         data_dictionary["session_id"] = request.session.get('session_id', None)
-        data_dictionary['event_id'] = create_event(request)['event_id']
+        data_dictionary['event_id'] = create_event()['event_id']
         data_dictionary['email'] = email
 
         try:

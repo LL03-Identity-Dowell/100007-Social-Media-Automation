@@ -18,6 +18,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class APIKeyProcessor(APIView):
     def __init__(self):
@@ -100,6 +101,7 @@ class APIKeyProcessor(APIView):
                 'success': False,
                 'message': message
             }, status=status.HTTP_401_UNAUTHORIZED)
+
 
 class GenerateSentencesAPIView(generics.CreateAPIView):
     """
@@ -186,7 +188,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         data_dictionary["user_id"] = user.id
         data_dictionary["session_id"] = session_id
         data_dictionary["email"] = email
-        data_dictionary['event_id'] = create_event(request)['event_id']
+        data_dictionary['event_id'] = create_event()['event_id']
         data_dictionary['email'] = email
 
         try:
