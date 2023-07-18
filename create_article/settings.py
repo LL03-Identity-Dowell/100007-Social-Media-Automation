@@ -187,9 +187,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 Q_CLUSTER = {
     'name': 'DjangORM',
     'workers': 4,
-    'timeout': 90,
-    'max_attempts': 3,
-    'retry': 120,
+    'timeout': 300,
+    'max_attempts': 1,
+    'retry': 500,
     'queue_limit': 50,
     'bulk': 10,
     'orm': 'default'

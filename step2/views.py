@@ -1668,18 +1668,15 @@ def index(request):
                 topics = paginator.page(1)
             except EmptyPage:
                 topics = paginator.page(paginator.num_pages)
-            # if len(topics):
-            #     total_pages=math.ceil(len(topics)/number_of_items_per_page)
-            # total_pages=0
-            # topics=topics[start_number:end_number]
+
         except Exception as e:
-            print('this is the error that has occured')
+            print('this is the error that has occurred')
             traceback.print_exc()
             print('================================')
             topics = []
         messages.info(
             request, 'Step 2: Generate articles from topics generated.')
-        return render(request, 'article/main.html', {'topics': topics, 'profile': profile, 'page': page})
+        return render(request, 'article/main.html', {'topics': topics, 'profile': profile})
     else:
         return render(request, 'error.html')
 
