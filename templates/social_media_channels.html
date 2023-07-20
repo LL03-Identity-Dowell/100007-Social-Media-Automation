@@ -118,12 +118,11 @@
 
 <script>
 
-  let fetchFun = async () => {
+  {% comment %} let fetchFun = async () => {
     username = document.getElementById('nav-username').innerHTML;
     console.log(username);
-
-    
-  }
+   
+  } {% endcomment %}
 
   // Show popup and delete local storage item only after reload and if local storage has item 'realoding'
   window.onload = function () {
@@ -201,7 +200,6 @@
       buttonContainerActivate.appendChild(doneButton1);
       // set item 'reloading' : 'true' in the local storage only when activate user button is clicked
       doneButton1.addEventListener('click', function () {
-        fetchFun();
         sessionStorage.setItem("reloading", "true");
         doneButton1.innerHTML = "activating <strong>....</strong>";
       })
