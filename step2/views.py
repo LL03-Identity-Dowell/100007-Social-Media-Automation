@@ -76,7 +76,7 @@ def save_data(collection, document, field, team_member_ID):
 
     # adding eddited field in article
     field['edited'] = 0
-    field['eventId'] = create_event()
+    field['eventId'] = create_event()['event_id']
     payload = json.dumps({
         "cluster": "socialmedia",
         "database": "socialmedia",
@@ -2315,9 +2315,12 @@ def list_article(request):
 
         posts = []
         # iterates through the json file
+        test_ids = ['64b7e75121ae7a703828c7ec', '64b7e753154131c406cbb5ae', '64b7e76ef5e003091ae0d72f',
+                    '64b7e773cc51a818974fedfd', '64b7e7936ed19ec253136827', '64b7e79621ae7a703828c7f2']
 
         for row in datas:
             for data in row:
+
                 idd = str(data['user_id'])
                 if user in idd:
                     # picks out the data
