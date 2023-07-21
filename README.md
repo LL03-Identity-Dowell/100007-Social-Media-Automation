@@ -1,8 +1,6 @@
 # 100007-Social-Media-Automation
 
-> **Notebook Icon:**
-> 
-> ![Notebook Icon](notebook-icon.png)
+
 >
 > All this steps assumes that you have python installed in your pc/macOS
 > Also you should have your favorite IDE installed. 
@@ -72,23 +70,18 @@ install the required packages using the following command:
 pip install -r requirements.txt
 
 ```
-
-> **Notebook Icon:**
 > 
-> ![Notebook Icon](notebook-icon.png)
 >
 > For this crucial step to work you have to be in the directory where the file `requirements.txt` resides. 
 
 ## Create and Switch to a Branch
-> **Notebook Icon:**
+
 > 
-> ![Notebook Icon](notebook-icon.png)
->
 > In our case the `branchnames` will be your name, check the repo for the way your names have been added to avoid confusion. 
 
 
 1. In the terminal or command prompt, use the following command to create a branch
-> **Notebook Icon:**
+
 > (your name, according to the branches created from the main branch):
 
 ```
@@ -109,9 +102,7 @@ Replace `<branchname>` with the name of the branch you created in the previous s
 Example: `git checkout feature-xyz`
 
 You are now on the new branch and can start making changes to the code.
-> **Notebook Icon:**
-> 
-> ![Notebook Icon](notebook-icon.png)
+
 >
 > This steps are important. Make sure to follow it carefully.
 
@@ -121,6 +112,20 @@ Now you have cloned the code repository, set up a virtual environment, and creat
 ## Running the application
 
 1. In the terminal or command prompt, use the following command to run the application:
+
+```
+python3 manage.py makemigrations
+
+```
+
+2. In the terminal or command prompt, use the following command to run the application:
+
+```
+python3 manage.py migrate
+
+```
+
+3. In the terminal or command prompt, use the following command to run the application:
 
 ```
 python3 manage.py runserver
