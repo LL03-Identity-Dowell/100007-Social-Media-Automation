@@ -81,27 +81,28 @@
 
   .cancel-icon {
     position: absolute;
-    top: 10px;
-    right: 20px;
-    color: var(--dark-blue);
-    cursor: pointer;
+      top: 10px;
+      right: 20px;
+      color: var(--dark-blue);
+      cursor: pointer;
   }
 </style>
 {% endblock %}
 
 {% block stuff %}
-<h2 class="mb-5 blue-text">My Channels</h2>
+    <h2 class="mb-5 blue-text">My Channels</h2>
+    <p>User has social profile {{ user_has_social_media_profile }}</p>
 
-<div class="d-flex flex-wrap justify-content-center">
-  <a>
-    <i class="fa-brands fa-facebook fa-4x m-2"></i>
-  </a>
+    <div class="d-flex flex-wrap justify-content-center">
+        <a>
+            <i class="fa-brands fa-facebook fa-4x m-2"></i>
+        </a>
 
-  <a>
-    <i class="fa-brands fa-twitter fa-4x m-2"></i>
-  </a>
+        <a>
+            <i class="fa-brands fa-twitter fa-4x m-2"></i>
+        </a>
 
-  <a>
+        <a>
     <i class="fa-brands fa-instagram-square fa-4x m-2"></i>
   </a>
 
