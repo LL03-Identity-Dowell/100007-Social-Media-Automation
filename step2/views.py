@@ -5,7 +5,7 @@ import time
 import traceback
 import urllib
 import urllib.parse
-from datetime import datetime, date
+from datetime import datetime
 # image resizing
 from io import BytesIO
 
@@ -1982,7 +1982,8 @@ def generate_article_wiki(request):
                     save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
                                                            "title": title_sub_verb,
                                                            "target_industry": target_industry,
                                                            "paragraph": article_sub_verb[0],
@@ -1992,24 +1993,24 @@ def generate_article_wiki(request):
                                                            }, "9992828281")
                     para_list = article_sub_verb[0].split("\n\n")
                     source_verb = page.fullurl
-                    for i in range(len(para_list)):
-                        if para_list[i] != '':
-                            save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                                   "session_id": session_id,
-                                                                   "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                                   "title": title,
-                                                                   "target_industry": target_industry,
-                                                                   "qualitative_categorization": qualitative_categorization,
-                                                                   "targeted_for": targeted_for,
-                                                                   "designed_for": designed_for,
-                                                                   "targeted_category": targeted_category,
-                                                                   "image": image,
-                                                                   "paragraph": para_list[i],
-                                                                   "citation_and_url": page.fullurl,
-                                                                   'subject': subject,
-                                                                   # 'dowelltime': dowellclock
-                                                                   }, '34567897799')
+                    # for i in range(len(para_list)):
+                    #     if para_list[i] != '':
+                    #         save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                    #                                                "session_id": session_id,
+                    #                                                "eventId": create_event()['event_id'],
+                    #                                                'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    #                                                "title": title,
+                    #                                                "target_industry": target_industry,
+                    #                                                "qualitative_categorization": qualitative_categorization,
+                    #                                                "targeted_for": targeted_for,
+                    #                                                "designed_for": designed_for,
+                    #                                                "targeted_category": targeted_category,
+                    #                                                "image": image,
+                    #                                                "paragraph": para_list[i],
+                    #                                                "citation_and_url": page.fullurl,
+                    #                                                'subject': subject,
+                    #                                                # 'dowelltime': dowellclock
+                    #                                                }, '34567897799')
                 print("Using subject: " + subject + " to create an article.")
                 page = wiki_language.page(title_sub_verb)
                 if page.exists() == False:
@@ -2025,7 +2026,8 @@ def generate_article_wiki(request):
                     save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
                                                            "title": subject,
                                                            "target_industry": target_industry,
                                                            "paragraph": article_subject[0],
@@ -2034,26 +2036,26 @@ def generate_article_wiki(request):
                                                            # 'dowelltime': dowellclock
                                                            }, "9992828281")
                     para_list = article_subject[0].split("\n\n")
-                    for i in range(len(para_list)):
-                        if para_list[i] != '':
-                            print(para_list[i])
-                            save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                                   "session_id": session_id,
-                                                                   "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                                   "title": title,
-                                                                   "target_industry": target_industry,
-                                                                   "qualitative_categorization": qualitative_categorization,
-                                                                   "targeted_for": targeted_for,
-                                                                   "designed_for": designed_for,
-                                                                   "targeted_category": targeted_category,
-                                                                   "image": image,
-                                                                   "paragraph": para_list[i],
-                                                                   "citation_and_url": page.fullurl,
-                                                                   'subject': subject,
-                                                                   # 'dowelltime': dowellclock
-                                                                   }, '34567897799')
-                            print("\n")
+                    # for i in range(len(para_list)):
+                    #     if para_list[i] != '':
+                    #         print(para_list[i])
+                    #         save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                    #                                                "session_id": session_id,
+                    #                                                "eventId": create_event()['event_id'],
+                    #                                                'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    #                                                "title": title,
+                    #                                                "target_industry": target_industry,
+                    #                                                "qualitative_categorization": qualitative_categorization,
+                    #                                                "targeted_for": targeted_for,
+                    #                                                "designed_for": designed_for,
+                    #                                                "targeted_category": targeted_category,
+                    #                                                "image": image,
+                    #                                                "paragraph": para_list[i],
+                    #                                                "citation_and_url": page.fullurl,
+                    #                                                'subject': subject,
+                    #                                                # 'dowelltime': dowellclock
+                    #                                                }, '34567897799')
+                    #         print("\n")
                     if 'article_sub_verb' in locals():
                         # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
                         # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
@@ -2071,7 +2073,8 @@ def generate_article_wiki(request):
                 save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                        "session_id": session_id,
                                                        "eventId": create_event()['event_id'],
-                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                       'client_admin_id': request.session['userinfo'][
+                                                           'client_admin_id'],
                                                        "title": title,
                                                        "target_industry": target_industry,
                                                        "paragraph": article[0],
@@ -2080,24 +2083,24 @@ def generate_article_wiki(request):
                                                        # 'dowelltime': dowellclock
                                                        }, "9992828281")
                 para_list = article[0].split("\n\n")
-                for i in range(len(para_list)):
-                    if para_list[i] != '':
-                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                               "title": title,
-                                                               "target_industry": target_industry,
-                                                               "qualitative_categorization": qualitative_categorization,
-                                                               "targeted_for": targeted_for,
-                                                               "designed_for": designed_for,
-                                                               "targeted_category": targeted_category,
-                                                               "image": image,
-                                                               "paragraph": para_list[i],
-                                                               "citation_and_url": page.fullurl,
-                                                               'subject': subject,
-                                                               # 'dowelltime': dowellclock
-                                                               }, '34567897799')
+                # for i in range(len(para_list)):
+                #     if para_list[i] != '':
+                #         save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                #                                                "session_id": session_id,
+                #                                                "eventId": create_event()['event_id'],
+                #                                                'client_admin_id': request.session['userinfo']['client_admin_id'],
+                #                                                "title": title,
+                #                                                "target_industry": target_industry,
+                #                                                "qualitative_categorization": qualitative_categorization,
+                #                                                "targeted_for": targeted_for,
+                #                                                "designed_for": designed_for,
+                #                                                "targeted_category": targeted_category,
+                #                                                "image": image,
+                #                                                "paragraph": para_list[i],
+                #                                                "citation_and_url": page.fullurl,
+                #                                                'subject': subject,
+                #                                                # 'dowelltime': dowellclock
+                #                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
                 messages.success(
                     request, 'Article has been generated successfully. Click step 3 to post the article')
@@ -2178,49 +2181,50 @@ def verify_article(request):
                 if first_para in text_from_page and last_para in text_from_page:
                     print("Article Verified")
                     message = "Article Verified, "
-                    for i in range(len(paragraph)):
-
-                        # check for empty paragraph
-                        if paragraph[i] == "":
-                            continue
-                        # saving paragraphs in article
-                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                               "title": title,
-                                                               "target_industry": target_industry,
-                                                               "qualitative_categorization": qualitative_categorization,
-                                                               "targeted_for": targeted_for,
-                                                               "designed_for": designed_for,
-                                                               "targeted_category": targeted_category,
-                                                               "image": image,
-                                                               "paragraph": paragraph[i],
-                                                               "source": source,
-                                                               'subject': subject,
-                                                               # 'dowelltime': dowellclock
-                                                               }, '34567897799')
-                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "eventId":  create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                               "title": title,
-                                                               "qualitative_categorization": qualitative_categorization,
-                                                               "targeted_for": targeted_for,
-                                                               "designed_for": designed_for,
-                                                               "targeted_category": targeted_category,
-                                                               "image": image,
-                                                               "paragraph": paragraph,
-                                                               "source": source,
-                                                               "date": str(date),
-                                                               "time": str(time),
-                                                               }, '34567897799')
+                    # for i in range(len(paragraph)):
+                    #
+                    #     # check for empty paragraph
+                    #     if paragraph[i] == "":
+                    #         continue
+                    #     # saving paragraphs in article
+                    #     save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                    #                                            "session_id": session_id,
+                    #                                            "eventId": create_event()['event_id'],
+                    #                                            'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    #                                            "title": title,
+                    #                                            "target_industry": target_industry,
+                    #                                            "qualitative_categorization": qualitative_categorization,
+                    #                                            "targeted_for": targeted_for,
+                    #                                            "designed_for": designed_for,
+                    #                                            "targeted_category": targeted_category,
+                    #                                            "image": image,
+                    #                                            "paragraph": paragraph[i],
+                    #                                            "source": source,
+                    #                                            'subject': subject,
+                    #                                            # 'dowelltime': dowellclock
+                    #                                            }, '34567897799')
+                    #     save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                    #                                            "session_id": session_id,
+                    #                                            "eventId":  create_event()['event_id'],
+                    #                                            'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    #                                            "title": title,
+                    #                                            "qualitative_categorization": qualitative_categorization,
+                    #                                            "targeted_for": targeted_for,
+                    #                                            "designed_for": designed_for,
+                    #                                            "targeted_category": targeted_category,
+                    #                                            "image": image,
+                    #                                            "paragraph": paragraph,
+                    #                                            "source": source,
+                    #                                            "date": str(date),
+                    #                                            "time": str(time),
+                    #                                            }, '34567897799')
 
                     # saving article
                     save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
                                                            "title": title,
                                                            "target_industry": target_industry,
                                                            "paragraph": article,
