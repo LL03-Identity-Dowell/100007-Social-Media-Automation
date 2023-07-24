@@ -93,7 +93,7 @@ def save_data(collection, document, field, team_member_ID):
 
     # adding eddited field in article
     field['edited'] = 0
-    field['eventId'] = create_event()
+    field['eventId'] = create_event()['event_id']
     payload = json.dumps({
         "cluster": "socialmedia",
         "database": "socialmedia",
@@ -1364,78 +1364,46 @@ def topics(request):
 @xframe_options_exempt
 def unscheduled(request):
     if 'session_id' and 'username' in request.session:
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-
-        database_details = {
-            'database_name': 'mongodb',
-            'collection': 'step4_data',
-            'database': 'social-media-auto',
-                        'fields': ['eventId']
-        }
-
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        """
-			period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-			if custom is given then need to specify start_point and end_point
-			for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-			the the value of that selection in 'm_or_A_value'
-			error is the error allowed in percentage
-		"""
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2022/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-
+        url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
-        response = requests.post(url, json=request_data, headers=headers)
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step4_data",
+            "document": "step4_data",
+            "team_member_ID": "1163",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
         profile = request.session['operations_right']
 
-        post = response.json()['normal']['data']
+        post = json.loads(response.json())
         # takes in user_id
         user = str(request.session['user_id'])
 
         # takes in the json data
         datas = post
 
-        posts = response.json()['normal']['data']
+        posts = post['data']
+        print(posts)
 
         user_id = str(request.session['user_id'])
         post = []
         try:
-            for column in posts:
-                for row in column:
-                    if user_id == str(row['user_id']):
-                        data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': row["date"],
-                                'image': row['image'], 'source': row['source'], 'PK': row['_id']}
-                        post.append(data)
-                        print(profile)
+            for row in posts:
+                if user_id == str(row['user_id']):
+                    data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': row["date"],
+                            'image': row['image'], 'source': row['source'], 'PK': row['_id']}
+                    post.append(data)
+                    print(profile)
 
         except:
             pass
@@ -1496,74 +1464,40 @@ def post_scheduler(request):
 @xframe_options_exempt
 def scheduled(request):
     if 'session_id' and 'username' in request.session:
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-
-        database_details = {
-            'database_name': 'mongodb',
-            'collection': 'step4_data',
-            'database': 'social-media-auto',
-            'fields': ['eventId']
-        }
-
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        """
-            period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-            if custom is given then need to specify start_point and end_point
-            for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-            the the value of that selection in 'm_or_A_value'
-            error is the error allowed in percentage
-        """
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2022/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-
+        url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
-        response = requests.post(url, json=request_data, headers=headers)
-        posts = response.json()['normal']['data']
-
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step4_data",
+            "document": "step4_data",
+            "team_member_ID": "1163",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        posts = json.loads(response.json())
         user_id = str(request.session['user_id'])
         status = 'scheduled'
         post = []
         try:
-            for column in posts:
-                for row in column:
-                    if user_id == str(row['user_id']):
-                        try:
-                            if status == row['status']:
-                                data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
-                                        'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date()}
-                                post.append(data)
+            for row in posts['data']:
+                if user_id == str(row['user_id']):
+                    try:
+                        if status == row['status']:
+                            data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
+                                    'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date()}
+                            post.append(data)
 
-                        except:
-                            pass
+                    except:
+                        pass
         except:
             pass
         return render(request, 'scheduled.html', {'post': post})
@@ -1574,57 +1508,26 @@ def scheduled(request):
 @xframe_options_exempt
 def index(request):
     if 'session_id' and 'username' in request.session:
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-
-        database_details = {
-            'database_name': 'mongodb',
-            'collection': 'socialmedia',
-            'database': 'social-media-auto',
-            'fields': ['email', 'subject']
-        }
-
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        """
-            period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-            if custom is given then need to specify start_point and end_point
-            for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-            the the value of that selection in 'm_or_A_value'
-            error is the error allowed in percentage
-        """
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2022/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-
+        url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
-        response = requests.post(url, json=request_data, headers=headers)
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "socialmedia",
+            "document": "socialmedia",
+            "team_member_ID": "345678977",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"username": request.session['username']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        results = json.loads(response.json())
         # getting the operation right of a user
         try:
             profile = str(request.session['operations_right'])
@@ -1634,12 +1537,11 @@ def index(request):
         # drops the first 10 on the json file
 
         try:
-
             # Get the user org ids from the portfolio objects of the user
             user_org_id_list = [portfolio_info.get(
                 'org_id') for portfolio_info in request.session['portfolio_info'] if portfolio_info.get('org_id', None)]
 
-            datas = response.json()['normal']['data'][0]
+            datas = results['data']
 
             array = []
             # Loops through all the data rows
@@ -2687,71 +2589,39 @@ def address(request):
 @xframe_options_exempt
 def most_recent(request):
     if 'session_id' and 'username' in request.session:
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-
-        database_details = {
-            'database_name': 'mongodb',
-            'collection': 'step4_data',
-            'database': 'social-media-auto',
-            'fields': ['eventId']
-        }
-
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        """
-            period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-            if custom is given then need to specify start_point and end_point
-            for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-            the the value of that selection in 'm_or_A_value'
-            error is the error allowed in percentage
-        """
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2022/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-
+        url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
-        response = requests.post(url, json=request_data, headers=headers)
-        posts = response.json()['normal']['data']
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step4_data",
+            "document": "step4_data",
+            "team_member_ID": "1163",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        posts = json.loads(response.json())
         user_id = str(request.session['user_id'])
         status = 'posted'
         post = []
         try:
-            for column in posts:
-                for row in column:
-                    if user_id == str(row['user_id']):
-                        try:
-                            if status == row['status']:
-                                data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
-                                    row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source']}
-                                post.append(data)
-                        except:
-                            pass
+            for row in posts['data']:
+                if user_id == str(row['user_id']):
+                    try:
+                        if status == row['status']:
+                            data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
+                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source']}
+                            post.append(data)
+                    except:
+                        pass
         except:
             print('no post')
         post = list(reversed(post))  # Reverse the order of the posts list
