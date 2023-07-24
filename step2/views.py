@@ -1,4 +1,3 @@
-from django.shortcuts import render, redirect, HttpResponse
 import datetime
 import json
 import random
@@ -24,6 +23,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction
 from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, HttpResponse
 from django.urls import reverse
 from django.utils.timezone import localdate, localtime
@@ -36,7 +36,6 @@ from pymongo import MongoClient
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
-from django.http import JsonResponse
 
 # helper functions
 
@@ -1845,12 +1844,12 @@ def generate_article(request):
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
             target_industry = request.POST.get("target_industry")
-            qualitative_categorization = request.POST.get(
-                "qualitative_categorization")
-            targeted_for = request.POST.get("targeted_for")
-            designed_for = request.POST.get("designed_for")
-            targeted_category = request.POST.get("targeted_category")
-            image = request.POST.get("image")
+            # qualitative_categorization = request.POST.get(
+            #     "qualitative_categorization")
+            # targeted_for = request.POST.get("targeted_for")
+            # designed_for = request.POST.get("designed_for")
+            # targeted_category = request.POST.get("targeted_category")
+            # image = request.POST.get("image")
 
             # Set your OpenAI API key here
             openai.api_key = settings.OPENAI_KEY
@@ -1858,7 +1857,7 @@ def generate_article(request):
             # Build prompt
             prompt_limit = 280
             prompt = f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."[
-                :prompt_limit] + "..."
+                     :prompt_limit] + "..."
 
             # Variables for loop control
             duration = 200  # Total duration in seconds
@@ -1894,25 +1893,25 @@ def generate_article(request):
                         client_admin_id = request.session['userinfo']['client_admin_id']
 
                         # Save data for step 3
-                        step3_data = {
-                            "user_id": user_id,
-                            "session_id": session_id,
-                            "eventId": event_id,
-                            'client_admin_id': client_admin_id,
-                            "title": RESEARCH_QUERY,
-                            "target_industry": target_industry,
-                            "qualitative_categorization": qualitative_categorization,
-                            "targeted_for": targeted_for,
-                            "designed_for": designed_for,
-                            "targeted_category": targeted_category,
-                            "source": sources,
-                            "image": image,
-                            "paragraph": article_str,
-                            "citation_and_url": sources,
-                            "subject": subject,
-                        }
-                        save_data('step3_data', 'step3_data',
-                                  step3_data, '34567897799')
+                        # step3_data = {
+                        #     "user_id": user_id,
+                        #     "session_id": session_id,
+                        #     "eventId": event_id,
+                        #     'client_admin_id': client_admin_id,
+                        #     "title": RESEARCH_QUERY,
+                        #     "target_industry": target_industry,
+                        #     "qualitative_categorization": qualitative_categorization,
+                        #     "targeted_for": targeted_for,
+                        #     "designed_for": designed_for,
+                        #     "targeted_category": targeted_category,
+                        #     "source": sources,
+                        #     "image": image,
+                        #     "paragraph": article_str,
+                        #     "citation_and_url": sources,
+                        #     "subject": subject,
+                        # }
+                        # save_data('step3_data', 'step3_data',
+                        #           step3_data, '34567897799')
 
                         # Save data for step 2
                         step2_data = {
@@ -1922,7 +1921,7 @@ def generate_article(request):
                             'client_admin_id': client_admin_id,
                             "title": RESEARCH_QUERY,
                             "target_industry": target_industry,
-                            "paragraph": '',
+                            "paragraph": article_str,
                             "source": sources,
                             "subject": subject,
                             "citation_and_url": sources,
@@ -2335,6 +2334,74 @@ def list_article(request):
 
         context = {
             'posts': posts,
+            'page_post': page_post,
+        }
+
+        messages.info(
+            request, 'Click on view article to finalize the article before posting')
+
+        return render(request, 'post_list.html', context)
+    else:
+        return render(request, 'error.html')
+
+
+@xframe_options_exempt
+def list_article_view(request):
+    # return HttpResponse(request.session.get('user_name'))
+    if 'session_id' and 'username' in request.session:
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step2_data",
+            "document": "step2_data",
+            "team_member_ID": "9992828281",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+
+        response_data_json = json.loads(response.json())
+
+        # takes in user_id
+        user_id = str(request.session['user_id'])
+        article_detail_list = response_data_json.get('data', [])
+
+        user_articles = []
+        for article in article_detail_list:
+
+            if article.get('user_id') == user_id:
+                articles = {
+                    'title': article.get('title'),
+                    'paragraph': article.get('paragraph'),
+                    'source': article.get('source'),
+                }
+                # appends articles to posts
+                user_articles.append(articles)
+
+        user_articles = list(reversed(user_articles))  # Reverse the order of the posts list
+
+        number_of_items_per_page = 5
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(user_articles, number_of_items_per_page)
+        try:
+            page_post = paginator.page(page)
+        except PageNotAnInteger:
+            page_post = paginator.page(1)
+        except EmptyPage:
+            page_post = paginator.page(paginator.num_pages)
+
+        context = {
+            'posts': user_articles,
             'page_post': page_post,
         }
 
