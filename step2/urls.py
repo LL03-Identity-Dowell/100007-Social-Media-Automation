@@ -8,6 +8,7 @@ urlpatterns = [
     path('main', views.main, name='main-view'),
     path('scheduled/', views.scheduled, name='scheduled-posts'),
     path('schedule/', views.unscheduled, name='unscheduled-posts'),
+    path('jsonpost/', views.unscheduled_json, name='unscheduled-jsonpost'),
     path('scheduler/',views.post_scheduler, name='post-scheduler'),
     path('article_list/',views.list_article, name='article-list'),
     path('article_list/<str:filter>/', views.filtered_list_article, name='filtered-article-list'),
