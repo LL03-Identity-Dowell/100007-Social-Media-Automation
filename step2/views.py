@@ -36,6 +36,7 @@ from pymongo import MongoClient
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
+from django.http import JsonResponse
 
 # helper functions
 
@@ -1359,17 +1360,18 @@ def topics(request):
     return render(request, 'topics.html')
 
 
-# @csrf_exempt
-# @xframe_options_exempt
-# def unscheduled(request):
-#     if 'session_id' and 'username' in request.session:
-#         return render(request, 'unscheduled.html')
-#     else:
-#         return render(request, 'error.html')
-
 @csrf_exempt
 @xframe_options_exempt
 def unscheduled(request):
+    if 'session_id' and 'username' in request.session:
+        profile = request.session['operations_right']
+        return render(request, 'unscheduled.html',{'profile': profile})
+    else:
+        return render(request, 'error.html')
+
+@csrf_exempt
+@xframe_options_exempt
+def unscheduled_json(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
@@ -1410,27 +1412,27 @@ def unscheduled(request):
                     data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': row["date"],
                             'image': row['image'], 'source': row['source'], 'PK': row['_id']}
                     post.append(data)
-                    print(profile)
+                    respond=json.dumps(post)
 
         except:
             pass
-        post = list(reversed(post))  # Reverse the order of the posts list
+        # post = list(reversed(post))  # Reverse the order of the posts list
 
-        number_of_items_per_page = 5
-        page = request.GET.get('page', 1)
+        # number_of_items_per_page = 5
+        # page = request.GET.get('page', 1)
 
-        paginator = Paginator(post, number_of_items_per_page)
-        try:
-            page_post = paginator.page(page)
-        except PageNotAnInteger:
-            page_post = paginator.page(1)
-        except EmptyPage:
-            page_post = paginator.page(paginator.num_pages)
+        # paginator = Paginator(post, number_of_items_per_page)
+        # try:
+        #     page_post = paginator.page(page)
+        # except PageNotAnInteger:
+        #     page_post = paginator.page(1)
+        # except EmptyPage:
+        #     page_post = paginator.page(paginator.num_pages)
 
-        messages.info(
-            request, 'post/schedule articles.')
-
-        return render(request, 'unscheduled.html', {'post': post, 'profile': profile, 'page_post': page_post})
+        # messages.info(
+        #     request, 'post/schedule articles.')
+        return JsonResponse({'response':respond})
+        # return render(request, 'unscheduled.html', {'post': post, 'profile': profile, 'page_post': page_post})
     else:
         return render(request, 'error.html')
 
