@@ -58,6 +58,7 @@ urlpatterns = [
     path('recent/', views.most_recent, name='recent-post'),
     path('save_post/',views.Save_Post,name='save-post'),
     path('media_post/',views.Media_Post,name='media-post'),
+    path('media_post/',views.Media_schedule,name='media-post'),
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]
