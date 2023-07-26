@@ -1,42 +1,59 @@
-from django.shortcuts import render, redirect, HttpResponse
-import datetime
-import json
-import random
-import time
-import traceback
-import urllib
-import urllib.parse
-from datetime import datetime, date
-# image resizing
-from io import BytesIO
-
-import openai
-import pytz
-import requests
-import wikipediaapi
-from PIL import Image
-from ayrshare import SocialPost
-from bs4 import BeautifulSoup
-from bs4.element import Comment
-from bson import ObjectId
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db import transaction
-from django.http import HttpResponseRedirect
+from functools import lru_cache
+import concurrent.futures
+from functools import partial
+import asyncio
+from django.contrib.sessions.models import Session
+from create_article.custom_session_backend import CustomSessionStore
+from create_article import settings
 from django.shortcuts import render, redirect, HttpResponse
 from django.urls import reverse
-from django.utils.timezone import localdate, localtime
+from django.http import HttpResponseRedirect, JsonResponse
+import requests
+import json
+import time
+from datetime import datetime
+import datetime
+from bs4 import BeautifulSoup
+from bs4.element import Comment
+import wikipediaapi
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timedelta, date
 from mega import Mega
-from pexels_api import API
-from pymongo import MongoClient
-
 from create_article import settings
-from website.models import Sentences, SentenceResults
-from .forms import VerifyArticleForm
-from django.http import JsonResponse
+from pymongo import MongoClient
+from django.core.paginator import Paginator
+from bson import ObjectId
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.timezone import localdate, localtime
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Page
+from website.models import Sentences, SentenceResults, SentenceRank, MTopic
+import urllib
+from urllib.request import urlopen
+from django.contrib import messages
+from pexels_api import API
+import random
+from .models import stepFour
+from .forms import StepFourForm, VerifyArticleForm
+from ayrshare import SocialPost
+from django.utils import timezone
+# image resizing
+import base64
+from io import BytesIO
+from PIL import Image, UnidentifiedImageError
+from pytz import timezone
+import pytz
+import openai
+import re
+import os
+from create_article.settings import STATIC_ROOT, BASE_DIR
+import shutil
+import math
+import traceback
+import urllib.parse
+
+
+from django.db import transaction
 
 # helper functions
 
@@ -549,31 +566,10 @@ def user_approval_form_update(request):
     return HttpResponseRedirect(reverse("generate_article:client"))
 
 
-def check_if_user_has_social_media_profile_in_aryshare(username):
-    """
-    This function checks if a user has a profile account in aryshare
-    """
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"
-    }
-    response = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
-    profiles_data = response.json()
-    if not isinstance(profiles_data.get('profiles'), list):
-        return False
-    for profile_data in profiles_data.get('profiles'):
-        if username == profile_data.get('title'):
-            return True
-    return False
-
-
 @csrf_exempt
 @xframe_options_exempt
 def social_media_channels(request):
-    username = request.session['username']
-    user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(username)
-    context_data = {'user_has_social_media_profile': user_has_social_media_profile}
-    return render(request, 'social_media_channels.html', context_data)
+    return render(request, 'social_media_channels.html')
 
 
 @csrf_exempt
@@ -1360,18 +1356,17 @@ def topics(request):
     return render(request, 'topics.html')
 
 
-@csrf_exempt
-@xframe_options_exempt
-def unscheduled(request):
-    if 'session_id' and 'username' in request.session:
-        profile = request.session['operations_right']
-        return render(request, 'unscheduled.html',{'profile': profile})
-    else:
-        return render(request, 'error.html')
+# @csrf_exempt
+# @xframe_options_exempt
+# def unscheduled(request):
+#     if 'session_id' and 'username' in request.session:
+#         return render(request, 'unscheduled.html')
+#     else:
+#         return render(request, 'error.html')
 
 @csrf_exempt
 @xframe_options_exempt
-def unscheduled_json(request):
+def unscheduled(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
@@ -1412,27 +1407,27 @@ def unscheduled_json(request):
                     data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': row["date"],
                             'image': row['image'], 'source': row['source'], 'PK': row['_id']}
                     post.append(data)
-                    respond=json.dumps(post)
+                    print(profile)
 
         except:
             pass
-        # post = list(reversed(post))  # Reverse the order of the posts list
+        post = list(reversed(post))  # Reverse the order of the posts list
 
-        # number_of_items_per_page = 5
-        # page = request.GET.get('page', 1)
+        number_of_items_per_page = 5
+        page = request.GET.get('page', 1)
 
-        # paginator = Paginator(post, number_of_items_per_page)
-        # try:
-        #     page_post = paginator.page(page)
-        # except PageNotAnInteger:
-        #     page_post = paginator.page(1)
-        # except EmptyPage:
-        #     page_post = paginator.page(paginator.num_pages)
+        paginator = Paginator(post, number_of_items_per_page)
+        try:
+            page_post = paginator.page(page)
+        except PageNotAnInteger:
+            page_post = paginator.page(1)
+        except EmptyPage:
+            page_post = paginator.page(paginator.num_pages)
 
-        # messages.info(
-        #     request, 'post/schedule articles.')
-        return JsonResponse({'response':respond})
-        # return render(request, 'unscheduled.html', {'post': post, 'profile': profile, 'page_post': page_post})
+        messages.info(
+            request, 'post/schedule articles.')
+
+        return render(request, 'unscheduled.html', {'post': post, 'profile': profile, 'page_post': page_post})
     else:
         return render(request, 'error.html')
 
@@ -1836,6 +1831,7 @@ def generate_article_automatically(request):
 @csrf_exempt
 @xframe_options_exempt
 def generate_article(request):
+    start_datetime = datetime.now()
     session_id = request.GET.get('session_id', None)
     if 'session_id' in request.session and 'username' in request.session:
         if request.method != "POST":
@@ -1861,13 +1857,13 @@ def generate_article(request):
                 :prompt_limit] + "..."
 
             # Variables for loop control
-            duration = 200  # Total duration in seconds
-            interval = 10  # Interval between generating articles in seconds
+            duration = 10  # Total duration in seconds
+            interval = 2  # Interval between generating articles in seconds
             start_time = time.time()
-            current_time = time.time()
 
-            # Loop until the specified duration is reached
-            while current_time - start_time < duration:
+            def generate_and_save_article():
+                nonlocal start_time
+
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
                     engine="text-davinci-003",
@@ -1883,9 +1879,6 @@ def generate_article(request):
                 article_str = "\n\n".join(paragraphs)
 
                 sources = urllib.parse.unquote("https://openai.com")
-                # matches = re.findall(r'(https?://[^\s]+)', article)
-                # for match in matches:
-                #     sources += match.strip() + '\n'
 
                 try:
                     with transaction.atomic():
@@ -1933,15 +1926,30 @@ def generate_article(request):
                 except:
                     return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
 
-                # Wait for the specified interval before generating the next article
-                time.sleep(interval)
+                # Update start_time for the next iteration
+                start_time = time.time()
 
-                # Update current time
-                current_time = time.time()
+            # Create ThreadPoolExecutor
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                while True:
+                    if time.time() - start_time >= duration:
+                        break
+
+                    executor.submit(generate_and_save_article)
+
+                    # Wait before generating the next article
+                    time.sleep(interval)
+
+            end_datetime = datetime.now()
+            time_taken = end_datetime - start_datetime
+            print(f"Task started at: {start_datetime}")
+            print(f"Task completed at: {end_datetime}")
+            print(f"Total time taken: {time_taken}")
 
             messages.success(
                 request, 'Article generation completed. Click on step 3 to view the articles')
             return HttpResponseRedirect(reverse("generate_article:main-view"))
+
     else:
         return render(request, 'error.html')
 
@@ -2344,6 +2352,71 @@ def list_article(request):
         return render(request, 'post_list.html', context)
     else:
         return render(request, 'error.html')
+# @xframe_options_exempt
+# def list_article(request):
+#     if 'session_id' and 'username' in request.session:
+#         url = "http://uxlivinglab.pythonanywhere.com/"
+#         headers = {'content-type': 'application/json'}
+
+#         payload = {
+#             "cluster": "socialmedia",
+#             "database": "socialmedia",
+#             "collection": "step3_data",
+#             "document": "step3_data",
+#             "team_member_ID": "34567897799",
+#             "function_ID": "ABCDE",
+#             "command": "fetch",
+#             "field": {"user_id": request.session['user_id']},
+#             "update_field": {
+#                 "order_nos": 21
+#             },
+#             "platform": "bangalore"
+#         }
+#         data = json.dumps(payload)
+#         response = requests.request("POST", url, headers=headers, data=data)
+#         print(response)
+#         results = json.loads(response.json())
+#         post = results['data']
+#         # takes in user_id
+#         user = str(request.session['user_id'])
+#         print(user)
+
+#         posts = []
+#         # iterates through the json file
+#         for row in post:
+#             for data in row:
+#                 if user in idd:
+#                     # picks out the data
+#                     articles = {'title': data.get('title'), 'paragraph': data.get(
+#                         'paragraph'), 'source': data.get('source')}
+#                     # appends articles to posts
+#                     posts.append(articles)
+#                 else:
+#                     pass
+#         posts = list(reversed(posts))  # Reverse the order of the posts list
+
+#         number_of_items_per_page = 5
+#         page = request.GET.get('page', 1)
+
+#         paginator = Paginator(posts, number_of_items_per_page)
+#         try:
+#             page_post = paginator.page(page)
+#         except PageNotAnInteger:
+#             page_post = paginator.page(1)
+#         except EmptyPage:
+#             page_post = paginator.page(paginator.num_pages)
+
+#         context = {
+#             'posts': posts,
+#             'page_post': page_post,
+#         }
+
+#         messages.info(
+#             request, 'Click on view article to finalize the article before posting')
+
+#         return render(request, 'post_list.html', context)
+#     else:
+#         return render(request, 'error.html')
 
 
 @xframe_options_exempt
