@@ -2371,6 +2371,7 @@ def list_article_view(request):
             },
             "platform": "bangalore"
         }
+
         data = json.dumps(payload)
         response = requests.request("POST", url, headers=headers, data=data)
 
