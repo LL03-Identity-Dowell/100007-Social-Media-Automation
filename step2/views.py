@@ -2257,10 +2257,11 @@ def list_article(request):
         url = 'http://100032.pythonanywhere.com/api/targeted_population/'
 
         database_details = {
-            'database_name': 'mongodb',
-            'collection': 'step3_data',
-            'database': 'social-media-auto',
-            'fields': ['_id']
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step3_data",
+            "document": "step3_data",
+            "team_member_ID": "34567897799",
         }
 
         # number of variables for sampling rule
