@@ -547,10 +547,31 @@ def user_approval_form_update(request):
     return HttpResponseRedirect(reverse("generate_article:client"))
 
 
+def check_if_user_has_social_media_profile_in_aryshare(username):
+    """
+    This function checks if a user has a profile account in aryshare
+    """
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"
+    }
+    response = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
+    profiles_data = response.json()
+    if not isinstance(profiles_data.get('profiles'), list):
+        return False
+    for profile_data in profiles_data.get('profiles'):
+        if username == profile_data.get('title'):
+            return True
+    return False
+
+
 @csrf_exempt
 @xframe_options_exempt
 def social_media_channels(request):
-    return render(request, 'social_media_channels.html')
+    username = request.session['username']
+    user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(username)
+    context_data = {'user_has_social_media_profile': user_has_social_media_profile}
+    return render(request, 'social_media_channels.html', context_data)
 
 
 @csrf_exempt
