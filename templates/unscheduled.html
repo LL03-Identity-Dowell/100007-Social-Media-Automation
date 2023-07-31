@@ -495,27 +495,74 @@
 
       
       const sendData = async (data, options) => {
-       
-        const url = `http://127.0.0.1:8000/media_${options}/`;
-        const csrftoken = getToken("csrftoken");
-        const apiOptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": csrftoken,
-          },
-          body: JSON.stringify(data),
-        };
+       if (options === "post") {
 
-        try {
-          const res = await fetch(url, apiOptions);
-          let data = await res.json();
-          debugger
-         
-          console.log(res);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
+           const url = `http://127.0.0.1:8000/media_post/`;
+           const csrftoken = getToken("csrftoken");
+           const apiOptions = {
+             method: "POST",
+             headers: {
+               "Content-Type": "application/json",
+               "X-CSRFToken": csrftoken,
+             },
+             body: JSON.stringify(data),
+           };
+   
+           try {
+             const res = await fetch(url, apiOptions);
+             let data = await res.json();
+             debugger
+            
+             
+            if (data === "social_media_channels") {
+                 console.log(data);
+                 location.href = "http://127.0.0.1:8000/social_media_channels/"
+                 
+                }
+            else if(data === "most_recent") {
+                 location.href = "http://127.0.0.1:8000/recent/"  
+            } 
+
+
+
+
+           } catch (error) {
+             console.error("Error fetching data:", error);
+           }
+        
+       }else if (options === "schedule") {
+            const url = `http://127.0.0.1:8000/media_schedule/`;
+           const csrftoken = getToken("csrftoken");
+           const apiOptions = {
+             method: "POST",
+             headers: {
+               "Content-Type": "application/json",
+               "X-CSRFToken": csrftoken,
+             },
+             body: JSON.stringify(data),
+           };
+   
+           try {
+             const res = await fetch(url, apiOptions);
+             let data = await res.json();
+            //  debugger
+
+            console.log(data);
+            if (data === "social_media_channels") {
+                 location.href = "http://127.0.0.1:8000/social_media_channels/"
+                 
+                } else if(data === "sheduled") {
+                 location.href = "http://127.0.0.1:8000/scheduled/scheduled/"
+                
+             } 
+
+
+            
+             console.log(data);
+           } catch (error) {
+             console.error("Error fetching data:", error);
+           }
+       } 
       };
 
       const fetchedData = async () => {
