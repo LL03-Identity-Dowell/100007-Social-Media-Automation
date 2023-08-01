@@ -31,7 +31,7 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
-
+import pytz
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
