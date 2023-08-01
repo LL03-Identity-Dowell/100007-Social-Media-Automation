@@ -2163,6 +2163,7 @@ def verify_article(request):
             article = request.POST.get("articletextarea")
             source = request.POST.get("url")
             form = VerifyArticleForm(request.POST)
+
             if not form.is_valid():
                 messages.success(request, 'Please fix the errors below')
                 return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
@@ -2187,67 +2188,65 @@ def verify_article(request):
                 paragraph = article.split("\r\n")
                 first_para = paragraph[0].replace(" ", "")
                 last_para = paragraph[-1].replace(" ", "")
-                if first_para in text_from_page and last_para in text_from_page:
-                    print("Article Verified")
-                    message = "Article Verified, "
-                    for i in range(len(paragraph)):
 
-                        # check for empty paragraph
-                        if paragraph[i] == "":
-                            continue
-                        # saving paragraphs in article
-                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                               "title": title,
-                                                               "target_industry": target_industry,
-                                                               "qualitative_categorization": qualitative_categorization,
-                                                               "targeted_for": targeted_for,
-                                                               "designed_for": designed_for,
-                                                               "targeted_category": targeted_category,
-                                                               "image": image,
-                                                               "paragraph": paragraph[i],
-                                                               "source": source,
-                                                               'subject': subject,
-                                                               # 'dowelltime': dowellclock
-                                                               }, '34567897799')
-                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "eventId":  create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                               "title": title,
-                                                               "qualitative_categorization": qualitative_categorization,
-                                                               "targeted_for": targeted_for,
-                                                               "designed_for": designed_for,
-                                                               "targeted_category": targeted_category,
-                                                               "image": image,
-                                                               "paragraph": paragraph,
-                                                               "source": source,
-                                                               "date": str(date),
-                                                               "time": str(time),
-                                                               }, '34567897799')
+                message = "Article Verified, "
+                for i in range(len(paragraph)):
 
-                    # saving article
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                    # check for empty paragraph
+                    if paragraph[i] == "":
+                        continue
+                    # saving paragraphs in article
+                    save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
                                                            "title": title,
                                                            "target_industry": target_industry,
-                                                           "paragraph": article,
+                                                           "qualitative_categorization": qualitative_categorization,
+                                                           "targeted_for": targeted_for,
+                                                           "designed_for": designed_for,
+                                                           "targeted_category": targeted_category,
+                                                           "image": image,
+                                                           "paragraph": paragraph[i],
                                                            "source": source,
                                                            'subject': subject,
                                                            # 'dowelltime': dowellclock
-                                                           }, "9992828281")
-                    print("Article saved successfully")
-                    message = message + "Article saved successfully"
-                    return HttpResponseRedirect(reverse("generate_article:main-view"))
-                else:
-                    print("Article Not Verified")
-                    message = "Article not Verified."
-                    print(text_from_page_space)
-                    return render(request, 'article/article.html', {'message': message, 'article': article, 'source': source, 'title': title})
+                                                           }, '34567897799')
+                    save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                                                           "session_id": session_id,
+                                                           "eventId": create_event()['event_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
+                                                           "title": title,
+                                                           "qualitative_categorization": qualitative_categorization,
+                                                           "targeted_for": targeted_for,
+                                                           "designed_for": designed_for,
+                                                           "targeted_category": targeted_category,
+                                                           "image": image,
+                                                           "paragraph": paragraph,
+                                                           "source": source,
+                                                           "date": str(date),
+                                                           "time": str(time),
+                                                           }, '34567897799')
+
+                # saving article
+                save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                       "session_id": session_id,
+                                                       "eventId": create_event()['event_id'],
+                                                       'client_admin_id': request.session['userinfo'][
+                                                           'client_admin_id'],
+                                                       "title": title,
+                                                       "target_industry": target_industry,
+                                                       "paragraph": article,
+                                                       "source": source,
+                                                       'subject': subject,
+                                                       # 'dowelltime': dowellclock
+                                                       }, "9992828281")
+                print("Article saved successfully")
+                message = message + "Article saved successfully"
+                return HttpResponseRedirect(reverse("generate_article:main-view"))
+
     else:
         return render(request, 'error.html')
 
@@ -2344,7 +2343,8 @@ def list_article(request):
             page_post = paginator.page(1)
         except EmptyPage:
             page_post = paginator.page(paginator.num_pages)
-
+        import pdb
+        pdb.set_trace()
         context = {
             'posts': posts,
             'page_post': page_post,
