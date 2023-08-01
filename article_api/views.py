@@ -10,7 +10,6 @@ from article_api.serializers import GenerateArticleSerializer, IndustrySerialize
 from create_article import settings
 from website.models import User, Sentences, SentenceResults
 
-
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -23,10 +22,11 @@ from django.views.decorators.csrf import csrf_exempt
 class APIKeyProcessor(APIView):
     def __init__(self):
         self.api_key_endpoint = 'https://100105.pythonanywhere.com/api/v1/process-api-key/'
+        self.api_service_id = 'DOWELL10015'  # Hardcoded API service ID
 
-    def validate_api_data(self, api_key, api_service_id):
+    def validate_api_data(self, api_key):
         payload = {
-            'service_id': api_service_id
+            'service_id': self.api_service_id
         }
 
         response = requests.post(self.api_key_endpoint, json=payload)
@@ -65,17 +65,15 @@ class APIKeyProcessor(APIView):
 
     def post(self, request):
         api_key = request.data.get('api_key')
-        api_service_id = request.data.get('api_service_id')
-        if not api_key or not api_service_id:
-            raise AuthenticationFailed(
-                'API key and API service ID are required.')
+        if not api_key:
+            raise AuthenticationFailed('API key is required.')
 
         validation_endpoint = 'https://100105.pythonanywhere.com/api/v3/process-services/?type=api_service&api_key={}'.format(
             api_key)
         print(api_key)
         print(validation_endpoint)
         response = requests.post(validation_endpoint, json={
-                                 "service_id": api_service_id})
+                                 "service_id": self.api_service_id})
         api_key_data = response.json()
         print("here is", api_key_data)
 
