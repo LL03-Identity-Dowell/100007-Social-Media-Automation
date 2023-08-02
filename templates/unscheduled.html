@@ -494,60 +494,22 @@
       };
 
       const sendData = async (data, options) => {
-        if (options === "post") {
-          const url = `http://127.0.0.1:8000/media_post/`;
-          const csrftoken = getToken("csrftoken");
-          const apiOptions = {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": csrftoken,
-            },
-            body: JSON.stringify(data),
-          };
+        const url = `http://127.0.0.1:8000/media_${options}/`;
+        const csrftoken = getToken("csrftoken");
+        const apiOptions = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+          },
+          body: JSON.stringify(data),
+        };
 
-          try {
-            const res = await fetch(url, apiOptions);
-            let data = await res.json();
-
-            if (data === "social_media_channels") {
-              console.log(data);
-              location.href = "http://127.0.0.1:8000/social_media_channels/";
-            } else if (data === "most_recent") {
-              location.href = "http://127.0.0.1:8000/recent/";
-            }
-
-            debugger;
-          } catch (error) {
-            console.error("Error fetching data:", error);
-          }
-        } else if (options === "schedule") {
-          const url = `http://127.0.0.1:8000/media_schedule/`;
-          const csrftoken = getToken("csrftoken");
-          const apiOptions = {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": csrftoken,
-            },
-            body: JSON.stringify(data),
-          };
-
-          try {
-            const res = await fetch(url, apiOptions);
-            let data = await res.json();
-
-            //  console.log(data);
-            if (data === "social_media_channels") {
-              location.href = "http://127.0.0.1:8000/social_media_channels/";
-            } else if (data === "sheduled") {
-              location.href = "http://127.0.0.1:8000/scheduled/scheduled/";
-            }
-
-            debugger;
-          } catch (error) {
-            console.error("Error fetching data:", error);
-          }
+        try {
+          const res = await fetch(url, apiOptions);
+          console.log(res);
+        } catch (error) {
+          console.error("Error fetching data:", error);
         }
       };
 
@@ -611,14 +573,13 @@
               ).value;
               selectedArticle.schedule = dateFormat(scheduleValue);
             }
-
             if (
               selectedArticle.social.length > 0 ||
               selectedArticle.twitter !== undefined
             ) {
               sendData(selectedArticle, options);
             } else {
-              alert("Please select atleast one social media handle");
+              alert("Please select at least one Social Platform");
             }
 
             // Remove the dateTimeEl element from the form if it was added during the process
