@@ -2186,8 +2186,6 @@ def verify_article(request):
                 text_from_page = text_from_page.replace("\xa0", "")
                 print(article)
                 paragraph = article.split("\r\n")
-                first_para = paragraph[0].replace(" ", "")
-                last_para = paragraph[-1].replace(" ", "")
 
                 message = "Article Verified, "
                 for i in range(len(paragraph)):
@@ -2255,82 +2253,52 @@ def verify_article(request):
 def list_article(request):
     # return HttpResponse(request.session.get('user_name'))
     if 'session_id' and 'username' in request.session:
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-
-        database_details = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "step3_data",
-            "document": "step3_data",
-            "team_member_ID": "34567897799",
-        }
-
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        """
-            period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-            if custom is given then need to specify start_point and end_point
-            for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-            the the value of that selection in 'm_or_A_value'
-            error is the error allowed in percentage
-        """
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2022/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-
+        url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
-        response = requests.post(url, json=request_data, headers=headers)
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step2_data",
+            "document": "step2_data",
+            "team_member_ID": "9992828281",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
 
         print(response)
 
-        post = response.json()['normal']['data']
-        # takes in user_id
         user = str(request.session['user_id'])
-        print(user)
+        response_data_json = json.loads(response.json())
+
+        # takes in user_id
+        user_id = str(request.session['user_id'])
+        article_detail_list = response_data_json.get('data', [])
+
         # takes in the json data
-        datas = post
+        datas = article_detail_list
 
         posts = []
         # iterates through the json file
 
-        for row in datas:
-            for data in row:
-                idd = str(data['user_id'])
-                if user in idd:
-                    # picks out the data
-                    articles = {'title': data.get('title'), 'paragraph': data.get(
-                        'paragraph'), 'source': data.get('source')}
-                    # appends articles to posts
-                    posts.append(articles)
-                else:
-                    pass
+        for article in article_detail_list:
+
+            if article.get('user_id') == user_id:
+                articles = {
+                    'title': article.get('title'),
+                    'paragraph': article.get('paragraph'),
+                    'source': article.get('source'),
+                }
+                # appends articles to posts
+                posts.append(articles)
         posts = list(reversed(posts))  # Reverse the order of the posts list
 
         number_of_items_per_page = 5
@@ -2343,8 +2311,7 @@ def list_article(request):
             page_post = paginator.page(1)
         except EmptyPage:
             page_post = paginator.page(paginator.num_pages)
-        import pdb
-        pdb.set_trace()
+
         context = {
             'posts': posts,
             'page_post': page_post,
@@ -2353,7 +2320,7 @@ def list_article(request):
         messages.info(
             request, 'Click on view article to finalize the article before posting')
 
-        return render(request, 'post_list.html', context)
+        return render(request, 'post_filter_list.html', context)
     else:
         return render(request, 'error.html')
 # @xframe_options_exempt
