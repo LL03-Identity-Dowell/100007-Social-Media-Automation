@@ -1,59 +1,40 @@
-from functools import lru_cache
 import concurrent.futures
-from functools import partial
-import asyncio
-from django.contrib.sessions.models import Session
-from create_article.custom_session_backend import CustomSessionStore
-from create_article import settings
-from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse
-from django.http import HttpResponseRedirect, JsonResponse
-import requests
-import json
-import time
-from datetime import datetime
 import datetime
+import json
+import random
+import time
+import traceback
+import urllib
+import urllib.parse
+from datetime import datetime, date
+# image resizing
+from io import BytesIO
+
+import openai
+import requests
+import wikipediaapi
+from PIL import Image
+from ayrshare import SocialPost
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-import wikipediaapi
+from bson import ObjectId
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db import transaction
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, redirect, HttpResponse
+from django.urls import reverse
+from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime, timedelta, date
 from mega import Mega
-from create_article import settings
-from pymongo import MongoClient
-from django.core.paginator import Paginator
-from bson import ObjectId
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.timezone import localdate, localtime
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Page
-from website.models import Sentences, SentenceResults, SentenceRank, MTopic
-import urllib
-from urllib.request import urlopen
-from django.contrib import messages
 from pexels_api import API
-import random
-from .models import stepFour
-from .forms import StepFourForm, VerifyArticleForm
-from ayrshare import SocialPost
-from django.utils import timezone
-# image resizing
-import base64
-from io import BytesIO
-from PIL import Image, UnidentifiedImageError
-from pytz import timezone
+from pymongo import MongoClient
 import pytz
-import openai
-import re
-import os
-from create_article.settings import STATIC_ROOT, BASE_DIR
-import shutil
-import math
-import traceback
-import urllib.parse
-
-
-from django.db import transaction
+from create_article import settings
+from website.models import Sentences, SentenceResults
+from .forms import VerifyArticleForm
 
 # helper functions
 
@@ -566,10 +547,31 @@ def user_approval_form_update(request):
     return HttpResponseRedirect(reverse("generate_article:client"))
 
 
+def check_if_user_has_social_media_profile_in_aryshare(username):
+    """
+    This function checks if a user has a profile account in aryshare
+    """
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"
+    }
+    response = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
+    profiles_data = response.json()
+    if not isinstance(profiles_data.get('profiles'), list):
+        return False
+    for profile_data in profiles_data.get('profiles'):
+        if username == profile_data.get('title'):
+            return True
+    return False
+
+
 @csrf_exempt
 @xframe_options_exempt
 def social_media_channels(request):
-    return render(request, 'social_media_channels.html')
+    username = request.session['username']
+    user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(username)
+    context_data = {'user_has_social_media_profile': user_has_social_media_profile}
+    return render(request, 'social_media_channels.html', context_data)
 
 
 @csrf_exempt
@@ -1361,7 +1363,7 @@ def topics(request):
 def unscheduled(request):
     if 'session_id' and 'username' in request.session:
         profile = request.session['operations_right']
-        return render(request, 'unscheduled1.html',{'profile': profile})
+        return render(request, 'unscheduled.html',{'profile': profile})
     else:
         return render(request, 'error.html')
 
@@ -2354,6 +2356,75 @@ def list_article(request):
         return render(request, 'post_list.html', context)
     else:
         return render(request, 'error.html')
+
+
+@xframe_options_exempt
+def list_article_view(request):
+    # return HttpResponse(request.session.get('user_name'))
+    if 'session_id' and 'username' in request.session:
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step2_data",
+            "document": "step2_data",
+            "team_member_ID": "9992828281",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+
+        response_data_json = json.loads(response.json())
+
+        # takes in user_id
+        user_id = str(request.session['user_id'])
+        article_detail_list = response_data_json.get('data', [])
+
+        user_articles = []
+        for article in article_detail_list:
+
+            if article.get('user_id') == user_id:
+                articles = {
+                    'title': article.get('title'),
+                    'paragraph': article.get('paragraph'),
+                    'source': article.get('source'),
+                }
+                # appends articles to posts
+                user_articles.append(articles)
+
+        user_articles = list(reversed(user_articles))  # Reverse the order of the posts list
+
+        number_of_items_per_page = 5
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(user_articles, number_of_items_per_page)
+        try:
+            page_post = paginator.page(page)
+        except PageNotAnInteger:
+            page_post = paginator.page(1)
+        except EmptyPage:
+            page_post = paginator.page(paginator.num_pages)
+
+        context = {
+            'posts': user_articles,
+            'page_post': page_post,
+        }
+
+        messages.info(
+            request, 'Click on view article to finalize the article before posting')
+
+        return render(request, 'post_list.html', context)
+    else:
+        return render(request, 'error.html')
+
 # @xframe_options_exempt
 # def list_article(request):
 #     if 'session_id' and 'username' in request.session:
@@ -2419,6 +2490,75 @@ def list_article(request):
 #         return render(request, 'post_list.html', context)
 #     else:
 #         return render(request, 'error.html')
+
+
+@xframe_options_exempt
+def list_article_view(request):
+    # return HttpResponse(request.session.get('user_name'))
+    if 'session_id' and 'username' in request.session:
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step2_data",
+            "document": "step2_data",
+            "team_member_ID": "9992828281",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+
+        response_data_json = json.loads(response.json())
+
+        # takes in user_id
+        user_id = str(request.session['user_id'])
+        article_detail_list = response_data_json.get('data', [])
+
+        user_articles = []
+        for article in article_detail_list:
+
+            if article.get('user_id') == user_id:
+                articles = {
+                    'title': article.get('title'),
+                    'paragraph': article.get('paragraph'),
+                    'source': article.get('source'),
+                }
+                # appends articles to posts
+                user_articles.append(articles)
+
+        user_articles = list(reversed(user_articles))  # Reverse the order of the posts list
+
+        number_of_items_per_page = 5
+        page = request.GET.get('page', 1)
+
+        paginator = Paginator(user_articles, number_of_items_per_page)
+        try:
+            page_post = paginator.page(page)
+        except PageNotAnInteger:
+            page_post = paginator.page(1)
+        except EmptyPage:
+            page_post = paginator.page(paginator.num_pages)
+
+        context = {
+            'posts': user_articles,
+            'page_post': page_post,
+        }
+
+        messages.info(
+            request, 'Click on view article to finalize the article before posting')
+
+        return render(request, 'post_list.html', context)
+    else:
+        return render(request, 'error.html')
 
 
 @xframe_options_exempt
@@ -2733,25 +2873,338 @@ def can_post_on_social_media(request):
         return True
     return False
 
+def update_most_recent(pk):
+    url = "http://uxlivinglab.pythonanywhere.com"
+
+        # adding eddited field in article
+    payload = json.dumps(
+        {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step4_data",
+            "document": "step4_data",
+            "team_member_ID": "1163",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field":
+            {
+                '_id': pk
+            },
+            "update_field":
+            {
+                "status": 'scheduled'
+            },
+            "platform": "bangalore"
+        })
+    headers = {'Content-Type': 'application/json'}
+    response = requests.request(
+        "POST", url, headers=headers, data=payload)
+    return('most_recent')
+
+
+def update_schedule(pk):
+    url = "http://uxlivinglab.pythonanywhere.com"
+
+        # adding eddited field in article
+    payload = json.dumps(
+        {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step4_data",
+            "document": "step4_data",
+            "team_member_ID": "1163",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field":
+            {
+                '_id': pk
+            },
+            "update_field":
+            {
+                "status": 'scheduled'
+            },
+            "platform": "bangalore"
+        })
+    headers = {'Content-Type': 'application/json'}
+    response = requests.request(
+        "POST", url, headers=headers, data=payload)
+    return('scheduled')
+
 
 @csrf_exempt
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
         data=json.loads(request.body.decode("utf-8"))
-        print(data)
+        title=data['title']
+        paragraph = data['paragraph']
+        image=data['image']
+        post_id =data['PK']
+        posts = title + ":" + paragraph
+        try:
+            platforms=data['social']
+            twitter = data['twitter']
+        except:
+            twitter=None
+        print(platforms,twitter)
+        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
+       
 
-    return redirect('/scheduled')
+        database_details = {
+            'database_name': 'mongodb',
+            'collection': 'ayrshare_info',
+            'database': 'social-media-auto',
+            'fields': ['_id']
+        }
+
+        # number of variables for sampling rule
+        number_of_variables = -1
+
+        """
+            period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
+            if custom is given then need to specify start_point and end_point
+            for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
+            the the value of that selection in 'm_or_A_value'
+            error is the error allowed in percentage
+        """
+
+        time_input = {
+            'column_name': 'Date',
+            'split': 'week',
+            'period': 'life_time',
+            'start_point': '2021/01/08',
+            'end_point': '2023/06/25',
+        }
+
+        stage_input_list = [
+        ]
+
+        # distribution input
+        distribution_input = {
+            'normal': 1,
+            'poisson': 0,
+            'binomial': 0,
+            'bernoulli': 0
+
+        }
+
+        request_data = {
+            'database_details': database_details,
+            'distribution_input': distribution_input,
+            'number_of_variable': number_of_variables,
+            'stages': stage_input_list,
+            'time_input': time_input,
+        }
+
+        headers = {'content-type': 'application/json'}
+
+        response = requests.post(url, json=request_data, headers=headers)
+
+        data = response.json()['normal']['data']
+        print(request.session['user_id'])
+        for column in data:
+            for row in column:
+
+                if  row['user_id']==request.session['user_id'] :
+                    key=row['profileKey']
+                    "posting to Various social media"
+                    payload = {'post': posts,
+                                'platforms': platforms,
+                                'profileKey': key,
+                                'mediaUrls': [image],
+                                }
+                    headers = {'Content-Type': 'application/json',
+                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                    r1 = requests.post('https://app.ayrshare.com/api/post',
+                                        json=payload,
+                                        headers=headers)
+                    print(r1.json())
+                    if r1.json()['status'] == 'error':
+                        messages.error(request, 'error in scheduling')
+                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        messages.success(
+                            request, 'post have been sucessfully posted')
+                        return JsonResponse('most_recent',safe=False)
+                       
+                    else:
+                        for warnings in r1.json()['warnings']:
+                            messages.error(request, warnings['message'])
+
+                    # for twitter
+                    payload = {'post': posts[:280],
+                                'platforms': [twitter],
+                                'profileKey': key,
+                                'mediaUrls': [image],
+                                }
+                    headers = {'Content-Type': 'application/json',
+                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                    r1 = requests.post('https://app.ayrshare.com/api/post',
+                                        json=payload,
+                                        headers=headers)
+                    print(r1.json())
+                    if r1.json()['status'] == 'error':
+                        messages.error(request, 'error in scheduling Twitter')
+                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        messages.success(
+                            request, 'post have been sucessfully scheduled')
+                        update_most_recent(post_id )
+                        return JsonResponse('most_recent',safe=False)
+                        print('done')
+                    else:
+                        for warnings in r1.json()['warnings']:
+                            messages.error(request, warnings['message'])
+                else:
+                    
+                    return JsonResponse('social_media_channels',safe=False)
+                    
+            
+                    
+        return HttpResponseRedirect(reverse("generate_article:scheduled"))
+
+    
 
 @csrf_exempt
 def Media_schedule(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
+        # getting articles for post
         data=json.loads(request.body.decode("utf-8"))
+        timezone = request.session['timezone']
+        title=data['title']
+        paragraph = data['paragraph']
+        image=data['image']
+        post_id =data['PK']
+        schedule=data['schedule']
+        posts = title + ":" + paragraph
+        try:
+            platforms=data['social']
+            twitter = data['twitter']
+        except:
+            twitter=None
+        
+        # formarting time for utc
+        formart = datetime.strptime(schedule,'%m/%d/%Y %H:%M:%S')
+        current_time =pytz.timezone(timezone)
+        localize=current_time.localize(formart)
+        utc = pytz.timezone('UTC')
+        shedulded= localize.astimezone(utc)
+        string = str(shedulded)[:-6]
+        formart = datetime.strptime(string,"%Y-%m-%d %H:%M:%S").isoformat() + "Z"
+        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
+        print(platforms,twitter,formart)
        
-        print(data)
 
-    return redirect('/scheduled')
+        database_details = {
+            'database_name': 'mongodb',
+            'collection': 'ayrshare_info',
+            'database': 'social-media-auto',
+            'fields': ['_id']
+        }
+
+        # number of variables for sampling rule
+        number_of_variables = -1
+
+        """
+            period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
+            if custom is given then need to specify start_point and end_point
+            for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
+            the the value of that selection in 'm_or_A_value'
+            error is the error allowed in percentage
+        """
+
+        time_input = {
+            'column_name': 'Date',
+            'split': 'week',
+            'period': 'life_time',
+            'start_point': '2021/01/08',
+            'end_point': '2023/06/25',
+        }
+
+        stage_input_list = [
+        ]
+
+        # distribution input
+        distribution_input = {
+            'normal': 1,
+            'poisson': 0,
+            'binomial': 0,
+            'bernoulli': 0
+
+        }
+
+        request_data = {
+            'database_details': database_details,
+            'distribution_input': distribution_input,
+            'number_of_variable': number_of_variables,
+            'stages': stage_input_list,
+            'time_input': time_input,
+        }
+
+        headers = {'content-type': 'application/json'}
+
+        response = requests.post(url, json=request_data, headers=headers)
+
+        data = response.json()['normal']['data']
+        print(request.session['user_id'])
+        for column in data:
+            for row in column:
+
+                if  row['user_id']==request.session['user_id'] :
+                    key=row['profileKey']
+                    "posting to Various social media"
+                    print(key)
+                    print(platforms,twitter,formart)
+                    payload = {'post': posts,
+                                'platforms': platforms,
+                                'profileKey': key,
+                                'mediaUrls': [image],
+                                "scheduleDate": str(formart)}
+                    headers = {'Content-Type': 'application/json',
+                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                    r1 = requests.post('https://app.ayrshare.com/api/post',
+                                        json=payload,
+                                        headers=headers)
+                    print(r1.json())
+                    if r1.json()['status'] == 'error':
+                        messages.error(request, 'error in scheduling')
+                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        messages.success(
+                            request, 'post have been sucessfully scheduled')
+                        update_schedule(post_id)
+                        return JsonResponse('sheduled',safe=False)
+                    else:
+                        for warnings in r1.json()['warnings']:
+                            messages.error(request, warnings['message'])
+
+                    # for twitter
+                    payload = {'post': posts[:280],
+                                'platforms': [twitter],
+                                'profileKey': key,
+                                'mediaUrls': [image],
+                                "scheduleDate": str(formart)}
+                    headers = {'Content-Type': 'application/json',
+                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                    r1 = requests.post('https://app.ayrshare.com/api/post',
+                                        json=payload,
+                                        headers=headers)
+                    print(r1.json())
+                    if r1.json()['status'] == 'error':
+                        messages.error(request, 'error in scheduling Twitter')
+                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        messages.success(
+                            request, 'post have been sucessfully scheduled')
+                        update_schedule(post_id)
+                        return JsonResponse('sheduled',safe=False)
+                    else:
+                        for warnings in r1.json()['warnings']:
+                            messages.error(request, warnings['message'])
+                else:
+                    return JsonResponse('social_media_channels',safe=False)
+    return HttpResponseRedirect(reverse("generate_article:scheduled"))
     
 
 # @csrf_exempt
