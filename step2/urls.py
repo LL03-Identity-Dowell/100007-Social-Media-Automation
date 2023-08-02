@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 app_name = 'generate_article'
@@ -8,18 +9,20 @@ urlpatterns = [
     path('main', views.main, name='main-view'),
     path('scheduled/', views.scheduled, name='scheduled-posts'),
     path('schedule/', views.unscheduled, name='unscheduled-posts'),
-    path('scheduler/',views.post_scheduler, name='post-scheduler'),
-    path('article_list/',views.list_article, name='article-list'),
+    path('jsonpost/', views.unscheduled_json, name='unscheduled-jsonpost'),
+    path('scheduler/', views.post_scheduler, name='post-scheduler'),
+    path('article_list/', views.list_article, name='article-list'),
+    path('article_list/articles/', views.list_article_view, name='article-list-articles'),
     path('article_list/<str:filter>/', views.filtered_list_article, name='filtered-article-list'),
-    path('article_detail/',views.article_detail, name='article-detail'),
-    path('login/',views.login, name='login'),
-    path('logout/',views.logout, name='logout'),
-    path('reset/password/',views.reset_password, name='reset-password'),
-    path('confirm/reset/password/',views.confirm_reset_password, name='confirm-reset-password'),
+    path('article_detail/', views.article_detail, name='article-detail'),
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+    path('reset/password/', views.reset_password, name='reset-password'),
+    path('confirm/reset/password/', views.confirm_reset_password, name='confirm-reset-password'),
     path('forget_password/', views.forget_password, name='forget_password'),
-    path('user/approval/',views.user_approval, name='user-approval'),
-    path('user/approval/form/',views.user_approval_form, name='user-approval-form'),
-    path('user/approval/form_update/',views.user_approval_form_update, name='user-approval-update'),
+    path('user/approval/', views.user_approval, name='user-approval'),
+    path('user/approval/form/', views.user_approval_form, name='user-approval-form'),
+    path('user/approval/form_update/', views.user_approval_form_update, name='user-approval-update'),
     path('social_media_channels/',views.social_media_channels, name='social_media_channels'),
     path('link/linkusers/',views.aryshare_profile, name='aryshare'),
     path('link_social_media/',views.link_media_channels, name='link_social_media'),
@@ -57,6 +60,7 @@ urlpatterns = [
     path('recent/', views.most_recent, name='recent-post'),
     path('save_post/',views.Save_Post,name='save-post'),
     path('media_post/',views.Media_Post,name='media-post'),
+    path('media_schedule/',views.Media_schedule,name='media-schedule'),
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]
