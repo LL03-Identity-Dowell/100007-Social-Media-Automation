@@ -1887,7 +1887,7 @@ def generate_article(request):
                             'client_admin_id': client_admin_id,
                             "title": RESEARCH_QUERY,
                             "target_industry": target_industry,
-                            "paragraph": '',
+                            "paragraph": article_str,
                             "source": sources,
                             "subject": subject,
                             "citation_and_url": sources,
@@ -1920,7 +1920,7 @@ def generate_article(request):
 
             messages.success(
                 request, 'Article generation completed. Click on step 3 to view the articles')
-            return HttpResponseRedirect(reverse("generate_article:main-view"))
+            return HttpResponseRedirect(reverse("generate_article:article-list"))
 
     else:
         return render(request, 'error.html')
@@ -2044,7 +2044,7 @@ def generate_article_wiki(request):
                         # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article_subject[0], 'source': page.fullurl,  'title': title})
                         messages.success(
                             request, 'Article has been generated successfully. Click step 3 to post the article')
-                        return HttpResponseRedirect(reverse("generate_article:main-view"))
+                        return HttpResponseRedirect(reverse("generate_article:article-list"))
             else:
                 print("For Title: "+title+" Page exists.")
                 article = page.text
@@ -2082,7 +2082,7 @@ def generate_article_wiki(request):
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
                 messages.success(
                     request, 'Article has been generated successfully. Click step 3 to post the article')
-                return HttpResponseRedirect(reverse("generate_article:main-view"))
+                return HttpResponseRedirect(reverse("generate_article:article-list"))
     else:
         return render(request, 'error.html')
 
@@ -2212,7 +2212,7 @@ def verify_article(request):
                                                        }, "9992828281")
                 print("Article saved successfully")
                 message = message + "Article saved successfully"
-                return HttpResponseRedirect(reverse("generate_article:main-view"))
+                return HttpResponseRedirect(reverse("generate_article:article-list"))
 
     else:
         return render(request, 'error.html')
@@ -2228,9 +2228,9 @@ def list_article(request):
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
-            "collection": "step2_data",
-            "document": "step2_data",
-            "team_member_ID": "9992828281",
+            "collection": "step3_data",
+            "document": "step3_data",
+            "team_member_ID": "34567897799",
             "function_ID": "ABCDE",
             "command": "fetch",
             "field": {"user_id": request.session['user_id']},
@@ -2488,9 +2488,6 @@ def list_article_view(request):
             'posts': user_articles,
             'page_post': page_post,
         }
-
-        messages.info(
-            request, 'Click on view article to finalize the article before posting')
 
         return render(request, 'post_list.html', context)
     else:
