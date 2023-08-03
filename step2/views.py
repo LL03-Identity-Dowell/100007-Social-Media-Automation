@@ -1949,9 +1949,7 @@ def generate_article(request):
             print(f"Task completed at: {end_datetime}")
             print(f"Total time taken: {time_taken}")
 
-            messages.success(
-                request, 'Article generation completed. Click on step 3 to view the articles')
-            return HttpResponseRedirect(reverse("generate_article:article-list"))
+            return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
         return render(request, 'error.html')
@@ -2073,9 +2071,8 @@ def generate_article_wiki(request):
 
                     else:
                         # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article_subject[0], 'source': page.fullurl,  'title': title})
-                        messages.success(
-                            request, 'Article has been generated successfully. Click step 3 to post the article')
-                        return HttpResponseRedirect(reverse("generate_article:article-list"))
+
+                        return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
             else:
                 print("For Title: "+title+" Page exists.")
                 article = page.text
@@ -2243,7 +2240,7 @@ def verify_article(request):
                                                        }, "9992828281")
                 print("Article saved successfully")
                 message = message + "Article saved successfully"
-                return HttpResponseRedirect(reverse("generate_article:article-list"))
+                return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
         return render(request, 'error.html')
@@ -2316,9 +2313,6 @@ def list_article(request):
             'posts': posts,
             'page_post': page_post,
         }
-
-        messages.info(
-            request, 'Click on view article to finalize the article before posting')
 
         return render(request, 'post_list.html', context)
     else:
