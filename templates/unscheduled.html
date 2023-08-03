@@ -527,7 +527,8 @@
              console.error("Error fetching data:", error);
            }
         
-       }else if (options === "schedule") {
+       }
+       else if (options === "schedule") {
             const url = `http://127.0.0.1:8000/media_schedule/`;
            const csrftoken = getToken("csrftoken");
            const apiOptions = {
@@ -543,7 +544,6 @@
              const res = await fetch(url, apiOptions);
              let data = await res.json();
            
-            //  console.log(data);
              if (data === "social_media_channels") {
                   location.href = "http://127.0.0.1:8000/social_media_channels/"
                   
