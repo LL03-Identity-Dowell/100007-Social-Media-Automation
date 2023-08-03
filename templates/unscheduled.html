@@ -479,22 +479,22 @@
     `;
       };
 
-     const dateFormat = (initialDate) => {
-    const dateObj = new Date(initialDate || Date.now());
-    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-    const day = String(dateObj.getDate()).padStart(2, "0");
-    const year = dateObj.getFullYear();
+      const dateFormat = (initialDate) => {
+        const dateObj = new Date(initialDate || Date.now());
+        const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const day = String(dateObj.getDate()).padStart(2, "0");
+        const year = dateObj.getFullYear();
 
-    let hours = String(dateObj.getHours()).padStart(2, "0");
-    let minutes = String(dateObj.getMinutes()).padStart(2, "0");
-    const seconds = String(dateObj.getSeconds()).padStart(2, "0");
+        let hours = String(dateObj.getHours()).padStart(2, "0");
+        let minutes = String(dateObj.getMinutes()).padStart(2, "0");
+        const seconds = String(dateObj.getSeconds()).padStart(2, "0");
 
-    const formattedDate = `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
-    return formattedDate;
-};
+        const formattedDate = `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
+        return formattedDate;
+      };
 
-      
       const sendData = async (data, options) => {
+
        if (options === "post") {
 
            const url = `http://127.0.0.1:8000/media_post/`;
@@ -560,6 +560,7 @@
              console.error("Error fetching data:", error);
            }
        } 
+
       };
 
       const fetchedData = async () => {
@@ -622,8 +623,14 @@
               ).value;
               selectedArticle.schedule = dateFormat(scheduleValue);
             }
-
-            sendData(selectedArticle, options);
+            if (
+              selectedArticle.social.length > 0 ||
+              selectedArticle.twitter !== undefined
+            ) {
+              sendData(selectedArticle, options);
+            } else {
+              alert("Please select at least one Social Platform");
+            }
 
             // Remove the dateTimeEl element from the form if it was added during the process
             if (dateTimeEl.parentElement === scheduleBtns) {

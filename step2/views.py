@@ -638,66 +638,35 @@ def aryshare_profile(request):
 @xframe_options_exempt
 def link_media_channels(request):
     session_id = request.GET.get("session_id", None)
-    url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-
-    database_details = {
-        'database_name': 'mongodb',
-        'collection': 'ayrshare_info',
-        'database': 'social-media-auto',
-        'fields': ['_id']
-    }
-
-    # number of variables for sampling rule
-    number_of_variables = -1
-
-    """
-        period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-        if custom is given then need to specify start_point and end_point
-        for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-        the the value of that selection in 'm_or_A_value'
-        error is the error allowed in percentage
-    """
-
-    time_input = {
-        'column_name': 'Date',
-        'split': 'week',
-        'period': 'life_time',
-        'start_point': '2021/01/08',
-        'end_point': '2023/06/25',
-    }
-
-    stage_input_list = [
-    ]
-
-    # distribution input
-    distribution_input = {
-        'normal': 1,
-        'poisson': 0,
-        'binomial': 0,
-        'bernoulli': 0
-
-    }
-
-    request_data = {
-        'database_details': database_details,
-        'distribution_input': distribution_input,
-        'number_of_variable': number_of_variables,
-        'stages': stage_input_list,
-        'time_input': time_input,
-    }
-
+    url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
-    response = requests.post(url, json=request_data, headers=headers)
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "ayrshare_info",
+        "document": "ayrshare_info",
+        "team_member_ID": "100007001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id":request.session['user_id']},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+        }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
     print(response.json())
-    data = response.json()['normal']['data']
-    for column in data:
-        for row in column:
-            print(row['user_id'])
-            if row['user_id'] == str(request.session['user_id']):
-                key = row['profileKey']
+    # profile = request.session['operations_right']
 
-    with open(r'/home/100007/dowellresearch.key') as f:
+    post = json.loads(response.json())
+    
+    for posts in post['data']:
+        if posts['user_id']==request.session['user_id'] :
+            key=posts['profileKey']
+            print(key)
+    with open(r'C:\Users\user\Desktop\100007-Social-Media-Automation\dowellresearch.key') as f:
         privateKey = f.read()
 
     payload = {'domain': 'dowellresearch',
@@ -2163,6 +2132,7 @@ def verify_article(request):
             article = request.POST.get("articletextarea")
             source = request.POST.get("url")
             form = VerifyArticleForm(request.POST)
+
             if not form.is_valid():
                 messages.success(request, 'Please fix the errors below')
                 return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
@@ -2185,69 +2155,65 @@ def verify_article(request):
                 text_from_page = text_from_page.replace("\xa0", "")
                 print(article)
                 paragraph = article.split("\r\n")
-                first_para = paragraph[0].replace(" ", "")
-                last_para = paragraph[-1].replace(" ", "")
-                if first_para in text_from_page and last_para in text_from_page:
-                    print("Article Verified")
-                    message = "Article Verified, "
-                    for i in range(len(paragraph)):
 
-                        # check for empty paragraph
-                        if paragraph[i] == "":
-                            continue
-                        # saving paragraphs in article
-                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                               "title": title,
-                                                               "target_industry": target_industry,
-                                                               "qualitative_categorization": qualitative_categorization,
-                                                               "targeted_for": targeted_for,
-                                                               "designed_for": designed_for,
-                                                               "targeted_category": targeted_category,
-                                                               "image": image,
-                                                               "paragraph": paragraph[i],
-                                                               "source": source,
-                                                               'subject': subject,
-                                                               # 'dowelltime': dowellclock
-                                                               }, '34567897799')
-                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "eventId":  create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                               "title": title,
-                                                               "qualitative_categorization": qualitative_categorization,
-                                                               "targeted_for": targeted_for,
-                                                               "designed_for": designed_for,
-                                                               "targeted_category": targeted_category,
-                                                               "image": image,
-                                                               "paragraph": paragraph,
-                                                               "source": source,
-                                                               "date": str(date),
-                                                               "time": str(time),
-                                                               }, '34567897799')
+                message = "Article Verified, "
+                for i in range(len(paragraph)):
 
-                    # saving article
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                    # check for empty paragraph
+                    if paragraph[i] == "":
+                        continue
+                    # saving paragraphs in article
+                    save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
                                                            "title": title,
                                                            "target_industry": target_industry,
-                                                           "paragraph": article,
+                                                           "qualitative_categorization": qualitative_categorization,
+                                                           "targeted_for": targeted_for,
+                                                           "designed_for": designed_for,
+                                                           "targeted_category": targeted_category,
+                                                           "image": image,
+                                                           "paragraph": paragraph[i],
                                                            "source": source,
                                                            'subject': subject,
                                                            # 'dowelltime': dowellclock
-                                                           }, "9992828281")
-                    print("Article saved successfully")
-                    message = message + "Article saved successfully"
-                    return HttpResponseRedirect(reverse("generate_article:main-view"))
-                else:
-                    print("Article Not Verified")
-                    message = "Article not Verified."
-                    print(text_from_page_space)
-                    return render(request, 'article/article.html', {'message': message, 'article': article, 'source': source, 'title': title})
+                                                           }, '34567897799')
+                    save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                                                           "session_id": session_id,
+                                                           "eventId": create_event()['event_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
+                                                           "title": title,
+                                                           "qualitative_categorization": qualitative_categorization,
+                                                           "targeted_for": targeted_for,
+                                                           "designed_for": designed_for,
+                                                           "targeted_category": targeted_category,
+                                                           "image": image,
+                                                           "paragraph": paragraph,
+                                                           "source": source,
+                                                           "date": str(date),
+                                                           "time": str(time),
+                                                           }, '34567897799')
+
+                # saving article
+                save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                       "session_id": session_id,
+                                                       "eventId": create_event()['event_id'],
+                                                       'client_admin_id': request.session['userinfo'][
+                                                           'client_admin_id'],
+                                                       "title": title,
+                                                       "target_industry": target_industry,
+                                                       "paragraph": article,
+                                                       "source": source,
+                                                       'subject': subject,
+                                                       # 'dowelltime': dowellclock
+                                                       }, "9992828281")
+                print("Article saved successfully")
+                message = message + "Article saved successfully"
+                return HttpResponseRedirect(reverse("generate_article:main-view"))
+
     else:
         return render(request, 'error.html')
 
@@ -2256,82 +2222,52 @@ def verify_article(request):
 def list_article(request):
     # return HttpResponse(request.session.get('user_name'))
     if 'session_id' and 'username' in request.session:
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-
-        database_details = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "step3_data",
-            "document": "step3_data",
-            "team_member_ID": "34567897799",
-        }
-
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        """
-            period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-            if custom is given then need to specify start_point and end_point
-            for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-            the the value of that selection in 'm_or_A_value'
-            error is the error allowed in percentage
-        """
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2022/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-
+        url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
-        response = requests.post(url, json=request_data, headers=headers)
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step2_data",
+            "document": "step2_data",
+            "team_member_ID": "9992828281",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
 
         print(response)
 
-        post = response.json()['normal']['data']
-        # takes in user_id
         user = str(request.session['user_id'])
-        print(user)
+        response_data_json = json.loads(response.json())
+
+        # takes in user_id
+        user_id = str(request.session['user_id'])
+        article_detail_list = response_data_json.get('data', [])
+
         # takes in the json data
-        datas = post
+        datas = article_detail_list
 
         posts = []
         # iterates through the json file
 
-        for row in datas:
-            for data in row:
-                idd = str(data['user_id'])
-                if user in idd:
-                    # picks out the data
-                    articles = {'title': data.get('title'), 'paragraph': data.get(
-                        'paragraph'), 'source': data.get('source')}
-                    # appends articles to posts
-                    posts.append(articles)
-                else:
-                    pass
+        for article in article_detail_list:
+
+            if article.get('user_id') == user_id:
+                articles = {
+                    'title': article.get('title'),
+                    'paragraph': article.get('paragraph'),
+                    'source': article.get('source'),
+                }
+                # appends articles to posts
+                posts.append(articles)
         posts = list(reversed(posts))  # Reverse the order of the posts list
 
         number_of_items_per_page = 5
@@ -2353,7 +2289,7 @@ def list_article(request):
         messages.info(
             request, 'Click on view article to finalize the article before posting')
 
-        return render(request, 'post_list.html', context)
+        return render(request, 'post_filter_list.html', context)
     else:
         return render(request, 'error.html')
 
@@ -2947,117 +2883,82 @@ def Media_Post(request):
         except:
             twitter=None
         print(platforms,twitter)
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-       
-
-        database_details = {
-            'database_name': 'mongodb',
-            'collection': 'ayrshare_info',
-            'database': 'social-media-auto',
-            'fields': ['_id']
-        }
-
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        """
-            period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-            if custom is given then need to specify start_point and end_point
-            for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-            the the value of that selection in 'm_or_A_value'
-            error is the error allowed in percentage
-        """
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2023/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-
+        url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
-        response = requests.post(url, json=request_data, headers=headers)
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id":request.session['user_id'] },
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+            }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        # profile = request.session['operations_right']
 
-        data = response.json()['normal']['data']
-        print(request.session['user_id'])
-        for column in data:
-            for row in column:
+        post = json.loads(response.json())
+        for posts in post['data']:
+            if posts['user_id']==request.session['user_id'] :
+                key=posts['profileKey']
+                "posting to Various social media"
+                payload = {'post': posts,
+                            'platforms': platforms,
+                            'profileKey': key,
+                            'mediaUrls': [image],
+                            }
+                headers = {'Content-Type': 'application/json',
+                            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
-                if  row['user_id']==request.session['user_id'] :
-                    key=row['profileKey']
-                    "posting to Various social media"
-                    payload = {'post': posts,
-                                'platforms': platforms,
-                                'profileKey': key,
-                                'mediaUrls': [image],
-                                }
-                    headers = {'Content-Type': 'application/json',
-                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-                    r1 = requests.post('https://app.ayrshare.com/api/post',
-                                        json=payload,
-                                        headers=headers)
-                    print(r1.json())
-                    if r1.json()['status'] == 'error':
-                        messages.error(request, 'error in scheduling')
-                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                        messages.success(
-                            request, 'post have been sucessfully posted')
-                        return JsonResponse('most_recent',safe=False)
-                       
-                    else:
-                        for warnings in r1.json()['warnings']:
-                            messages.error(request, warnings['message'])
-
-                    # for twitter
-                    payload = {'post': posts[:280],
-                                'platforms': [twitter],
-                                'profileKey': key,
-                                'mediaUrls': [image],
-                                }
-                    headers = {'Content-Type': 'application/json',
-                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-                    r1 = requests.post('https://app.ayrshare.com/api/post',
-                                        json=payload,
-                                        headers=headers)
-                    print(r1.json())
-                    if r1.json()['status'] == 'error':
-                        messages.error(request, 'error in scheduling Twitter')
-                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                        messages.success(
-                            request, 'post have been sucessfully scheduled')
-                        update_most_recent(post_id )
-                        return JsonResponse('most_recent',safe=False)
-                        print('done')
-                    else:
-                        for warnings in r1.json()['warnings']:
-                            messages.error(request, warnings['message'])
-                else:
+                r1 = requests.post('https://app.ayrshare.com/api/post',
+                                    json=payload,
+                                    headers=headers)
+                print(r1.json())
+                if r1.json()['status'] == 'error':
+                    messages.error(request, 'error in scheduling')
+                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                    messages.success(
+                        request, 'post have been sucessfully posted')
+                    return JsonResponse('most_recent',safe=False)
                     
-                    return JsonResponse('social_media_channels',safe=False)
+                else:
+                    for warnings in r1.json()['warnings']:
+                        messages.error(request, warnings['message'])
+
+                # for twitter
+                payload = {'post': posts[:280],
+                            'platforms': [twitter],
+                            'profileKey': key,
+                            'mediaUrls': [image],
+                            }
+                headers = {'Content-Type': 'application/json',
+                            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                r1 = requests.post('https://app.ayrshare.com/api/post',
+                                    json=payload,
+                                    headers=headers)
+                print(r1.json())
+                if r1.json()['status'] == 'error':
+                    messages.error(request, 'error in scheduling Twitter')
+                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                    messages.success(
+                        request, 'post have been sucessfully scheduled')
+                    update_most_recent(post_id )
+                    return JsonResponse('most_recent',safe=False)
+                    
+                else:
+                    for warnings in r1.json()['warnings']:
+                        messages.error(request, warnings['message'])
+            else:
+                print('done')
+                return JsonResponse('social_media_channels',safe=False)
                     
             
                     
@@ -3092,118 +2993,83 @@ def Media_schedule(request):
         shedulded= localize.astimezone(utc)
         string = str(shedulded)[:-6]
         formart = datetime.strptime(string,"%Y-%m-%d %H:%M:%S").isoformat() + "Z"
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-        print(platforms,twitter,formart)
-       
-
-        database_details = {
-            'database_name': 'mongodb',
-            'collection': 'ayrshare_info',
-            'database': 'social-media-auto',
-            'fields': ['_id']
-        }
-
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        """
-            period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-            if custom is given then need to specify start_point and end_point
-            for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-            the the value of that selection in 'm_or_A_value'
-            error is the error allowed in percentage
-        """
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2023/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-
+        url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
-        response = requests.post(url, json=request_data, headers=headers)
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id":request.session['user_id'] },
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+            }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        # profile = request.session['operations_right']
 
-        data = response.json()['normal']['data']
-        print(request.session['user_id'])
-        for column in data:
-            for row in column:
+        post = json.loads(response.json())
+        for posts in post['data']:
+            if posts['user_id']==request.session['user_id'] :
+                key=posts['profileKey']
+                "posting to Various social media"
+                print(key)
+                print(platforms,twitter,formart)
+                payload = {'post': posts,
+                            'platforms': platforms,
+                            'profileKey': key,
+                            'mediaUrls': [image],
+                            "scheduleDate": str(formart)}
+                headers = {'Content-Type': 'application/json',
+                            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
-                if  row['user_id']==request.session['user_id'] :
-                    key=row['profileKey']
-                    "posting to Various social media"
-                    print(key)
-                    print(platforms,twitter,formart)
-                    payload = {'post': posts,
-                                'platforms': platforms,
-                                'profileKey': key,
-                                'mediaUrls': [image],
-                                "scheduleDate": str(formart)}
-                    headers = {'Content-Type': 'application/json',
-                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-                    r1 = requests.post('https://app.ayrshare.com/api/post',
-                                        json=payload,
-                                        headers=headers)
-                    print(r1.json())
-                    if r1.json()['status'] == 'error':
-                        messages.error(request, 'error in scheduling')
-                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                        messages.success(
-                            request, 'post have been sucessfully scheduled')
-                        update_schedule(post_id)
-                        return JsonResponse('sheduled',safe=False)
-                    else:
-                        for warnings in r1.json()['warnings']:
-                            messages.error(request, warnings['message'])
-
-                    # for twitter
-                    payload = {'post': posts[:280],
-                                'platforms': [twitter],
-                                'profileKey': key,
-                                'mediaUrls': [image],
-                                "scheduleDate": str(formart)}
-                    headers = {'Content-Type': 'application/json',
-                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-                    r1 = requests.post('https://app.ayrshare.com/api/post',
-                                        json=payload,
-                                        headers=headers)
-                    print(r1.json())
-                    if r1.json()['status'] == 'error':
-                        messages.error(request, 'error in scheduling Twitter')
-                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                        messages.success(
-                            request, 'post have been sucessfully scheduled')
-                        update_schedule(post_id)
-                        return JsonResponse('sheduled',safe=False)
-                    else:
-                        for warnings in r1.json()['warnings']:
-                            messages.error(request, warnings['message'])
+                r1 = requests.post('https://app.ayrshare.com/api/post',
+                                    json=payload,
+                                    headers=headers)
+                print(r1.json())
+                if r1.json()['status'] == 'error':
+                    messages.error(request, 'error in scheduling')
+                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                    messages.success(
+                        request, 'post have been sucessfully scheduled')
+                    update_schedule(post_id)
+                    return JsonResponse('sheduled',safe=False)
                 else:
-                    return JsonResponse('social_media_channels',safe=False)
+                    for warnings in r1.json()['warnings']:
+                        messages.error(request, warnings['message'])
+
+                # for twitter
+                payload = {'post': posts[:280],
+                            'platforms': [twitter],
+                            'profileKey': key,
+                            'mediaUrls': [image],
+                            "scheduleDate": str(formart)}
+                headers = {'Content-Type': 'application/json',
+                            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+                r1 = requests.post('https://app.ayrshare.com/api/post',
+                                    json=payload,
+                                    headers=headers)
+                print(r1.json())
+                if r1.json()['status'] == 'error':
+                    messages.error(request, 'error in scheduling Twitter')
+                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                    messages.success(
+                        request, 'post have been sucessfully scheduled')
+                    update_schedule(post_id)
+                    return JsonResponse('sheduled',safe=False)
+                else:
+                    for warnings in r1.json()['warnings']:
+                        messages.error(request, warnings['message'])
+            else:
+                print('done')
+                return JsonResponse('social_media_channels',safe=False)
     return HttpResponseRedirect(reverse("generate_article:scheduled"))
     
 
