@@ -2108,8 +2108,7 @@ def generate_article_wiki(request):
                                                                # 'dowelltime': dowellclock
                                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
-                messages.success(
-                    request, 'Article has been generated successfully. Click step 3 to post the article')
+
                 return HttpResponseRedirect(reverse("generate_article:article-list"))
     else:
         return render(request, 'error.html')
