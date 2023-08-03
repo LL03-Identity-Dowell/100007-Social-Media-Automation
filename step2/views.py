@@ -2320,7 +2320,7 @@ def list_article(request):
         messages.info(
             request, 'Click on view article to finalize the article before posting')
 
-        return render(request, 'post_filter_list.html', context)
+        return render(request, 'post_list.html', context)
     else:
         return render(request, 'error.html')
 # @xframe_options_exempt
@@ -2451,7 +2451,7 @@ def list_article_view(request):
             'page_post': page_post,
         }
 
-        return render(request, 'post_list.html', context)
+        return render(request, 'article_list.html', context)
     else:
         return render(request, 'error.html')
 

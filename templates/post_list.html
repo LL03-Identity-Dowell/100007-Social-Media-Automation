@@ -7,10 +7,8 @@
 <style>
     .btn-primary {
         background: #0d6efd;
-        width: 200px;
-        margin-bottom:10px;
     }
-    
+
    .btn-cancel {
         background: #0d6efd;
         margin-right: 20px; /* Adjust the margin value as needed */
@@ -25,20 +23,27 @@
                 style=" font-size: calc(1.375rem + 1.5vw)!important;">Posts List</h1></div>
         <p>Total posts count: {{ posts|length }}</p>
 
-
-        <table class="table">
-
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Post Title</th>
+                <th scope="col">Post Content</th>
+            </tr>
+            </thead>
             <tbody>
 
             {% for post in page_post %}
                 <tr>
                 <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
                     {% csrf_token %}
+
                     <input type="hidden" name="title" value="{{ post.title }}">
-
-                    <td scope="col" style="color: #1434A4;font-size: 20px; font-weight: 600;"><p>{{ post.title }}</p>
-                    </td>
-
+                    <input type="hidden" name="paragraph" value="{{ post.paragraph }}">
+                    <input type="hidden" name="source" value="{{ post.source }}">
+                    <td scope="col"><p>{{ post.title }}</p></td>
+                    <th>
+                        <button type="submit" class="btn btn-primary">View Article</button>
+                    </th>
                     <tr>
                         <td scope="col">{{ post.paragraph|truncatewords:50 }}</td>
                     </tr>
@@ -46,9 +51,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <center><a href="{% url 'generate_article:index-view' %}" type="submit" class="btn btn-primary">Create
-            Article</a></center>
-
+        <a href="https://100007.pythonanywhere.com/article_detail/" class="btn btn-cancel">Go back</a>
         <center>
 
             <div class="pagination">
