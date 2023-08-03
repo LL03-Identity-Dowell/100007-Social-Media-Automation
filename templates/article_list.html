@@ -1,0 +1,83 @@
+{% extends "article/base_steps.html" %}
+{% load static %}
+
+
+{% block content %}
+    <!--{% load appname_tags %}-->
+    <style>
+        .btn-primary {
+            background: #0d6efd;
+            width: 200px;
+            margin-bottom: 10px;
+        }
+
+        .btn-cancel {
+            background: #0d6efd;
+            margin-right: 20px; /* Adjust the margin value as needed */
+            margin-top: 4px;
+            width: 100px;
+        }
+
+
+    </style>
+    <div class="container mt-5 mb-5 pt-3 pb-3">
+        <div class="list-group list-group-flush">
+            <div class="justify-content-center" style="color: #1434A4;"><h1
+                    style=" font-size: calc(1.375rem + 1.5vw)!important;">Article List</h1></div>
+            <p>Total posts count: {{ posts|length }}</p>
+
+
+            <div class="table-container">
+                <div class="table-row-header">
+                </div>
+
+                {% for post in page_post %}
+                    <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="title" value="{{ post.title }}">
+
+                        <div class="table-row">
+                            <div class="table-column" style="color: #1434A4;font-size: 20px; font-weight: 600;">
+                                <p>{{ post.title }}</p>
+                            </div>
+                        </div>
+
+                        <div class="table-row">
+                            <div class="table-column">
+                                <p>{{ post.paragraph|truncatewords:50 }}</p>
+                            </div>
+                        </div>
+                    </form>
+                {% endfor %}
+
+                </tbody>
+                </table>
+                <center><a href="{% url 'generate_article:index-view' %}" type="submit" class="btn btn-primary">Create
+                    Article</a></center>
+                <center>
+
+                    <div class="pagination">
+                        {% if page_post.has_previous %}
+                            <a href="?page={{ page_post.previous_page_number }}">Previous</a>
+                        {% endif %}
+                        {% if page_post.number|add:'-2' > 1 %}
+                            <a href="?page={{ page_post.number|add:'-3' }}">&laquo;</a>
+                        {% endif %}
+                        {% for page_number in page_post.paginator.page_range %}
+                            {% if page_post.number == page_number %}
+                                <a href="#" class="active">{{ page_number }}</a>
+                            {% elif page_number > page_post.number|add:'-3' and page_number < page_post.number|add:'6' %}
+                                <a href="?page={{ page_number }}">{{ page_number }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_post.number|add:'5' > 1 %}
+                            <a href="?page={{ page_post.number|add:'6' }}">&raquo;</a>
+                        {% endif %}
+                        {% if page_post.has_next %}
+                            <a href="?page={{ page_post.next_page_number }}">Next</a>
+                        {% endif %}
+                    </div>
+                </center>
+            </div>
+        </div>
+{% endblock content %}
