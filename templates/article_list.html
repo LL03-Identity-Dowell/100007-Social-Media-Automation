@@ -18,6 +18,14 @@
             width: 100px;
         }
 
+        .button-container {
+            margin-top: 35px;
+        }
+
+        .flex {
+            display: flex;
+            justify-content: space-around;
+        }
 
     </style>
     <div class="container mt-5 mb-5 pt-3 pb-3">
@@ -37,20 +45,25 @@
                         <input type="hidden" name="title" value="{{ post.title }}">
                         <input type="hidden" name="paragraph" value="{{ post.paragraph }}">
                         <input type="hidden" name="source" value="{{ post.source }}">
-                        <div class="table-row">
-                            <div class="table-column" style="color: #1434A4;font-size: 20px; font-weight: 600;">
-                                <p>{{ post.title }}</p>
+                        <div class="flex">
+                            <div>
+                                <div class="table-row">
+                                    <div class="table-column" style="color: #1434A4;font-size: 20px; font-weight: 600;">
+                                        <p>{{ post.title }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="table-row">
+                                    <div class="table-column">
+                                        <p>{{ post.paragraph|truncatewords:50 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="button-container">
+                                <button type="submit" class="btn-primary">View Article</button>
                             </div>
                         </div>
 
-                        <div class="table-row">
-                            <div class="table-column">
-                                <p>{{ post.paragraph|truncatewords:50 }}</p>
-                            </div>
-                            <div class="table-column">
-                                <button type="submit" class="btn btn-primary">View Article</button>
-                            </div>
-                        </div>
                     </form>
                 {% endfor %}
 
