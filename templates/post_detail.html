@@ -162,9 +162,10 @@ function savePost() {
 }
 
 
+{% comment %} console.log({{categories}}); {% endcomment %}
 
-
-
+{% comment %} var cat =  "{{categories}}";
+console.log(cat); {% endcomment %}
 
 
   </script>
@@ -237,8 +238,9 @@ function savePost() {
          <label for="content" class="mb-4"><strong>Qualitative categorization:</strong></label>
 
              <select  name="qualitative_categorization">
-                {% for categories in categories %}
-                <option value="{{categories}}">{{categories}}</option>
+                {% for category in categories %}
+                
+                <option value="{{category}}">{{category}}</option>
                 {% endfor %}
 
              </select>

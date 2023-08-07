@@ -17,6 +17,22 @@
     }
 
 </style>
+
+{% comment %} 
+{% block script %}
+  
+  <script>
+    var post = "{{page_post}}";
+    
+    for (let p in post) {
+        console.log(p);
+    }
+    
+  </script>
+
+{% endblock %} {% endcomment %}
+
+
 <div class="container mt-5 mb-5 pt-3 pb-3">
     <div class="list-group list-group-flush">
     <div class="justify-content-center" style="color: #1434A4;"><h1 style=" font-size: calc(1.375rem + 1.5vw)!important;">Posts List</h1></div>
@@ -41,7 +57,7 @@
                 <input type="hidden" name="source" value="{{ post.source }}">
                 <td scope="col"><p>{{ post.title }}</p></td>
                 <th>
-                    <button type="submit" class="btn btn-primary">View Article</button>
+                    <button type="submit" class="btn btn-primary">View Post</button>
                 </th>
                 <tr>
                     <td scope="col">{{ post.paragraph|truncatewords:50 }}</td>
@@ -77,4 +93,6 @@
         </center>
     </div>
 </div>
+
+
 {% endblock content %}
