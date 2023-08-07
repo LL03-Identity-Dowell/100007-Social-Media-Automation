@@ -2529,6 +2529,81 @@ def filtered_list_article(request, filter):
 
 @csrf_exempt
 @xframe_options_exempt
+def article_detail(request):
+    if 'session_id' and 'username' in request.session:
+        url = "http://uxlivinglab.pythonanywhere.com"
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "qual_cat",
+            "document": "qual_cat",
+            "team_member_ID": "1145",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {'target_industry': "Food & Beverages"},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        profile = request.session['operations_right']
+
+        categ = json.loads(response.json())['data']
+        print(categ)
+        categories = []
+        for row in categ:
+            for data in row:
+                for key, value in data.items():
+                    if key == 'category':
+                        categories.append(value)
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+        else:
+            id = request.POST.get("post_id")
+            title = request.POST.get("title")
+            paragraph = request.POST.get("paragraph")
+            paragraph = paragraph.split('\r\n')
+            source = request.POST.get("source")
+            if "\r\n" in source:
+                source = source.split('\r\n')
+
+            post = {
+                "id": id,
+                "title": title,
+                "paragraph": paragraph,
+                "source": source
+            }
+        a = random.randint(1, 9)
+        category = ['ocean', 'sky', 'food', 'football', 'house',
+                    'animals', 'cars', 'History', 'Tech', 'People']
+        query = title
+        output = []
+        api = API(PEXELS_API_KEY)
+        # api.popular(results_per_page=10, page=5)
+        pic = api.search(query, page=a, results_per_page=10)
+        width = 350
+        for photo in pic['photos']:
+            pictures = photo['src']['medium']
+            img_data = requests.get(pictures).content
+            im = Image.open(BytesIO(img_data))
+            wit = im.size
+            if wit[0] >= width:
+                output.append(pictures)
+        images = output[1]
+        print(profile)
+
+        return render(request, 'post_detail.html', {'post': post, 'categories': categories, 'images': images, 'profile': profile})
+    else:
+        return render(request, 'error.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
 def Save_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
