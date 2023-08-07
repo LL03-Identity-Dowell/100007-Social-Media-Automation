@@ -2531,51 +2531,29 @@ def filtered_list_article(request, filter):
 @xframe_options_exempt
 def article_detail(request):
     if 'session_id' and 'username' in request.session:
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-
-        database_details = {
-            'database_name': 'mongodb',
-            'collection': 'qual_cat',
-            'database': 'social-media-auto',
-            'fields': ['category']
+        url = "http://uxlivinglab.pythonanywhere.com"
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "qual_cat",
+            "document": "qual_cat",
+            "team_member_ID": "1145",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {'target_industry': "Food & Beverages"},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
         }
+        response = requests.request("POST", url, headers=headers, data=payload)
 
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2022/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-        headers = {'content-type': 'application/json'}
-
-        response = requests.post(url, json=request_data, headers=headers)
-        print(response)
         profile = request.session['operations_right']
-        categ = response.json()['normal']['data']
+
+        categ = json.loads(response.json())['data']
         print(categ)
         categories = []
         for row in categ:
