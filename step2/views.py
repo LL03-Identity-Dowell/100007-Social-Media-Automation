@@ -11,6 +11,7 @@ from datetime import datetime, date
 from io import BytesIO
 
 import openai
+import pytz
 import requests
 import wikipediaapi
 from PIL import Image
@@ -31,7 +32,7 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
-import pytz
+
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
@@ -2530,6 +2531,55 @@ def filtered_list_article(request, filter):
 @csrf_exempt
 @xframe_options_exempt
 def article_detail(request):
+    if 'session_id' and 'username' in request.session:
+
+        profile = request.session['operations_right']
+
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
+        else:
+            id = request.POST.get("post_id")
+            title = request.POST.get("title")
+            paragraph = request.POST.get("paragraph")
+            paragraph = paragraph.split('\r\n')
+            source = request.POST.get("source")
+            if "\r\n" in source:
+                source = source.split('\r\n')
+
+            post = {
+                "id": id,
+                "title": title,
+                "paragraph": paragraph,
+                "source": source
+            }
+        a = random.randint(1, 9)
+        category = ['ocean', 'sky', 'food', 'football', 'house',
+                    'animals', 'cars', 'History', 'Tech', 'People']
+        query = title
+        output = []
+        api = API(PEXELS_API_KEY)
+        # api.popular(results_per_page=10, page=5)
+        pic = api.search(query, page=a, results_per_page=10)
+        width = 350
+        for photo in pic['photos']:
+            pictures = photo['src']['medium']
+            img_data = requests.get(pictures).content
+            im = Image.open(BytesIO(img_data))
+            wit = im.size
+            if wit[0] >= width:
+                output.append(pictures)
+        images = output[1]
+        print(profile)
+
+        return render(request, 'article/article_detail.html', {'post': post, 'images': images, 'profile': profile})
+    else:
+        return render(request, 'error.html')
+
+
+
+@csrf_exempt
+@xframe_options_exempt
+def post_detail(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com"
         payload = json.dumps({

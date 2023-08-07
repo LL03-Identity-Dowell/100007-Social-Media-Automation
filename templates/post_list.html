@@ -33,7 +33,7 @@
 
         {% for post in page_post %}
             <tr>
-            <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
+            <form class="" action="{% url 'generate_article:post-detail' %}" method="post">
                 {% csrf_token %}
 
                 <input type="hidden" name="title" value="{{ post.title }}">

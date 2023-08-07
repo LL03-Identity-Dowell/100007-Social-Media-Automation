@@ -35,7 +35,8 @@
                     <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="title" value="{{ post.title }}">
-
+                        <input type="hidden" name="paragraph" value="{{ post.paragraph }}">
+                        <input type="hidden" name="source" value="{{ post.source }}">
                         <div class="table-row">
                             <div class="table-column" style="color: #1434A4;font-size: 20px; font-weight: 600;">
                                 <p>{{ post.title }}</p>
@@ -45,6 +46,9 @@
                         <div class="table-row">
                             <div class="table-column">
                                 <p>{{ post.paragraph|truncatewords:50 }}</p>
+                            </div>
+                            <div class="table-column">
+                                <button type="submit" class="btn btn-primary">View Article</button>
                             </div>
                         </div>
                     </form>
