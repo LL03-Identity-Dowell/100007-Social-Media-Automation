@@ -113,9 +113,13 @@
                         </th>
                     </form>
                 </tr>
-                
+
                 <tr>
-                    <td width="90%" scope="col">{{ post.paragraph|truncatewords:50 }}</td>
+                    <td width="90%" scope="col">
+                        <p style="font-size: 0.91rem; width: 85%;">
+                            {{ post.paragraph|truncatewords:50 }}
+                        </p>
+                    </td>
                 </tr>
                 
             {% endfor %}
