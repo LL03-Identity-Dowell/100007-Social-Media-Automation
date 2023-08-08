@@ -58,21 +58,15 @@ var postsor = document.getElementById('post-sources')
 
 function deletePost() {
 
+  var fields = document.getElementsByTagName('input');
+  length = fields.length;
+  while (length--) {
+      if (fields[length].type === 'text') { fields[length].value = ''; }
+  }
 
+  $("input[type=text]").val('');
 
-
-var fields = document.getElementsByTagName('input'),
-    length = fields.length;
-while (length--) {
-    if (fields[length].type === 'text') { fields[length].value = ''; }
-}
-
-
-$("input[type=text]").val('');
-
-
-    console.log("lets Delete")
-
+  console.log("lets Delete")
 }
 
 
