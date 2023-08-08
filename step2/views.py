@@ -2557,21 +2557,10 @@ def article_detail(request):
                     'animals', 'cars', 'History', 'Tech', 'People']
         query = title
         output = []
-        api = API(PEXELS_API_KEY)
-        # api.popular(results_per_page=10, page=5)
-        pic = api.search(query, page=a, results_per_page=10)
-        width = 350
-        for photo in pic['photos']:
-            pictures = photo['src']['medium']
-            img_data = requests.get(pictures).content
-            im = Image.open(BytesIO(img_data))
-            wit = im.size
-            if wit[0] >= width:
-                output.append(pictures)
-        images = output[1]
+
         print(profile)
 
-        return render(request, 'article/article_detail.html', {'post': post, 'images': images, 'profile': profile})
+        return render(request, 'article/article_detail.html', {'post': post, 'profile': profile})
     else:
         return render(request, 'error.html')
 
