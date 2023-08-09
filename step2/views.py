@@ -2452,7 +2452,7 @@ def list_article_view(request):
         context = {
             'posts': user_articles,
             'page_post': page_post,
-        
+        }
         return render(request, 'article_list.html', context)
     else:
         return render(request, 'error.html')
