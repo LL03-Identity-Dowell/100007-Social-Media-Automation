@@ -5,26 +5,59 @@
 {% block content %}
     <!--{% load appname_tags %}-->
     <style>
+        .total-post_button {
+            display:flex;
+            align-items: center;
+            justify-content: space-between;
+        }
         .btn-primary {
-            background: #0d6efd;
-            width: 200px;
+            /* background-color: rgb(20, 38, 85) ; */
+            width: 130px;
             margin-bottom: 10px;
         }
 
+        .btn-view {
+        font-size: 0.7rem;
+        color: white;
+        background-color: var(--dark-blue);
+        border-color: var(--dark-blue);
+        /* width: 73px; */
+    }
+
+    .btn-view:hover {
+        color: white;
+        background-color: rgb(20, 38, 85);
+    }
+
+    .btn-view:active{
+        background-color: rgb(20, 38, 85) !important;
+    }
+
         .btn-cancel {
-            background: #0d6efd;
+            /* background: #0d6efd; */
             margin-right: 20px; /* Adjust the margin value as needed */
             margin-top: 4px;
             width: 100px;
         }
-
+        .button-container {   
+            margin-top: 35px;
+            margin-left: 10px;
+        }
+        .flex{
+        display:flex;
+        justify-content: space-around;
+      }
 
     </style>
     <div class="container mt-5 mb-5 pt-3 pb-3">
         <div class="list-group list-group-flush">
             <div class="justify-content-center" style="color: #1434A4;"><h1
                     style=" font-size: calc(1.375rem + 1.5vw)!important;">Article List</h1></div>
-            <p>Total posts count: {{ posts|length }}</p>
+                    <div class="total-post_button">
+                        <p>Total posts count: {{ posts|length }}</p>
+                         <span><a href="{% url 'generate_article:index-view' %}" type="submit" class="btn btn-primary btn-view">Create
+                    Article</a></span>
+                    </div>
 
 
             <div class="table-container">
@@ -35,25 +68,33 @@
                     <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="title" value="{{ post.title }}">
+                        <input type="hidden" name="paragraph" value="{{ post.paragraph }}">
+                        <input type="hidden" name="source" value="{{ post.source }}">
+                        <div class="flex">
+                            <div>
+                                <div class="table-row">
+                                    <div class="table-column" style="color: #1434A4;font-size: 20px; font-weight: 600;">
+                                        <p>{{ post.title }}</p>
+                                    </div>
+                                </div>
 
-                        <div class="table-row">
-                            <div class="table-column" style="color: #1434A4;font-size: 20px; font-weight: 600;">
-                                <p>{{ post.title }}</p>
+                                <div class="table-row">
+                                    <div class="table-column">
+                                        <p>{{ post.paragraph|truncatewords:50 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="button-container">
+                                <button type="submit" class="btn btn-primary btn-view">View Article</button>
                             </div>
                         </div>
 
-                        <div class="table-row">
-                            <div class="table-column">
-                                <p>{{ post.paragraph|truncatewords:50 }}</p>
-                            </div>
-                        </div>
                     </form>
                 {% endfor %}
 
                 </tbody>
                 </table>
-                <center><a href="{% url 'generate_article:index-view' %}" type="submit" class="btn btn-primary">Create
-                    Article</a></center>
+               
                 <center>
 
                     <div class="pagination">

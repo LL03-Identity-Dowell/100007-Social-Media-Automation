@@ -2492,6 +2492,44 @@ def filtered_list_article(request, filter):
 @xframe_options_exempt
 def article_detail(request):
     if 'session_id' and 'username' in request.session:
+
+        profile = request.session['operations_right']
+
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
+        else:
+            id = request.POST.get("post_id")
+            title = request.POST.get("title")
+            paragraph = request.POST.get("paragraph")
+            paragraph = paragraph.split('\r\n')
+            source = request.POST.get("source")
+            if "\r\n" in source:
+                source = source.split('\r\n')
+
+            post = {
+                "id": id,
+                "title": title,
+                "paragraph": paragraph,
+                "source": source
+            }
+        a = random.randint(1, 9)
+        category = ['ocean', 'sky', 'food', 'football', 'house',
+                    'animals', 'cars', 'History', 'Tech', 'People']
+        query = title
+        output = []
+
+        print(profile)
+
+        return render(request, 'article/article_detail.html', {'post': post, 'profile': profile})
+    else:
+        return render(request, 'error.html')
+
+
+
+@csrf_exempt
+@xframe_options_exempt
+def post_detail(request):
+    if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com"
         payload = json.dumps({
             "cluster": "socialmedia",
