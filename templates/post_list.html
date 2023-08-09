@@ -55,24 +55,39 @@
         font-weight: 600;
     }
 
-    @media only screen and (max-width: 805px){
-        .table tr, .table td {
-            height: 10px;
-            font-size: 0.6rem;
-        }
+    .paragraph-p {
+        font-size: 0.91rem; 
+        width: 85%;
+    }
+    
+    @media only screen and (max-width: 819px){
+       
     
         .title-p {
             color: #1434A4;
-            font-size: 9px;
+            font-size: 15px;
             font-weight: 600;
-            height: -7px;
+        }
+
+        
+    }
+
+    @media only screen and (max-width: 682px){
+        .title-p {
+        color: #1434A4;
+        font-size: 11px;
+        font-weight: 600;
         }
 
         .btn-view {
             font-size: 0.5rem;
         }
-}
 
+        .table tr, .table td {
+            height: 10px;
+            font-size: 0.6rem;
+        } 
+    }
 </style>
 
 
@@ -103,7 +118,7 @@
                         <input type="hidden" name="paragraph" value="{{ post.paragraph }}">
                         <input type="hidden" name="source" value="{{ post.source }}">
                     
-                        <td scope="col"  >
+                        <td height="90%" scope="col"  >
                             <div style="height: 1px">
                                 <p class="title-p"> {{ post.title }} </p>
                             </div>
@@ -117,7 +132,7 @@
 
                 <tr>
                     <td width="90%" scope="col">
-                        <p style="font-size: 0.91rem; width: 85%;">
+                        <p >
                             {{ post.paragraph|truncatewords:50 }}
                         </p>
                     </td>

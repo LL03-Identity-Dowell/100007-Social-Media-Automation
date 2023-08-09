@@ -11,6 +11,7 @@ from datetime import datetime, date
 from io import BytesIO
 
 import openai
+import pytz
 import requests
 import wikipediaapi
 from PIL import Image
@@ -31,7 +32,7 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
-import pytz
+
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
@@ -354,79 +355,39 @@ def register(request):
 @csrf_exempt
 @xframe_options_exempt
 def user_approval(request):
-    session_id = request.GET.get("session_id", None)
-    url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-
-    database_details = {
-        'database_name': 'mongodb',
-        'collection': 'user_info',
-        'database': 'social-media-auto',
-        'fields': ['_id']
-    }
-
-    # number of variables for sampling rule
-    number_of_variables = -1
-
-    """
-        period can be 'custom' or 'last_1_day' or 'last_30_days' or 'last_90_days' or 'last_180_days' or 'last_1_year' or 'life_time'
-        if custom is given then need to specify start_point and end_point
-        for others datatpe 'm_or_A_selction' can be 'maximum_point' or 'population_average'
-        the the value of that selection in 'm_or_A_value'
-        error is the error allowed in percentage
-    """
-
-    time_input = {
-        'column_name': 'Date',
-        'split': 'week',
-        'period': 'life_time',
-        'start_point': '2021/01/08',
-        'end_point': '2023/06/25',
-    }
-
-    stage_input_list = [
-    ]
-
-    # distribution input
-    distribution_input = {
-        'normal': 1,
-        'poisson': 0,
-        'binomial': 0,
-        'bernoulli': 0
-
-    }
-
-    request_data = {
-        'database_details': database_details,
-        'distribution_input': distribution_input,
-        'number_of_variable': number_of_variables,
-        'stages': stage_input_list,
-        'time_input': time_input,
-    }
-
+    url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
-    response = requests.post(url, json=request_data, headers=headers)
-    print(response.json())
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "user_info",
+        "document": "user_info",
+        "team_member_ID": "1071",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": request.session['user_id']},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
 
-    # get user_id of user
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+
+    response_data_json = json.loads(response.json())
+    # takes in user_id
     user_id = str(request.session['user_id'])
-    try:
-        # get the data in file
-        posts = response.json()['normal']['data']
-        for values in posts:
-            for names in values:
-                if names['user_id'] == user_id:
-                    status = 'update'
-                    print(status)
-                    break
-                else:
-                    status = 'insert'
-                    print(status)
-    except:
-        print('no data')
+
+    status = 'insert'
+    user_info_list = response_data_json.get('data', [])
+    for user_info in user_info_list:
+        if user_info.get('user_id', None) == user_id:
+            status = 'update'
+            break
 
     return render(request, 'user_approval.html', {'status': status})
-    # return HttpResponseRedirect(reverse("generate_article:main-view"))
 
 
 @csrf_exempt
@@ -2530,6 +2491,44 @@ def filtered_list_article(request, filter):
 @csrf_exempt
 @xframe_options_exempt
 def article_detail(request):
+    if 'session_id' and 'username' in request.session:
+
+        profile = request.session['operations_right']
+
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
+        else:
+            id = request.POST.get("post_id")
+            title = request.POST.get("title")
+            paragraph = request.POST.get("paragraph")
+            paragraph = paragraph.split('\r\n')
+            source = request.POST.get("source")
+            if "\r\n" in source:
+                source = source.split('\r\n')
+
+            post = {
+                "id": id,
+                "title": title,
+                "paragraph": paragraph,
+                "source": source
+            }
+        a = random.randint(1, 9)
+        category = ['ocean', 'sky', 'food', 'football', 'house',
+                    'animals', 'cars', 'History', 'Tech', 'People']
+        query = title
+        output = []
+
+        print(profile)
+
+        return render(request, 'article/article_detail.html', {'post': post, 'profile': profile})
+    else:
+        return render(request, 'error.html')
+
+
+
+@csrf_exempt
+@xframe_options_exempt
+def post_detail(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com"
         payload = json.dumps({
