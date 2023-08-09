@@ -32,6 +32,7 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
+
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
@@ -2452,8 +2453,10 @@ def list_article_view(request):
         context = {
             'posts': user_articles,
             'page_post': page_post,
-        
-        return render(request, 'article_list.html', context)
+
+        }
+
+        return render(request, 'team.html', context)
     else:
         return render(request, 'error.html')
 
