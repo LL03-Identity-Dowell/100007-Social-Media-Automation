@@ -32,7 +32,6 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
-
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
@@ -160,7 +159,15 @@ def get_dowellclock():
     return data['t1']
 
 
-def create_event():
+def create_event(request=None):
+    """
+    This method accepts a django request object as an argument. The argument is optional
+    """
+    if request:
+        user_info = request.session.get('userinfo')
+        ip_address = user_info.get('userIP', '192.168.0.4')
+    else:
+        ip_address = '192.168.0.4'
 
     url = "https://uxlivinglab.pythonanywhere.com/create_event"
     dd = datetime.now()
@@ -355,6 +362,7 @@ def register(request):
 @csrf_exempt
 @xframe_options_exempt
 def user_approval(request):
+
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
@@ -376,16 +384,18 @@ def user_approval(request):
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
 
+    print(response)
     response_data_json = json.loads(response.json())
-    # takes in user_id
+    print("Here we have data from this page", response_data_json)
+    # get user_id of user
     user_id = str(request.session['user_id'])
+    if len(response_data_json['data']) == 0:
+        status = 'insert'
+    else:
+        # get the data in file
+        status = 'update'
+    
 
-    status = 'insert'
-    user_info_list = response_data_json.get('data', [])
-    for user_info in user_info_list:
-        if user_info.get('user_id', None) == user_id:
-            status = 'update'
-            break
 
     return render(request, 'user_approval.html', {'status': status})
 
@@ -1296,7 +1306,6 @@ def unscheduled(request):
         return render(request, 'unscheduled.html',{'profile': profile})
     else:
         return render(request, 'error.html')
-
 @csrf_exempt
 @xframe_options_exempt
 def unscheduled_json(request):
@@ -1363,7 +1372,6 @@ def unscheduled_json(request):
         # return render(request, 'unscheduled.html', {'post': post, 'profile': profile, 'page_post': page_post})
     else:
         return render(request, 'error.html')
-
 
 @csrf_exempt
 @xframe_options_exempt
@@ -2169,6 +2177,7 @@ def verify_article(request):
                                                        }, "9992828281")
                 print("Article saved successfully")
                 message = message + "Article saved successfully"
+               
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -2185,6 +2194,7 @@ def list_article(request):
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
+
             "collection": "step3_data",
             "document": "step3_data",
             "team_member_ID": "34567897799",
@@ -2242,6 +2252,7 @@ def list_article(request):
             'posts': posts,
             'page_post': page_post,
         }
+
 
         return render(request, 'post_list.html', context)
     else:
@@ -2441,8 +2452,7 @@ def list_article_view(request):
         context = {
             'posts': user_articles,
             'page_post': page_post,
-        }
-
+        
         return render(request, 'article_list.html', context)
     else:
         return render(request, 'error.html')
@@ -2778,6 +2788,10 @@ def can_post_on_social_media(request):
 
 def update_most_recent(pk):
     url = "http://uxlivinglab.pythonanywhere.com"
+    time = localtime()
+    test_date = str(localdate())
+    date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+    date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
 
         # adding eddited field in article
     payload = json.dumps(
@@ -2795,8 +2809,11 @@ def update_most_recent(pk):
             },
             "update_field":
             {
-                "status": 'scheduled'
+                "status": 'scheduled',
+                "date": date,
+                "time": str(time),
             },
+            
             "platform": "bangalore"
         })
     headers = {'Content-Type': 'application/json'}
@@ -2807,6 +2824,10 @@ def update_most_recent(pk):
 
 def update_schedule(pk):
     url = "http://uxlivinglab.pythonanywhere.com"
+    time = localtime()
+    test_date = str(localdate())
+    date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+    date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
 
         # adding eddited field in article
     payload = json.dumps(
@@ -2824,7 +2845,9 @@ def update_schedule(pk):
             },
             "update_field":
             {
-                "status": 'scheduled'
+                "status": 'scheduled',
+                "date": date,
+                "time": str(time),
             },
             "platform": "bangalore"
         })
@@ -2839,11 +2862,13 @@ def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
         data=json.loads(request.body.decode("utf-8"))
+        print(data)
         title=data['title']
         paragraph = data['paragraph']
         image=data['image']
         post_id =data['PK']
-        posts = title + ":" + paragraph
+        postes = title + ":" + paragraph
+        twitter_post=postes[:280]
         try:
             platforms=data['social']
             twitter = data['twitter']
@@ -2872,64 +2897,68 @@ def Media_Post(request):
         # profile = request.session['operations_right']
 
         post = json.loads(response.json())
-        for posts in post['data']:
-            if posts['user_id']==request.session['user_id'] :
-                key=posts['profileKey']
-                "posting to Various social media"
-                payload = {'post': posts,
-                            'platforms': platforms,
-                            'profileKey': key,
-                            'mediaUrls': [image],
-                            }
-                headers = {'Content-Type': 'application/json',
-                            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+        if len(post['data']) == 0:
+            messages.error(request, 'create a user account ')      
+            return JsonResponse('social_media_channels',safe=False)
+        else:
+            for posts in post['data']:
+                if request.session['user_id'] in posts['user_id']:
+                    key=posts['profileKey']
+                    "posting to Various social media"
+                    payload = {'post': postes,
+                                'platforms': platforms,
+                                'profileKey': key,
+                                'mediaUrls': [image],
+                                }
+                    headers = {'Content-Type': 'application/json',
+                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
-                r1 = requests.post('https://app.ayrshare.com/api/post',
-                                    json=payload,
-                                    headers=headers)
-                print(r1.json())
-                if r1.json()['status'] == 'error':
-                    messages.error(request, 'error in scheduling')
-                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                    messages.success(
-                        request, 'post have been sucessfully posted')
-                    return JsonResponse('most_recent',safe=False)
-                    
-                else:
-                    for warnings in r1.json()['warnings']:
-                        messages.error(request, warnings['message'])
+                    r1 = requests.post('https://app.ayrshare.com/api/post',
+                                        json=payload,
+                                        headers=headers)
+                    print(r1.json())
+                    if r1.json()['status'] == 'error':
+                        messages.error(request, 'error in posting')
+                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        messages.success(
+                            request, 'post have been sucessfully posted')
+                        return JsonResponse('most_recent',safe=False)
+                        
+                    else:
+                        for warnings in r1.json()['warnings']:
+                            messages.error(request, warnings['message'])
 
-                # for twitter
-                payload = {'post': posts[:280],
-                            'platforms': [twitter],
-                            'profileKey': key,
-                            'mediaUrls': [image],
-                            }
-                headers = {'Content-Type': 'application/json',
-                            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+                    # for twitter
+                    payload = {'post': twitter_post ,
+                                'platforms': [twitter],
+                                'profileKey': key,
+                                'mediaUrls': [image],
+                                }
+                    headers = {'Content-Type': 'application/json',
+                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
-                r1 = requests.post('https://app.ayrshare.com/api/post',
-                                    json=payload,
-                                    headers=headers)
-                print(r1.json())
-                if r1.json()['status'] == 'error':
-                    messages.error(request, 'error in scheduling Twitter')
-                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                    messages.success(
-                        request, 'post have been sucessfully scheduled')
-                    update_most_recent(post_id )
-                    return JsonResponse('most_recent',safe=False)
-                    
-                else:
-                    for warnings in r1.json()['warnings']:
-                        messages.error(request, warnings['message'])
-            else:
-                print('done')
+                    r1 = requests.post('https://app.ayrshare.com/api/post',
+                                        json=payload,
+                                        headers=headers)
+                    print(r1.json())
+                    if r1.json()['status'] == 'error':
+                        messages.error(request, 'error in scheduling Twitter')
+                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        messages.success(
+                            request, 'post have been sucessfully posted')
+                        update_most_recent(post_id )
+                        return JsonResponse('most_recent',safe=False)
+                        
+                    else:
+                        for warnings in r1.json()['warnings']:
+                            messages.error(request, warnings['message'])
+                
+                messages.error(request, 'check your connected accounts ')
                 return JsonResponse('social_media_channels',safe=False)
-                    
-            
-                    
-        return HttpResponseRedirect(reverse("generate_article:scheduled"))
+
+    else:
+        return JsonResponse('social_media_channels',safe=False)
+
 
     
 
@@ -2946,6 +2975,7 @@ def Media_schedule(request):
         post_id =data['PK']
         schedule=data['schedule']
         posts = title + ":" + paragraph
+        twitter_post=posts[:280]
         try:
             platforms=data['social']
             twitter = data['twitter']
@@ -2982,62 +3012,67 @@ def Media_schedule(request):
         # profile = request.session['operations_right']
 
         post = json.loads(response.json())
-        for posts in post['data']:
-            if posts['user_id']==request.session['user_id'] :
-                key=posts['profileKey']
-                "posting to Various social media"
-                print(key)
-                print(platforms,twitter,formart)
-                payload = {'post': posts,
-                            'platforms': platforms,
-                            'profileKey': key,
-                            'mediaUrls': [image],
-                            "scheduleDate": str(formart)}
-                headers = {'Content-Type': 'application/json',
-                            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+        if len(post['data']) == 0:
+            messages.error(request, 'create a user account ')      
+            return JsonResponse('social_media_channels',safe=False)
+        else:
+            for posts in post['data']:
+                if posts['user_id']==request.session['user_id'] :
+                    key=posts['profileKey']
+                    "posting to Various social media"
+                    print(key)
+                    print(platforms,twitter,formart)
+                    payload = {'post': posts,
+                                'platforms': platforms,
+                                'profileKey': key,
+                                'mediaUrls': [image],
+                                "scheduleDate": str(formart)}
+                    headers = {'Content-Type': 'application/json',
+                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
-                r1 = requests.post('https://app.ayrshare.com/api/post',
-                                    json=payload,
-                                    headers=headers)
-                print(r1.json())
-                if r1.json()['status'] == 'error':
-                    messages.error(request, 'error in scheduling')
-                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                    messages.success(
-                        request, 'post have been sucessfully scheduled')
-                    update_schedule(post_id)
-                    return JsonResponse('sheduled',safe=False)
-                else:
-                    for warnings in r1.json()['warnings']:
-                        messages.error(request, warnings['message'])
+                    r1 = requests.post('https://app.ayrshare.com/api/post',
+                                        json=payload,
+                                        headers=headers)
+                    print(r1.json())
+                    if r1.json()['status'] == 'error':
+                        messages.error(request, 'error in scheduling')
+                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        messages.success(
+                            request, 'post have been sucessfully scheduled')
+                        update_schedule(post_id)
+                        return JsonResponse('sheduled',safe=False)
+                    else:
+                        for warnings in r1.json()['warnings']:
+                            messages.error(request, warnings['message'])
 
-                # for twitter
-                payload = {'post': posts[:280],
-                            'platforms': [twitter],
-                            'profileKey': key,
-                            'mediaUrls': [image],
-                            "scheduleDate": str(formart)}
-                headers = {'Content-Type': 'application/json',
-                            'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+                    # for twitter
+                    payload = {'post': twitter_post,
+                                'platforms': [twitter],
+                                'profileKey': key,
+                                'mediaUrls': [image],
+                                "scheduleDate": str(formart)}
+                    headers = {'Content-Type': 'application/json',
+                                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
-                r1 = requests.post('https://app.ayrshare.com/api/post',
-                                    json=payload,
-                                    headers=headers)
-                print(r1.json())
-                if r1.json()['status'] == 'error':
-                    messages.error(request, 'error in scheduling Twitter')
-                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                    messages.success(
-                        request, 'post have been sucessfully scheduled')
-                    update_schedule(post_id)
-                    return JsonResponse('sheduled',safe=False)
-                else:
-                    for warnings in r1.json()['warnings']:
-                        messages.error(request, warnings['message'])
-            else:
-                print('done')
-                return JsonResponse('social_media_channels',safe=False)
-    return HttpResponseRedirect(reverse("generate_article:scheduled"))
+                    r1 = requests.post('https://app.ayrshare.com/api/post',
+                                        json=payload,
+                                        headers=headers)
+                    print(r1.json())
+                    if r1.json()['status'] == 'error':
+                        messages.error(request, 'error in scheduling Twitter')
+                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        messages.success(
+                            request, 'post have been sucessfully scheduled')
+                        update_schedule(post_id)
+                        return JsonResponse('sheduled',safe=False)
+                    else:
+                        for warnings in r1.json()['warnings']:
+                            messages.error(request, warnings['message'])
+                
+            messages.error(request, 'create a user account ')
+            return JsonResponse('social_media_channels',safe=False)
+            
+    return JsonResponse('social_media_channels',safe=False)
     
 
 # @csrf_exempt
