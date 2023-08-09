@@ -2455,7 +2455,7 @@ def list_article_view(request):
             'page_post': page_post,
 
         }
-
+       
         return render(request, 'team.html', context)
     else:
         return render(request, 'error.html')
