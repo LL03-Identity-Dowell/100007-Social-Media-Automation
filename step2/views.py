@@ -11,6 +11,7 @@ from datetime import datetime, date
 from io import BytesIO
 
 import openai
+import pytz
 import requests
 import wikipediaapi
 from PIL import Image
@@ -31,7 +32,6 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
-import pytz
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
@@ -362,7 +362,7 @@ def register(request):
 @csrf_exempt
 @xframe_options_exempt
 def user_approval(request):
-    session_id = request.GET.get("session_id", None)
+
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
@@ -396,8 +396,8 @@ def user_approval(request):
         status = 'update'
     
 
+
     return render(request, 'user_approval.html', {'status': status})
-    # return HttpResponseRedirect(reverse("generate_article:main-view"))
 
 
 @csrf_exempt
@@ -1856,7 +1856,7 @@ def generate_article(request):
                             'client_admin_id': client_admin_id,
                             "title": RESEARCH_QUERY,
                             "target_industry": target_industry,
-                            "paragraph": '',
+                            "paragraph": article_str,
                             "source": sources,
                             "subject": subject,
                             "citation_and_url": sources,
@@ -1887,9 +1887,7 @@ def generate_article(request):
             print(f"Task completed at: {end_datetime}")
             print(f"Total time taken: {time_taken}")
 
-            messages.success(
-                request, 'Article generation completed. Click on step 3 to view the articles')
-            return HttpResponseRedirect(reverse("generate_article:main-view"))
+            return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
         return render(request, 'error.html')
@@ -2011,9 +2009,8 @@ def generate_article_wiki(request):
 
                     else:
                         # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article_subject[0], 'source': page.fullurl,  'title': title})
-                        messages.success(
-                            request, 'Article has been generated successfully. Click step 3 to post the article')
-                        return HttpResponseRedirect(reverse("generate_article:main-view"))
+
+                        return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
             else:
                 print("For Title: "+title+" Page exists.")
                 article = page.text
@@ -2049,9 +2046,8 @@ def generate_article_wiki(request):
                                                                # 'dowelltime': dowellclock
                                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
-                messages.success(
-                    request, 'Article has been generated successfully. Click step 3 to post the article')
-                return HttpResponseRedirect(reverse("generate_article:main-view"))
+
+                return HttpResponseRedirect(reverse("generate_article:article-list"))
     else:
         return render(request, 'error.html')
 
@@ -2181,7 +2177,8 @@ def verify_article(request):
                                                        }, "9992828281")
                 print("Article saved successfully")
                 message = message + "Article saved successfully"
-                return HttpResponseRedirect(reverse("generate_article:main-view"))
+               
+                return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
         return render(request, 'error.html')
@@ -2197,9 +2194,10 @@ def list_article(request):
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
-            "collection": "step2_data",
-            "document": "step2_data",
-            "team_member_ID": "9992828281",
+
+            "collection": "step3_data",
+            "document": "step3_data",
+            "team_member_ID": "34567897799",
             "function_ID": "ABCDE",
             "command": "fetch",
             "field": {"user_id": request.session['user_id']},
@@ -2255,10 +2253,8 @@ def list_article(request):
             'page_post': page_post,
         }
 
-        messages.info(
-            request, 'Click on view article to finalize the article before posting')
 
-        return render(request, 'post_filter_list.html', context)
+        return render(request, 'post_list.html', context)
     else:
         return render(request, 'error.html')
 
@@ -2456,12 +2452,8 @@ def list_article_view(request):
         context = {
             'posts': user_articles,
             'page_post': page_post,
-        }
-
-        messages.info(
-            request, 'Click on view article to finalize the article before posting')
-
-        return render(request, 'post_list.html', context)
+        
+        return render(request, 'article_list.html', context)
     else:
         return render(request, 'error.html')
 
@@ -2510,51 +2502,67 @@ def filtered_list_article(request, filter):
 @xframe_options_exempt
 def article_detail(request):
     if 'session_id' and 'username' in request.session:
-        url = 'http://100032.pythonanywhere.com/api/targeted_population/'
 
-        database_details = {
-            'database_name': 'mongodb',
-            'collection': 'qual_cat',
-            'database': 'social-media-auto',
-            'fields': ['category']
-        }
-
-        # number of variables for sampling rule
-        number_of_variables = -1
-
-        time_input = {
-            'column_name': 'Date',
-            'split': 'week',
-            'period': 'life_time',
-            'start_point': '2021/01/08',
-            'end_point': '2022/06/25',
-        }
-
-        stage_input_list = [
-        ]
-
-        # distribution input
-        distribution_input = {
-            'normal': 1,
-            'poisson': 0,
-            'binomial': 0,
-            'bernoulli': 0
-
-        }
-
-        request_data = {
-            'database_details': database_details,
-            'distribution_input': distribution_input,
-            'number_of_variable': number_of_variables,
-            'stages': stage_input_list,
-            'time_input': time_input,
-        }
-        headers = {'content-type': 'application/json'}
-
-        response = requests.post(url, json=request_data, headers=headers)
-        print(response)
         profile = request.session['operations_right']
-        categ = response.json()['normal']['data']
+
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
+        else:
+            id = request.POST.get("post_id")
+            title = request.POST.get("title")
+            paragraph = request.POST.get("paragraph")
+            paragraph = paragraph.split('\r\n')
+            source = request.POST.get("source")
+            if "\r\n" in source:
+                source = source.split('\r\n')
+
+            post = {
+                "id": id,
+                "title": title,
+                "paragraph": paragraph,
+                "source": source
+            }
+        a = random.randint(1, 9)
+        category = ['ocean', 'sky', 'food', 'football', 'house',
+                    'animals', 'cars', 'History', 'Tech', 'People']
+        query = title
+        output = []
+
+        print(profile)
+
+        return render(request, 'article/article_detail.html', {'post': post, 'profile': profile})
+    else:
+        return render(request, 'error.html')
+
+
+
+@csrf_exempt
+@xframe_options_exempt
+def post_detail(request):
+    if 'session_id' and 'username' in request.session:
+        url = "http://uxlivinglab.pythonanywhere.com"
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "qual_cat",
+            "document": "qual_cat",
+            "team_member_ID": "1145",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {'target_industry': "Food & Beverages"},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        profile = request.session['operations_right']
+
+        categ = json.loads(response.json())['data']
         print(categ)
         categories = []
         for row in categ:
