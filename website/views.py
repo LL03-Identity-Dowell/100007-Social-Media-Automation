@@ -1,25 +1,21 @@
-import requests
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from datetime import datetime
 
+import requests
+from django.contrib import messages
+from django.db import transaction
+from django.shortcuts import render, redirect
+from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.decorators import authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
+from step2.views import create_event
 from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank
-from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.decorators.csrf import csrf_exempt
 from website.models import User
-from step2.views import create_event
-from django.db import transaction
-
-from website.permissions import HasBeenAuthenticated, can_view_page
+from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer
 
 
@@ -179,8 +175,8 @@ def index(request):
                 sentences_dictionary = {
                     'sentences': sentence_results,
                 }
-                messages.success(
-                    request, 'Topics generated and ranked successfully. Click on Step 2 to generate articles.')
+                # messages.success(
+                #     request, 'Topics generated and ranked successfully. Click on Step 2 to generate articles.')
                 return render(request, 'answer_display.html', context=sentences_dictionary)
             else:
                 messages.error(request, 'Please fix the errors below!')
