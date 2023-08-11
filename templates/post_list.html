@@ -113,7 +113,7 @@
 
             {% for post in page_post %}
                 <tr style="line-height: 56px;">
-                    <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
+                    <form class="" action="{% url 'generate_article:post-detail' %}" method="post">
                         {% csrf_token %}
 
                         <input type="hidden" name="title" value="{{ post.title }}">
@@ -141,7 +141,7 @@
             {% endfor %}
             </tbody>
         </table>
-     <!--<a href="https://100007.pythonanywhere.com/article_detail/" class="btn btn-cancel">Go back</a>-->
+     <!--<a href="https://www.socialmediaautomation.uxlivinglab.online/article_detail/" class="btn btn-cancel">Go back</a>-->
         <center>
 
             <div class="pagination">

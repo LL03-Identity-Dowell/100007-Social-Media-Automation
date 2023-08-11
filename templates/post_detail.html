@@ -514,73 +514,23 @@
 
       </div>
     </div>
- 
-    {% if profile == 'Admin' or 'Add/Edit'%}
-    <div class="text-center">
-      <a href=" https://100007.pythonanywhere.com/article_list/"class="me-5  btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white;">Previous</a>
-      {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
-      <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
-    </div>
-      {% else %}
-    <div class="text-center">
-      <a href=" https://100007.pythonanywhere.com/article_list/"class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white;">Previous</a>
-      {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
-      <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;"
-        onclick="showAdminMessage()">Next</button>
-    </div>
-  </form>
-    {% endif %}
-    
-  <div class="container">
-    <!-- modal -->
-    <div class="modal fade" id="largeModal" tabindex="-1" aria-labelledby="basicModal" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content ">
-          <div class="modal-header text-center">
-            <h5 class="modal-title w-100">Select Image</h5>
-            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <!-- carousel -->
-            <div id="carouselExampleIndicators" class="carousel slide" data-bs-interval="false">
-              <ol class="carousel-indicators">
-                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"></li>
-                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"></li>
-                <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"></li>
-              </ol>
-              <div class="carousel-inner">
-                <div class="carousel-item active">
-                  <img src="https://images.unsplash.com/photo-1485470733090-0aae1788d5af?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1391&q=80" class="d-block w-100" alt="First slide">
-                </div>
-                <div class="carousel-item">
-                  <img src="https://images.unsplash.com/photo-1491555103944-7c647fd857e6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80" class="d-block w-100" alt="Second slide">
-                </div>
-                <div class="carousel-item">
-                  <img src="https://c4.wallpaperflare.com/wallpaper/255/697/269/nature-1920x1080-cool-forest-wallpaper-preview.jpg" class="d-block w-100" alt="Third slide">
-                </div>
-              </div>
-              <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-              </a>
-              <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-              </a>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <p style="font-size: small;">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
-            <button type="button" class="btn update-post-btn btn-primary">Update Post</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
+{% if profile == 'Admin' or 'Add/Edit'%}
+  <div class="text-center">
+   <a href=" https://www.socialmediaautomation.uxlivinglab.online/article_list/"class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white;">Previous</a>
+    <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button>
+    <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
+  </div>
+{% else %}
+  <div class="text-center">
+     <a href=" https://www.socialmediaautomation.uxlivinglab.online/article_list/"class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white;">Previous</a>
+    <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button>
+    <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;"
+      onclick="showAdminMessage()">Next</button>
+  </div>
+    </form>
+     {% endif %}
 
-</div>
 
 
 
