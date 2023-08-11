@@ -11,7 +11,7 @@ urlpatterns = [
     path('schedule/', views.unscheduled, name='unscheduled-posts'),
     path('jsonpost/', views.unscheduled_json, name='unscheduled-jsonpost'),
     path('scheduler/', views.post_scheduler, name='post-scheduler'),
-    path('article_list/', views.list_article, name='article-list'),
+    path('article_list/', views.post_list, name='article-list'),
     path('article_list/articles/', views.list_article_view, name='article-list-articles'),
     path('article_list/<str:filter>/', views.filtered_list_article, name='filtered-article-list'),
     path('post-detail/', views.post_detail, name='post-detail'),
@@ -62,6 +62,6 @@ urlpatterns = [
     path('save_post/', views.Save_Post, name='save-post'),
     path('media_post/', views.Media_Post, name='media-post'),
     path('media_schedule/', views.Media_schedule, name='media-schedule'),
-    # path('list/article',views.list_article, name='list-article'),
+    # path('list/article',views.post_list, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]

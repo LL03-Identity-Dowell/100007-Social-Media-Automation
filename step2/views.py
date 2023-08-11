@@ -2190,7 +2190,7 @@ def verify_article(request):
 
 
 @xframe_options_exempt
-def list_article(request):
+def post_list(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
@@ -2331,7 +2331,7 @@ def list_article_view(request):
         return render(request, 'error.html')
 
 # @xframe_options_exempt
-# def list_article(request):
+# def post_list(request):
 #     if 'session_id' and 'username' in request.session:
 #         url = "http://uxlivinglab.pythonanywhere.com/"
 #         headers = {'content-type': 'application/json'}
