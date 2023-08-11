@@ -208,7 +208,7 @@
           // Add a textarea element to edit post sources
           let postSources = Array(...document.querySelectorAll('.post-source'))
             .map(element => element.innerHTML)
-            .join('\n\n');
+            .join('\n');
           let sourcesInput = document.createElement('textarea');
           sourcesInput.setAttribute('class', 'form-control');
           sourcesInput.setAttribute('id', 'sources-input');
@@ -232,7 +232,7 @@
           document.querySelector('#title-input').replaceWith(postTitle);
 
           // Save each new paragraph to the DOM
-          let postParagraphs = document.querySelector('#paragraphs-input').value.split('\n\n');
+          let postParagraphs = document.querySelector('#paragraphs-input').value.split('\n');
           postParagraphs = postParagraphs.map(paragraph => {
             let p = document.createElement('p');
             p.innerHTML = paragraph;
@@ -531,7 +531,7 @@
     </form>
      {% endif %}
 
-
+    
 
 
 
