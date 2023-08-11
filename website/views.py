@@ -400,7 +400,7 @@ def selected_result(request):
                 request.session.pop('industry_form_data', None)
                 request.session.pop('sentences_form_data', None)
 
-                # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
+                # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
                 return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
         else:
             return render(request, 'error.html')
