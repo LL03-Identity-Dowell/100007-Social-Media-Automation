@@ -1,0 +1,1 @@
+CREDITS_GET_USER_API_KEY_URL = 'api/v3/user/'
