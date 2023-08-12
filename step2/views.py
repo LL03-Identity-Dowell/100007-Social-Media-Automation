@@ -34,6 +34,7 @@ from pexels_api import API
 from pymongo import MongoClient
 
 from create_article import settings
+from credits.credit_handler import CreditHandler
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 
@@ -315,6 +316,9 @@ def main(request):
 
         if not has_access(request.session['portfolio_info']):
             return render(request, 'portofolio-logib.html')
+        credit_handler = CreditHandler()
+        if not credit_handler.login(request):
+            messages.error(request, 'You do not have an active service key!')
         return render(request, 'main.html')
     else:
         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")

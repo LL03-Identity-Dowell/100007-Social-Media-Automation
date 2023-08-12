@@ -3,8 +3,8 @@ import logging
 import requests
 
 from config_master import CREDITS_SYSTEM_BASE_URL, GET_METHOD
-from constants import CREDITS_GET_USER_API_KEY_URL
-from custom_exceptions import CouldNotGetUserAPIKeyError
+from credits.constants import CREDITS_GET_USER_API_KEY_URL
+from credits.exceptions import CouldNotGetUserAPIKeyError
 
 
 class Credit:
