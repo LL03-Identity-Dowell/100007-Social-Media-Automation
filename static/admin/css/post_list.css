@@ -1,0 +1,67 @@
+ .btn-primary {
+        background: #0d6efd;
+    }
+
+    .btn-cancel {
+        background: #0d6efd;
+        margin-right: 20px; /* Adjust the margin value as needed */
+        margin-top:4px;
+        width: 100px;
+    }
+
+    .table td, th {
+        border: none !important;
+    }
+
+    .btn-view {
+        font-size: 0.7rem;
+        color: white;
+        background-color: var(--dark-blue);
+        border-color: var(--dark-blue);
+        width: 73px;
+    }
+
+    .btn-view:hover {
+        color: white;
+        background-color: rgb(20, 38, 85);
+    }
+
+    .btn-view:active{
+        background-color: rgb(20, 38, 85) !important;
+    }
+
+    .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+        padding:0; 
+    }
+
+    .table tr,.table td{
+        height: 10px;
+    }
+
+    .table>thead>tr>th {
+        margin-bottom: 40px; 
+    }
+
+    .title-p {
+        color: #1434A4;
+        font-size: 20px; 
+        font-weight: 600;
+    }
+
+    @media only screen and (max-width: 805px){
+        .table tr, .table td {
+            height: 10px;
+            font-size: 0.6rem;
+        }
+    
+        .title-p {
+            color: #1434A4;
+            font-size: 9px;
+            font-weight: 600;
+            height: -7px;
+        }
+
+        .btn-view {
+            font-size: 0.5rem;
+        }
+}
