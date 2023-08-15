@@ -4,7 +4,7 @@ import logging
 import requests
 
 from config_master import CREDITS_SYSTEM_BASE_URL, GET_METHOD, POST_METHOD
-from credits.constants import CREDITS_GET_USER_API_KEY_URL, CREDITS_PROCESS_PRODUCT_SERVICE_URL
+from credits.constants import CREDITS_GET_USER_API_KEY_URL, CREDITS_PROCESS_PRODUCT_SERVICE_URL, SERVICE_ID
 from credits.exceptions import CouldNotGetUserAPIKeyError, CouldConsumeCreditError
 
 
@@ -65,7 +65,7 @@ class Credit:
         self.api_key = api_key
         return api_key
 
-    def consume_credit(self, sub_service_ids: list[str], service_id: str, product_type, ):
+    def consume_credit(self, sub_service_ids: list[str], product_type):
         """
         This method consumes credits
         """
@@ -76,7 +76,7 @@ class Credit:
         url = CREDITS_PROCESS_PRODUCT_SERVICE_URL
         data = {
             "sub_service_ids": sub_service_ids,
-            "service_id": service_id,
+            "service_id": SERVICE_ID,
         }
         try:
             response = self.send(method=method, params=params, url=url, data=data)
