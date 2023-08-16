@@ -223,6 +223,7 @@ def has_access(portfolio_info):
 
 def home(request):
     session_id = request.GET.get("session_id", None)
+
     if session_id:
         request.session["session_id"] = session_id
         return redirect("http://127.0.0.1:8000/main")
@@ -319,6 +320,7 @@ def main(request):
         credit_handler = CreditHandler()
         if not credit_handler.login(request):
             messages.error(request, 'You do not have an active service key!')
+
         return render(request, 'main.html')
     else:
         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
@@ -1872,6 +1874,8 @@ def generate_article(request):
                         }
                         save_data('step2_data', 'step2_data',
                                   step2_data, '9992828281')
+                        credit_handler = CreditHandler()
+                        credit_handler.consume_step_2_credit(request)
 
                 except:
                     return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
@@ -2010,7 +2014,10 @@ def generate_article_wiki(request):
                                                                    'subject': subject,
                                                                    # 'dowelltime': dowellclock
                                                                    }, '34567897799')
+
                             print("\n")
+                    credit_handler = CreditHandler()
+                    credit_handler.consume_step_2_credit(request)
                     if 'article_sub_verb' in locals():
                         # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
                         # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
@@ -2055,7 +2062,8 @@ def generate_article_wiki(request):
                                                                # 'dowelltime': dowellclock
                                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
-
+                credit_handler = CreditHandler()
+                credit_handler.consume_step_2_credit(request)
                 return HttpResponseRedirect(reverse("generate_article:article-list"))
     else:
         return render(request, 'error.html')
@@ -2186,7 +2194,8 @@ def verify_article(request):
                                                        }, "9992828281")
                 print("Article saved successfully")
                 message = message + "Article saved successfully"
-
+                credit_handler = CreditHandler()
+                credit_handler.consume_step_2_credit(request)
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -2688,6 +2697,8 @@ def Save_Post(request):
             response = requests.request(
                 "POST", url, headers=headers, data=payload)
             print("data:", response.json())
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_3_credit(request)
         # make sure to alert the user that the article has been saved sucesfully. (frontend)
         return redirect('/schedule')
     else:
@@ -2931,8 +2942,10 @@ def Media_Post(request):
                     if r1.json()['status'] == 'error':
                         messages.error(request, 'error in posting')
                     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        credit_handler = CreditHandler()
+                        credit_handler.consume_step_4_credit(request)
                         messages.success(
-                            request, 'post have been sucessfully posted')
+                            request, 'post have been successfully posted')
                         return JsonResponse('most_recent', safe=False)
 
                     else:
@@ -2955,8 +2968,10 @@ def Media_Post(request):
                     if r1.json()['status'] == 'error':
                         messages.error(request, 'error in scheduling Twitter')
                     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        credit_handler = CreditHandler()
+                        credit_handler.consume_step_4_credit(request)
                         messages.success(
-                            request, 'post have been sucessfully posted')
+                            request, 'post have been successfully posted')
                         update_most_recent(post_id)
                         return JsonResponse('most_recent', safe=False)
 
