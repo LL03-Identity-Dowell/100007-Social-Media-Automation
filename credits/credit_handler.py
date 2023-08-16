@@ -37,6 +37,8 @@ class CreditHandler:
         except CouldConsumeCreditError:
             messages.error(request, 'An error occurred while processing request')
             return {'success': False, 'message': 'An error occurred'}
+        request.session['remaining_credits'] = response.get('remaining_credits')
+        messages.success(request, 'Credits was successfully consumed')
         return response
 
     def consume_step_2_credit(self, request: WSGIRequest):
