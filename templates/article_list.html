@@ -11,13 +11,30 @@
             justify-content: space-between;
         }
         .btn-primary {
-            background: #0d6efd;
+            /* background-color: rgb(20, 38, 85) ; */
             width: 130px;
             margin-bottom: 10px;
         }
 
+        .btn-view {
+        font-size: 0.7rem;
+        color: white;
+        background-color: var(--dark-blue);
+        border-color: var(--dark-blue);
+        /* width: 73px; */
+    }
+
+    .btn-view:hover {
+        color: white;
+        background-color: rgb(20, 38, 85);
+    }
+
+    .btn-view:active{
+        background-color: rgb(20, 38, 85) !important;
+    }
+
         .btn-cancel {
-            background: #0d6efd;
+            /* background: #0d6efd; */
             margin-right: 20px; /* Adjust the margin value as needed */
             margin-top: 4px;
             width: 100px;
@@ -38,7 +55,7 @@
                     style=" font-size: calc(1.375rem + 1.5vw)!important;">Article List</h1></div>
                     <div class="total-post_button">
                         <p>Total posts count: {{ posts|length }}</p>
-                         <span><a href="{% url 'generate_article:index-view' %}" type="submit" class="btn btn-primary">Create
+                         <span><a href="{% url 'generate_article:index-view' %}" type="submit" class="btn btn-primary btn-view">Create
                     Article</a></span>
                     </div>
 
@@ -68,7 +85,7 @@
                                 </div>
                             </div>
                             <div class="button-container">
-                                <button type="submit" class="btn-primary">View Article</button>
+                                <button type="submit" class="btn btn-primary btn-view">View Article</button>
                             </div>
                         </div>
 
