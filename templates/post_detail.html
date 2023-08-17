@@ -9,9 +9,11 @@
     .post-source {
       display: block;
     }
+    
     #edit-button {
         background:#6c757d;
     }
+
     #post-post {
        background: #1B3474;
     }
@@ -25,7 +27,8 @@
 	    background-color: var(--dark-blue);
 	    border-color: var(--dark-blue);
 	  }
-	  .btn-dark-blue {
+
+	  .btn-dark-blue:hover{
 	    color: white;
 	    background-color: rgb(20, 38, 85);
 	  }
@@ -79,70 +82,42 @@
       padding: 28px;
     }
 
-   {% comment %} carousel styling {% endcomment %}
 
-   .img-size{
-    /* padding: 0;
-    margin: 0; */
-    height: 450px;
-    width: 700px;
-    background-size: cover;
-    overflow: hidden;
-  }
+   /* images modal styling */
 
-  .modal-content {
-    width: 430px;
-    border:none;
-  }
+    .modal-content {
+      width: 430px;
+      border:none;
+    }
 
-  .modal-body {
-    padding: 0;
-  }
+    .modal-body {
+      padding: 0;
+    }
 
-  .modal {
-    text-align: center;
-  }
+    .modal {
+      text-align: center;
+    }
 
-  .modal:before {
-    display: inline-block;
-    vertical-align: middle;
-    content: " ";
-    height: 100%;
-  }
+    .modal:before {
+      display: inline-block;
+      vertical-align: middle;
+      content: " ";
+      height: 100%;
+    }
 
-  .modal-dialog {
-    display: inline-block;
-    text-align: left;
-    vertical-align: middle;
-  }
+    .modal-dialog {
+      display: inline-block;
+      text-align: left;
+      vertical-align: middle;
+    }
 
+    .col-md-4 > img{
+      cursor: pointer;
+    }
 
-  .carousel-control-prev-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23009be1' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
-    width: 30px;
-    height: 48px;
-  }
-
-  .carousel-control-next-icon {
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23009be1' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
-    width: 30px;
-    height: 48px;
-  }
-
-  .update-post-btn{
-    background: #1B3474;
-    font-size: 12px;
-  }
-  {% comment %} .carousel-inner>.carousel-item{
-    -webkit-transition: 0s !important;
-    -o-transition: 0s !important;
-    transition: 0s !important;
-  } {% endcomment %}
-
-  {% comment %} .carousel-item{
-    float:none; 
-    transition: 0s !important;
-  } {% endcomment %}
+    .borderToggle{
+      border: 3px solid blue;
+    }
 
   </style>
 {% endblock %}
@@ -162,9 +137,7 @@
       document.querySelector('#edit-post').onclick = editPost;
       document.querySelector('#save-post').onclick = savePost;
       document.querySelector('#delete-post').onclick = deletePost;
-      {% comment %} document.getElementById("edit-button").addEventListener("click", function() {
-        alert("Page is under construction");
-      }); {% endcomment %}
+
       var postti = document.getElementById('post-title')
       var postpar = document.getElementById('post-paragraph')
       var postsor = document.getElementById('post-sources')
@@ -197,7 +170,7 @@
           // Add a textarea element to edit post content
           let postText = Array(...document.querySelectorAll('.post-paragraph'))
             .map(element => element.innerHTML)
-            .join('\n\n');
+            .join('\n');
           let paragraphsInput = document.createElement('textarea');
           paragraphsInput.setAttribute('class', 'form-control');
           paragraphsInput.setAttribute('id', 'paragraphs-input');
@@ -269,11 +242,6 @@
       }
 
 
-      {% comment %} console.log({{categories}}); {% endcomment %}
-
-      {% comment %} var cat =  "{{categories}}";
-      console.log(cat); {% endcomment %}
-
       //image overlay show and hide
 
       let overlayDiv = document.querySelector('.img-overlay');
@@ -285,17 +253,111 @@
         overlayDiv.classList.add("show-overlay");
       });
 
-
       savePostBtn.addEventListener("click", () => {
         overlayDiv.classList.remove("show-overlay");
       })
 
+
+      //handle search
+
+      $('#search_input').on("input", async function(event){
+       
+        let imageId = 0;
+        let pexelsImageContainer = document.getElementById('pexels-image-row');
+        let searchTerm = document.getElementById('search_input').value;
+
+        pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <div class="spinner-border text-primary style="width: 3rem; height: 3rem;" role="status"> <span class="visually-hidden">Loading...</span> </div> </div>'
+
+        if(searchTerm == ""){
+          pexelsImageContainer.innerHTML = "";
+        }
+
+        
+       
+
+        let srcResult = await searchPhoto(searchTerm);
+          //console.log(srcResult);
       
-  </script>
+        pexelsImageContainer.innerHTML = "";
+        for (let i = 0; i < srcResult.length; i++){
+          imageId += 1;
+          pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${srcResult[i]} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;" onclick="handleImageSelect();"> </div>`
+        }
+      
+        //event.stopPropagation();
+      });
+
+      //handle Enter Key press
+      searchInputField = document.getElementById('search_input');
+      searchInputField.addEventListener("keypress", (event) => {
+        if(event.key === "Enter"){
+          event.preventDefault();
+        }
+      })
+
+      //handle search button click
+      searchBtn = document.getElementById('search_btn');
+      searchBtn.addEventListener("click", (event) => {
+          event.preventDefault();
+      })
+    
+      // handle image select
+      let imageSrc = "";
+      const handleImageSelect = () => {
+        const elementId = event.target.id;
+        const img = document.getElementById(elementId); 
+        imageSrc = img.src;
+        img.classList.add("borderToggle");
+
+        const images = document.querySelectorAll('.pexels-img');
+        images.forEach((image) => {
+          if (image.id !== elementId) {
+            image.classList.remove('borderToggle');
+            image.classList.add('pexels-img');
+          }
+        });
+      };
+
+      const removeSelect = () => {
+        const images = document.querySelectorAll('.pexels-img');
+        images.forEach((image) => {
+          image.classList.remove('borderToggle');
+        });
+      }
+
+      // Pexels API fetch function
+      const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
+      const PEXEL_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65';
+
+      const searchPhoto = async (term) => {
+        let srcArray = [];
+        let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=12&orientation=landscape`,{
+          headers: {
+            Authorization: PEXEL_API_KEY
+          }
+        });
+
+        let jsonData = await res.json();
+        jsonData.photos.map(image => {
+          //console.log(image.src.medium);
+          srcArray.push(image.src.medium);
+        })
+        return srcArray;
+      }
+
+      const updateImage = () => {
+        if(imageSrc == ""){
+          return
+        }
+        sideImage = document.querySelector(".post-img");
+        sideImage.src = imageSrc;
+      }  
+    </script>
 {% endblock %}
 
 
 {% block content %}
+
 <div class="m-4">
 
   <div class="dropdown-right text-end">
@@ -345,10 +407,11 @@
     <hr>
 
     <div class="d-flex flex-row align-items-center">
+
       <div class="w-50 m-3 image-container">
         <div class="img-overlay">
-          <button type="button" class="glass-button pull-right">
-            <a style="color: inherit; text-decoration: none" href="#" data-bs-toggle="modal" data-bs-target="#largeModal">Edit Photo</a>
+          <button type="button" class="open_search glass-button pull-right" data-bs-toggle="modal" data-bs-target="#largeModal">
+            <a style="color: inherit; text-decoration: none">Edit Photo</a>
           </button>
         </div>
         <img src ={{images}} alt="Random meme..." class="img-fluid post-img"><input type= "hidden" name="images" value="{{images}}">
@@ -511,29 +574,67 @@
         </select>
 
         <br>
+      </div>
+
+    </div>
+
+    {% if profile == 'Admin' or 'Add/Edit'%}
+    <div class="text-center">
+    <a href=" https://www.socialmediaautomation.uxlivinglab.online/article_list/"class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;">Previous</a>
+      {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
+      <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
+    </div>
+    {% else %}
+    <div class="text-center">
+      <a href=" https://www.socialmediaautomation.uxlivinglab.online/article_list/"class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;;">Previous</a>
+      {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
+      <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;"
+        onclick="showAdminMessage()">Next</button>
+    </div>
+
+  </form>
+    {% endif %}
+
+</div>
+
+  <!-- Modal -->
+<div class="modal fade" id="largeModal" tabindex="-1" aria-labelledby="basicModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      
+      <div class="modal-header" onclick="removeSelect();">
+      
+        <div class="input-group d-flex align-items-center justify-content-center ">
+          <div class="form-outline">
+            <input type="text" id="search_input" class="form-control" placeholder="Search images" />
+          </div>
+          <button id="search_btn" class="btn btn-primary" style="background-color: #36519e;">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="removeSelect();"></button>
 
       </div>
+
+      <div class="modal-body">
+
+          <div class="container text-center my-3">
+              <div class="row mx-auto my-auto" id="pexels-image-row">   
+
+              </div>
+          </div>
+
+      </div>
+
+      <div class="modal-footer" onclick="removeSelect();">
+
+                <button type="button" class="btn btn-primary btn-dark-blue" data-bs-dismiss="modal" onclick="updateImage();" style="font-size: small;">Update Post</button>
+
+      </div>
+
     </div>
   </div>
-{% if profile == 'Admin' or 'Add/Edit'%}
-  <div class="text-center">
-   <a href=" https://www.socialmediaautomation.uxlivinglab.online/article_list/"class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white;">Previous</a>
-    <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button>
-    <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
-  </div>
-{% else %}
-  <div class="text-center">
-     <a href=" https://www.socialmediaautomation.uxlivinglab.online/article_list/"class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white;">Previous</a>
-    <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button>
-    <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;"
-      onclick="showAdminMessage()">Next</button>
-  </div>
-    </form>
-     {% endif %}
-
-    
-
-
+</div>
 
 
 {% endblock %}
