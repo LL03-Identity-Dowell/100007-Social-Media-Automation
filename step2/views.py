@@ -1874,8 +1874,7 @@ def generate_article(request):
                         }
                         save_data('step2_data', 'step2_data',
                                   step2_data, '9992828281')
-                        credit_handler = CreditHandler()
-                        credit_handler.consume_step_2_credit(request)
+
 
                 except:
                     return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
@@ -1899,7 +1898,8 @@ def generate_article(request):
             print(f"Task started at: {start_datetime}")
             print(f"Task completed at: {end_datetime}")
             print(f"Total time taken: {time_taken}")
-
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_2_credit(request)
             return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
