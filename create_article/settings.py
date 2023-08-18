@@ -165,7 +165,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # todo replace with your key
 LINGUA_KEY = '1ab6a8ab35msh454e13d4febb540p1f0fe3jsn5303c2162430'
 OPENAI_KEY = config('OPENAI_KEY', '')
-ARYSHARE_KEY = '8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'
+ARYSHARE_KEY = config('ARYSHARE_KEY', '')
 
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
