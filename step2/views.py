@@ -552,14 +552,24 @@ def check_if_user_has_social_media_profile_in_aryshare(username):
     return False
 
 
+def check_connected_accounts(username):
+    headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+    r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
+    socials=['hello']
+    for name in r.json()['profiles']:
+        if name['title'] == username:
+            socials=name['activeSocialAccounts']
+    return(socials)
+
 @csrf_exempt
 @xframe_options_exempt
 def social_media_channels(request):
     username = request.session['username']
     user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
         username)
+    linked_accounts=check_connected_accounts(username)
     context_data = {
-        'user_has_social_media_profile': user_has_social_media_profile}
+        'user_has_social_media_profile': user_has_social_media_profile,'linked_accounts':linked_accounts}
     return render(request, 'social_media_channels.html', context_data)
 
 
@@ -570,7 +580,7 @@ def aryshare_profile(request):
     user = request.session['username']
     payload = {'title': user}
     headers = {'Content-Type': 'application/json',
-               'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
+               'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
     r = requests.post('https://app.ayrshare.com/api/profiles/profile',
                       json=payload,
@@ -664,7 +674,7 @@ def link_media_channels(request):
                'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
                }
     headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+               'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
     r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
                       json=payload,
@@ -1316,49 +1326,49 @@ def topics(request):
     return render(request, 'topics.html')
 
 
-def update_aryshare(username, userid):
-    headers = {'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+def update_aryshare(username,userid):
+    headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
     r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
-    socials = ['hello']
+    socials=['no account linked']
     for name in r.json()['profiles']:
-        if name['title'] == username:
-            socials = name['activeSocialAccounts']
-            url = "http://uxlivinglab.pythonanywhere.com"
+        try:
+            if name['title'] == username:
+                socials=name['activeSocialAccounts']
+                url = "http://uxlivinglab.pythonanywhere.com"
+            
+                payload = json.dumps({
+                    "cluster": "socialmedia",
+                    "database": "socialmedia",
+                    "collection": "ayrshare_info",
+                    "document": "ayrshare_info",
+                    "team_member_ID": "100007001",
+                    "function_ID": "ABCDE",
+                    "command": "update",
+                    "field": {
 
-            payload = json.dumps({
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "ayrshare_info",
-                "document": "ayrshare_info",
-                "team_member_ID": "100007001",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {
-
-                    'user_id': userid
-                },
-                "update_field": {
-                    "aryshare_details": {
-                        'social_platforms': name['activeSocialAccounts']
-
-
-                    }
+                        'user_id':userid
+                    },
+                    "update_field": {
+                        "aryshare_details": {
+                        'social_platforms':name['activeSocialAccounts']
 
 
-                },
-                "platform": "bangalore"
-            })
-            headers = {
-                'Content-Type': 'application/json'
-            }
+                        }
 
-            response = requests.request(
-                "POST", url, headers=headers, data=payload)
-            print(name['activeSocialAccounts'])
-        else:
+
+                    },
+                    "platform": "bangalore"
+                })
+                headers = {
+                    'Content-Type': 'application/json'
+                }
+
+                response = requests.request("POST", url, headers=headers, data=payload)
+                
+            
+        except:
             pass
-    return (response.text)
-
+    return(socials)
 
 @csrf_exempt
 @xframe_options_exempt
@@ -1417,6 +1427,7 @@ def unscheduled_json(request):
                             'image': row['image'], 'source': row['source'], 'PK': row['_id']}
                     post.append(data)
                     respond = json.dumps(post)
+                    post=list(reversed(post))
 
         except:
             pass
@@ -1518,6 +1529,7 @@ def scheduled_json(request):
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
                                     'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date()}
                             post.append(data)
+                            post=list(reversed(post))
 
                     except:
                         pass
@@ -2845,6 +2857,9 @@ def most_recent_json(request):
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
                                 row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source']}
                             post.append(data)
+                            post=list(reversed(post))
+                    
+                    
                     except:
                         pass
         except:
@@ -3011,7 +3026,7 @@ def Media_Post(request):
                                'mediaUrls': [image],
                                }
                     headers = {'Content-Type': 'application/json',
-                               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+                                'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                     r1 = requests.post('https://app.ayrshare.com/api/post',
                                        json=payload,
@@ -3036,7 +3051,7 @@ def Media_Post(request):
                                    'mediaUrls': [image],
                                    }
                         headers = {'Content-Type': 'application/json',
-                                   'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+                                    'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                         r1 = requests.post('https://app.ayrshare.com/api/post',
                                            json=payload,
@@ -3055,8 +3070,8 @@ def Media_Post(request):
                                 messages.error(request, warnings['message'])
                     else:
                         pass
-                    print(update)
-                    return JsonResponse('most_recent', safe=False)
+                    
+                    return JsonResponse('most_recent',safe=False)
 
     else:
         return JsonResponse('social_media_channels', safe=False)
@@ -3136,7 +3151,7 @@ def Media_schedule(request):
                            'scheduleDate': str(formart)
                            }
                 headers = {'Content-Type': 'application/json',
-                           'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+                            'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                 r1 = requests.post('https://app.ayrshare.com/api/post',
                                    json=payload,
@@ -3163,7 +3178,7 @@ def Media_schedule(request):
                                'scheduleDate': str(formart)
                                }
                     headers = {'Content-Type': 'application/json',
-                               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+                                'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                     r1 = requests.post('https://app.ayrshare.com/api/post',
                                        json=payload,
