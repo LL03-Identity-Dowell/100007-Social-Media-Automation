@@ -15,7 +15,7 @@ class CouldNotGetUserAPIKeyError(CreditError):
         self.message = message
 
 
-class CouldConsumeCreditError(CreditError):
+class CouldNotConsumeCreditError(CreditError):
     """Exception raised for when an error occurs when getting user Credit system api key"""
 
     def __init__(self, message):

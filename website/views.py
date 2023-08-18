@@ -403,6 +403,7 @@ def selected_result(request):
                 request.session.pop('sentences_form_data', None)
                 credit_handler = CreditHandler()
                 credit_handler.consume_step_1_credit(request)
+
                 # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
                 return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
         else:

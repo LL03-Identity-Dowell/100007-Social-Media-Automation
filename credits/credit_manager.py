@@ -5,7 +5,7 @@ import requests
 
 from config_master import CREDITS_SYSTEM_BASE_URL, GET_METHOD, POST_METHOD
 from credits.constants import CREDITS_GET_USER_API_KEY_URL, CREDITS_PROCESS_PRODUCT_SERVICE_URL, SERVICE_ID
-from credits.exceptions import CouldNotGetUserAPIKeyError, CouldConsumeCreditError
+from credits.exceptions import CouldNotGetUserAPIKeyError, CouldNotConsumeCreditError
 
 
 class Credit:
@@ -58,12 +58,8 @@ class Credit:
         except Exception as e:
             print(f"An error occurred: {e}")
             raise CouldNotGetUserAPIKeyError(str(e))
-        if not response.get('success'):
-            raise CouldNotGetUserAPIKeyError(response.get('message'))
-        data = response.get('data')
-        api_key = data.get('api_key')
-        self.api_key = api_key
-        return api_key
+        return response
+
 
     def consume_credit(self, sub_service_ids: list[str], product_type):
         """
@@ -82,7 +78,5 @@ class Credit:
             response = self.send(method=method, params=params, url=url, data=data)
         except Exception as e:
             print(f"An error occurred: {e}")
-            raise CouldConsumeCreditError(str(e))
-        if not response.get('success'):
-            raise CouldConsumeCreditError(response.get('message'))
+            raise CouldNotConsumeCreditError(str(e))
         return response
