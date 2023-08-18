@@ -198,47 +198,80 @@
 
           console.log("Remember to save to database...");
 
-          // Save the new title to the DOM
+          // Save the new title to the DOM and update hidden input value
           let postTitle = document.createElement('div');
           postTitle.setAttribute('id', 'post-title');
-          postTitle.innerHTML = document.querySelector('#title-input').value;
+          let newTitle = document.querySelector('#title-input').value;
+          postTitle.innerHTML = newTitle;
+
+          // update hidden input value
+          document.querySelector('#title').value = newTitle;
           document.querySelector('#title-input').replaceWith(postTitle);
 
-          // Save each new paragraph to the DOM
+          // Save each new paragraph to the DOM and update hidden input value
           let postParagraphs = document.querySelector('#paragraphs-input').value.split('\n');
-          postParagraphs = postParagraphs.map(paragraph => {
+          let pDiv = document.createElement('div');
+          pDiv.setAttribute('id', 'post-paragraphs');
+
+          postParagraphs.forEach(paragraph => {
             let p = document.createElement('p');
+            let pInput = document.createElement('input');
+            
             p.innerHTML = paragraph;
             p.setAttribute('class', 'post-paragraph');
-            return p;
-          })
 
-          var div = document.createElement('div');
-          div.setAttribute('id', 'post-paragraphs');
-          div.append(...postParagraphs);
-          document.querySelector('#paragraphs-input').replaceWith(div);
-
-          // Save each new source to the DOM
-          let postSources = document.querySelector('#sources-input').value.split('\n');
-          postSources = postSources.filter(source => source.length);
-          postSources = postSources.map(source => {
-            let a = document.createElement('a');
-            a.href = source;
-            a.innerHTML = source;
-            a.setAttribute('class', 'post-source');
-            return a;
+            // update hidden input value
+            pInput.setAttribute("class", "text");
+            pInput.setAttribute("type", "hidden");
+            pInput.setAttribute("name", "text");
+            pInput.setAttribute("value", `${paragraph}`);
+            
+            pDiv.appendChild(p);
+            pDiv.appendChild(pInput);
           });
-          
-          if (!postSources.length) {
+
+          document.querySelector('#paragraphs-input').replaceWith(pDiv);
+
+          // Save each new source to the DOM and update hidden input value
+          let postSources = document.querySelector('#sources-input').value.split('\n');
+          var sDiv = document.createElement('div');
+          sDiv.setAttribute('id', 'post-sources');
+
+          postSources = postSources.filter(source => source.length);
+           if (!postSources.length) {
             let p = document.createElement('p');
             p.innerHTML = 'No sources.';
-            postSources.push(p);
-          }
+            sDiv.appendChild(p);
+          }else{
 
-          var div = document.createElement('div');
-          div.setAttribute('id', 'post-sources');
-          div.append(...postSources);
-          document.querySelector('#sources-input').replaceWith(div);
+            postSources = postSources.map(source => {
+              let a = document.createElement('a');
+              let sInput = document.createElement('input');
+
+              a.href = source;
+              a.innerHTML = source;
+              a.setAttribute('class', 'post-source');
+
+              sInput.setAttribute("class", "source");
+              sInput.setAttribute("type", "hidden");
+              sInput.setAttribute("name", "source");
+              sInput.setAttribute("value", `${source}`);
+
+              sDiv.appendChild(a);
+              sDiv.appendChild(sInput);
+            });
+          }
+         
+          document.querySelector('#sources-input').replaceWith(sDiv);
+
+          // Save state to localStorage
+          //let currImage = document.querySelector(".post-img");
+          //let postData = {
+          //  title: newTitle,
+          //  paragraphs: postParagraphs,
+          //  sources: postSources,
+          //  image: currImage
+          //}
       }
 
 
@@ -350,6 +383,10 @@
           return
         }
         sideImage = document.querySelector(".post-img");
+        hiddenImageInput = document.querySelector("#images");
+
+        // update hidden input value
+        hiddenImageInput.value = imageSrc;
         sideImage.src = imageSrc;
       }  
     </script>
@@ -384,7 +421,7 @@
     <div id="post-paragraphs">
       {% for p in post.paragraph %}
       <div class="post-paragraph">{{ p }}</div>
-      <input type = "hidden" name="text" value="{{ p }}">
+      <input class="text" type = "hidden" name="text" value="{{ p }}">
       {% endfor %}
     </div>
 
@@ -395,11 +432,11 @@
       <p>No sources.</p>
       {% elif post.source|is_string %}
       <a href="{{ post.source }}" class="post-source"> {{ post.source }}</a>
-      <input type="hidden" name="source" value="{{ post.source }}">
+      <input class="source" type="hidden" name="source" value="{{ post.source }}">
       {% else %}
         {% for s in post.source %}
       <a href="{{ s }}" class="post-source">Generated by OpenAI. Learn more at: {{ s }}</a>
-      <input type="hidden" name="source" value="{{ s }}">
+      <input class="source" type="hidden" name="source" value="{{ s }}">
         {% endfor %}
       {% endif %}
     </div>
@@ -414,7 +451,8 @@
             <a style="color: inherit; text-decoration: none">Edit Photo</a>
           </button>
         </div>
-        <img src ={{images}} alt="Random meme..." class="img-fluid post-img"><input type= "hidden" name="images" value="{{images}}">
+        <img src ={{images}} alt="Random meme..." class="img-fluid post-img">
+        <input id="images" type= "hidden" name="images" value="{{images}}">
       </div>
 
       <div class="post-options">
@@ -580,16 +618,15 @@
 
     {% if profile == 'Admin' or 'Add/Edit'%}
     <div class="text-center">
-    <a href=" https://www.socialmediaautomation.uxlivinglab.online/article_list/"class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;">Previous</a>
+      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;">Previous</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
       <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
     </div>
     {% else %}
     <div class="text-center">
-      <a href=" https://www.socialmediaautomation.uxlivinglab.online/article_list/"class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;;">Previous</a>
+      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;;">Previous</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
-      <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;"
-        onclick="showAdminMessage()">Next</button>
+      <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;" onclick="showAdminMessage()">Next</button>
     </div>
 
   </form>
