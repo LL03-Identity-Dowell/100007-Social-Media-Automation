@@ -53,6 +53,7 @@
       try {
         const res = await fetch("http://127.0.0.1:8000/scheduled_json");
         const data = await res.json();
+        
         return { data: data.response, totalCount: data.response.length };
       } catch (error) {
         console.log(error);
@@ -179,11 +180,13 @@
 
     async function displayDataForCurrentPage() {
       const { data, totalCount } = await fetchedData();
+      console.log(data);
 
       const startIndex = (currentPage - 1) * itemsPerPage;
       const endIndex = startIndex + itemsPerPage;
-      const dataToShow = data.slice(startIndex, endIndex);
-      console.log(dataToShow);
+      const reversedData = data.slice().reverse();
+        console.log(reversedData);
+      const dataToShow = reversedData.slice(startIndex, endIndex);
       displayData(dataToShow, totalCount);
       displayPagination(totalCount);
     }

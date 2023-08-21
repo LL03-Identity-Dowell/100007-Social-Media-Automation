@@ -1529,7 +1529,7 @@ def scheduled_json(request):
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
                                     'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date()}
                             post.append(data)
-                            post=list(reversed(post))
+                            # post=list(reversed(post))
 
                     except:
                         pass
