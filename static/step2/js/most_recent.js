@@ -22,31 +22,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         `;
   };
 
-  const calculateTimeDifference = (timestamp) => {
-    const now = new Date();
-    const postDate = new Date(timestamp);
-    const timeDifference = now - postDate;
-    const minutes = Math.floor(timeDifference / (1000 * 60));
-    const month = Math.floor(minutes / 43829);
-    const week = Math.floor((minutes % 43829) / 10080);
-    const day = Math.floor((minutes % 10080) / 1440);
-    if (month !== 0) {
-      return `${
-        month !== 0 ? month + ` ${month === 1 ? "month" : "months"}` : ""
-      }
-        ${
-          week !== 0 ? ", " + week + ` ${week === 1 ? "week" : "weeks"}` : ""
-        } ago
-        
-        `;
-    }
-    if (month === 0) {
-      return `${week !== 0 ? week + ` ${week === 1 ? "week" : "weeks"}` : ""}
-        ${day !== 0 ? ", " + day + ` ${day === 1 ? "day" : "days"}` : ""} ago
-        
-        `;
-    }
-  };
 
   const fetchedData = async () => {
     try {
@@ -58,8 +33,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       alert(error.message);
     }
   };
-
-  const { data, totalCount } = await fetchedData();
 
   function displayData(showData, totalCount) {
     const articlesContainer = document.querySelector(".articles-container");
@@ -73,7 +46,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       let articlesHtml = ""; // Initialize an empty string to accumulate HTML
 
       showData.forEach((article) => {
-        article.Date = calculateTimeDifference(article.Date);
         articlesHtml += articleTemplate(article); // Concatenate the rendered article HTML
       });
 
