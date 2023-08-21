@@ -29,7 +29,6 @@ function deletePost() {
 }
 
 
-
 function editPost() {
     // Add an input element to edit the title
     let titleInput = document.createElement('input');
@@ -62,9 +61,6 @@ function editPost() {
     sourcesInput.value = postSources;
     document.querySelector('#post-sources').replaceWith(sourcesInput);
 }
-
-
-
 
 
 function savePost() {
@@ -166,7 +162,7 @@ savePostBtn.addEventListener("click", () => {
 
 //handle search
 
-$('#search_input').on("input", async function (event) {
+$('#search_input').on("input", async function () {
 
     let imageId = 0;
     let pexelsImageContainer = document.getElementById('pexels-image-row');
@@ -177,9 +173,6 @@ $('#search_input').on("input", async function (event) {
     if (searchTerm == "") {
         pexelsImageContainer.innerHTML = "";
     }
-
-
-
 
     let srcResult = await searchPhoto(searchTerm);
     //console.log(srcResult);
@@ -236,19 +229,23 @@ const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
 const PEXEL_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65';
 
 const searchPhoto = async (term) => {
-    let srcArray = [];
-    let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=12&orientation=landscape`, {
-        headers: {
-            Authorization: PEXEL_API_KEY
-        }
-    });
+    try {
+        let srcArray = [];
+        let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=12&orientation=landscape`, {
+            headers: {
+                Authorization: PEXEL_API_KEY
+            }
+        });
 
-    let jsonData = await res.json();
-    jsonData.photos.map(image => {
-        //console.log(image.src.medium);
-        srcArray.push(image.src.medium);
-    })
-    return srcArray;
+        let jsonData = await res.json();
+        jsonData.photos.map(image => {
+            //console.log(image.src.medium);
+            srcArray.push(image.src.medium);
+        })
+        return srcArray;
+    } catch (err) {
+        console.error(`Error fecthing imgages: ${err}`)
+    }
 }
 
 const updateImage = () => {
