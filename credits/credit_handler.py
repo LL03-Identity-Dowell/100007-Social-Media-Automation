@@ -72,6 +72,7 @@ class CreditHandler:
         """
         This method consumes credits on step 1
         """
+
         user_api_key = request.session.get('CREDIT_API_KEY')
         if not user_api_key:
             return {'success': False, 'message': 'You do not have service id'}
