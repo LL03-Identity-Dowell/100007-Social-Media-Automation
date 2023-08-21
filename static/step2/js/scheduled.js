@@ -48,15 +48,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   };
 
-  function convertCustomDateToDays(customDate) {
-    const monthsMatch = customDate.match(/(\d+)\s*months?/);
-    const weeksMatch = customDate.match(/(\d+)\s*weeks?/);
-
-    const months = monthsMatch ? parseInt(monthsMatch[1]) : 0;
-    const weeks = weeksMatch ? parseInt(weeksMatch[1]) : 0;
-
-    return months * 30 + weeks * 7;
-  }
 
   const fetchedData = async () => {
     try {
@@ -79,13 +70,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (Array.isArray(showData)) {
       let articlesHtml = ""; // Initialize an empty string to accumulate HTML
-      showData.sort((a, b) => {
-        const dateA = convertCustomDateToDays(a.Date);
-        const dateB = convertCustomDateToDays(b.Date);
-        return dateA - dateB;
-      });
-
-      console.log(showData);
       showData.forEach((article) => {
         article.Date = calculateTimeDifference(article.Date);
         articlesHtml += articleTemplate(article); // Concatenate the rendered article HTML
@@ -188,8 +172,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function displayDataForCurrentPage() {
     const { data, totalCount } = await fetchedData();
-
-    console.log(data);
 
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
