@@ -1,12 +1,13 @@
 {% extends "article/base.html" %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/not-scheduled.css'%}">
 
 {% block script %}
 <script src="{% static 'main.js' %}"></script>
 <script type="text/javascript" src="{% static 'step2/js/not_scheduled.js'%}"></script>
 {% endblock script %}
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/not-scheduled.css'%}">
+
 <div class="grid-container3">
 	<div class="item item1" style="padding-top: 15px;">
 		<ul class="mylist">

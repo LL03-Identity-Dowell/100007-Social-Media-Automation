@@ -1,41 +1,30 @@
 function showAdminMessage() {
-  alert("You are not an admin!");
+    alert("You are not an admin!");
 }
 
 window.onload = function downdis() {
     console.log("Hellow On Load")
-
-
 }
 
 
 document.querySelector('#edit-post').onclick = editPost;
 document.querySelector('#save-post').onclick = savePost;
 document.querySelector('#delete-post').onclick = deletePost;
-  document.getElementById("edit-button").addEventListener("click", function() {
-    alert("Page is under construction");
-  });
 var postti = document.getElementById('post-title')
 var postpar = document.getElementById('post-paragraph')
 var postsor = document.getElementById('post-sources')
 
 function deletePost() {
 
-
-
-
-var fields = document.getElementsByTagName('input'),
+    var fields = document.getElementsByTagName('input');
     length = fields.length;
-while (length--) {
-    if (fields[length].type === 'text') { fields[length].value = ''; }
-}
+    while (length--) {
+        if (fields[length].type === 'text') { fields[length].value = ''; }
+    }
 
-
-$("input[type=text]").val('');
-
+    $("input[type=text]").val('');
 
     console.log("lets Delete")
-
 }
 
 
@@ -52,8 +41,8 @@ function editPost() {
 
     // Add a textarea element to edit post content
     let postText = Array(...document.querySelectorAll('.post-paragraph'))
-      .map(element => element.innerHTML)
-      .join('\n\n');
+        .map(element => element.innerHTML)
+        .join('\n');
     let paragraphsInput = document.createElement('textarea');
     paragraphsInput.setAttribute('class', 'form-control');
     paragraphsInput.setAttribute('id', 'paragraphs-input');
@@ -63,69 +52,212 @@ function editPost() {
 
     // Add a textarea element to edit post sources
     let postSources = Array(...document.querySelectorAll('.post-source'))
-      .map(element => element.innerHTML)
-      .join('\n\n');
+        .map(element => element.innerHTML)
+        .join('\n');
     let sourcesInput = document.createElement('textarea');
     sourcesInput.setAttribute('class', 'form-control');
     sourcesInput.setAttribute('id', 'sources-input');
     sourcesInput.setAttribute('rows', '4');
     sourcesInput.value = postSources;
     document.querySelector('#post-sources').replaceWith(sourcesInput);
-
-
-
 }
+
+
+
 
 
 function savePost() {
 
     console.log("Remember to save to database...");
 
-    // Save the new title to the DOM
+    // Save the new title to the DOM and update hidden input value
     let postTitle = document.createElement('div');
     postTitle.setAttribute('id', 'post-title');
-    postTitle.innerHTML = document.querySelector('#title-input').value;
+    let newTitle = document.querySelector('#title-input').value;
+    postTitle.innerHTML = newTitle;
+
+    // update hidden input value
+    document.querySelector('#title').value = newTitle;
     document.querySelector('#title-input').replaceWith(postTitle);
 
-    // Save each new paragraph to the DOM
-    let postParagraphs = document.querySelector('#paragraphs-input').value.split('\n\n');
-    postParagraphs = postParagraphs.map(paragraph => {
-      let p = document.createElement('p');
-      p.innerHTML = paragraph;
-      p.setAttribute('class', 'post-paragraph');
-      return p;
-    })
-    var div = document.createElement('div');
-    div.setAttribute('id', 'post-paragraphs');
-    div.append(...postParagraphs);
-    document.querySelector('#paragraphs-input').replaceWith(div);
+    // Save each new paragraph to the DOM and update hidden input value
+    let postParagraphs = document.querySelector('#paragraphs-input').value.split('\n');
+    let pDiv = document.createElement('div');
+    pDiv.setAttribute('id', 'post-paragraphs');
 
-    // Save each new source to the DOM
-    let postSources = document.querySelector('#sources-input').value.split('\n');
-    postSources = postSources.filter(source => source.length);
-    postSources = postSources.map(source => {
-      let a = document.createElement('a');
-      a.href = source;
-      a.innerHTML = source;
-      a.setAttribute('class', 'post-source');
-      return a;
+    postParagraphs.forEach(paragraph => {
+        let p = document.createElement('p');
+        let pInput = document.createElement('input');
+
+        p.innerHTML = paragraph;
+        p.setAttribute('class', 'post-paragraph');
+
+        // update hidden input value
+        pInput.setAttribute("class", "text");
+        pInput.setAttribute("type", "hidden");
+        pInput.setAttribute("name", "text");
+        pInput.setAttribute("value", `${paragraph}`);
+
+        pDiv.appendChild(p);
+        pDiv.appendChild(pInput);
     });
+
+    document.querySelector('#paragraphs-input').replaceWith(pDiv);
+
+    // Save each new source to the DOM and update hidden input value
+    let postSources = document.querySelector('#sources-input').value.split('\n');
+    var sDiv = document.createElement('div');
+    sDiv.setAttribute('id', 'post-sources');
+
+    postSources = postSources.filter(source => source.length);
     if (!postSources.length) {
-      let p = document.createElement('p');
-      p.innerHTML = 'No sources.';
-      postSources.push(p);
+        let p = document.createElement('p');
+        p.innerHTML = 'No sources.';
+        sDiv.appendChild(p);
+    } else {
+
+        postSources = postSources.map(source => {
+            let a = document.createElement('a');
+            let sInput = document.createElement('input');
+
+            a.href = source;
+            a.innerHTML = source;
+            a.setAttribute('class', 'post-source');
+
+            sInput.setAttribute("class", "source");
+            sInput.setAttribute("type", "hidden");
+            sInput.setAttribute("name", "source");
+            sInput.setAttribute("value", `${source}`);
+
+            sDiv.appendChild(a);
+            sDiv.appendChild(sInput);
+        });
     }
-    var div = document.createElement('div');
-    div.setAttribute('id', 'post-sources');
-    div.append(...postSources);
-    document.querySelector('#sources-input').replaceWith(div);
 
+    document.querySelector('#sources-input').replaceWith(sDiv);
 
-
-
+    // Save state to localStorage
+    //let currImage = document.querySelector(".post-img");
+    //let postData = {
+    //  title: newTitle,
+    //  paragraphs: postParagraphs,
+    //  sources: postSources,
+    //  image: currImage
+    //}
 }
 
-{% comment %} console.log({{categories}}); {% endcomment %}
 
-{% comment %} var cat =  "{{categories}}";
-console.log(cat); {% endcomment %}
+//image overlay show and hide
+
+let overlayDiv = document.querySelector('.img-overlay');
+let editPostBtn = document.querySelector('#edit-post');
+let savePostBtn = document.querySelector('#save-post');
+
+
+editPostBtn.addEventListener("click", () => {
+    overlayDiv.classList.add("show-overlay");
+});
+
+savePostBtn.addEventListener("click", () => {
+    overlayDiv.classList.remove("show-overlay");
+})
+
+
+//handle search
+
+$('#search_input').on("input", async function (event) {
+
+    let imageId = 0;
+    let pexelsImageContainer = document.getElementById('pexels-image-row');
+    let searchTerm = document.getElementById('search_input').value;
+
+    pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <div class="spinner-border text-primary style="width: 3rem; height: 3rem;" role="status"> <span class="visually-hidden">Loading...</span> </div> </div>'
+
+    if (searchTerm == "") {
+        pexelsImageContainer.innerHTML = "";
+    }
+
+
+
+
+    let srcResult = await searchPhoto(searchTerm);
+    //console.log(srcResult);
+
+    pexelsImageContainer.innerHTML = "";
+    for (let i = 0; i < srcResult.length; i++) {
+        imageId += 1;
+        pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${srcResult[i]} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;" onclick="handleImageSelect();"> </div>`
+    }
+
+    //event.stopPropagation();
+});
+
+//handle Enter Key press
+searchInputField = document.getElementById('search_input');
+searchInputField.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+    }
+})
+
+//handle search button click
+searchBtn = document.getElementById('search_btn');
+searchBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+})
+
+// handle image select
+let imageSrc = "";
+const handleImageSelect = () => {
+    const elementId = event.target.id;
+    const img = document.getElementById(elementId);
+    imageSrc = img.src;
+    img.classList.add("borderToggle");
+
+    const images = document.querySelectorAll('.pexels-img');
+    images.forEach((image) => {
+        if (image.id !== elementId) {
+            image.classList.remove('borderToggle');
+            image.classList.add('pexels-img');
+        }
+    });
+};
+
+const removeSelect = () => {
+    const images = document.querySelectorAll('.pexels-img');
+    images.forEach((image) => {
+        image.classList.remove('borderToggle');
+    });
+}
+
+// Pexels API fetch function
+const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
+const PEXEL_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65';
+
+const searchPhoto = async (term) => {
+    let srcArray = [];
+    let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=12&orientation=landscape`, {
+        headers: {
+            Authorization: PEXEL_API_KEY
+        }
+    });
+
+    let jsonData = await res.json();
+    jsonData.photos.map(image => {
+        //console.log(image.src.medium);
+        srcArray.push(image.src.medium);
+    })
+    return srcArray;
+}
+
+const updateImage = () => {
+    if (imageSrc == "") {
+        return
+    }
+    sideImage = document.querySelector(".post-img");
+    hiddenImageInput = document.querySelector("#images");
+
+    // update hidden input value
+    hiddenImageInput.value = imageSrc;
+    sideImage.src = imageSrc;
+}

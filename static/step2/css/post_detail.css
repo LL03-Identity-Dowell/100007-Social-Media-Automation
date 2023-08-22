@@ -1,23 +1,112 @@
 .post-source {
-  display: block;
+    display: block;
 }
+
 #edit-button {
-  background: #6c757d;
+    background:#6c757d;
 }
+
 #post-post {
-  background: #1b3474;
+    background: #1B3474;
 }
 
-#dot-btn:hover {
-  opacity: 0.8;
+#dot-btn:hover{
+    opacity: 0.8;
 }
 
 .btn-dark-blue {
-  color: white;
-  background-color: var(--dark-blue);
-  border-color: var(--dark-blue);
+    color: white;
+    background-color: var(--dark-blue);
+    border-color: var(--dark-blue);
+    }
+
+    .btn-dark-blue:hover{
+    color: white;
+    background-color: rgb(20, 38, 85);
+    }
+
+.image-container {
+    position: relative;
+    display: inline-block;
+    max-width: 441px;
 }
-.btn-dark-blue {
-  color: white;
-  background-color: rgb(20, 38, 85);
+
+.img-overlay {
+    position: absolute;
+    right: 0;
+    z-index: 5;
+    top: 10px;
+    right: 10px;
+    display: none;
+}
+
+.show-overlay{
+    display: block;
+}
+
+.post-img{
+    border-radius: 6px;
+}
+
+.glass-button {
+    display: inline-block;
+    padding: 5px 10px;
+    border: 0;
+    text-decoration: none;
+    border-radius: 15px;
+    background-color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(1px);
+    color: rgb(4 7 81 / 80%);
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-weight: 700;
+    /* width: 25px; */
+}
+
+.glass-button:hover {
+    background-color: rgba(255,255,255,0.5);
+}
+
+.post-options{
+    width: 50%;
+    padding: 28px;
+}
+
+
+/* images modal styling */
+
+.modal-content {
+    width: 430px;
+    border:none;
+}
+
+.modal-body {
+    padding: 0;
+}
+
+.modal {
+    text-align: center;
+}
+
+.modal:before {
+    display: inline-block;
+    vertical-align: middle;
+    content: " ";
+    height: 100%;
+}
+
+.modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.col-md-4 > img{
+    cursor: pointer;
+}
+
+.borderToggle{
+    border: 3px solid blue;
 }

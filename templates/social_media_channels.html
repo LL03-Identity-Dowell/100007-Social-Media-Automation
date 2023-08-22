@@ -1,12 +1,13 @@
 {% extends "article/base_background.html" %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/social_media_channels.css'%}">
 
 {% block style %}
 {{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/social_media_channels.css'%}">
 {% endblock %}
 
 {% block stuff %}
+
     <h2 class="mb-5 blue-text">My Channels</h2>
     {% comment %} <p>User has social profile {{ user_has_social_media_profile }}</p> {% endcomment %}
 

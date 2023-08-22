@@ -1,73 +1,64 @@
-{% extends "article/base_steps.html" %}
-{% load static %}
-{% load appname_tags %}
+{% extends "article/base_steps.html" %} {% load static %} {% load appname_tags
+%} {% block content %}
+
 <link rel="stylesheet" type="text/css" href="{% static 'step2/css/scheduled.css'%}">
+<script type="text/javascript" src="{% static 'step2/js/scheduled.js'%}"></script>
 
 
-{% block content %}
+<div class="container mt-5 mb-5 pt-3 pb-3">
+  <div class="list-group list-group-flush">
+    <div class="justify-content-center d-flex" style="color: #1434a4">
+      <div>
+        <a href="{% url 'generate_article:recent-post' %}">
+          <h4
+            style="
+              font-family: 'Amazon Ember', sans-serif;
+              font-size: 30px;
+              font-weight: bold;
+              padding: 30px;
+            "
+          >
+            Most Recent
+          </h4>
+        </a>
+      </div>
 
-<div class="container mt-5 mb-5 pt-3 pb-3" >
-    <div class="list-group list-group-flush">
+      <div>
+        <a href="{% url 'generate_article:unscheduled-posts' %}">
+          <h4
+            style="
+              font-family: 'Amazon Ember', sans-serif;
+              font-size: 30px;
+              font-weight: bold;
+              padding: 30px;
+            "
+          >
+            Unscheduled Posts
+          </h4>
+        </a>
+      </div>
 
-    <div class="justify-content-center d-flex" style="color: #1434A4;">
-
-          <div>
-            <a href="{% url 'generate_article:recent-post' %}">
-                <h4 style="font-family: 'Amazon Ember', sans-serif; font-size: 30px;
-            font-weight: bold; padding: 30px;">Most Recent</h4>
-            </a>
-        </div>
-
-
-        <div>
-            <a href="{% url 'generate_article:unscheduled-posts' %}">
-                <h4 style="font-family: 'Amazon Ember', sans-serif; font-size: 30px;
-                 font-weight: bold; padding: 30px;">Unscheduled Posts</h4>
-            </a>
-        </div>
-
-           <div>
-            <h4 style="font-family: 'Amazon Ember', sans-serif; font-size: 30px;
-            font-weight: bold; padding: 30px; text-decoration: underline;">Scheduled Posts</h4>
-        </div>
-
+      <div>
+        <h4
+          style="
+            font-family: 'Amazon Ember', sans-serif;
+            font-size: 30px;
+            font-weight: bold;
+            padding: 30px;
+            text-decoration: underline;
+          "
+        >
+          Scheduled Posts
+        </h4>
+      </div>
     </div>
 
-
-    <p>Total posts count: {{post|length}}</p>
-    <table class="table table-borderless">
-
-      <tbody>
-          {% for post in post%}
-
-
-            <tr>
-                <td><p class="link-src" >{{post.source}}</p></td>
-                <td scope="col" rowspan="4"><img src={{post.image}} alt="Image" id="img-d"></td>
-            </tr>
-
-
-
-            <tr>
-              <!--<th scope="row"><a href="#">Post title</a></th>-->
-              <td><h3 class="head-text">{{post.title}}</h3></td>
-
-            </tr>
-            <tr>
-                <td>{{post.paragraph}}</td>
-            </tr>
-            <tr>
-                <td style="text-align:right"><p class="time-ago"><i class="fas fa-clock" ></i>  {{post.Date|timesince}} ago</p></td>
-            </tr>
-
-
-
-
-
-            {% endfor %}
-      </tbody>
-    </table>
-
+    <div id="post-count"></div>
+    <div class="articles-container"></div>
+    <div id="paginationContainer"></div>
+  </div>
 </div>
-</div>
+
+
+
 {% endblock content %}

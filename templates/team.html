@@ -1,16 +1,16 @@
 {% extends "article/base_background.html" %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/team.css'%}">
 
 {% block style %}
-  {{ block.super }}
-
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/team.css'%}">
 {% endblock %}
 
 {% block navbar_heading %}
 {% endblock %}
 
 {% block stuff %}
+
 <h2 class="mb-5 blue-text"> Approvals</h2>
     {% if status == 'insert' %}
   <form class="fw-bold fs-5 blue-text" id="titleForm" action="{% url 'generate_article:user-approval-form' %}" method="post" onsubmit='showLoading();'>

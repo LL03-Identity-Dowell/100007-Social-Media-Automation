@@ -1,12 +1,14 @@
 {% extends "article/base_background.html" %}
 {% load static %}
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/linkedin.css'%}">
 
 {% block style %}
-  {{ block.super }}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/linkedin.css'%}">
 {% endblock %}
 
 {% block stuff %}
+
+
   <div class="m-2">
     <i class="fa-brands fa-linkedin fa-4x"></i>
   </div>

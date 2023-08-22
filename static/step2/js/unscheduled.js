@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-   function displayData(data, showData, totalCount) {
+   function displayData(showData, totalCount) {
     let container = document.getElementById("article-list");
     container.innerHTML = "";
 
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const handleSubmit = () => {
         const checkboxes = form.querySelectorAll("input[type='checkbox']");
-        let selectedArticle = { ...data[index] };
+        let selectedArticle = { ...showData[index] };
         selectedArticle.social = [];
 
         checkboxes.forEach((checkbox) => {
@@ -174,6 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
           selectedArticle.schedule = dateFormat(scheduleValue);
         }
 
+        console.log(selectedArticle, index);
         sendData(selectedArticle, options);
 
         // Remove the dateTimeEl element from the form if it was added during the process
@@ -219,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     paginationContainer.innerHTML = "";
 
-            // Previous Button
+      // Previous Button
       const prevButton = document.createElement('button');
       prevButton.textContent = 'Previous';
       prevButton.addEventListener('click', () => {
@@ -234,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       // Display page numbers
+      
       const startPage = (Math.floor((currentPage - 1) / 5) * 5) + 1;
       const endPage = Math.min(startPage + 4, totalPages);
 
@@ -309,13 +311,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const dataToShow = data.slice(startIndex, endIndex);
-    displayData(data, dataToShow, totalCount);
-    setTimeout(() => {
-      displayPagination(totalCount);
-    }, 2000);
+    console.log(dataToShow);
+    displayData( dataToShow, totalCount);
+    displayPagination(totalCount);
+
   }
 
-  // displayData();
+
   displayDataForCurrentPage();
 
   

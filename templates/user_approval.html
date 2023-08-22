@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block stuff %}
+
 <h2 class="mb-5 blue-text"> Approvals</h2>
     {% if status == 'insert' %}
   <form class="fw-bold fs-5 blue-text" id="titleForm" action="{% url 'generate_article:user-approval-form' %}" method="post" onsubmit='showLoading();'>
