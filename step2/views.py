@@ -6,7 +6,7 @@ import time
 import traceback
 import urllib
 import urllib.parse
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 # image resizing
 from io import BytesIO
 
@@ -26,15 +26,13 @@ from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, HttpResponse
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-
 
 from create_article import settings
 from credits.credit_handler import CreditHandler
@@ -228,13 +226,13 @@ def frontend_api_request(request):
     return JsonResponse(response_data, status=response_data['status_code'])
 
 
-def has_access(portfolio_info):
-
-    if not portfolio_info:
+def has_access(portfolio_info_list):
+    if not portfolio_info_list:
         return False
-    if portfolio_info[0].get('product') != PRODUCT_NAME:
-        return False
-    return True
+    for portfolio_info in portfolio_info_list:
+        if portfolio_info.get('product') == PRODUCT_NAME:
+            return True
+    return False
 
 
 def home(request):

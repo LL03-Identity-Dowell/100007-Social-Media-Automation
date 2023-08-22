@@ -31,7 +31,6 @@ class CreditHandler:
             return {'success': False, 'message': "You have less credits. If you want to buy more credits click the "
                                                  "'Buy Credits' button", "link": "https://uxlivinglab.com/"}
         request.session['remaining_credits'] = response.get('remaining_credits')
-        messages.success(request, 'Credits was successfully consumed')
         return {'success': True, 'message': 'Credits was successfully consumed', 'remaining_credits': user_credits}
 
     def format_steps_response(self, request: WSGIRequest, response: dict):
