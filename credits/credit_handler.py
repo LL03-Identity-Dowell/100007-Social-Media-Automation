@@ -11,26 +11,41 @@ class CreditHandler:
 
     def format_response(self, request: WSGIRequest, response: dict):
         data = response
+        credit_response = {}
         if not data:
             messages.error(request, 'An error occurred while processing request')
-            return {'success': False, 'message': 'An error occurred'}
+            credit_response.update({'success': False, 'message': 'An error occurred', 'error_code': 1})
+            request.session['credit_response'] = credit_response
+            return credit_response
         is_active = data.get("is_active")
         user_credits = data.get("total_credits")
-
         disable_key = data.get("disable_key")
+
         if not is_active:
             messages.error(request, 'SERVICE KEY is not activated')
-            return {'success': False, 'message': 'SERVICE KEY is not activated'}
+            credit_response.update({'success': False, 'message': 'SERVICE KEY is not activated', 'error_code': 2})
+            request.session['credit_response'] = credit_response
+            return credit_response
+
         if disable_key:
             messages.error(request, 'YOUR SERVICE KEY IS DISABLED BY ADMIN.')
-            return {'success': False, 'message': 'YOUR SERVICE KEY IS DISABLED BY ADMIN.'}
+            credit_response.update(
+                {'success': False, 'message': 'YOUR SERVICE KEY IS DISABLED BY ADMIN.', 'error_code': 3})
+            request.session['credit_response'] = credit_response
+            return credit_response
 
         if user_credits <= 0:
             messages.error(request, "You have less credits. If you want to buy more credits click the 'Buy Credits' "
                                     "button")
-            return {'success': False, 'message': "You have less credits. If you want to buy more credits click the "
-                                                 "'Buy Credits' button", "link": "https://uxlivinglab.com/"}
+            credit_response.update(
+                {'success': False, 'message': "You have less credits. If you want to buy more credits click the "
+                                              "'Buy Credits' button", "link": "https://uxlivinglab.com/",
+                 'error_code': 4})
+            request.session['credit_response'] = credit_response
+            return credit_response
         request.session['remaining_credits'] = response.get('remaining_credits')
+        if request.session.get('credit_response', ):
+            del request.session['credit_response']
         return {'success': True, 'message': 'Credits was successfully consumed', 'remaining_credits': user_credits}
 
     def format_steps_response(self, request: WSGIRequest, response: dict):

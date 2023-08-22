@@ -332,9 +332,9 @@ def main(request):
         if not has_access(request.session['portfolio_info']):
             return render(request, 'portofolio-logib.html')
         credit_handler = CreditHandler()
-        if not credit_handler.login(request):
-            messages.error(request, 'You do not have an active service key!')
-
+        credit_data_response = credit_handler.login(request)
+        if not credit_data_response.get('success'):
+            return redirect(reverse('credit_error_view'))
         return render(request, 'main.html')
     else:
         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
