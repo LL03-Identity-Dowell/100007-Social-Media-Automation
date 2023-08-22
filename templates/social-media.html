@@ -6,26 +6,7 @@
 <script src="{% static 'main.js' %}"></script>
 {% endblock script %}
 {% block content%}
-	<script type="text/javascript">
-		window.$("#btn").click(function () {
-			"use strict";
-			window.$("#ovrly").fadeIn();
-			window.$("#login").show();
-			window.$("#login").animate({top: "100"});
-		});
-		window.$("#ovrly").click(function () {
-			"use strict";
-			window.$("#ovrly").hide();
-			window.$("#login").hide();
-			window.$("#login").css("top", "-310px");
-		});
-		window.$("#cross").click(function () {
-			"use strict";
-			window.$("#ovrly").hide();
-			window.$("#login").hide();
-			window.$("#login").css("top", "-310px");
-		});
-</script>
+<script type="text/javascript" src="{% static 'step2/js/social-media.js'%}"></script>
 </head>
 <body>
 	<div class="grid-container3">
