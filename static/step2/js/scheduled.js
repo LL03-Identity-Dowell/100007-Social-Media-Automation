@@ -173,6 +173,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function displayDataForCurrentPage() {
     const { data, totalCount } = await fetchedData();
 
+    console.log(data)
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const dataToShow = data.slice(startIndex, endIndex);
