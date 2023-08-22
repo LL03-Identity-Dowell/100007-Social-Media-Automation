@@ -133,7 +133,7 @@ function savePost() {
 
     document.querySelector('#sources-input').replaceWith(sDiv);
 
-    // Save state to localStorage
+    // Save state to localStorage/ implementing some caching
     //let currImage = document.querySelector(".post-img");
     //let postData = {
     //  title: newTitle,
@@ -145,7 +145,6 @@ function savePost() {
 
 
 //image overlay show and hide
-
 let overlayDiv = document.querySelector('.img-overlay');
 let editPostBtn = document.querySelector('#edit-post');
 let savePostBtn = document.querySelector('#save-post');
@@ -161,7 +160,6 @@ savePostBtn.addEventListener("click", () => {
 
 
 //handle search
-
 $('#search_input').on("input", async function () {
 
     let imageId = 0;
@@ -178,10 +176,15 @@ $('#search_input').on("input", async function () {
     //console.log(srcResult);
 
     pexelsImageContainer.innerHTML = "";
-    for (let i = 0; i < srcResult.length; i++) {
+    for (let imgSrc of srcResult) {
         imageId += 1;
-        pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${srcResult[i]} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;" onclick="handleImageSelect();"> </div>`
+        pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
     }
+
+    const allImages = document.querySelectorAll('.pexels-img')
+    allImages.forEach((image) => {
+        image.addEventListener("click", (e) => { handleImageSelect(e) }, false);
+    })
 
     //event.stopPropagation();
 });
@@ -202,8 +205,8 @@ searchBtn.addEventListener("click", (event) => {
 
 // handle image select
 let imageSrc = "";
-const handleImageSelect = () => {
-    const elementId = event.target.id;
+const handleImageSelect = (e) => {
+    const elementId = e.target.id;
     const img = document.getElementById(elementId);
     imageSrc = img.src;
     img.classList.add("borderToggle");
@@ -217,6 +220,7 @@ const handleImageSelect = () => {
     });
 };
 
+
 const removeSelect = () => {
     const images = document.querySelectorAll('.pexels-img');
     images.forEach((image) => {
@@ -224,13 +228,53 @@ const removeSelect = () => {
     });
 }
 
+
+//remove api_key from cache whn tab closes
+// window.addEventListener('unload', () => {
+//     // Remove the item from localStorage
+//     localStorage.removeItem('api_key');
+// });
+
+// get pexels API key or use cache
+let PEXEL_API_KEY;
+async function getPexelApiKey() {
+    try {
+        const apiKey = sessionStorage.getItem('api_key');
+        // console.log("local", apiKey);
+        if (apiKey) {
+            PEXEL_API_KEY = apiKey;
+            // console.log("from cache:", apiKey);
+        } else {
+            const response = await fetch('http://127.0.0.1:8000/proxy-api/');
+
+            // Check if the response status is OK (status code 200)
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.status}`);
+            }
+
+            // Parse the response as JSON
+            const data = await response.json();
+            const { api_key } = data;
+            sessionStorage.setItem('api_key', api_key);
+            PEXEL_API_KEY = api_key;
+            // console.log("from Api Call", PEXEL_API_KEY);
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+getPexelApiKey();
+
+
+// const PEXEL_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65';
+
 // Pexels API fetch function
 const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
-const PEXEL_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65';
-
 const searchPhoto = async (term) => {
     try {
+
         let srcArray = [];
+        await getPexelApiKey();
         let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=12&orientation=landscape`, {
             headers: {
                 Authorization: PEXEL_API_KEY
@@ -244,7 +288,7 @@ const searchPhoto = async (term) => {
         })
         return srcArray;
     } catch (err) {
-        console.error(`Error fecthing imgages: ${err}`)
+        console.error(`Error fecthing images: ${err}`)
     }
 }
 
