@@ -1336,8 +1336,9 @@ def update_aryshare(username,userid):
     headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
     r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
     socials=['no account linked']
-    for name in r.json()['profiles']:
-        try:
+    try:
+        for name in r.json()['profiles']:
+            
             if name['title'] == username:
                 socials=name['activeSocialAccounts']
                 url = "http://uxlivinglab.pythonanywhere.com"
@@ -1371,9 +1372,9 @@ def update_aryshare(username,userid):
 
                 response = requests.request("POST", url, headers=headers, data=payload)
                 
-            
-        except:
-            pass
+                
+    except:
+        pass
     return(socials)
 
 @csrf_exempt
@@ -1535,7 +1536,7 @@ def scheduled_json(request):
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
                                     'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date()}
                             post.append(data)
-                            post=list(reversed(post))
+                            
 
                     except:
                         pass
