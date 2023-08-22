@@ -1,0 +1,27 @@
+* {
+  box-sizing: border-box;
+}
+
+/*body {*/
+/*    background-color: #f1f1f1;*/
+/*}*/
+
+#ansDisplay {
+  background-color: #ffffff;
+  margin: 100px auto;
+  font-family: Raleway;
+  padding: 40px;
+  width: 70%;
+  min-width: 300px;
+}
+
+.answer {
+  height: 40px;
+  background-color: #d3d3d3;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.answer_rank {
+  float: right;
+}
