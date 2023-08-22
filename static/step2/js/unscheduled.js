@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data === "social_media_channels") {
           location.href = "http://127.0.0.1:8000/social_media_channels/";
         } else if (data === "sheduled") {
-          location.href = "http://127.0.0.1:8000/scheduled/scheduled/";
+          location.href = "http://127.0.0.1:8000/scheduled/";
         }
 
         debugger;
