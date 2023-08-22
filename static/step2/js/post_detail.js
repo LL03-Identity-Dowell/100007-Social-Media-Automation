@@ -229,13 +229,7 @@ const removeSelect = () => {
 }
 
 
-//remove api_key from cache whn tab closes
-// window.addEventListener('unload', () => {
-//     // Remove the item from localStorage
-//     localStorage.removeItem('api_key');
-// });
-
-// get pexels API key or use cache
+// get pexels API key or use sessionStorage cache
 let PEXEL_API_KEY;
 async function getPexelApiKey() {
     try {
