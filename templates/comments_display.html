@@ -1,9 +1,10 @@
 {% extends "article/base.html" %} {% load static %}
-<link rel="stylesheet" href="../static/step2/css/comments_display.css" />
 
 {% block script %}
 <script src="{% static 'main.js' %}"></script>
-{% endblock script %} {% block content %}
+{% endblock script %} 
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/comments_display.css'%}">
 
 
 <body>
