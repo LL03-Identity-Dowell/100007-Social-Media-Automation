@@ -2,6 +2,7 @@ function showAdminMessage() {
     alert("You are not an admin!");
 }
 
+
 window.onload = function downdis() {
     console.log("Hellow On Load")
 }
@@ -14,6 +15,7 @@ document.querySelector('#delete-post').onclick = deletePost;
 var postti = document.getElementById('post-title')
 var postpar = document.getElementById('post-paragraph')
 var postsor = document.getElementById('post-sources')
+
 
 function deletePost() {
 
@@ -172,23 +174,21 @@ $('#search_input').on("input", async function () {
 
     if (searchTerm == "") {
         pexelsImageContainer.innerHTML = "";
-    }
-
-    let { srcArray, totalResults } = await searchPhoto(searchTerm);
-    //console.log(srcResult);
-
-    if (totalResults > 0) {
-        pexelsImageContainer.innerHTML = "";
-        for (let imgSrc of srcArray) {
-            imageId += 1;
-            pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
-        }
     } else {
-        pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <p> Sorry, no image found, try another term </p> </div>'
+
+        let { srcArray, totalResults } = await searchPhoto(searchTerm);
+        //console.log(srcResult);
+
+        if (totalResults > 0) {
+            pexelsImageContainer.innerHTML = "";
+            for (let imgSrc of srcArray) {
+                imageId += 1;
+                pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
+            }
+        } else {
+            pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <p> Sorry, no image found, try another term </p> </div>'
+        }
     }
-
-
-
 
     const allImages = document.querySelectorAll('.pexels-img')
     allImages.forEach((image) => {
@@ -198,6 +198,7 @@ $('#search_input').on("input", async function () {
     //event.stopPropagation();
 });
 
+
 //handle Enter Key press
 searchInputField = document.getElementById('search_input');
 searchInputField.addEventListener("keypress", (event) => {
@@ -206,11 +207,13 @@ searchInputField.addEventListener("keypress", (event) => {
     }
 })
 
+
 //handle search button click
 searchBtn = document.getElementById('search_btn');
 searchBtn.addEventListener("click", (event) => {
     event.preventDefault();
 })
+
 
 // handle image select
 let imageSrc = "";
@@ -268,6 +271,7 @@ async function getPexelApiKey() {
 }
 getPexelApiKey();
 
+
 // Pexels API fetch function
 const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
 const searchPhoto = async (term) => {
@@ -283,7 +287,7 @@ const searchPhoto = async (term) => {
 
         let jsonData = await res.json();
         let totalResults = jsonData.total_results
-        console.log(totalResults);
+        // console.log(totalResults);
         jsonData.photos.map(image => {
             // console.log(image.src.medium);
             srcArray.push(image.src.medium);
@@ -293,6 +297,7 @@ const searchPhoto = async (term) => {
         console.error(`Error fecthing images: ${err}`)
     }
 }
+
 
 const updateImage = () => {
     if (imageSrc == "") {
