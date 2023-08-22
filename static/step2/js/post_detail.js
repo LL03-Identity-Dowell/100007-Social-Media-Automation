@@ -166,20 +166,29 @@ $('#search_input').on("input", async function () {
     let pexelsImageContainer = document.getElementById('pexels-image-row');
     let searchTerm = document.getElementById('search_input').value;
 
+
+
     pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <div class="spinner-border text-primary style="width: 3rem; height: 3rem;" role="status"> <span class="visually-hidden">Loading...</span> </div> </div>'
 
     if (searchTerm == "") {
         pexelsImageContainer.innerHTML = "";
     }
 
-    let srcResult = await searchPhoto(searchTerm);
+    let { srcArray, totalResults } = await searchPhoto(searchTerm);
     //console.log(srcResult);
 
-    pexelsImageContainer.innerHTML = "";
-    for (let imgSrc of srcResult) {
-        imageId += 1;
-        pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
+    if (totalResults > 0) {
+        pexelsImageContainer.innerHTML = "";
+        for (let imgSrc of srcArray) {
+            imageId += 1;
+            pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
+        }
+    } else {
+        pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <p> Sorry, no image found, try another term </p> </div>'
     }
+
+
+
 
     const allImages = document.querySelectorAll('.pexels-img')
     allImages.forEach((image) => {
@@ -259,9 +268,6 @@ async function getPexelApiKey() {
 }
 getPexelApiKey();
 
-
-// const PEXEL_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65';
-
 // Pexels API fetch function
 const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
 const searchPhoto = async (term) => {
@@ -276,11 +282,13 @@ const searchPhoto = async (term) => {
         });
 
         let jsonData = await res.json();
+        let totalResults = jsonData.total_results
+        console.log(totalResults);
         jsonData.photos.map(image => {
-            //console.log(image.src.medium);
+            // console.log(image.src.medium);
             srcArray.push(image.src.medium);
         })
-        return srcArray;
+        return { srcArray, totalResults };
     } catch (err) {
         console.error(`Error fecthing images: ${err}`)
     }
