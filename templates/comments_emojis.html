@@ -1,11 +1,11 @@
 {% extends "article/base.html" %}
 {% load static %}
-<link rel="stylesheet" href="../static/step2/css/comments_emojis.css">
 
 {% block script %}
 <script src="{% static 'main.js' %}"></script>
 {% endblock script %}
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/comments_emojis.css'%}">
 {% load appname_tags %}
 <!--new comments page-->
 	<div class="grid-container3">
