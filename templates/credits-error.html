@@ -8,11 +8,18 @@
     <center>
 
 
-        <img src="https://media.discordapp.net/attachments/1078589105207787581/1113098637795393567/Social_media_automation.png?width=431&height=431"
+        <a href="{% url 'generate_article:home' %}">
+            <img src="https://media.discordapp.net/attachments/1078589105207787581/1113098637795393567/Social_media_automation.png?width=431&height=431"
              alt="Social Media">
-        <h2>An error occurred</h2>
+        </a>
+        <h4>You can't perform this action because of the following:</h4>
+        <ol>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ol>
 
-        <p class="line-1 anim-typewriter">{{ message }}</p>
+
         {% if error_code == 4 %}
             <a class="btn btn-primary btn-lg" href="{{ link }}">Buy more credits</a>
         {% endif %}

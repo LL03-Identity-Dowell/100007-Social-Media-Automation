@@ -21,7 +21,7 @@ class CreditBaseView(View):
         return response
 
 
-class CreditErorrView(CreditBaseView):
+class CreditErrorView(CreditBaseView):
 
     def get(self, request, *args, **kwargs):
         """
