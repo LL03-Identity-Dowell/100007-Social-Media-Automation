@@ -561,11 +561,12 @@ def check_if_user_has_social_media_profile_in_aryshare(username):
 def check_connected_accounts(username):
     headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
     r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
-    socials=['hello']
+    socials = ['hello']
     for name in r.json()['profiles']:
         if name['title'] == username:
-            socials=name['activeSocialAccounts']
-    return(socials)
+            socials = name['activeSocialAccounts']
+    return (socials)
+
 
 @csrf_exempt
 @xframe_options_exempt
@@ -573,9 +574,9 @@ def social_media_channels(request):
     username = request.session['username']
     user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
         username)
-    linked_accounts=check_connected_accounts(username)
+    linked_accounts = check_connected_accounts(username)
     context_data = {
-        'user_has_social_media_profile': user_has_social_media_profile,'linked_accounts':linked_accounts}
+        'user_has_social_media_profile': user_has_social_media_profile, 'linked_accounts': linked_accounts}
     return render(request, 'social_media_channels.html', context_data)
 
 
@@ -1332,17 +1333,17 @@ def topics(request):
     return render(request, 'topics.html')
 
 
-def update_aryshare(username,userid):
+def update_aryshare(username, userid):
     headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
     r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
-    socials=['no account linked']
+    socials = ['no account linked']
     try:
         for name in r.json()['profiles']:
-            
+
             if name['title'] == username:
-                socials=name['activeSocialAccounts']
+                socials = name['activeSocialAccounts']
                 url = "http://uxlivinglab.pythonanywhere.com"
-            
+
                 payload = json.dumps({
                     "cluster": "socialmedia",
                     "database": "socialmedia",
@@ -1353,11 +1354,11 @@ def update_aryshare(username,userid):
                     "command": "update",
                     "field": {
 
-                        'user_id':userid
+                        'user_id': userid
                     },
                     "update_field": {
                         "aryshare_details": {
-                        'social_platforms':name['activeSocialAccounts']
+                            'social_platforms': name['activeSocialAccounts']
 
 
                         }
@@ -1370,12 +1371,13 @@ def update_aryshare(username,userid):
                     'Content-Type': 'application/json'
                 }
 
-                response = requests.request("POST", url, headers=headers, data=payload)
-                
-                
+                response = requests.request(
+                    "POST", url, headers=headers, data=payload)
+
     except:
         pass
-    return(socials)
+    return (socials)
+
 
 @csrf_exempt
 @xframe_options_exempt
@@ -1434,7 +1436,7 @@ def unscheduled_json(request):
                             'image': row['image'], 'source': row['source'], 'PK': row['_id']}
                     post.append(data)
                     respond = json.dumps(post)
-                    post=list(reversed(post))
+                    post = list(reversed(post))
 
         except:
             pass
@@ -1536,7 +1538,6 @@ def scheduled_json(request):
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
                                     'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date()}
                             post.append(data)
-                            
 
                     except:
                         pass
@@ -1891,8 +1892,12 @@ def generate_article(request):
 
             # Build prompt
             prompt_limit = 280
-            prompt = f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."[
-                :prompt_limit] + "..."
+            prompt = (
+                f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
+                f" Generate only 2 paragraphs. "
+                [:prompt_limit]
+                + "..."
+            )
 
             # Variables for loop control
             duration = 10  # Total duration in seconds
@@ -1960,7 +1965,6 @@ def generate_article(request):
                         }
                         save_data('step2_data', 'step2_data',
                                   step2_data, '9992828281')
-
 
                 except:
                     return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
@@ -2731,7 +2735,7 @@ def Save_Post(request):
         eventId = create_event()['event_id'],
         if request.method == "POST":
             title = request.POST.get("title")
-            paragraph = request.POST.get("text")
+            paragraphs_list = request.POST.getlist("paragraphs[]")
             source = request.POST.get("source")
             # target_industry = request.POST.get("p-content")
             qualitative_categorization = request.POST.get(
@@ -2760,7 +2764,7 @@ def Save_Post(request):
                     "eventId": eventId,
                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                     "title": title,
-                    "paragraph": paragraph,
+                    "paragraph": paragraphs_list,
                     "source": source,
                     "qualitative_categorization": qualitative_categorization,
                     "targeted_for": targeted_for,
@@ -2782,7 +2786,7 @@ def Save_Post(request):
             print("This is payload", payload)
             response = requests.request(
                 "POST", url, headers=headers, data=payload)
-            print("data:", response.json())
+            print("data data data data:", response.json())
             credit_handler = CreditHandler()
             credit_handler.consume_step_3_credit(request)
         # make sure to alert the user that the article has been saved sucesfully. (frontend)
@@ -2873,9 +2877,8 @@ def most_recent_json(request):
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
                                 row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source']}
                             post.append(data)
-                            post=list(reversed(post))
-                    
-                    
+                            post = list(reversed(post))
+
                     except:
                         pass
         except:
@@ -3042,7 +3045,7 @@ def Media_Post(request):
                                'mediaUrls': [image],
                                }
                     headers = {'Content-Type': 'application/json',
-                                'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+                               'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                     r1 = requests.post('https://app.ayrshare.com/api/post',
                                        json=payload,
@@ -3068,7 +3071,7 @@ def Media_Post(request):
                                    'mediaUrls': [image],
                                    }
                         headers = {'Content-Type': 'application/json',
-                                    'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+                                   'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                         r1 = requests.post('https://app.ayrshare.com/api/post',
                                            json=payload,
@@ -3087,8 +3090,8 @@ def Media_Post(request):
                                 messages.error(request, warnings['message'])
                     else:
                         pass
-                    
-                    return JsonResponse('most_recent',safe=False)
+
+                    return JsonResponse('most_recent', safe=False)
 
     else:
         return JsonResponse('social_media_channels', safe=False)
@@ -3168,7 +3171,7 @@ def Media_schedule(request):
                            'scheduleDate': str(formart)
                            }
                 headers = {'Content-Type': 'application/json',
-                            'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+                           'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                 r1 = requests.post('https://app.ayrshare.com/api/post',
                                    json=payload,
@@ -3195,7 +3198,7 @@ def Media_schedule(request):
                                'scheduleDate': str(formart)
                                }
                     headers = {'Content-Type': 'application/json',
-                                'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+                               'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                     r1 = requests.post('https://app.ayrshare.com/api/post',
                                        json=payload,
@@ -3219,158 +3222,6 @@ def Media_schedule(request):
 
     else:
         return JsonResponse('social_media_channels', safe=False)
-
-
-# @csrf_exempt
-# def Media_Post(request):
-#     session_id = request.GET.get('session_id', None)
-#     # if 'session_id' and 'username'
-#     if 'session_id' and 'username' in request.session:
-#         if request.method != "POST":
-#             return HttpResponseRedirect(reverse("generate_article:client"))
-#         else:
-#             facebook = request.POST.get("facebook")
-#             paragraphs = request.POST.getlist("paragraph")  # Get the list of paragraphs
-#             twitter = request.POST.get("twitter")
-#             linkedin = request.POST.get("linkedin")
-#             instagram = request.POST.get("instagram")
-#             youtube = request.POST.get("youtube")
-#             image = request.POST.get("image")
-#             title = request.POST.get("title")
-#             print(title)
-#             datetime2 = request.POST.get("datetime")
-#             Post_id = request.POST.get("post_id")
-#             timezone = request.session['timezone']
-
-#             url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-#             database_details = {
-#                 'database_name': 'mongodb',
-#                 'collection': 'ayrshare_info',
-#                 'database': 'social-media-auto',
-#                 'fields': ['_id']
-#             }
-#             number_of_variables = -1
-
-#             time_input = {
-#                 'column_name': 'Date',
-#                 'split': 'week',
-#                 'period': 'life_time',
-#                 'start_point': '2021/01/08',
-#                 'end_point': '2023/06/25',
-#             }
-
-#             stage_input_list = []
-
-#             distribution_input = {
-#                 'normal': 1,
-#                 'poisson': 0,
-#                 'binomial': 0,
-#                 'bernoulli': 0
-#             }
-
-#             request_data = {
-#                 'database_details': database_details,
-#                 'distribution_input': distribution_input,
-#                 'number_of_variable': number_of_variables,
-#                 'stages': stage_input_list,
-#                 'time_input': time_input,
-#             }
-
-#             headers = {'content-type': 'application/json'}
-#             response = requests.post(url, json=request_data, headers=headers)
-#             print(response.json())
-#             data = response.json()['normal']['data']
-#             for column in data:
-#                 for row in column:
-#                     if row['user_id'] == request.session['user_id']:
-#                         key = row['profileKey']
-
-#             if datetime2 != "" or None:
-#                 strDatetime = str(datetime2)
-#                 myDatetime = strDatetime + ":00Z"
-#                 formart = datetime.strptime(myDatetime, "%Y-%m-%dT%H:%M:%SZ")
-#                 current_time = pytz.timezone(timezone)
-#                 localize = current_time.localize(formart)
-#                 utc = pytz.timezone('UTC')
-#                 scheduled = localize.astimezone(utc)
-#                 string = str(scheduled)[:-6]
-#                 Isoformart = datetime.strptime(
-#                     string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
-#                 schedule = str(Isoformart)
-
-#             for paragraph in paragraphs:
-#                 posts = title + ": " + paragraph  # Create each post separately
-#                 print("This section has posts:", posts)
-#                 print(paragraph[:40])
-
-#                 payload = {'post': posts,
-#                           'platforms': [facebook, instagram, linkedin],
-#                           'profileKey': key,
-#                           'mediaUrls': [image],
-#                           "scheduleDate": schedule if datetime2 != "" or None else None}
-#                 headers = {'Content-Type': 'application/json',
-#                           'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-#                 r1 = requests.post('https://app.ayrshare.com/api/post',
-#                                   json=payload,
-#                                   headers=headers)
-#                 print(r1.json())
-#                 if r1.json()['status'] == 'error':
-#                     messages.error(request, 'error in scheduling')
-#                 elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-#                     messages.success(request, 'post has been successfully scheduled')
-#                 else:
-#                     for warnings in r1.json()['warnings']:
-#                         messages.error(request, warnings['message'])
-
-#                 # For Twitter
-#                 payload = {'post': posts[:280],
-#                           'platforms': [twitter],
-#                           'profileKey': key,
-#                           'mediaUrls': [image],
-#                           "scheduleDate": schedule if datetime2 != "" or None else None}
-#                 headers = {'Content-Type': 'application/json',
-#                           'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-#                 r1 = requests.post('https://app.ayrshare.com/api/post',
-#                                   json=payload,
-#                                   headers=headers)
-#                 print(r1.json())
-#                 if r1.json()['status'] == 'error':
-#                     messages.error(request, 'error in scheduling Twitter')
-#                 elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-#                     messages.success(request, 'post has been successfully scheduled')
-#                 else:
-#                     for warnings in r1.json()['warnings']:
-#                         messages.error(request, warnings['message'])
-
-#             url = "http://uxlivinglab.pythonanywhere.com"
-#             payload = json.dumps(
-#                 {
-#                     "cluster": "socialmedia",
-#                     "database": "socialmedia",
-#                     "collection": "step4_data",
-#                     "document": "step4_data",
-#                     "team_member_ID": "1163",
-#                     "function_ID": "ABCDE",
-#                     "command": "update",
-#                     "field":
-#                         {
-#                             '_id': Post_id
-#                         },
-#                     "update_field":
-#                         {
-#                             "status": 'scheduled'
-#                         },
-#                     "platform": "bangalore"
-#                 })
-#             headers = {'Content-Type': 'application/json'}
-#             response = requests.request(
-#                 "POST", url, headers=headers, data=payload)
-#             return redirect('/scheduled')
-
-#     else:
-#         return render(request, 'error.html')
 
 
 # @login_required(login_url = '/accounts/login/')
