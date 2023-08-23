@@ -59,8 +59,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   };
 
-  const { data, totalCount } = await fetchedData();
-
   function displayData(showData, totalCount) {
     const articlesContainer = document.querySelector(".articles-container");
     articlesContainer.innerHTML = "";
@@ -71,7 +69,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (Array.isArray(showData)) {
       let articlesHtml = ""; // Initialize an empty string to accumulate HTML
-
       showData.forEach((article) => {
         article.Date = calculateTimeDifference(article.Date);
         articlesHtml += articleTemplate(article); // Concatenate the rendered article HTML
@@ -175,10 +172,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function displayDataForCurrentPage() {
     const { data, totalCount } = await fetchedData();
 
+    const sortedData = data.sort((a, b) => new Date(b.time) - new Date(a.time));
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const dataToShow = data.slice(startIndex, endIndex);
-    console.log(dataToShow);
+    const dataToShow = sortedData.slice(startIndex, endIndex);
     displayData(dataToShow, totalCount);
     displayPagination(totalCount);
   }
