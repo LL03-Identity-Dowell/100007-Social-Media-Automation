@@ -192,7 +192,7 @@ class CreditHandler:
         sub_service_credits = sub_service_data.get('sub_service_credits')
         remaining_credits = response.get('total_credits')
 
-        if remaining_credits > sub_service_credits:
+        if remaining_credits < sub_service_credits:
             message = f'You do not have enough credits to access perform actions on this step. You have {str(remaining_credits)} credits. Required credits is {str(sub_service_credits)}'
             messages.error(request, message=message)
             credit_response.update({'success': False, 'message': message})

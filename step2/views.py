@@ -35,6 +35,7 @@ from pexels_api import API
 from pymongo import MongoClient
 
 from create_article import settings
+from credits.constants import STEP_2_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
@@ -1547,6 +1548,11 @@ def scheduled_json(request):
 @xframe_options_exempt
 def index(request):
     if 'session_id' and 'username' in request.session:
+        credit_handler = CreditHandler()
+        credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_2_SUB_SERVICE_ID,
+            request=request,
+        )
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
@@ -1869,9 +1875,18 @@ def generate_article(request):
     start_datetime = datetime.now()
     session_id = request.GET.get('session_id', None)
     if 'session_id' in request.session and 'username' in request.session:
+
         if request.method != "POST":
             return HttpResponseRedirect(reverse("generate_article:main-view"))
         else:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return redirect(reverse('credit_error_view'))
             RESEARCH_QUERY = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -1997,6 +2012,14 @@ def generate_article_wiki(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("main-view"))
         else:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return redirect(reverse('credit_error_view'))
             title = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2161,6 +2184,11 @@ def write_yourself(request):
                 request, 'You have to choose a sentence first to write its article!')
             return HttpResponseRedirect(reverse("generate_article:index-view"))
         else:
+            credit_handler = CreditHandler()
+            credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
             form = VerifyArticleForm()
             title = request.POST.get("title")
             print("title in write view: ", title)
@@ -2181,6 +2209,14 @@ def verify_article(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("generate_article:main-view"))
         else:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return redirect(reverse('credit_error_view'))
             print('this is running')
             title = request.POST.get("title")
             subject = request.POST.get("subject")
