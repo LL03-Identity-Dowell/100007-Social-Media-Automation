@@ -2875,7 +2875,7 @@ def most_recent_json(request):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
-                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source']}
+                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source'], 'time':row['time']}
                             post.append(data)
                             post = list(reversed(post))
 
