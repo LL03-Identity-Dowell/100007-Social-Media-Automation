@@ -184,9 +184,11 @@
       const endIndex = startIndex + itemsPerPage;
       const reversedData = data.sort((a, b) => new Date(b.time) - new Date(a.time));
       const dataToShow = reversedData.slice(startIndex, endIndex);
+
       displayData(dataToShow, totalCount);
       displayPagination(totalCount);
     }
 
     displayDataForCurrentPage();
+    
   });
