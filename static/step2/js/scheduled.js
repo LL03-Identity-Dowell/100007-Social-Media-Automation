@@ -173,12 +173,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function displayDataForCurrentPage() {
     const { data, totalCount } = await fetchedData();
 
-    console.log(data)
-
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const dataToShow = data.slice(startIndex, endIndex);
-    console.log(dataToShow);
+    
+    const reversedData = data.sort((a, b) => new Date(b.time) - new Date(a.time));
+    const dataToShow = reversedData.slice(startIndex, endIndex);
+
     displayData(dataToShow, totalCount);
     displayPagination(totalCount);
   }
