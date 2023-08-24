@@ -4,6 +4,7 @@ import requests
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
@@ -11,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
+from credits.constants import STEP_1_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from step2.views import create_event
 from website.forms import IndustryForm, SentencesForm
@@ -35,7 +37,15 @@ def index(request):
         forms = {'industryForm': industryForm,
                  'sentencesForm': sentencesForm, 'profile': profile}
 
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_1_SUB_SERVICE_ID,
+            request=request,
+        )
+
         if request.method == "POST":
+            if not credit_response.get('success'):
+                return redirect(reverse('credit_error_view'))
             industryForm = IndustryForm(request.POST)
             print(industryForm.is_valid())
             sentencesForm = SentencesForm(request.POST)
@@ -364,6 +374,14 @@ def selected_result(request):
     try:
         if 'session_id' and 'username' in request.session:
             if request.method == 'POST':
+                credit_handler = CreditHandler()
+                credit_response = credit_handler.check_if_user_has_enough_credits(
+                    sub_service_id=STEP_1_SUB_SERVICE_ID,
+                    request=request,
+                )
+
+                if not credit_response.get('success'):
+                    return redirect(reverse('credit_error_view'))
                 sentence_ids = request.session.get('result_ids')
                 loop_counter = 1
                 for sentence_id in sentence_ids:

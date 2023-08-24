@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.handlers.wsgi import WSGIRequest
 
 from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
-    STEP_4_SUB_SERVICE_ID
+    STEP_4_SUB_SERVICE_ID, SERVICE_ID
 from credits.credit_manager import Credit
 from credits.exceptions import CouldNotConsumeCreditError, CouldNotGetUserAPIKeyError
 
@@ -11,31 +11,47 @@ class CreditHandler:
 
     def format_response(self, request: WSGIRequest, response: dict):
         data = response
+        credit_response = {}
         if not data:
             messages.error(request, 'An error occurred while processing request')
-            return {'success': False, 'message': 'An error occurred'}
+            credit_response.update({'success': False, 'message': 'An error occurred', 'error_code': 1})
+            request.session['credit_response'] = credit_response
+            return credit_response
         is_active = data.get("is_active")
         user_credits = data.get("total_credits")
-
         disable_key = data.get("disable_key")
+
         if not is_active:
             messages.error(request, 'SERVICE KEY is not activated')
-            return {'success': False, 'message': 'SERVICE KEY is not activated'}
+            credit_response.update({'success': False, 'message': 'SERVICE KEY is not activated', 'error_code': 2})
+            request.session['credit_response'] = credit_response
+            return credit_response
+
         if disable_key:
             messages.error(request, 'YOUR SERVICE KEY IS DISABLED BY ADMIN.')
-            return {'success': False, 'message': 'YOUR SERVICE KEY IS DISABLED BY ADMIN.'}
+            credit_response.update(
+                {'success': False, 'message': 'YOUR SERVICE KEY IS DISABLED BY ADMIN.', 'error_code': 3})
+            request.session['credit_response'] = credit_response
+            return credit_response
 
         if user_credits <= 0:
             messages.error(request, "You have less credits. If you want to buy more credits click the 'Buy Credits' "
                                     "button")
-            return {'success': False, 'message': "You have less credits. If you want to buy more credits click the "
-                                                 "'Buy Credits' button", "link": "https://uxlivinglab.com/"}
+            credit_response.update(
+                {'success': False, 'message': "You have less credits. If you want to buy more credits click the "
+                                              "'Buy Credits' button", "link": "https://uxlivinglab.com/",
+                 'error_code': 4})
+            request.session['credit_response'] = credit_response
+            return credit_response
         request.session['remaining_credits'] = response.get('remaining_credits')
-        messages.success(request, 'Credits was successfully consumed')
-        return {'success': True, 'message': 'Credits was successfully consumed', 'remaining_credits': user_credits}
+        if request.session.get('credit_response', ):
+            del request.session['credit_response']
+        response['success'] = True
+        return response
 
     def format_steps_response(self, request: WSGIRequest, response: dict):
         data = response
+
         if not data:
             messages.error(request, 'An error occurred while processing request')
             return {'success': False, 'message': 'An error occurred'}
@@ -72,6 +88,7 @@ class CreditHandler:
         """
         This method consumes credits on step 1
         """
+
         user_api_key = request.session.get('CREDIT_API_KEY')
         if not user_api_key:
             return {'success': False, 'message': 'You do not have service id'}
@@ -136,3 +153,49 @@ class CreditHandler:
         except CouldNotConsumeCreditError:
             response = {}
         return self.format_steps_response(request, response)
+
+    def check_if_user_has_enough_credits(self, sub_service_id: str, request: WSGIRequest):
+        """
+        This method check if a user has enough credits to perform a step
+        """
+        credit_response = {}
+        response = self.login(request)
+
+        if not response.get('services'):
+            credit_response.update({'success': False, 'message': 'No services found error'})
+            request.session['credit_response'] = credit_response
+            return credit_response
+
+        services = response.get('services')
+        social_media_service: dict = {}
+        for service_data in services:
+            if service_data.get('service_id') == SERVICE_ID:
+                social_media_service = service_data
+                break
+        if not social_media_service:
+            messages.error(request, 'Social Media service not found')
+            credit_response.update({'success': False, 'message': 'Social Media service not found'})
+            request.session['credit_response'] = credit_response
+            return credit_response
+
+        sub_service_data: dict = {}
+        for sub_service in social_media_service.get('sub_service'):
+            if sub_service.get('sub_service_id') == sub_service_id:
+                sub_service_data = sub_service
+                break
+        if not sub_service_data:
+            messages.error(request, 'Sub Service Not Found')
+            credit_response.update({'success': False, 'message': 'Sub Service Not Found'})
+            request.session['credit_response'] = credit_response
+            return credit_response
+
+        sub_service_credits = sub_service_data.get('sub_service_credits')
+        remaining_credits = response.get('total_credits')
+
+        if remaining_credits < sub_service_credits:
+            message = f'You do not have enough credits to access perform actions on this step. You have {str(remaining_credits)} credits. Required credits is {str(sub_service_credits)}'
+            messages.error(request, message=message)
+            credit_response.update({'success': False, 'message': message})
+            request.session['credit_response'] = credit_response
+            return credit_response
+        return {'success': True, 'message': 'You have enough credits to perform this action'}
