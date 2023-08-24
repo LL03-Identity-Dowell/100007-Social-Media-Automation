@@ -2718,7 +2718,7 @@ def Save_Post(request):
         eventId = create_event()['event_id'],
         if request.method == "POST":
             title = request.POST.get("title")
-            paragraph = request.POST.get("text")
+            paragraphs_list = request.POST.getlist("paragraphs[]")
             source = request.POST.get("source")
             # target_industry = request.POST.get("p-content")
             qualitative_categorization = request.POST.get(
@@ -2747,7 +2747,7 @@ def Save_Post(request):
                     "eventId": eventId,
                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                     "title": title,
-                    "paragraph": paragraph,
+                    "paragraph": paragraphs_list,
                     "source": source,
                     "qualitative_categorization": qualitative_categorization,
                     "targeted_for": targeted_for,

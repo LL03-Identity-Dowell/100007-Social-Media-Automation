@@ -94,7 +94,7 @@ function savePost() {
         // update hidden input value
         pInput.setAttribute("class", "text");
         pInput.setAttribute("type", "hidden");
-        pInput.setAttribute("name", "text");
+        pInput.setAttribute("name", "paragraphs[]");
         pInput.setAttribute("value", `${paragraph}`);
 
         pDiv.appendChild(p);
@@ -241,7 +241,7 @@ const removeSelect = () => {
 }
 
 
-// get pexels API key or use sessionStorage cache
+// get pexels API key or use sessionStorage (cache)
 let PEXEL_API_KEY;
 async function getPexelApiKey() {
     try {
@@ -253,12 +253,11 @@ async function getPexelApiKey() {
         } else {
             const response = await fetch('http://127.0.0.1:8000/proxy-api/');
 
-            // Check if the response status is OK (status code 200)
+            // Check if the response status is OK
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.status}`);
             }
 
-            // Parse the response as JSON
             const data = await response.json();
             const { api_key } = data;
             sessionStorage.setItem('api_key', api_key);

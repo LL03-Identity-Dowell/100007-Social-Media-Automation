@@ -42,7 +42,7 @@
     <div id="post-paragraphs">
       {% for p in post.paragraph %}
       <div class="post-paragraph">{{ p }}</div>
-      <input class="text" type = "hidden" name="text" value="{{ p }}">
+      <input class="text" type = "hidden" name="paragraphs[]" value="{{ p }}">
       {% endfor %}
     </div>
 
