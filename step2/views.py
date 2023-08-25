@@ -2001,8 +2001,8 @@ def generate_article(request):
             print(f"Task started at: {start_datetime}")
             print(f"Task completed at: {end_datetime}")
             print(f"Total time taken: {time_taken}")
-            credit_handler = CreditHandler()
-            credit_handler.consume_step_2_credit(request)
+            # credit_handler = CreditHandler()
+            # credit_handler.consume_step_2_credit(request)
             return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -2127,8 +2127,8 @@ def generate_article_wiki(request):
                                                                    }, '34567897799')
 
                             print("\n")
-                    credit_handler = CreditHandler()
-                    credit_handler.consume_step_2_credit(request)
+                    # credit_handler = CreditHandler()
+                    # credit_handler.consume_step_2_credit(request)
                     if 'article_sub_verb' in locals():
                         # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
                         # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
@@ -2173,8 +2173,8 @@ def generate_article_wiki(request):
                                                                # 'dowelltime': dowellclock
                                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
-                credit_handler = CreditHandler()
-                credit_handler.consume_step_2_credit(request)
+                # credit_handler = CreditHandler()
+                # credit_handler.consume_step_2_credit(request)
                 return HttpResponseRedirect(reverse("generate_article:article-list"))
     else:
         return render(request, 'error.html')
@@ -2318,8 +2318,8 @@ def verify_article(request):
                                                        }, "9992828281")
                 print("Article saved successfully")
                 message = message + "Article saved successfully"
-                credit_handler = CreditHandler()
-                credit_handler.consume_step_2_credit(request)
+                # credit_handler = CreditHandler()
+                # credit_handler.consume_step_2_credit(request)
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -3092,8 +3092,8 @@ def Media_Post(request):
                     if r1.json()['status'] == 'error':
                         messages.error(request, 'error in posting')
                     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                        credit_handler = CreditHandler()
-                        credit_handler.consume_step_4_credit(request)
+                        # credit_handler = CreditHandler()
+                        # credit_handler.consume_step_4_credit(request)
                         messages.success(
                             request, 'post have been sucessfully posted')
                         update = update_most_recent(post_id)
