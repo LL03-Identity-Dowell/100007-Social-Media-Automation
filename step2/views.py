@@ -2679,7 +2679,7 @@ def article_detail(request):
 def post_detail(request):
     if 'session_id' and 'username' in request.session:
         credit_handler = CreditHandler()
-        credit_response = credit_handler.check_if_user_has_enough_credits(
+        credit_handler.check_if_user_has_enough_credits(
             sub_service_id=STEP_3_SUB_SERVICE_ID,
             request=request,
         )
@@ -3025,6 +3025,15 @@ def update_schedule(pk):
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_4_SUB_SERVICE_ID,
+            request=request,
+        )
+
+        if not credit_response.get('success'):
+            return redirect(reverse('credit_error_view'))
+        
         data = json.loads(request.body.decode("utf-8"))
         print(data)
         title = data['title']
