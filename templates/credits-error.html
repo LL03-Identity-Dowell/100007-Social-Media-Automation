@@ -23,6 +23,7 @@
         {% if error_code == 4 %}
             <a class="btn btn-primary btn-lg" href="{{ link }}">Buy more credits</a>
         {% endif %}
+        <a href="{% url 'credit_error_view' %}?reload=1" class="btn btn-danger">Reload</a>
     </center>
 
     <style>
