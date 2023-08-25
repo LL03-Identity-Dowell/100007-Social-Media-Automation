@@ -42,7 +42,7 @@
     <div id="post-paragraphs">
       {% for p in post.paragraph %}
       <div class="post-paragraph">{{ p }}</div>
-      <input class="text" type = "hidden" name="paragraphs[]" value="{{ p }}">
+      <input class="text" type="hidden" name="paragraphs[]" value="{{ p }}">
       {% endfor %}
     </div>
 
@@ -73,7 +73,7 @@
           </button>
         </div>
         <img src ={{images}} alt="Random meme..." class="img-fluid post-img">
-        <input id="images" type= "hidden" name="images" value="{{images}}">
+        <input id="images" type="hidden" name="images" value="{{images}}">
       </div>
 
       <div class="post-options">
