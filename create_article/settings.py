@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 
 
     'corsheaders',
+    'credits',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
