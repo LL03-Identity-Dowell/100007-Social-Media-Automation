@@ -2,6 +2,7 @@ function showAdminMessage() {
     alert("You are not an admin!");
 }
 
+
 window.onload = function downdis() {
     console.log("Hellow On Load")
 }
@@ -15,6 +16,7 @@ var postti = document.getElementById('post-title')
 var postpar = document.getElementById('post-paragraph')
 var postsor = document.getElementById('post-sources')
 
+
 function deletePost() {
 
     var fields = document.getElementsByTagName('input');
@@ -27,7 +29,6 @@ function deletePost() {
 
     console.log("lets Delete")
 }
-
 
 
 function editPost() {
@@ -64,9 +65,6 @@ function editPost() {
 }
 
 
-
-
-
 function savePost() {
 
     console.log("Remember to save to database...");
@@ -96,7 +94,7 @@ function savePost() {
         // update hidden input value
         pInput.setAttribute("class", "text");
         pInput.setAttribute("type", "hidden");
-        pInput.setAttribute("name", "text");
+        pInput.setAttribute("name", "paragraphs[]");
         pInput.setAttribute("value", `${paragraph}`);
 
         pDiv.appendChild(p);
@@ -137,7 +135,7 @@ function savePost() {
 
     document.querySelector('#sources-input').replaceWith(sDiv);
 
-    // Save state to localStorage
+    // Save state to localStorage/ implementing some caching
     //let currImage = document.querySelector(".post-img");
     //let postData = {
     //  title: newTitle,
@@ -149,7 +147,6 @@ function savePost() {
 
 
 //image overlay show and hide
-
 let overlayDiv = document.querySelector('.img-overlay');
 let editPostBtn = document.querySelector('#edit-post');
 let savePostBtn = document.querySelector('#save-post');
@@ -165,33 +162,42 @@ savePostBtn.addEventListener("click", () => {
 
 
 //handle search
-
-$('#search_input').on("input", async function (event) {
+$('#search_input').on("input", async function () {
 
     let imageId = 0;
     let pexelsImageContainer = document.getElementById('pexels-image-row');
     let searchTerm = document.getElementById('search_input').value;
 
+
+
     pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <div class="spinner-border text-primary style="width: 3rem; height: 3rem;" role="status"> <span class="visually-hidden">Loading...</span> </div> </div>'
 
     if (searchTerm == "") {
         pexelsImageContainer.innerHTML = "";
+    } else {
+
+        let { srcArray, totalResults } = await searchPhoto(searchTerm);
+        //console.log(srcResult);
+
+        if (totalResults > 0) {
+            pexelsImageContainer.innerHTML = "";
+            for (let imgSrc of srcArray) {
+                imageId += 1;
+                pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
+            }
+        } else {
+            pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <p> Sorry, no image found, try another term </p> </div>'
+        }
     }
 
-
-
-
-    let srcResult = await searchPhoto(searchTerm);
-    //console.log(srcResult);
-
-    pexelsImageContainer.innerHTML = "";
-    for (let i = 0; i < srcResult.length; i++) {
-        imageId += 1;
-        pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${srcResult[i]} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;" onclick="handleImageSelect();"> </div>`
-    }
+    const allImages = document.querySelectorAll('.pexels-img')
+    allImages.forEach((image) => {
+        image.addEventListener("click", (e) => { handleImageSelect(e) }, false);
+    })
 
     //event.stopPropagation();
 });
+
 
 //handle Enter Key press
 searchInputField = document.getElementById('search_input');
@@ -201,16 +207,18 @@ searchInputField.addEventListener("keypress", (event) => {
     }
 })
 
+
 //handle search button click
 searchBtn = document.getElementById('search_btn');
 searchBtn.addEventListener("click", (event) => {
     event.preventDefault();
 })
 
+
 // handle image select
 let imageSrc = "";
-const handleImageSelect = () => {
-    const elementId = event.target.id;
+const handleImageSelect = (e) => {
+    const elementId = e.target.id;
     const img = document.getElementById(elementId);
     imageSrc = img.src;
     img.classList.add("borderToggle");
@@ -224,6 +232,7 @@ const handleImageSelect = () => {
     });
 };
 
+
 const removeSelect = () => {
     const images = document.querySelectorAll('.pexels-img');
     images.forEach((image) => {
@@ -231,25 +240,63 @@ const removeSelect = () => {
     });
 }
 
+
+// get pexels API key or use sessionStorage (cache)
+let PEXEL_API_KEY;
+async function getPexelApiKey() {
+    try {
+        const apiKey = sessionStorage.getItem('api_key');
+        // console.log("local", apiKey);
+        if (apiKey) {
+            PEXEL_API_KEY = apiKey;
+            // console.log("from cache:", apiKey);
+        } else {
+            const response = await fetch('http://127.0.0.1:8000/proxy-api/');
+
+            // Check if the response status is OK
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const { api_key } = data;
+            sessionStorage.setItem('api_key', api_key);
+            PEXEL_API_KEY = api_key;
+            // console.log("from Api Call", PEXEL_API_KEY);
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+getPexelApiKey();
+
+
 // Pexels API fetch function
 const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
-const PEXEL_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65';
-
 const searchPhoto = async (term) => {
-    let srcArray = [];
-    let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=12&orientation=landscape`, {
-        headers: {
-            Authorization: PEXEL_API_KEY
-        }
-    });
+    try {
 
-    let jsonData = await res.json();
-    jsonData.photos.map(image => {
-        //console.log(image.src.medium);
-        srcArray.push(image.src.medium);
-    })
-    return srcArray;
+        let srcArray = [];
+        await getPexelApiKey();
+        let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=12&orientation=landscape`, {
+            headers: {
+                Authorization: PEXEL_API_KEY
+            }
+        });
+
+        let jsonData = await res.json();
+        let totalResults = jsonData.total_results
+        // console.log(totalResults);
+        jsonData.photos.map(image => {
+            // console.log(image.src.medium);
+            srcArray.push(image.src.medium);
+        })
+        return { srcArray, totalResults };
+    } catch (err) {
+        console.error(`Error fecthing images: ${err}`)
+    }
 }
+
 
 const updateImage = () => {
     if (imageSrc == "") {
