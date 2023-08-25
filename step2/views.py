@@ -1535,9 +1535,9 @@ def scheduled_json(request):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
-                                    'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),'time':row['time']}
+                                    'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(), 'time': row['time']}
                             post.append(data)
-                            post=list(reversed(post))
+                            post = list(reversed(post))
                     except:
                         pass
         except:
@@ -2779,6 +2779,9 @@ def Save_Post(request):
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
+            combined_article = "\n\n".join(paragraphs_list)
+            paragraph_without_commas = combined_article.replace(
+                '.', '. ').replace(',.', '.')
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -2798,7 +2801,7 @@ def Save_Post(request):
                     "eventId": eventId,
                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                     "title": title,
-                    "paragraph": paragraphs_list,
+                    "paragraph": paragraph_without_commas,
                     "source": source,
                     "qualitative_categorization": qualitative_categorization,
                     "targeted_for": targeted_for,
@@ -2821,8 +2824,8 @@ def Save_Post(request):
             response = requests.request(
                 "POST", url, headers=headers, data=payload)
             print("data data data data:", response.json())
-            credit_handler = CreditHandler()
-            credit_handler.consume_step_3_credit(request)
+            # credit_handler = CreditHandler()
+            # credit_handler.consume_step_3_credit(request)
         # make sure to alert the user that the article has been saved sucesfully. (frontend)
         return redirect('/schedule')
     else:
@@ -2909,8 +2912,8 @@ def most_recent_json(request):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
-      
-                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source'], 'time':row['time']}
+
+                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source'], 'time': row['time']}
                             post.append(data)
                             post = list(reversed(post))
 
