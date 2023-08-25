@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('step2.urls')),
     path('server/', serverReports),
     path('website/', include('website.urls')),
+    path('credit/', include('credits.urls')),
 
     path('api/v1/', include('article_api.urls')),
 

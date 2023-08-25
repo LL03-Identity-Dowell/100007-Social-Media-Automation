@@ -6,7 +6,7 @@ import time
 import traceback
 import urllib
 import urllib.parse
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 # image resizing
 from io import BytesIO
 
@@ -26,17 +26,17 @@ from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, HttpResponse
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-
 
 from create_article import settings
+from credits.constants import STEP_2_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 
@@ -227,17 +227,18 @@ def frontend_api_request(request):
     return JsonResponse(response_data, status=response_data['status_code'])
 
 
-def has_access(portfolio_info):
-
-    if not portfolio_info:
+def has_access(portfolio_info_list):
+    if not portfolio_info_list:
         return False
-    if portfolio_info[0].get('product') != PRODUCT_NAME:
-        return False
-    return True
+    for portfolio_info in portfolio_info_list:
+        if portfolio_info.get('product') == PRODUCT_NAME:
+            return True
+    return False
 
 
 def home(request):
     session_id = request.GET.get("session_id", None)
+
     if session_id:
         request.session["session_id"] = session_id
         return redirect("http://127.0.0.1:8000/main")
@@ -331,6 +332,10 @@ def main(request):
 
         if not has_access(request.session['portfolio_info']):
             return render(request, 'portofolio-logib.html')
+        credit_handler = CreditHandler()
+        credit_data_response = credit_handler.login(request)
+        if not credit_data_response.get('success'):
+            return redirect(reverse('credit_error_view'))
         return render(request, 'main.html')
     else:
         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
@@ -555,11 +560,12 @@ def check_if_user_has_social_media_profile_in_aryshare(username):
 def check_connected_accounts(username):
     headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
     r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
-    socials=['hello']
+    socials = ['hello']
     for name in r.json()['profiles']:
         if name['title'] == username:
-            socials=name['activeSocialAccounts']
-    return(socials)
+            socials = name['activeSocialAccounts']
+    return (socials)
+
 
 @csrf_exempt
 @xframe_options_exempt
@@ -567,9 +573,9 @@ def social_media_channels(request):
     username = request.session['username']
     user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
         username)
-    linked_accounts=check_connected_accounts(username)
+    linked_accounts = check_connected_accounts(username)
     context_data = {
-        'user_has_social_media_profile': user_has_social_media_profile,'linked_accounts':linked_accounts}
+        'user_has_social_media_profile': user_has_social_media_profile, 'linked_accounts': linked_accounts}
     return render(request, 'social_media_channels.html', context_data)
 
 
@@ -1326,17 +1332,17 @@ def topics(request):
     return render(request, 'topics.html')
 
 
-def update_aryshare(username,userid):
+def update_aryshare(username, userid):
     headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
     r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
-    socials=['no account linked']
+    socials = ['no account linked']
     try:
         for name in r.json()['profiles']:
-            
+
             if name['title'] == username:
-                socials=name['activeSocialAccounts']
+                socials = name['activeSocialAccounts']
                 url = "http://uxlivinglab.pythonanywhere.com"
-            
+
                 payload = json.dumps({
                     "cluster": "socialmedia",
                     "database": "socialmedia",
@@ -1347,11 +1353,11 @@ def update_aryshare(username,userid):
                     "command": "update",
                     "field": {
 
-                        'user_id':userid
+                        'user_id': userid
                     },
                     "update_field": {
                         "aryshare_details": {
-                        'social_platforms':name['activeSocialAccounts']
+                            'social_platforms': name['activeSocialAccounts']
 
 
                         }
@@ -1364,12 +1370,13 @@ def update_aryshare(username,userid):
                     'Content-Type': 'application/json'
                 }
 
-                response = requests.request("POST", url, headers=headers, data=payload)
-                
-                
+                response = requests.request(
+                    "POST", url, headers=headers, data=payload)
+
     except:
         pass
-    return(socials)
+    return (socials)
+
 
 @csrf_exempt
 @xframe_options_exempt
@@ -1428,7 +1435,7 @@ def unscheduled_json(request):
                             'image': row['image'], 'source': row['source'], 'PK': row['_id']}
                     post.append(data)
                     respond = json.dumps(post)
-                    post=list(reversed(post))
+                    post = list(reversed(post))
 
         except:
             pass
@@ -1528,10 +1535,9 @@ def scheduled_json(request):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
-                                    'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),'time':row['time']}
+                                    'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(), 'time': row['time']}
                             post.append(data)
-                            post=list(reversed(post))
-
+                            post = list(reversed(post))
                     except:
                         pass
         except:
@@ -1544,6 +1550,11 @@ def scheduled_json(request):
 @xframe_options_exempt
 def index(request):
     if 'session_id' and 'username' in request.session:
+        credit_handler = CreditHandler()
+        credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_2_SUB_SERVICE_ID,
+            request=request,
+        )
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
@@ -1866,9 +1877,18 @@ def generate_article(request):
     start_datetime = datetime.now()
     session_id = request.GET.get('session_id', None)
     if 'session_id' in request.session and 'username' in request.session:
+
         if request.method != "POST":
             return HttpResponseRedirect(reverse("generate_article:main-view"))
         else:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return redirect(reverse('credit_error_view'))
             RESEARCH_QUERY = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -1885,8 +1905,12 @@ def generate_article(request):
 
             # Build prompt
             prompt_limit = 280
-            prompt = f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."[
-                :prompt_limit] + "..."
+            prompt = (
+                f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
+                f" Generate only 2 paragraphs. "
+                [:prompt_limit]
+                + "..."
+            )
 
             # Variables for loop control
             duration = 10  # Total duration in seconds
@@ -1977,7 +2001,8 @@ def generate_article(request):
             print(f"Task started at: {start_datetime}")
             print(f"Task completed at: {end_datetime}")
             print(f"Total time taken: {time_taken}")
-
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_2_credit(request)
             return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -1992,6 +2017,14 @@ def generate_article_wiki(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("main-view"))
         else:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return redirect(reverse('credit_error_view'))
             title = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2092,7 +2125,10 @@ def generate_article_wiki(request):
                                                                    'subject': subject,
                                                                    # 'dowelltime': dowellclock
                                                                    }, '34567897799')
+
                             print("\n")
+                    credit_handler = CreditHandler()
+                    credit_handler.consume_step_2_credit(request)
                     if 'article_sub_verb' in locals():
                         # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
                         # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
@@ -2137,7 +2173,8 @@ def generate_article_wiki(request):
                                                                # 'dowelltime': dowellclock
                                                                }, '34567897799')
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
-
+                credit_handler = CreditHandler()
+                credit_handler.consume_step_2_credit(request)
                 return HttpResponseRedirect(reverse("generate_article:article-list"))
     else:
         return render(request, 'error.html')
@@ -2152,6 +2189,11 @@ def write_yourself(request):
                 request, 'You have to choose a sentence first to write its article!')
             return HttpResponseRedirect(reverse("generate_article:index-view"))
         else:
+            credit_handler = CreditHandler()
+            credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
             form = VerifyArticleForm()
             title = request.POST.get("title")
             print("title in write view: ", title)
@@ -2172,6 +2214,14 @@ def verify_article(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("generate_article:main-view"))
         else:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return redirect(reverse('credit_error_view'))
             print('this is running')
             title = request.POST.get("title")
             subject = request.POST.get("subject")
@@ -2268,7 +2318,8 @@ def verify_article(request):
                                                        }, "9992828281")
                 print("Article saved successfully")
                 message = message + "Article saved successfully"
-
+                credit_handler = CreditHandler()
+                credit_handler.consume_step_2_credit(request)
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -2728,6 +2779,9 @@ def Save_Post(request):
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
+            combined_article = "\n\n".join(paragraphs_list)
+            paragraph_without_commas = combined_article.replace(
+                '.', '. ').replace(',.', '.')
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -2747,7 +2801,7 @@ def Save_Post(request):
                     "eventId": eventId,
                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                     "title": title,
-                    "paragraph": paragraphs_list,
+                    "paragraph": paragraph_without_commas,
                     "source": source,
                     "qualitative_categorization": qualitative_categorization,
                     "targeted_for": targeted_for,
@@ -2769,7 +2823,9 @@ def Save_Post(request):
             print("This is payload", payload)
             response = requests.request(
                 "POST", url, headers=headers, data=payload)
-            print("data:", response.json())
+            print("data data data data:", response.json())
+            # credit_handler = CreditHandler()
+            # credit_handler.consume_step_3_credit(request)
         # make sure to alert the user that the article has been saved sucesfully. (frontend)
         return redirect('/schedule')
     else:
@@ -2856,12 +2912,11 @@ def most_recent_json(request):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
-      
-                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source'], 'time':row['time']}
+
+                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source'], 'time': row['time']}
                             post.append(data)
-                            post=list(reversed(post))
-                    
-                    
+                            post = list(reversed(post))
+
                     except:
                         pass
         except:
@@ -3028,7 +3083,7 @@ def Media_Post(request):
                                'mediaUrls': [image],
                                }
                     headers = {'Content-Type': 'application/json',
-                                'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+                               'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                     r1 = requests.post('https://app.ayrshare.com/api/post',
                                        json=payload,
@@ -3037,10 +3092,11 @@ def Media_Post(request):
                     if r1.json()['status'] == 'error':
                         messages.error(request, 'error in posting')
                     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+                        credit_handler = CreditHandler()
+                        credit_handler.consume_step_4_credit(request)
                         messages.success(
                             request, 'post have been sucessfully posted')
                         update = update_most_recent(post_id)
-
                     else:
                         for warnings in r1.json()['warnings']:
                             messages.error(request, warnings['message'])
@@ -3053,7 +3109,7 @@ def Media_Post(request):
                                    'mediaUrls': [image],
                                    }
                         headers = {'Content-Type': 'application/json',
-                                    'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+                                   'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                         r1 = requests.post('https://app.ayrshare.com/api/post',
                                            json=payload,
@@ -3072,8 +3128,8 @@ def Media_Post(request):
                                 messages.error(request, warnings['message'])
                     else:
                         pass
-                    
-                    return JsonResponse('most_recent',safe=False)
+
+                    return JsonResponse('most_recent', safe=False)
 
     else:
         return JsonResponse('social_media_channels', safe=False)
@@ -3153,7 +3209,7 @@ def Media_schedule(request):
                            'scheduleDate': str(formart)
                            }
                 headers = {'Content-Type': 'application/json',
-                            'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+                           'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                 r1 = requests.post('https://app.ayrshare.com/api/post',
                                    json=payload,
@@ -3180,7 +3236,7 @@ def Media_schedule(request):
                                'scheduleDate': str(formart)
                                }
                     headers = {'Content-Type': 'application/json',
-                                'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+                               'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
 
                     r1 = requests.post('https://app.ayrshare.com/api/post',
                                        json=payload,
@@ -3204,158 +3260,6 @@ def Media_schedule(request):
 
     else:
         return JsonResponse('social_media_channels', safe=False)
-
-
-# @csrf_exempt
-# def Media_Post(request):
-#     session_id = request.GET.get('session_id', None)
-#     # if 'session_id' and 'username'
-#     if 'session_id' and 'username' in request.session:
-#         if request.method != "POST":
-#             return HttpResponseRedirect(reverse("generate_article:client"))
-#         else:
-#             facebook = request.POST.get("facebook")
-#             paragraphs = request.POST.getlist("paragraph")  # Get the list of paragraphs
-#             twitter = request.POST.get("twitter")
-#             linkedin = request.POST.get("linkedin")
-#             instagram = request.POST.get("instagram")
-#             youtube = request.POST.get("youtube")
-#             image = request.POST.get("image")
-#             title = request.POST.get("title")
-#             print(title)
-#             datetime2 = request.POST.get("datetime")
-#             Post_id = request.POST.get("post_id")
-#             timezone = request.session['timezone']
-
-#             url = 'http://100032.pythonanywhere.com/api/targeted_population/'
-#             database_details = {
-#                 'database_name': 'mongodb',
-#                 'collection': 'ayrshare_info',
-#                 'database': 'social-media-auto',
-#                 'fields': ['_id']
-#             }
-#             number_of_variables = -1
-
-#             time_input = {
-#                 'column_name': 'Date',
-#                 'split': 'week',
-#                 'period': 'life_time',
-#                 'start_point': '2021/01/08',
-#                 'end_point': '2023/06/25',
-#             }
-
-#             stage_input_list = []
-
-#             distribution_input = {
-#                 'normal': 1,
-#                 'poisson': 0,
-#                 'binomial': 0,
-#                 'bernoulli': 0
-#             }
-
-#             request_data = {
-#                 'database_details': database_details,
-#                 'distribution_input': distribution_input,
-#                 'number_of_variable': number_of_variables,
-#                 'stages': stage_input_list,
-#                 'time_input': time_input,
-#             }
-
-#             headers = {'content-type': 'application/json'}
-#             response = requests.post(url, json=request_data, headers=headers)
-#             print(response.json())
-#             data = response.json()['normal']['data']
-#             for column in data:
-#                 for row in column:
-#                     if row['user_id'] == request.session['user_id']:
-#                         key = row['profileKey']
-
-#             if datetime2 != "" or None:
-#                 strDatetime = str(datetime2)
-#                 myDatetime = strDatetime + ":00Z"
-#                 formart = datetime.strptime(myDatetime, "%Y-%m-%dT%H:%M:%SZ")
-#                 current_time = pytz.timezone(timezone)
-#                 localize = current_time.localize(formart)
-#                 utc = pytz.timezone('UTC')
-#                 scheduled = localize.astimezone(utc)
-#                 string = str(scheduled)[:-6]
-#                 Isoformart = datetime.strptime(
-#                     string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
-#                 schedule = str(Isoformart)
-
-#             for paragraph in paragraphs:
-#                 posts = title + ": " + paragraph  # Create each post separately
-#                 print("This section has posts:", posts)
-#                 print(paragraph[:40])
-
-#                 payload = {'post': posts,
-#                           'platforms': [facebook, instagram, linkedin],
-#                           'profileKey': key,
-#                           'mediaUrls': [image],
-#                           "scheduleDate": schedule if datetime2 != "" or None else None}
-#                 headers = {'Content-Type': 'application/json',
-#                           'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-#                 r1 = requests.post('https://app.ayrshare.com/api/post',
-#                                   json=payload,
-#                                   headers=headers)
-#                 print(r1.json())
-#                 if r1.json()['status'] == 'error':
-#                     messages.error(request, 'error in scheduling')
-#                 elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-#                     messages.success(request, 'post has been successfully scheduled')
-#                 else:
-#                     for warnings in r1.json()['warnings']:
-#                         messages.error(request, warnings['message'])
-
-#                 # For Twitter
-#                 payload = {'post': posts[:280],
-#                           'platforms': [twitter],
-#                           'profileKey': key,
-#                           'mediaUrls': [image],
-#                           "scheduleDate": schedule if datetime2 != "" or None else None}
-#                 headers = {'Content-Type': 'application/json',
-#                           'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-#                 r1 = requests.post('https://app.ayrshare.com/api/post',
-#                                   json=payload,
-#                                   headers=headers)
-#                 print(r1.json())
-#                 if r1.json()['status'] == 'error':
-#                     messages.error(request, 'error in scheduling Twitter')
-#                 elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-#                     messages.success(request, 'post has been successfully scheduled')
-#                 else:
-#                     for warnings in r1.json()['warnings']:
-#                         messages.error(request, warnings['message'])
-
-#             url = "http://uxlivinglab.pythonanywhere.com"
-#             payload = json.dumps(
-#                 {
-#                     "cluster": "socialmedia",
-#                     "database": "socialmedia",
-#                     "collection": "step4_data",
-#                     "document": "step4_data",
-#                     "team_member_ID": "1163",
-#                     "function_ID": "ABCDE",
-#                     "command": "update",
-#                     "field":
-#                         {
-#                             '_id': Post_id
-#                         },
-#                     "update_field":
-#                         {
-#                             "status": 'scheduled'
-#                         },
-#                     "platform": "bangalore"
-#                 })
-#             headers = {'Content-Type': 'application/json'}
-#             response = requests.request(
-#                 "POST", url, headers=headers, data=payload)
-#             return redirect('/scheduled')
-
-#     else:
-#         return render(request, 'error.html')
 
 
 # @login_required(login_url = '/accounts/login/')

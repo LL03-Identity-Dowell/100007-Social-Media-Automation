@@ -41,8 +41,10 @@
 
     <div id="post-paragraphs">
       {% for p in post.paragraph %}
+      {% if p.strip != '' %}
       <div class="post-paragraph">{{ p }}</div>
-      <input class="text" type = "hidden" name="paragraphs[]" value="{{ p }}">
+      <input class="text" type="hidden" name="paragraphs[]" value="{{ p|safe }}">
+      {% endif %}
       {% endfor %}
     </div>
 
