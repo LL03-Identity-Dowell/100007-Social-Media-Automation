@@ -35,7 +35,7 @@ from pexels_api import API
 from pymongo import MongoClient
 
 from create_article import settings
-from credits.constants import STEP_2_SUB_SERVICE_ID
+from credits.constants import STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
@@ -2683,6 +2683,12 @@ def article_detail(request):
 @xframe_options_exempt
 def post_detail(request):
     if 'session_id' and 'username' in request.session:
+        credit_handler = CreditHandler()
+        credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_3_SUB_SERVICE_ID,
+            request=request,
+        )
+
         url = "http://uxlivinglab.pythonanywhere.com"
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -2762,12 +2768,19 @@ def Save_Post(request):
         # searchstring="ObjectId"+"("+"'"+"6139bd4969b0c91866e40551"+"'"+")"
         # date = datetime.now()
         # time=dd.strftime("%d:%m:%Y,%H:%M:%S")
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_3_SUB_SERVICE_ID,
+            request=request,
+        )
         time = localtime()
         test_date = str(localdate())
         date_obj = datetime.strptime(test_date, '%Y-%m-%d')
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
         eventId = create_event()['event_id'],
         if request.method == "POST":
+            if not credit_response.get('success'):
+                return redirect(reverse('credit_error_view'))
             title = request.POST.get("title")
             paragraphs_list = request.POST.getlist("paragraphs[]")
             source = request.POST.get("source")
@@ -3020,6 +3033,15 @@ def update_schedule(pk):
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_4_SUB_SERVICE_ID,
+            request=request,
+        )
+
+        if not credit_response.get('success'):
+            return redirect(reverse('credit_error_view'))
+        
         data = json.loads(request.body.decode("utf-8"))
         print(data)
         title = data['title']
