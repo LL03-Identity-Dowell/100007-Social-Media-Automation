@@ -34,9 +34,8 @@ from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
 
+from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
-from credits.constants import STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
-from credits.credit_handler import CreditHandler
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 
@@ -59,6 +58,24 @@ def get_image(urls):
     file = m.download_url(urls, '/home/100007/create_article/static/photos')
     return file
 
+
+def download_and_upload_image(image_url):
+    try:
+        response = requests.get(image_url, stream=True)
+        response.raise_for_status()  # Check if the request was successful
+
+        image_content = response.content
+
+        image_name = image_url.split('/')[-1]
+
+        # Upload the image content to the specified endpoint
+        files = {'image': (image_name, image_content)}
+        upload_response = requests.post(UPLOAD_IMAGE_ENDPOINT, files=files)
+
+        return upload_response
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
+        return None
 
 def get_event_id():
     dd = datetime.now()
@@ -2797,7 +2814,8 @@ def Save_Post(request):
                 '.', '. ').replace(',.', '.')
 
             url = "http://uxlivinglab.pythonanywhere.com"
-
+            import pdb
+            pdb.set_trace()
             payload = json.dumps({
                 "cluster": "socialmedia",
                 "database": "socialmedia",
