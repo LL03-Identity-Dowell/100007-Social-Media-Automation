@@ -66,16 +66,16 @@ def download_and_upload_image(image_url):
 
         image_content = response.content
 
-        image_name = image_url.split('/')[-1]
+        image_name = image_url.split('/')[-1].split('?')[0]
 
         # Upload the image content to the specified endpoint
         files = {'image': (image_name, image_content)}
         upload_response = requests.post(UPLOAD_IMAGE_ENDPOINT, files=files)
 
-        return upload_response
-    except requests.exceptions.RequestException as e:
+        return upload_response.json()
+    except Exception as e:
         print(f"Error: {e}")
-        return None
+        return {'file_url': image_url}
 
 def get_event_id():
     dd = datetime.now()
@@ -2814,8 +2814,10 @@ def Save_Post(request):
                 '.', '. ').replace(',.', '.')
 
             url = "http://uxlivinglab.pythonanywhere.com"
-            import pdb
-            pdb.set_trace()
+            uploaded_image = download_and_upload_image(image_url=image)
+
+            image = uploaded_image.get('file_url')
+
             payload = json.dumps({
                 "cluster": "socialmedia",
                 "database": "socialmedia",
