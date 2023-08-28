@@ -37,15 +37,15 @@ def index(request):
         forms = {'industryForm': industryForm,
                  'sentencesForm': sentencesForm, 'profile': profile}
 
-        credit_handler = CreditHandler()
-        credit_response = credit_handler.check_if_user_has_enough_credits(
-            sub_service_id=STEP_1_SUB_SERVICE_ID,
-            request=request,
-        )
+        # credit_handler = CreditHandler()
+        # credit_response = credit_handler.check_if_user_has_enough_credits(
+        #     sub_service_id=STEP_1_SUB_SERVICE_ID,
+        #     request=request,
+        # )
 
         if request.method == "POST":
-            if not credit_response.get('success'):
-                return redirect(reverse('credit_error_view'))
+            # if not credit_response.get('success'):
+            #     return redirect(reverse('credit_error_view'))
             industryForm = IndustryForm(request.POST)
             print(industryForm.is_valid())
             sentencesForm = SentencesForm(request.POST)
@@ -374,14 +374,14 @@ def selected_result(request):
     try:
         if 'session_id' and 'username' in request.session:
             if request.method == 'POST':
-                credit_handler = CreditHandler()
-                credit_response = credit_handler.check_if_user_has_enough_credits(
-                    sub_service_id=STEP_1_SUB_SERVICE_ID,
-                    request=request,
-                )
+                # credit_handler = CreditHandler()
+                # credit_response = credit_handler.check_if_user_has_enough_credits(
+                #     sub_service_id=STEP_1_SUB_SERVICE_ID,
+                #     request=request,
+                # )
 
-                if not credit_response.get('success'):
-                    return redirect(reverse('credit_error_view'))
+                # if not credit_response.get('success'):
+                #     return redirect(reverse('credit_error_view'))
                 sentence_ids = request.session.get('result_ids')
                 loop_counter = 1
                 for sentence_id in sentence_ids:
@@ -419,8 +419,8 @@ def selected_result(request):
                 # Removing industry form data and sentence forms data from the session
                 request.session.pop('industry_form_data', None)
                 request.session.pop('sentences_form_data', None)
-                credit_handler = CreditHandler()
-                credit_handler.consume_step_1_credit(request)
+                # credit_handler = CreditHandler()
+                # credit_handler.consume_step_1_credit(request)
 
                 # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
                 return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")

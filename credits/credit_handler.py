@@ -43,6 +43,26 @@ class CreditHandler:
                  'error_code': 4})
             request.session['credit_response'] = credit_response
             return credit_response
+
+        # Checking if social media service is active or not
+        services = response.get('services')
+        social_media_service: dict = {}
+        for service_data in services:
+            if service_data.get('service_id') == SERVICE_ID:
+                social_media_service = service_data
+                break
+        if not social_media_service:
+            messages.error(request, 'Social Media service not found')
+            credit_response.update({'success': False, 'message': 'Social Media service not found'})
+            request.session['credit_response'] = credit_response
+            return credit_response
+
+        if not social_media_service.get('is_active'):
+            messages.error(request, 'Social Media service is inactive')
+            credit_response.update({'success': False, 'message': 'Social Media service is inactived'})
+            request.session['credit_response'] = credit_response
+            return credit_response
+
         request.session['remaining_credits'] = response.get('remaining_credits')
         if request.session.get('credit_response', ):
             del request.session['credit_response']
