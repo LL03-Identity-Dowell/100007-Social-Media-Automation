@@ -1015,6 +1015,9 @@ def client_profile_form(request):
 def client(request):
     return render(request, 'dowell/main.html')
 
+def targeted_cities(request):
+    return render(request, 'dowell/target_cities.html')
+
 
 @csrf_exempt
 @xframe_options_exempt
