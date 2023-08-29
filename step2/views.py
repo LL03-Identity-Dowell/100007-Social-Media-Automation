@@ -236,6 +236,14 @@ def has_access(portfolio_info_list):
     return False
 
 
+def handler404(request, exception):
+    return render(request, 'errors/404.html', status=404)
+
+
+def handler500(request):
+    return render(request, 'errors/500.html', status=500)
+
+
 def home(request):
     session_id = request.GET.get("session_id", None)
 
@@ -1014,6 +1022,10 @@ def client_profile_form(request):
 @xframe_options_exempt
 def client(request):
     return render(request, 'dowell/main.html')
+
+
+def targeted_cities(request):
+    return render(request, 'dowell/target_cities.html')
 
 
 @csrf_exempt
