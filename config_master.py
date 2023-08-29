@@ -5,3 +5,5 @@ CREDITS_SYSTEM_BASE_URL = 'https://100105.pythonanywhere.com/'
 GET_METHOD = 'GET'
 
 POST_METHOD = 'POST'
+
+UPLOAD_IMAGE_ENDPOINT = 'https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-image-to-drive/'
