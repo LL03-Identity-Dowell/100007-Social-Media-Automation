@@ -133,5 +133,4 @@ dmypy.json
 db.sqlite3
 
 #log files
-LOGS/
 *.log
