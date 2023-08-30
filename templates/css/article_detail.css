@@ -1,0 +1,22 @@
+.post-source {
+  display: block;
+}
+
+#edit-button {
+  background: #6c757d;
+}
+
+#post-post {
+  background: #1b3474;
+}
+
+.btn-dark-blue {
+  color: white;
+  background-color: var(--dark-blue);
+  border-color: var(--dark-blue);
+}
+
+.btn-dark-blue {
+  color: white;
+  background-color: rgb(20, 38, 85);
+}
