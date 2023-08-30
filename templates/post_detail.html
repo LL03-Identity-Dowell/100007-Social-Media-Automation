@@ -5,12 +5,12 @@
 
 {% block style %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'step2/css/post_detail.css'%}">
+  <link rel="stylesheet" type="text/css" href="{% static 'step2/css/post_detail.css' %}">
 {% endblock %}
 
 {% block script %}
   {{ block.super }}
-  <script type="text/javascript" src="{% static 'step2/js/post_detail.js'%}"></script>
+  <script type="text/javascript" src="{% static 'step2/js/post_detail.js' %}"></script>
 {% endblock %}
 
 
@@ -35,7 +35,7 @@
   <form action="{% url 'generate_article:save-post' %}" method="post">
     {% csrf_token %}
     <div id="post-title" >{{ post.title }}</div>
-    <input id="title" type= "hidden" name="title" value="{{ post.title }}">
+    <input id="title" type="hidden" name="title" value="{{ post.title }}">
 
     <hr>
 
@@ -239,14 +239,30 @@
 
     </div>
 
+    <div id="hr" style="border-bottom: 2px solid #495057; width: 90%"></div>
+
+    <div class="container mb-3" id="word-charac-count" style="width: 800px !important;">
+      <div class="row">
+        <div class="col" id="word-count">
+          0 word(s)
+        </div>
+        <div class="col">
+          0 character(s)
+        </div>
+        <div class="col">
+          0 Hashtag(s)
+        </div>
+      </div>
+    </div>
+
     {% if profile == 'Admin' or 'Add/Edit'%}
-    <div class="text-center">
+    <div class="text-center" style="margin-right: 148px;">
       <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;">Back</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
       <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
     </div>
     {% else %}
-    <div class="text-center">
+    <div class="text-center" style="margin-right: 148px;">
       <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;;">Back</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
       <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;" onclick="showAdminMessage()">Next</button>

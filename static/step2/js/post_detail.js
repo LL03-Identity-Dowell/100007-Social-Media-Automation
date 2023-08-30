@@ -12,7 +12,6 @@ document.querySelector('#edit-post').onclick = editPost;
 document.querySelector('#save-post').onclick = savePost;
 document.querySelector('#delete-post').onclick = deletePost;
 
-var postti = document.getElementById('post-title')
 var postpar = document.getElementById('post-paragraph')
 var postsor = document.getElementById('post-sources')
 
@@ -144,6 +143,35 @@ function savePost() {
     //  image: currImage
     //}
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    updCharacWrdCnt();
+})
+
+// Word count, Character count, Hashtag count
+let wordCount;
+let characCount;
+let hashTagCount;
+
+const updCharacWrdCnt = () => {
+    let titleContent = document.getElementById("post-title").textContent;
+    let titleWordArray = titleContent.split(" ");
+    let titleWordCount = titleWordArray.length;
+    wordCount = titleWordCount;
+
+    Array(...document.querySelectorAll('.post-paragraph'))
+        .map((element) => {
+            let paragraphContent = element.textContent;
+            let paragraphWordArray = paragraphContent.split(" ");
+            let paragraphWordCount = paragraphWordArray.length;
+            wordCount += paragraphWordCount;
+        })
+    // .join('\n');
+    document.getElementById("word-count").textContent = `${wordCount} word(s)`;
+}
+
+
+
 
 
 //image overlay show and hide
