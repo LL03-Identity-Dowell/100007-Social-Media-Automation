@@ -134,6 +134,10 @@ function savePost() {
 
     document.querySelector('#sources-input').replaceWith(sDiv);
 
+    //Call character count function
+    updCharacWrdCnt();
+
+
     // Save state to localStorage/ implementing some caching
     //let currImage = document.querySelector(".post-img");
     //let postData = {
@@ -149,29 +153,50 @@ document.addEventListener("DOMContentLoaded", () => {
 })
 
 // Word count, Character count, Hashtag count
-let wordCount;
-let characCount;
-let hashTagCount;
+let wordCount = 0;
+let characCount = 0;
+let hashTagCount = 0;
 
 const updCharacWrdCnt = () => {
+    let paragraphContent;
+    let paragraphCharacCount;
+    let paragraphWordArray;
+    let paragraphWordCount;
+    let hashTagMatches;
+    hashTagCount = 0;
+
     let titleContent = document.getElementById("post-title").textContent;
-    let titleWordArray = titleContent.split(" ");
+
+    let titleCharacCount = titleContent.length;
+    characCount = titleCharacCount;
+
+    let titleWordArray = titleContent.split(" ").filter(word => word !== "");
+    console.log(titleWordArray);
     let titleWordCount = titleWordArray.length;
+    console.log('title word count: ' + titleWordCount);
     wordCount = titleWordCount;
 
     Array(...document.querySelectorAll('.post-paragraph'))
         .map((element) => {
-            let paragraphContent = element.textContent;
-            let paragraphWordArray = paragraphContent.split(" ");
-            let paragraphWordCount = paragraphWordArray.length;
+            paragraphContent = element.textContent;
+
+            paragraphCharacCount = paragraphContent.length;
+            characCount += paragraphCharacCount;
+
+            paragraphWordArray = paragraphContent.split(" ").filter(word => word !== "");
+            console.log(paragraphWordArray);
+            paragraphWordCount = paragraphWordArray.length;
+            console.log('paragraph word count: ' + paragraphWordCount);
             wordCount += paragraphWordCount;
+
+            hashTagMatches = paragraphContent.match(/#/g);
+            hashTagCount += hashTagMatches ? hashTagMatches.length : 0;
         })
-    // .join('\n');
-    document.getElementById("word-count").textContent = `${wordCount} word(s)`;
+
+    document.getElementById("word-count").textContent = `${wordCount} Word(s)`;
+    document.getElementById("charac-count").textContent = `${characCount} Character(s)`;
+    document.getElementById("hashtag-count").textContent = `${hashTagCount} Hashtag(s)`;
 }
-
-
-
 
 
 //image overlay show and hide
