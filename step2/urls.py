@@ -73,6 +73,9 @@ urlpatterns = [
     path('media_post/', views.Media_Post, name='media-post'),
     path('media_schedule/', views.Media_schedule, name='media-schedule'),
     path('proxy-api/', views.frontend_api_request, name='proxy-api'),
+    path('target-cities/', views.targeted_cities, name='target_cities' ),
+    
     # path('list/article',views.post_list, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]
+
