@@ -30,7 +30,34 @@ function deletePost() {
 }
 
 
+let CACHE_IMAGE;
+let CACHE_PARAGRAPHS;
+let CACHE_SOURCES;
+let CACHE_TITLE;
+
+window.onload = function () {
+    var prevStrData = localStorage.getItem("previousState");
+
+    if (prevStrData) {
+        document.querySelector('.img-overlay').classList.add("show-overlay");
+        var prevData = JSON.parse(prevStrData);
+        CACHE_IMAGE = prevData.image;
+        CACHE_PARAGRAPHS = prevData.paragraphs
+        CACHE_SOURCES = prevData.sources;
+        CACHE_TITLE = prevData.title;
+
+        editPost();
+        updateImage();
+    }
+
+}
+
+//status of post editing
+let editing = false;
+
 function editPost() {
+    editing = true
+    document.querySelector('.img-overlay').classList.add("show-overlay");
     // Add an input element to edit the title
     let titleInput = document.createElement('input');
     titleInput.setAttribute('class', 'form-control');
@@ -41,9 +68,14 @@ function editPost() {
 
 
     // Add a textarea element to edit post content
-    let postText = Array(...document.querySelectorAll('.post-paragraph'))
-        .map(element => element.innerHTML)
-        .join('\n');
+    let postText;
+    if (CACHE_PARAGRAPHS) {
+        postText = CACHE_PARAGRAPHS.join('\n');
+    } else {
+        postText = Array(...document.querySelectorAll('.post-paragraph'))
+            .map(element => element.innerHTML)
+            .join('\n');
+    }
     let paragraphsInput = document.createElement('textarea');
     paragraphsInput.setAttribute('class', 'form-control');
     paragraphsInput.setAttribute('id', 'paragraphs-input');
@@ -52,9 +84,15 @@ function editPost() {
     document.querySelector('#post-paragraphs').replaceWith(paragraphsInput);
 
     // Add a textarea element to edit post sources
-    let postSources = Array(...document.querySelectorAll('.post-source'))
-        .map(element => element.innerHTML)
-        .join('\n');
+    let postSources;
+    if (CACHE_SOURCES) {
+        postSources = CACHE_SOURCES.join('\n');
+    } else {
+        postSources = Array(...document.querySelectorAll('.post-source'))
+            .map(element => element.innerHTML)
+            .join('\n');
+    }
+
     let sourcesInput = document.createElement('textarea');
     sourcesInput.setAttribute('class', 'form-control');
     sourcesInput.setAttribute('id', 'sources-input');
@@ -65,7 +103,9 @@ function editPost() {
 
 
 function savePost() {
+    editing = false;
 
+    document.querySelector('.img-overlay').classList.remove("show-overlay")
     console.log("Remember to save to database...");
 
     // Save the new title to the DOM and update hidden input value
@@ -114,7 +154,7 @@ function savePost() {
         sDiv.appendChild(p);
     } else {
 
-        postSources = postSources.map(source => {
+        postSources.map(source => {
             let a = document.createElement('a');
             let sInput = document.createElement('input');
 
@@ -130,6 +170,7 @@ function savePost() {
             sDiv.appendChild(a);
             sDiv.appendChild(sInput);
         });
+        console.log(postSources);
     }
 
     document.querySelector('#sources-input').replaceWith(sDiv);
@@ -139,14 +180,31 @@ function savePost() {
 
 
     // Save state to localStorage/ implementing some caching
-    //let currImage = document.querySelector(".post-img");
-    //let postData = {
-    //  title: newTitle,
-    //  paragraphs: postParagraphs,
-    //  sources: postSources,
-    //  image: currImage
-    //}
+    let currImageSrc = document.querySelector(".post-img").src;
+    let postData = {
+        title: newTitle,
+        paragraphs: postParagraphs,
+        sources: postSources,
+        image: currImageSrc
+    }
+    localStorage.setItem('previousState', JSON.stringify(postData));
 }
+
+
+// Intercept form submission
+document.getElementById('post-forn').addEventListener('submit', (event) => {
+    // console.log(editting)
+    if (editing) {
+        // Ask user for confirmation
+        const shouldProceed = confirm('You have unsaved changes. Do you want to continue anyway?');
+
+        if (!shouldProceed) {
+            // Prevent form submission
+            event.preventDefault();
+        }
+    }
+});
+
 
 document.addEventListener("DOMContentLoaded", () => {
     updCharacWrdCnt();
@@ -171,9 +229,7 @@ const updCharacWrdCnt = () => {
     characCount = titleCharacCount;
 
     let titleWordArray = titleContent.split(" ").filter(word => word !== "");
-    console.log(titleWordArray);
     let titleWordCount = titleWordArray.length;
-    console.log('title word count: ' + titleWordCount);
     wordCount = titleWordCount;
 
     Array(...document.querySelectorAll('.post-paragraph'))
@@ -184,9 +240,7 @@ const updCharacWrdCnt = () => {
             characCount += paragraphCharacCount;
 
             paragraphWordArray = paragraphContent.split(" ").filter(word => word !== "");
-            console.log(paragraphWordArray);
             paragraphWordCount = paragraphWordArray.length;
-            console.log('paragraph word count: ' + paragraphWordCount);
             wordCount += paragraphWordCount;
 
             hashTagMatches = paragraphContent.match(/#/g);
@@ -197,21 +251,6 @@ const updCharacWrdCnt = () => {
     document.getElementById("charac-count").textContent = `${characCount} Character(s)`;
     document.getElementById("hashtag-count").textContent = `${hashTagCount} Hashtag(s)`;
 }
-
-
-//image overlay show and hide
-let overlayDiv = document.querySelector('.img-overlay');
-let editPostBtn = document.querySelector('#edit-post');
-let savePostBtn = document.querySelector('#save-post');
-
-
-editPostBtn.addEventListener("click", () => {
-    overlayDiv.classList.add("show-overlay");
-});
-
-savePostBtn.addEventListener("click", () => {
-    overlayDiv.classList.remove("show-overlay");
-})
 
 
 //handle search
@@ -352,13 +391,21 @@ const searchPhoto = async (term) => {
 
 
 const updateImage = () => {
-    if (imageSrc == "") {
-        return
-    }
+
     sideImage = document.querySelector(".post-img");
     hiddenImageInput = document.querySelector("#images");
 
-    // update hidden input value
-    hiddenImageInput.value = imageSrc;
-    sideImage.src = imageSrc;
+    if (imageSrc) {
+
+        // update hidden input value
+        hiddenImageInput.value = imageSrc;
+        sideImage.src = imageSrc;
+
+    } else if (imageSrc == "" && CACHE_IMAGE) {
+
+        // update hidden input value
+        hiddenImageInput.value = CACHE_IMAGE;
+        sideImage.src = CACHE_IMAGE;
+    }
+
 }

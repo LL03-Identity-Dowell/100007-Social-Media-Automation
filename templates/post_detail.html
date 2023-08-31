@@ -32,7 +32,7 @@
     </ul>
   </div>
 
-  <form action="{% url 'generate_article:save-post' %}" method="post">
+  <form action="{% url 'generate_article:save-post' %}" method="post" id="post-forn">
     {% csrf_token %}
     <div id="post-title" >{{ post.title }}</div>
     <input id="title" type="hidden" name="title" value="{{ post.title }}">
@@ -273,6 +273,10 @@
 
 </div>
 
+<!-- Notification -->
+
+
+
   <!-- Modal -->
 <div class="modal fade" id="largeModal" tabindex="-1" aria-labelledby="basicModal" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -284,7 +288,7 @@
           <div class="form-outline">
             <input type="text" id="search_input" class="form-control" placeholder="Search images" />
           </div>
-          <button id="search_btn" class="btn btn-primary" style="background-color: #36519e;">
+          <button id="search_btn" class="btn btn-primary" style="height: 38px; background-color: #36519e;">
             <i class="fas fa-search"></i>
           </button>
         </div>
