@@ -7,6 +7,53 @@ window.onload = function downdis() {
     console.log("Hellow On Load")
 }
 
+//Custom Notification popup
+function displayNotification(message) {
+    // Create a new notification element
+    var notification = document.createElement('div');
+    notification.classList.add('custom-notification');
+    notification.innerHTML = `
+    <div class="notification">
+      ${message}
+      <button class="close-button">&times;</button>
+    </div>
+  `;
+
+    // Append the notification to the document body
+    document.body.appendChild(notification);
+
+    // Add an event listener to the close button
+    var closeButton = notification.querySelector('.close-button');
+    closeButton.addEventListener('click', function () {
+        notification.style.display = 'none';
+    });
+
+    // Automatically close the notification after a set duration
+    notification.classList.add('timeout');
+    var contentElement = notification.querySelector('.notification');
+    var animationDuration = 10000; // Animation duration in milliseconds
+    var animationStartTime = Date.now();
+
+    function decreaseWidth() {
+        var currentTime = Date.now();
+        var elapsedTime = currentTime - animationStartTime;
+        var progress = elapsedTime / animationDuration;
+        var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
+
+        contentElement.style.setProperty('--after-width', updatedWidth + '%');
+
+        if (progress < 1) {
+            requestAnimationFrame(decreaseWidth);
+        } else {
+            notification.style.display = 'none'; // Hide the notification
+        }
+    }
+
+    requestAnimationFrame(decreaseWidth);
+}
+
+
+
 
 document.querySelector('#edit-post').onclick = editPost;
 document.querySelector('#save-post').onclick = savePost;
@@ -195,13 +242,12 @@ function savePost() {
 document.getElementById('post-forn').addEventListener('submit', (event) => {
     // console.log(editting)
     if (editing) {
-        // Ask user for confirmation
-        const shouldProceed = confirm('You have unsaved changes. Do you want to continue anyway?');
+        // Ask user to save before proceeding
+        displayNotification("You have unsaved changes, please save");
 
-        if (!shouldProceed) {
-            // Prevent form submission
-            event.preventDefault();
-        }
+        // Prevent form submission
+        event.preventDefault();
+
     }
 });
 
