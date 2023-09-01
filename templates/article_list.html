@@ -4,51 +4,8 @@
 
 {% block content %}
     <!--{% load appname_tags %}-->
-    <style>
-        .total-post_button {
-            display:flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .btn-primary {
-            /* background-color: rgb(20, 38, 85) ; */
-            width: 130px;
-            margin-bottom: 10px;
-        }
-
-        .btn-view {
-        font-size: 0.7rem;
-        color: white;
-        background-color: var(--dark-blue);
-        border-color: var(--dark-blue);
-        /* width: 73px; */
-    }
-
-    .btn-view:hover {
-        color: white;
-        background-color: rgb(20, 38, 85);
-    }
-
-    .btn-view:active{
-        background-color: rgb(20, 38, 85) !important;
-    }
-
-        .btn-cancel {
-            /* background: #0d6efd; */
-            margin-right: 20px; /* Adjust the margin value as needed */
-            margin-top: 4px;
-            width: 100px;
-        }
-        .button-container {   
-            margin-top: 35px;
-            margin-left: 10px;
-        }
-        .flex{
-        display:flex;
-        justify-content: space-around;
-      }
-
-    </style>
+   <link type="'text/css" rel="stylesheet" href="{% static 'step2/css/article_list.css' %}">
+   
     <div class="container mt-5 mb-5 pt-3 pb-3">
         <div class="list-group list-group-flush">
             <div class="justify-content-center" style="color: #1434A4;"><h1
