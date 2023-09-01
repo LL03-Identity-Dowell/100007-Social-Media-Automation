@@ -6,7 +6,7 @@
   <script src="{% static 'main.js' %}"></script>
 {% endblock script %}
 
-{% block style %}
+<!-- {% block style %}
   {{ block.super }}
   <style>
 
@@ -92,9 +92,10 @@
       color: white;
     }
   </style>
-{% endblock %}
+{% endblock %} -->
 
 {% block sidebar %}
+<link rel="stylesheet" href="{% static 'step1/article/css/base_steps.cs' %}">
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
