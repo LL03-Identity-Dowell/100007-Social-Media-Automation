@@ -2,6 +2,11 @@
 {% load static %}
 
 
+{% block script %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'step2/js/post_list.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 <!--{% load appname_tags %}-->
 <link rel="stylesheet" type="text/css" href="{% static 'step2/css/post_list.css'%}">
@@ -37,7 +42,7 @@
                         </td>
                     
                         <th >
-                            <button type="submit" class="btn btn-primary btn-view">View Post</button>
+                            <button type="submit" class="btn btn-primary btn-view" onclick="removeCachedata();">View Post</button>
                         </th>
                     </form>
                 </tr>
