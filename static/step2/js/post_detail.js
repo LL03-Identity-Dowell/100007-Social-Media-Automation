@@ -19,7 +19,6 @@ function displayNotification(message) {
     </div>
   `;
 
-    // Append the notification to the document body
     document.body.appendChild(notification);
 
     // Add an event listener to the close button
