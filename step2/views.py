@@ -262,6 +262,39 @@ def handler500(request):
     return render(request, 'errors/500.html', status=500)
 
 
+@csrf_exempt
+def fetch_user_info(request):
+    if 'session_id' and 'username' in request.session:
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        if response.status_code == 200:
+            user_data = json.loads(response.text)
+            return user_data
+        else:
+            # where the request to the database fails
+            return None
+    return "Error Handling your request"
+
+
 def home(request):
     session_id = request.GET.get("session_id", None)
 
@@ -1930,18 +1963,27 @@ def generate_article(request):
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("image")
 
+            # fetch user data to get #tags, mentions, and target cities
+            user_data = fetch_user_info(request)
+            print("Here we have alot of", user_data)
+            # if user_data:
+            # user_tags_mentions = user_data.get("tags_mentions", "")
+            # user_selected_cities = user_data.get("selected_cities", "")
+
             # Set your OpenAI API key here
             openai.api_key = settings.OPENAI_KEY
 
             # Build prompt
             prompt_limit = 280
+            # Modify the prompt to include user data
             prompt = (
                 f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
-                f" Generate only 2 paragraphs. "
+                f" Generate only 2 paragraphs."
+                # f" Include the following #tags and mentions: {user_tags_mentions}."
+                # f" Also, add #tags on the target cities the user selected: {user_selected_cities}."
                 [:prompt_limit]
                 + "..."
             )
-
             # Variables for loop control
             duration = 5  # Total duration in seconds
             interval = 1  # Interval between generating articles in seconds
