@@ -132,7 +132,7 @@
     list-style-type: none;
     flex-grow: 1;
     width: 100%;
-    padding: 10px 0 5px 66px;
+    padding: 10px 0px 5px 66px;
     display: flex;
     align-items: center;
   }
@@ -140,7 +140,7 @@
     font-size: 26px;
     font-weight: 700;
     padding: 0;
-    color: rgb(95, 95, 95);
+    color: rgb(128, 128, 128);
   }
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
@@ -164,7 +164,7 @@
   document.addEventListener("DOMContentLoaded", async function () {
     async function fetchData() {
       const res = await fetch(
-        "http://100074.pythonanywhere./regions/johnDoe123/haikalsb1234/100074/?format=json"
+        "http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/?format=json"
       );
       const data = await res.json();
       return data;
