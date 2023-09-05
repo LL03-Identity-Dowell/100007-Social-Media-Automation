@@ -4,6 +4,7 @@ import requests
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
@@ -11,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
+from credits.constants import STEP_1_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
 from step2.views import create_event
 from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -34,7 +37,15 @@ def index(request):
         forms = {'industryForm': industryForm,
                  'sentencesForm': sentencesForm, 'profile': profile}
 
+        # credit_handler = CreditHandler()
+        # credit_response = credit_handler.check_if_user_has_enough_credits(
+        #     sub_service_id=STEP_1_SUB_SERVICE_ID,
+        #     request=request,
+        # )
+
         if request.method == "POST":
+            # if not credit_response.get('success'):
+            #     return redirect(reverse('credit_error_view'))
             industryForm = IndustryForm(request.POST)
             print(industryForm.is_valid())
             sentencesForm = SentencesForm(request.POST)
@@ -168,7 +179,8 @@ def index(request):
                             'sentence_type': api_result[1],
                             'sentence_id': sentence_result.pk
                         }
-                        for counter, (api_result, sentence_result) in enumerate(zip(api_results, sentence_results), start=1)
+                        for counter, (api_result, sentence_result) in
+                        enumerate(zip(api_results, sentence_results), start=1)
                     }
                 }
 
@@ -362,6 +374,14 @@ def selected_result(request):
     try:
         if 'session_id' and 'username' in request.session:
             if request.method == 'POST':
+                # credit_handler = CreditHandler()
+                # credit_response = credit_handler.check_if_user_has_enough_credits(
+                #     sub_service_id=STEP_1_SUB_SERVICE_ID,
+                #     request=request,
+                # )
+
+                # if not credit_response.get('success'):
+                #     return redirect(reverse('credit_error_view'))
                 sentence_ids = request.session.get('result_ids')
                 loop_counter = 1
                 for sentence_id in sentence_ids:
@@ -399,6 +419,8 @@ def selected_result(request):
                 # Removing industry form data and sentence forms data from the session
                 request.session.pop('industry_form_data', None)
                 request.session.pop('sentences_form_data', None)
+                # credit_handler = CreditHandler()
+                # credit_handler.consume_step_1_credit(request)
 
                 # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
                 return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
@@ -469,47 +491,65 @@ def insert_form_data(data_dict):
     print(response.json())
     print("-------------end of insert function---------------")
     return response.json()
+
+
 # added code for posts
 
 
 def posts(request):
     return render(request, 'posts.html')
+
+
 # added code for not-scheduled
 
 
 def not_scheduled(request):
     return render(request, 'not-scheduled.html')
+
+
 # added code for published
 
 
 def published(request):
     return render(request, 'published.html')
+
+
 # added code for article
 
 
 def article(request):
     return render(request, 'article.html')
+
+
 # added code for articles
 
 
 def articles(request):
     return render(request, 'show_articles.html')
+
+
 # added code for topic
 
 
 def topic(request):
     return render(request, 'topic.html')
+
+
 # added code for topics
 
 
 def topics(request):
     return render(request, 'topics.html')
+
+
 # added code for new_home
 
 
 def new_home(request):
     return render(request, 'new_main.html')
     # return render(request, 'new_home.html')
+
+
 # added code for schedule
 
 

@@ -123,33 +123,24 @@
     gap: 2px;
     background-color: #fff;
     padding: 0;
+    height: 450px;
+    overflow-y: scroll;
   }
   .city-list li {
     background-color: #05051fc2;
     height: 60px;
-    color: rgb(27, 27, 27);
     list-style-type: none;
     flex-grow: 1;
     width: 100%;
-    padding: 0;
+    padding: 10px 0 5px 66px;
     display: flex;
     align-items: center;
-    padding-left: 80px;
   }
   .city-list li h2 {
     font-size: 26px;
     font-weight: 700;
     padding: 0;
-  }
-
-  .content-container button {
-    background-color: var(--dark-blue);
-    width: 100%;
-    height: 48px;
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-    border-radius: 4px;
+    color: rgb(95, 95, 95);
   }
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
@@ -168,19 +159,19 @@
     </div>
     <ul id="city-list" class="city-list"></ul>
   </div>
-  <button type="button">See more</button>
 </div>
 <script type="module">
   document.addEventListener("DOMContentLoaded", async function () {
-    const cities = [
-      { id: 1, name: "New York" },
-      { id: 2, name: "Los Angeles" },
-      { id: 3, name: "Chicago" },
-      { id: 4, name: "Houston" },
-      { id: 5, name: "Miami" },
-      { id: 6, name: "San Francisco" },
-      { id: 7, name: "Seattle" },
-    ];
+    async function fetchData() {
+      const res = await fetch(
+        "http://100074.pythonanywhere./regions/johnDoe123/haikalsb1234/100074/?format=json"
+      );
+      const data = await res.json();
+      return data;
+    }
+
+    const cities = await fetchData();
+
     const cityElement = ({ id, name }) => {
       return `
           <li id="${id}">

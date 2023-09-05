@@ -41,8 +41,10 @@
 
     <div id="post-paragraphs">
       {% for p in post.paragraph %}
+      {% if p.strip != '' %}
       <div class="post-paragraph">{{ p }}</div>
-      <input class="text" type = "hidden" name="text" value="{{ p }}">
+      <input class="text" type="hidden" name="paragraphs[]" value="{{ p|safe }}">
+      {% endif %}
       {% endfor %}
     </div>
 
@@ -239,13 +241,13 @@
 
     {% if profile == 'Admin' or 'Add/Edit'%}
     <div class="text-center">
-      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;">Previous</a>
+      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;">Back</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
       <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
     </div>
     {% else %}
     <div class="text-center">
-      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;;">Previous</a>
+      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;;">Back</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
       <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;" onclick="showAdminMessage()">Next</button>
     </div>
