@@ -1043,7 +1043,47 @@ def client(request):
 
 
 def targeted_cities(request):
-    return render(request, 'dowell/target_cities.html')
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            url = 'http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/'
+
+            cities = []
+            try:
+                response = requests.get(url=url)
+                cities = response.json()
+            except:
+                print('An error occured')
+            context_dict = {'cities': cities}
+            return render(request, 'dowell/target_cities.html', context_dict)
+        else:
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            target_cities = request.POST.getlist('target_cities')
+
+            data = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {"user_id": request.session['user_id']},
+
+                'update_field': {
+                    "target_cities": target_cities,
+
+                },
+                "platform": "bangalore",
+
+            }
+            headers = {'content-type': 'application/json'}
+
+            response = requests.post(url, json=data, headers=headers)
+
+            return reverse("generate_article:main-view")
+    else:
+        return render(request, 'error.html')
 
 
 @csrf_exempt
