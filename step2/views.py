@@ -38,6 +38,7 @@ from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
+from django_q.tasks import async_task
 
 # helper functions
 

@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'tempus_dominus',
     'sorl.thumbnail',
     'article_api',
+    'django_q',
 
 
     'corsheaders',
@@ -185,6 +186,16 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ]
 }
+
+
+Q_CLUSTER = {
+'name': 'auto',
+'workers': 4,
+'timeout': 300,
+'retry': 350,
+'queue_limit': 50,
+'bulk': 10,
+'orm': 'default'}
 
 CORS_ALLOW_ALL_ORIGINS = True
 
