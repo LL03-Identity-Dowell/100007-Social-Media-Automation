@@ -160,16 +160,18 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field:focus {
   padding: 40px;
   margin-left: 50px;
 }
+
 .fa {
   padding: 20px;
   font-size: 50px;
   width: 80px;
-  height: 130;
   text-align: center;
   text-decoration: none;
   margin: 5px 2px;
   border-radius: 25px;
 }
+
+
 
 .fa:hover {
   opacity: 0.7;
@@ -184,7 +186,7 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field:focus {
   color: white;
 }
 .fa-instagram {
-  background: #125688;
+  background: #b003c7;
   color: white;
 }
 
@@ -194,9 +196,15 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field:focus {
 }
 
 .fa-youtube {
-  background: #660505;
+  background:  #c4302b;
+  color: white;
+  padding-right: 5px;
+}
+.fa-pinterest {
+  background: #E60023;
   color: white;
 }
+
 
 .allsocial {
   align-items: center;

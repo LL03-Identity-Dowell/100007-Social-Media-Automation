@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (options === "post") {
         if (dateTimeEl.parentElement === scheduleBtns) {
           scheduleBtns.removeChild(dateTimeEl);
-        }
+        }  
       }
       const handleSubmit = () => {
         const checkboxes = form.querySelectorAll("input[type='checkbox']");
