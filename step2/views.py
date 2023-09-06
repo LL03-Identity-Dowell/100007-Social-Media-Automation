@@ -33,6 +33,9 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
@@ -1079,11 +1082,61 @@ def targeted_cities(request):
             }
             headers = {'content-type': 'application/json'}
 
+            data = json.dumps(data)
+
             response = requests.post(url, json=data, headers=headers)
 
             return reverse("generate_article:main-view")
     else:
         return render(request, 'error.html')
+
+
+class SaveTargetCitiesAPIView(APIView):
+
+    def post(self, request):
+        if 'session_id' and 'username' in request.session:
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            target_cities = request.data.get('target_cities')
+            if not target_cities:
+                return Response({
+                    'success': False,
+                    'message': 'This field is required. "target_cities"'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            data = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {"user_id": request.session['user_id']},
+
+                'update_field': {
+                    "target_cities": target_cities,
+
+                },
+                "platform": "bangalore",
+
+            }
+            headers = {'content-type': 'application/json'}
+
+            data = json.dumps(data)
+
+            response = requests.post(url, json=data, headers=headers)
+            print(response.json())
+            return Response({
+                'success': True,
+                'message': 'Saved target cities successfully'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not authorized to access this page'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 @csrf_exempt
