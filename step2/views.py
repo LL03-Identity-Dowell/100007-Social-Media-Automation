@@ -1,3 +1,5 @@
+from django.shortcuts import render
+from django.http import JsonResponse
 import concurrent.futures
 import datetime
 import json
@@ -1079,97 +1081,67 @@ def client(request):
 
 
 def targeted_cities(request):
-    if 'session_id' and 'username' in request.session:
+    if 'session_id' in request.session and 'username' in request.session:
         if request.method == "GET":
+            # Your existing code to retrieve cities
             url = 'http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/'
 
             cities = []
             try:
                 response = requests.get(url=url)
                 cities = response.json()
-            except:
-                print('An error occured')
+            except Exception as e:
+                print('An error occurred:', str(e))
+
             context_dict = {'cities': cities}
             return render(request, 'dowell/target_cities.html', context_dict)
-        else:
-            url = "http://uxlivinglab.pythonanywhere.com"
+    return render(request, 'error.html')
 
-            target_cities = request.POST.getlist('target_cities')
 
-            data = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {"user_id": request.session['user_id']},
-
-                'update_field': {
-                    "target_cities": target_cities,
-
-                },
-                "platform": "bangalore",
-
-            }
-            headers = {'content-type': 'application/json'}
-
-            data = json.dumps(data)
-
-            response = requests.post(url, json=data, headers=headers)
-
-            return reverse("generate_article:main-view")
+@csrf_exempt
+@xframe_options_exempt
+def save_targeted_cities(request):
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("generate_article:target_cities"))
     else:
-        return render(request, 'error.html')
+        # Receive selected cities from the form
+        # target_city = request.POST.get("target_cities") #for sigle cities
+        # print(target_city)
+        # for multiple cities, can also work for one
+        target_cities = request.POST.getlist('target_cities[]')
+        print(target_cities)
+        url = "http://uxlivinglab.pythonanywhere.com"
 
-
-class SaveTargetCitiesAPIView(APIView):
-
-    def post(self, request):
-        if 'session_id' and 'username' in request.session:
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            target_cities = request.data.get('target_cities')
-            if not target_cities:
-                return Response({
-                    'success': False,
-                    'message': 'This field is required. "target_cities"'
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            data = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {"user_id": request.session['user_id']},
-
-                'update_field': {
-                    "target_cities": target_cities,
-
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "target_cities": {
+                    "target_city": target_cities,
                 },
-                "platform": "bangalore",
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
 
-            }
-            headers = {'content-type': 'application/json'}
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+        user_data = fetch_user_info(request)
+        print(user_data)
+        messages.success(
+            request, "target_cities details updated successfully.")
 
-            data = json.dumps(data)
-
-            response = requests.post(url, json=data, headers=headers)
-            print(response.json())
-            return Response({
-                'success': True,
-                'message': 'Saved target cities successfully'
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response({
-                'success': False,
-                'message': 'You are not authorized to access this page'
-            }, status=status.HTTP_401_UNAUTHORIZED)
-
+        return HttpResponseRedirect(reverse("generate_article:target_cities"))
 
 
 @csrf_exempt

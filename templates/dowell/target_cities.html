@@ -169,102 +169,25 @@
   }
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
-<div
-  class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1"
->
+<div class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1">
   <div class="wrapper-container">
     <div class="search-container">
       <div class="heading-container">
         <h2>List of all cities</h2>
-        <span></span>
-      </div>
-      <div class="search-wrapper">
-        <div class="icons8-search"></div>
       </div>
     </div>
-    <div id="city-list" class="city-list"></div>
-    <button type="button" class="submit-button">Send</button>
+    <form id="city-selection-form" method="post" action="{% url 'generate_article:save_target_cities' %}">
+      {% csrf_token %}
+      <div id="city-list" class="city-list">
+        {% for city in cities %}
+        <div class="city">
+          <label for="city_{{ city.id }}">{{ city.name }}</label>
+          <input id="city_{{ city.id }}" type="checkbox" name="target_cities[]" value="{{ city.name }}">
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="submit-button">save</button>
+    </form>
   </div>
 </div>
-<script type="module">
-  document.addEventListener("DOMContentLoaded", async function () {
-    async function fetchData() {
-      const res = await fetch(
-        "http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/?format=json"
-      );
-      const data = await res.json();
-      return data;
-    }
-
-    const cities = await fetchData();
-
-    const cityListEl = document.getElementById("city-list");
-
-    const listOfCities = cities.map((city) => {
-      return `<div class="city">
-              <label for=${city.id}>${city.name}</label>
-              <input id=${city.id} type="checkbox" name='${city.name}' />
-            </div>`;
-    });
-
-    cityListEl.innerHTML = listOfCities.join("");
-
-    const inputsEl = document.querySelectorAll('[type="checkbox"]');
-
-    inputsEl.forEach(function (checkbox) {
-      checkbox.addEventListener("click", function (e) {
-        const parentDiv = checkbox.closest(".city"); // Find the closest parent div with class "city"
-
-        if (parentDiv) {
-          if (e.target.checked) {
-            parentDiv.style.backgroundColor = "#3d84eec2"; // Change background color to blue when checked
-          } else {
-            parentDiv.style.backgroundColor = "#05051fc2"; // Reset to default color when unchecked
-          }
-        }
-      });
-    });
-
-    const getSelectedCities = () => {
-      const selectedCities = [];
-
-      inputsEl.forEach((checkbox) => {
-        if (checkbox.checked) {
-          const cityId = checkbox.id;
-          const cityName = checkbox.name;
-          selectedCities.push({ id: cityId, name: cityName });
-        }
-      });
-
-      return selectedCities;
-    };
-
-    const submitButton = document.querySelector(".submit-button");
-
-    submitButton.addEventListener("click", async () => {
-      const selectedCities = { target_cities: getSelectedCities() };
-      console.log(selectedCities);
-      
-      fetch('http://localhost:8000/target-cities/api', {
-        method: "POST",
-        headers:  {
-        "Content-Type": "application/json",
-      },
-        body: JSON.stringify(selectedCities),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            console.log(response);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Response data:", data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    });
-  });
-</script>
 {% endblock %}
