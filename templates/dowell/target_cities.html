@@ -167,6 +167,19 @@
     opacity: 0.92;
     scale: 1.02;
   }
+  .search-input{
+    width: 100%;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    padding-inline: 30px;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  .search-input::placeholder{
+    font-size: 24px;
+    font-weight: bold;
+  }
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
 <div
@@ -174,16 +187,17 @@
 >
   <div class="wrapper-container">
     <div class="search-container">
-      <div class="heading-container">
-        <h2>List of all cities</h2>
-        <span></span>
-      </div>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="List of the Cities"
+      />
       <div class="search-wrapper">
         <div class="icons8-search"></div>
       </div>
     </div>
     <div id="city-list" class="city-list"></div>
-    <button type="button" class="submit-button">Send</button>
+    <button type="button" class="submit-button">Save</button>
   </div>
 </div>
 <script type="module">
@@ -196,18 +210,35 @@
       return data;
     }
 
-    const cities = await fetchData();
-
+    const citiesData = await fetchData(); // Make a copy of the original data
+    const searchInputEl = document.querySelector(".search-input");
     const cityListEl = document.getElementById("city-list");
 
-    const listOfCities = cities.map((city) => {
-      return `<div class="city">
-              <label for=${city.id}>${city.name}</label>
-              <input id=${city.id} type="checkbox" name='${city.name}' />
-            </div>`;
-    });
+    function renderCities(cities) {
+      cityListEl.innerHTML = "";
 
-    cityListEl.innerHTML = listOfCities.join("");
+      // Render the filtered cities
+      cities.forEach((city) => {
+        const cityDiv = document.createElement("div");
+        cityDiv.classList.add("city");
+        cityDiv.innerHTML = `
+          <label for="${city.id}">${city.name}</label>
+          <input id="${city.id}" type="checkbox" name="${city.name}" value="${city.country}" />
+        `;
+        cityListEl.appendChild(cityDiv);
+      });
+    }
+
+    // Initial rendering of cities
+    renderCities(citiesData);
+
+    searchInputEl.addEventListener("change", function (e) {
+      const searchText = e.target.value.toLowerCase();
+      const filteredCities = citiesData.filter((city) =>
+        city.name.toLowerCase().includes(searchText)
+      );
+      renderCities(filteredCities);
+    });
 
     const inputsEl = document.querySelectorAll('[type="checkbox"]');
 
@@ -230,9 +261,10 @@
 
       inputsEl.forEach((checkbox) => {
         if (checkbox.checked) {
-          const cityId = checkbox.id;
-          const cityName = checkbox.name;
-          selectedCities.push({ id: cityId, name: cityName });
+          const id = checkbox.id;
+          const name = checkbox.name;
+          const country = checkbox.value;
+          selectedCities.push({ id, name, country });
         }
       });
 
@@ -244,12 +276,12 @@
     submitButton.addEventListener("click", async () => {
       const selectedCities = { target_cities: getSelectedCities() };
       console.log(selectedCities);
-      
-      fetch('http://localhost:8000/target-cities/api', {
+
+      fetch("http://localhost:8000/target-cities/api/", {
         method: "POST",
-        headers:  {
-        "Content-Type": "application/json",
-      },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(selectedCities),
       })
         .then((response) => {
