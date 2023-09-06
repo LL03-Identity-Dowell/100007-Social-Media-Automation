@@ -1060,7 +1060,17 @@ def user_usage(request):
 @csrf_exempt
 @xframe_options_exempt
 def user_plan(request):
-    return render(request, 'user_plan.html')
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            return render(request, 'user_plan.html')
+        elif request.method == "POST":
+
+            data = request.POST.dict()
+
+            return HttpResponse(f'This is the data in the post request.{str(data)}')
+    else:
+        return render(request, 'error.html')
+
 
 
 @csrf_exempt
