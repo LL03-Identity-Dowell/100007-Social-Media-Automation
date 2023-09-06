@@ -118,29 +118,54 @@
   .city-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 1px;
+    height: 420px;
     width: 100%;
-    gap: 2px;
-    background-color: #fff;
-    padding: 0;
-    height: 450px;
     overflow-y: scroll;
   }
-  .city-list li {
-    background-color: #05051fc2;
-    height: 60px;
-    list-style-type: none;
-    flex-grow: 1;
+  .city-list div {
+    position: relative;
     width: 100%;
-    padding: 10px 0px 5px 66px;
-    display: flex;
-    align-items: center;
-  }
-  .city-list li h2 {
-    font-size: 26px;
+    height: 60px;
+    font-size: 22px;
     font-weight: 700;
-    padding: 0;
     color: rgb(128, 128, 128);
+    background-color: #05051fc2;
+    cursor: pointer;
+  }
+  .city-list div:hover {
+    opacity: 0.96;
+  }
+  .city-list div label {
+    width: 100%;
+    height: 60px;
+    padding: 10px 0 5px 66px;
+    cursor: pointer;
+  }
+
+  .city-list div input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    inset: 0;
+  }
+
+  .submit-button {
+    background-color: var(--dark-blue);
+    color: #fff;
+    border: 0;
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 3px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: all ease-in-out 200ms;
+  }
+  .submit-button:hover {
+    opacity: 0.96;
+  }
+  .submit-button:active {
+    opacity: 0.92;
+    scale: 1.02;
   }
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
@@ -157,7 +182,8 @@
         <div class="icons8-search"></div>
       </div>
     </div>
-    <ul id="city-list" class="city-list"></ul>
+    <div id="city-list" class="city-list"></div>
+    <button type="button" class="submit-button">Send</button>
   </div>
 </div>
 <script type="module">
@@ -172,21 +198,73 @@
 
     const cities = await fetchData();
 
-    const cityElement = ({ id, name }) => {
-      return `
-          <li id="${id}">
-            <h2>${name}</h2>
-          </li>
-        `;
-    };
-
     const cityListEl = document.getElementById("city-list");
 
     const listOfCities = cities.map((city) => {
-      return cityElement(city);
+      return `<div class="city">
+              <label for=${city.id}>${city.name}</label>
+              <input id=${city.id} type="checkbox" name='${city.name}' />
+            </div>`;
     });
 
     cityListEl.innerHTML = listOfCities.join("");
+
+    const inputsEl = document.querySelectorAll('[type="checkbox"]');
+
+    inputsEl.forEach(function (checkbox) {
+      checkbox.addEventListener("click", function (e) {
+        const parentDiv = checkbox.closest(".city"); // Find the closest parent div with class "city"
+
+        if (parentDiv) {
+          if (e.target.checked) {
+            parentDiv.style.backgroundColor = "#3d84eec2"; // Change background color to blue when checked
+          } else {
+            parentDiv.style.backgroundColor = "#05051fc2"; // Reset to default color when unchecked
+          }
+        }
+      });
+    });
+
+    const getSelectedCities = () => {
+      const selectedCities = [];
+
+      inputsEl.forEach((checkbox) => {
+        if (checkbox.checked) {
+          const cityId = checkbox.id;
+          const cityName = checkbox.name;
+          selectedCities.push({ id: cityId, name: cityName });
+        }
+      });
+
+      return selectedCities;
+    };
+
+    const submitButton = document.querySelector(".submit-button");
+
+    submitButton.addEventListener("click", async () => {
+      const selectedCities = { target_cities: getSelectedCities() };
+      console.log(selectedCities);
+      
+      fetch('http://localhost:8000/target-cities/api', {
+        method: "POST",
+        headers:  {
+        "Content-Type": "application/json",
+      },
+        body: JSON.stringify(selectedCities),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            console.log(response);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Response data:", data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
   });
 </script>
 {% endblock %}
