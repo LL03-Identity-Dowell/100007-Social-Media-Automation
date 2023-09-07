@@ -1095,7 +1095,6 @@ def client(request):
 def targeted_cities(request):
     if 'session_id' in request.session and 'username' in request.session:
         if request.method == "GET":
-            # Your existing code to retrieve cities
             url = 'http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/'
 
             cities = []
@@ -1121,7 +1120,6 @@ def save_targeted_cities(request):
         # print(target_city)
         # for multiple cities, can also work for one
         target_cities = request.POST.getlist('target_cities[]')
-        print(target_cities)
         url = "http://uxlivinglab.pythonanywhere.com"
 
         payload = json.dumps({
@@ -1136,9 +1134,7 @@ def save_targeted_cities(request):
                 "user_id": request.session['user_id'],
             },
             "update_field": {
-                "target_cities": {
-                    "target_city": target_cities,
-                },
+                "target_city": target_cities,
             },
             "platform": "bangalore"
         })
@@ -1147,7 +1143,6 @@ def save_targeted_cities(request):
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
         user_data = fetch_user_info(request)
         print(user_data)
         messages.success(
@@ -1214,13 +1209,13 @@ def hash_mention(request):
             }
 
             data = json.dumps(payload)
-            response = requests.request("POST", url, headers=headers, data=data)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
             print(response)
 
             return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
-
 
 
 @csrf_exempt
