@@ -162,6 +162,10 @@
     }
   </style>
   <style>
+    
+    li.nav-item {
+      margin-right: -8px;
+    }
     .pagination {
       display: inline-block;
     }
@@ -254,11 +258,17 @@
         <ul class="nav d-flex align-items-center">
           <!-- Back to Main Page Button -->
           <li class="nav-item">
-            <a class="nav-link btn" href="{% url 'generate_article:exit' %}" onclick="clearSessionStorage()" >
+            <a class="nav-link btn" href="https://www.socialmediaautomation.uxlivinglab.online/" >
               <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
-              <i class="fa-solid fa-house fa-lg"></i>
+              <i class="fa-solid fa-house fa-lg"></i> 
             </a>
           </li>
+
+           <!--Username-->
+          <li class="nav-item">
+            <span id="nav-username" class="navbar-text">{{ request.session.username }}</span>
+          </li>
+
           <!--Account Dropdown-->
           <li class="nav-item">
             <div class="nav-item dropdown">
@@ -291,10 +301,7 @@
               </ul>
             </div>
           </li>
-          <!--Username-->
-          <li class="nav-item">
-            <span id="nav-username" class="navbar-text">{{ request.session.username }}</span>
-          </li>
+
           <!--Client options-->
           <li class="nav-item">
             <a href="{% url 'generate_article:client' %}" class="nav-link">
@@ -302,8 +309,20 @@
                 class="rounded-circle">
             </a>
           </li>
+
+           <!-- To Dowell client admin -->
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'generate_article:exit' %}" onclick="clearSessionStorage()" >
+            <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
+            {% comment %} <i class="fa-solid fa-house fa-lg"></i> {% endcomment %}
+            <img src="{% static 'photos/living_lab_admin_icon.png' %}" alt="dowell client admin" width="36" height="36"
+              class="rounded-circle">
+            </a>
+          </li>
+
         </ul>
 
+         
       </div>
 
 
