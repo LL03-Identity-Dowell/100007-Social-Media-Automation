@@ -182,121 +182,25 @@
   }
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
-<div
-  class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1"
->
+<div class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1">
   <div class="wrapper-container">
     <div class="search-container">
-      <input
-        type="search"
-        class="search-input"
-        placeholder="List of the Cities"
-      />
-      <div class="search-wrapper">
-        <div class="icons8-search"></div>
+      <div class="heading-container">
+        <h2>List of all cities</h2>
       </div>
     </div>
-    <div id="city-list" class="city-list"></div>
-    <button type="button" class="submit-button">Save</button>
+    <form id="city-selection-form" method="post" action="{% url 'generate_article:save_target_cities' %}">
+      {% csrf_token %}
+      <div id="city-list" class="city-list">
+        {% for city in cities %}
+        <div class="city">
+          <label for="city_{{ city.id }}">{{ city.name }}</label>
+          <input id="city_{{ city.id }}" type="checkbox" name="target_cities[]" value="{{ city.name }}">
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="submit-button">save</button>
+    </form>
   </div>
 </div>
-<script type="module">
-  document.addEventListener("DOMContentLoaded", async function () {
-    async function fetchData() {
-      const res = await fetch(
-        "http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/?format=json"
-      );
-      const data = await res.json();
-      return data;
-    }
-
-    const citiesData = await fetchData(); // Make a copy of the original data
-    const searchInputEl = document.querySelector(".search-input");
-    const cityListEl = document.getElementById("city-list");
-
-    function renderCities(cities) {
-      cityListEl.innerHTML = "";
-
-      // Render the filtered cities
-      cities.forEach((city) => {
-        const cityDiv = document.createElement("div");
-        cityDiv.classList.add("city");
-        cityDiv.innerHTML = `
-          <label for="${city.id}">${city.name}</label>
-          <input id="${city.id}" type="checkbox" name="${city.name}" value="${city.country}" />
-        `;
-        cityListEl.appendChild(cityDiv);
-      });
-    }
-
-    // Initial rendering of cities
-    renderCities(citiesData);
-
-    searchInputEl.addEventListener("change", function (e) {
-      const searchText = e.target.value.toLowerCase();
-      const filteredCities = citiesData.filter((city) =>
-        city.name.toLowerCase().includes(searchText)
-      );
-      renderCities(filteredCities);
-    });
-
-    const inputsEl = document.querySelectorAll('[type="checkbox"]');
-
-    inputsEl.forEach(function (checkbox) {
-      checkbox.addEventListener("click", function (e) {
-        const parentDiv = checkbox.closest(".city"); // Find the closest parent div with class "city"
-
-        if (parentDiv) {
-          if (e.target.checked) {
-            parentDiv.style.backgroundColor = "#3d84eec2"; // Change background color to blue when checked
-          } else {
-            parentDiv.style.backgroundColor = "#05051fc2"; // Reset to default color when unchecked
-          }
-        }
-      });
-    });
-
-    const getSelectedCities = () => {
-      const selectedCities = [];
-
-      inputsEl.forEach((checkbox) => {
-        if (checkbox.checked) {
-          const id = checkbox.id;
-          const name = checkbox.name;
-          const country = checkbox.value;
-          selectedCities.push({ id, name, country });
-        }
-      });
-
-      return selectedCities;
-    };
-
-    const submitButton = document.querySelector(".submit-button");
-
-    submitButton.addEventListener("click", async () => {
-      const selectedCities = { target_cities: getSelectedCities() };
-      console.log(selectedCities);
-
-      fetch("http://localhost:8000/target-cities/api/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedCities),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            console.log(response);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Response data:", data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    });
-  });
-</script>
 {% endblock %}

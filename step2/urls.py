@@ -73,10 +73,10 @@ urlpatterns = [
     path('media_post/', views.Media_Post, name='media-post'),
     path('media_schedule/', views.Media_schedule, name='media-schedule'),
     path('proxy-api/', views.frontend_api_request, name='proxy-api'),
-    path('target-cities/', views.targeted_cities, name='target_cities' ),
-    path('target-cities/api/', views.SaveTargetCitiesAPIView.as_view(), name='target_cities_api'),
+    path('target-cities/', views.targeted_cities, name='target_cities'),
+    path('saved-target-cities/', views.save_targeted_cities, name='save_target_cities'),
+    #     path('target-cities/api/', views.SaveTargetCitiesAPIView.as_view(), name='target_cities_api'),
 
     # path('list/article',views.post_list, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]
-
