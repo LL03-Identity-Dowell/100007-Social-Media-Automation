@@ -198,7 +198,6 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field:focus {
 .fa-youtube {
   background:  #c4302b;
   color: white;
-  padding-right: 5px;
 }
 .fa-pinterest {
   background: #E60023;

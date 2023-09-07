@@ -156,11 +156,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const checkboxes = form.querySelectorAll("input[type='checkbox']");
         let selectedArticle = { ...showData[index] };
         selectedArticle.social = [];
+        selectedArticle.special = [];
 
         checkboxes.forEach((checkbox) => {
           if (checkbox.checked) {
-            if (checkbox.value === "twitter") {
-              selectedArticle[checkbox.value] = checkbox.value;
+            if (checkbox.value === "twitter" || checkbox.value === "pinterest") {
+              selectedArticle.special.push(checkbox.value);
             } else {
               selectedArticle.social.push(checkbox.value);
             }
@@ -174,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
           selectedArticle.schedule = dateFormat(scheduleValue);
         }
 
-        console.log(selectedArticle, index);
+        // console.log(selectedArticle, index);
         sendData(selectedArticle, options);
 
         // Remove the dateTimeEl element from the form if it was added during the process
