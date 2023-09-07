@@ -167,7 +167,7 @@
     opacity: 0.92;
     scale: 1.02;
   }
-  .search-input{
+  .search-input {
     width: 100%;
     height: 100%;
     border: 0;
@@ -176,26 +176,42 @@
     font-size: 20px;
     font-weight: bold;
   }
-  .search-input::placeholder{
+  .search-input::placeholder {
     font-size: 24px;
     font-weight: bold;
   }
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
-<div class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1">
+<div
+  class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1"
+>
   <div class="wrapper-container">
     <div class="search-container">
-      <div class="heading-container">
-        <h2>List of all cities</h2>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="List of the Cities"
+      />
+      <div class="search-wrapper">
+        <div class="icons8-search"></div>
       </div>
     </div>
-    <form id="city-selection-form" method="post" action="{% url 'generate_article:save_target_cities' %}">
+    <form
+      id="city-selection-form"
+      method="post"
+      action="{% url 'generate_article:save_target_cities' %}"
+    >
       {% csrf_token %}
       <div id="city-list" class="city-list">
         {% for city in cities %}
         <div class="city">
           <label for="city_{{ city.id }}">{{ city.name }}</label>
-          <input id="city_{{ city.id }}" type="checkbox" name="target_cities[]" value="{{ city.name }}">
+          <input
+            id="city_{{ city.id }}"
+            type="checkbox"
+            name="target_cities[]"
+            value="{{ city.name }}"
+          />
         </div>
         {% endfor %}
       </div>
@@ -203,4 +219,42 @@
     </form>
   </div>
 </div>
+
+<script type="module">
+  document.addEventListener("DOMContentLoaded", async function () {
+    const inputsEl = document.querySelectorAll('[type="checkbox"]');
+    const searchInput = document.querySelector(".search-input")
+
+    searchInput.addEventListener("input", function () {
+      const searchValue = searchInput.value.toLowerCase(); // Get the search input value in lowercase
+
+      inputsEl.forEach(function (checkbox) {
+        const parentDiv = checkbox.closest(".city");
+        if (parentDiv) {
+          const cityName = parentDiv
+            .querySelector("label")
+            .textContent.toLowerCase(); // Get the city name in lowercase
+          const shouldShow = cityName.includes(searchValue); // Check if the city name contains the search input
+
+          // Hide or show the city based on the search result
+          parentDiv.style.display = shouldShow ? "block" : "none";
+        }
+      });
+    });
+
+    inputsEl.forEach(function (checkbox) {
+      checkbox.addEventListener("click", function (e) {
+        const parentDiv = checkbox.closest(".city"); // Find the closest parent div with class "city"
+
+        if (parentDiv) {
+          if (e.target.checked) {
+            parentDiv.style.backgroundColor = "#3d84eec2"; // Change background color to blue when checked
+          } else {
+            parentDiv.style.backgroundColor = "#05051fc2"; // Reset to default color when unchecked
+          }
+        }
+      });
+    });
+  });
+</script>
 {% endblock %}
