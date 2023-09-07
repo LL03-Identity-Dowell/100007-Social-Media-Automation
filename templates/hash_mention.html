@@ -67,18 +67,17 @@
 
 <div class="container">
 
-    <div class="flex-wrap justify-content-center">
-      <h4 class="blue-text text-center mb-5">Add Hashtags and Mentions</h4>
-        <form method="post" id="myForm">
-            {% csrf_token %}
-            <div class="row">
+  <div class="flex-wrap justify-content-center">
+    <h4 class="blue-text text-center mb-5">Add Hashtags and Mentions</h4>
+    <form method="post" id="hashMentionForm">
+      {% csrf_token %}
+      <div class="row">
 
         <div class="col-sm" >
           <p class= "text-center" style="font-weight: 500">Hashtags</p>
           <div class="input-group rounded mb-3" style="border-radius: 25px;">
             <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">#</span>
-            <input name="hashtag" type="text" class="form-control" aria-describedby="button-addon2" id="tag_input"
-                    placeholder="Enter one hashtag..">
+            <input name="hashtag" type="text" class="form-control" aria-describedby="button-addon2" id="tag_input" placeholder="Enter one hashtag..">
             <input type="hidden" name="hashtags_list" id="hashtags_list" value="">
             <button class="btn btn-primary btn-dark-blue" type="button" id="tagBtn" style="border-radius: 0 25px 25px 0;">Add</button>
           </div>
@@ -90,8 +89,7 @@
           <p class="text-center" style="font-weight: 500">Mentions</p>
           <div class="input-group rounded mb-3" style="border-radius: 25px;">
             <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">@</span>
-              <input name="mention" type="text" class="form-control" aria-describedby="button-addon2" id="men_input"
-                     placeholder="Mention one user..">
+              <input name="mention" type="text" class="form-control" aria-describedby="button-addon2" id="men_input" placeholder="Mention one user..">
               <input type="hidden" name="mentions_list" id="mentions_list" value="">
             <button class="btn btn-primary btn-dark-blue" type="button" id="mentionBtn" style="border-radius: 0 25px 25px 0;">Add</button>
           </div>
@@ -100,21 +98,19 @@
         </div>
 
 
-            </div>
+      </div>
 
       <div class="text-center">
-          <button class="btn btn-primary rounded btn-dark-blue save-button mt-5"
-                  onclick="submitForm();">Save <i class="fas fa-check check-icon"></i></button>
+        <button class="btn btn-primary rounded btn-dark-blue save-button mt-5" onclick="submitForm();">Save <i class="fas fa-check check-icon"></i></button>
       </div>
-        </form>
+    </form>
 
-      
-    </div>
-    
+  </div>   
 </div>
 
 
 <script>
+
     tagBtn = document.getElementById("tagBtn");
     mentionBtn = document.getElementById("mentionBtn");
 
@@ -144,7 +140,6 @@
         addHash = inputText;
       }
 
-     
       view.innerHTML += `<div class="form-check me-3 role="tags_mentions">
                           <input class="form-check-input" type="checkbox" value="${addHash}" name="${name}" id="${name}">
                           <label class="form-check-label font-italic" for="${name}" id="mention_list" style="font-weight: 500">
@@ -154,7 +149,6 @@
                         </div>`;
       document.getElementById(inputId).value = "";
 
-    
     }
     
     function submitForm() {
@@ -169,7 +163,7 @@
       document.getElementById('mentions_list').value = mentionsList.join(',');
 
       // Submit the form to  backend
-      document.getElementById('myForm').submit();
+      document.getElementById('hashMentionForm').submit();
     }
 
 
@@ -181,18 +175,18 @@
     }
 
     // for save button transition
-    function toggleSaved(button, event) {
-      button.classList.toggle('saved-button');
-      if (button.classList.contains('saved-button')) {
-          button.innerHTML = 'Saved <i class="fas fa-check check-icon"></i>';
-      } else {
-          button.innerHTML = 'Save <i class="fas fa-check check-icon"></i>';
-      }
+    //function toggleSaved(button, event) {
+    //  button.classList.toggle('saved-button');
+    //  if (button.classList.contains('saved-button')) {
+    //      button.innerHTML = 'Saved <i class="fas fa-check check-icon"></i>';
+     // } else {
+    //      button.innerHTML = 'Save <i class="fas fa-check check-icon"></i>';
+    //  }
 
       // Prevent the form submission
-      event.preventDefault();
-      return false;
-    }
+     // event.preventDefault();
+     // return false;
+    //}
 
 </script>
 {% endblock %}

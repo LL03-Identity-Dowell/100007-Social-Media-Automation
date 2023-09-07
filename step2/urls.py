@@ -76,6 +76,9 @@ urlpatterns = [
     path('target-cities/', views.targeted_cities, name='target_cities'),
     path('hash-tags-and-mensions/', views.hash_mention, name='hash_mention'),
 
+    path('saved-target-cities/', views.save_targeted_cities,
+         name='save_target_cities'),
+    path('exit/', views.exit_view, name='exit'),
     # path('list/article',views.post_list, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]
