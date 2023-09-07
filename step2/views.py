@@ -237,6 +237,18 @@ def under_maintenance(request):
     return HttpResponse("Under maintenance. Please try again later.")
 
 
+def exit_view(request):
+    session_id_from_frontend = request.session.session_key
+    print("frontend", session_id_from_frontend)
+    session_id_from_backend = request.session.get('session_id')
+    print("backend", session_id_from_backend)
+    print("Before flushing:", request.session.get('session_id'))
+    request.session.flush()
+    print("After flushing:", request.session.get('session_id'))
+    # Redirect to another page
+    return redirect("https://100093.pythonanywhere.com/")
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 def frontend_api_request(request):
     '''Acts as a proxy to the external API.
