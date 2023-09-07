@@ -74,6 +74,8 @@ urlpatterns = [
     path('media_schedule/', views.Media_schedule, name='media-schedule'),
     path('proxy-api/', views.frontend_api_request, name='proxy-api'),
     path('target-cities/', views.targeted_cities, name='target_cities'),
+    path('hash-tags-and-mensions/', views.hash_mention, name='hash_mention'),
+
     path('saved-target-cities/', views.save_targeted_cities,
          name='save_target_cities'),
     path('exit/', views.exit_view, name='exit'),

@@ -1171,7 +1171,56 @@ def user_usage(request):
 @csrf_exempt
 @xframe_options_exempt
 def user_plan(request):
-    return render(request, 'user_plan.html')
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            return render(request, 'user_plan.html')
+        elif request.method == "POST":
+
+            data = request.POST.dict()
+
+            return HttpResponse(f'This is the data in the post request.{str(data)}')
+    else:
+        return render(request, 'error.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
+def hash_mention(request):
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            return render(request, 'hash_mention.html')
+        elif request.method == "POST":
+
+            hashtag_list = request.POST.get('hashtags_list').split(',')
+            mentions_list = request.POST.get('mentions_list').split(',')
+
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {"user_id": request.session['user_id']},
+                "update_field": {
+                    "mentions_list": mentions_list,
+                    "hashtag_list": hashtag_list,
+                },
+                "platform": "bangalore"
+            }
+
+            data = json.dumps(payload)
+            response = requests.request("POST", url, headers=headers, data=data)
+            print(response)
+
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
+
 
 
 @csrf_exempt
