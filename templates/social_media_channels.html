@@ -1,7 +1,4 @@
-{% extends "article/base_background.html" %}
-{% load static %}
-
-{% block style %}
+{% extends "article/base_background.html" %} {% load static %} {% block style %}
 {{ block.super }}
 <style type="text/css">
   .btn-dark-blue {
@@ -45,7 +42,6 @@
     justify-content: center;
     margin-top: 10px;
     margin-bottom: 11px;
-
   }
 
   .button-container-activate,
@@ -54,7 +50,6 @@
     justify-content: center;
     margin-top: 20px;
     margin-bottom: 20px;
-
   }
 
   .done-button {
@@ -81,60 +76,112 @@
 
   .cancel-icon {
     position: absolute;
-      top: 10px;
-      right: 20px;
-      color: var(--dark-blue);
-      cursor: pointer;
+    top: 10px;
+    right: 20px;
+    color: var(--dark-blue);
+    cursor: pointer;
+  }
+
+  .fa-facebook {
+    color: #1059f8;
+  }
+  .fa-twitter {
+    color: #35a5fa;
+  }
+  .fa-instagram {
+    color: #b003c7;
+  }
+
+  .fa-linkedin {
+    color: rgb(41, 66, 253);
+  }
+
+  .fa-youtube {
+    color: #9d0101;
   }
 </style>
-{% endblock %}
+{% endblock %} {% block stuff %}
+<h2 class="mb-5 blue-text">My Channels</h2>
+{% comment %}
+<p>User has social profile {{ user_has_social_media_profile }}</p>
+{% endcomment %} {% comment %}
+<p>User has linked accounts {{ linked_accounts }}</p>
+{% endcomment %}
 
-{% block stuff %}
-    <h2 class="mb-5 blue-text">My Channels</h2>
-    {% comment %} <p>User has social profile {{ user_has_social_media_profile }}</p> {% endcomment %}
-
-    <div class="d-flex flex-wrap justify-content-center">
-        <a>
-            <i class="fa-brands fa-facebook fa-4x m-2"></i>
-        </a>
-
-        <a>
-            <i class="fa-brands fa-twitter fa-4x m-2"></i>
-        </a>
-
-        <a>
-    <i class="fa-brands fa-instagram-square fa-4x m-2"></i>
+<div class="d-flex flex-wrap justify-content-center">
+  <a href="{% url 'generate_article:facebook' %}">
+    <i class="fa-brands facebook fa-4x m-2"></i>
   </a>
 
-  <a>
-    <i class="fa-brands fa-linkedin fa-4x m-2"></i>
+  <a href="{% url 'generate_article:twitter' %}">
+    <i class="fa-brands twitter fa-4x m-2"></i>
   </a>
 
-  <a>
-    <i class="fa-brands fa-youtube fa-4x m-2"></i>
+  <a href="{% url 'generate_article:instagram' %}">
+    <i class="fa-brands instagram fa-4x m-2"></i>
+  </a>
+
+  <a href="{% url 'generate_article:linkedin' %}">
+    <i class="fa-brands linkedin fa-4x m-2"></i>
+  </a>
+
+  <a href="{% url 'generate_article:youtube' %}>
+    <i class="fa-brands youtube fa-4x m-2"></i>
   </a>
 </div>
 
-<a class="mt-5 px-5 btn btn-dark-blue connect-button" onclick="newUserStatus ? showPopup.showLinkAcc() : showPopup.showActivate()">Connect</a>
+<a
+  class="mt-5 px-5 btn btn-dark-blue connect-button"
+  onclick="newUserStatus ? showPopup.showLinkAcc() : showPopup.showActivate()"
+  >Connect</a
+>
 
 <script>
   // varaible from views checking if user has social profile
   var userStatus = "{{user_has_social_media_profile}}";
+  var linkedAccounts = "{{linked_accounts}}";
 
+  var encodedValue = linkedAccounts;
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(encodedValue, "text/html");
+  var decodedValue = doc.documentElement.textContent;
+
+  console.log(decodedValue);
+  if (decodedValue.includes("twitter")) {
+    const twiter = document.querySelector(".twitter");
+    twiter.classList.add("fa-twitter");
+  }
+  if (decodedValue.includes("facebook")) {
+    const twiter = document.querySelector(".facebook");
+    twiter.classList.add("fa-facebook");
+  }
+  if (decodedValue.includes("instagram")) {
+    const twiter = document.querySelector(".instagram");
+    twiter.classList.add("fa-instagram-square");
+  }
+  if (decodedValue.includes("linkedin")) {
+    const twiter = document.querySelector(".linkedin");
+    twiter.classList.add("fa-linkedin");
+  }
+  if (decodedValue.includes("youtube")) {
+    const twiter = document.querySelector(".youtube");
+    twiter.classList.add("fa-youtube");
+  }
+  
   // convert python boolean to javascript  readable boolean
   function toJsBoolean() {
     let jsUserStatus;
-    if (userStatus == "False"){
-      jsUserStatus = false
-    }else{
-      jsUserStatus = true
+    if (userStatus == "False") {
+      jsUserStatus = false;
+    } else {
+      jsUserStatus = true;
     }
     return jsUserStatus;
   }
 
   let newUserStatus = toJsBoolean();
   //console.log(newUserStatus);
-  
+
   // Show popup and delete local storage item only after reload and if local storage has item 'realoding'
   window.onload = function () {
     var reloading = sessionStorage.getItem("reloading");
@@ -143,11 +190,10 @@
       sessionStorage.removeItem("reloading");
       showPopup.showLinkAcc();
     }
-  }
+  };
 
   // Function object containing all functions for the popup Element
   const showPopup = {
-
     showActivate() {
       showPopup.appendContainerAndText();
       showPopup.appendBtnContainer();
@@ -190,16 +236,18 @@
       buttonContainer.className = "button-container";
       buttonContainerActivate.className = "button-container-activate";
       buttonContainerLink.className = "button-container-link";
-      buttonContainerDone.className = "button-container-done"
+      buttonContainerDone.className = "button-container-done";
 
-      buttonContainer.appendChild(buttonContainerActivate)
-      buttonContainer.appendChild(buttonContainerLink)
+      buttonContainer.appendChild(buttonContainerActivate);
+      buttonContainer.appendChild(buttonContainerLink);
       popup.appendChild(buttonContainer);
       popup.appendChild(buttonContainerDone);
     },
 
     appendBtnActivate() {
-      var buttonContainerActivate = document.querySelector('.button-container-activate');
+      var buttonContainerActivate = document.querySelector(
+        ".button-container-activate"
+      );
       var doneButton1 = document.createElement("a");
       doneButton1.href = "{% url 'generate_article:aryshare' %}";
       doneButton1.innerHTML = "activate user";
@@ -210,16 +258,21 @@
 
       buttonContainerActivate.appendChild(doneButton1);
       // set item 'reloading' : 'true' in the local storage only when activate user button is clicked
-      doneButton1.addEventListener('click', function () {
+      doneButton1.addEventListener("click", function () {
         sessionStorage.setItem("reloading", "true");
         doneButton1.innerHTML = "activating <strong>....</strong>";
-      })
+      });
     },
 
     appendBtnLinkAndDone() {
-      document.querySelector('.button-container-activate').style.display = 'none';
-      var buttonContainerDone = document.querySelector(".button-container-done");
-      var buttonContainerLink = document.querySelector(".button-container-link")
+      document.querySelector(".button-container-activate").style.display =
+        "none";
+      var buttonContainerDone = document.querySelector(
+        ".button-container-done"
+      );
+      var buttonContainerLink = document.querySelector(
+        ".button-container-link"
+      );
       var doneButton2 = document.createElement("a");
       doneButton2.href = "{% url 'generate_article:link_social_media' %}";
       doneButton2.innerHTML = "link socialmedia accounts";
@@ -241,9 +294,7 @@
       buttonContainerLink.appendChild(doneButton2);
       buttonContainerDone.appendChild(doneButton3);
     },
-
-
-  }
+  };
 </script>
 
 {% endblock %}
