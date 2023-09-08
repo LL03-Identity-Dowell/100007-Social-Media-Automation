@@ -123,6 +123,15 @@
     width: 100%;
     overflow-y: scroll;
   }
+  .no-city-match-container{
+    display: flex;
+    flex-direction: column;
+    height: 464px;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    position: relative;
+  }
   .city-list div {
     position: relative;
     width: 100%;
@@ -180,6 +189,15 @@
     font-size: 24px;
     font-weight: bold;
   }
+  .no-city-message{
+    text-align: center;
+    position: absolute;
+    width: max-content;
+    top: 36%;
+    font-weight: bold;
+    left: 5%;
+  }
+
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
 <div
@@ -195,6 +213,9 @@
       <div class="search-wrapper">
         <div class="icons8-search"></div>
       </div>
+    </div>
+    <div class="no-city-match-container">
+      <h1 class="no-city-message">No matching cities found.</h1>
     </div>
     <form
       id="city-selection-form"
@@ -221,40 +242,50 @@
 </div>
 
 <script type="module">
-  document.addEventListener("DOMContentLoaded", async function () {
-    const inputsEl = document.querySelectorAll('[type="checkbox"]');
-    const searchInput = document.querySelector(".search-input")
+document.addEventListener("DOMContentLoaded", async function () {
+  const inputsEl = document.querySelectorAll('[type="checkbox"]');
+  const searchInput = document.querySelector(".search-input");
+  const noCityFound = document.querySelector('.no-city-match-container');
+  const form = document.getElementById("city-selection-form")
 
-    searchInput.addEventListener("input", function () {
-      const searchValue = searchInput.value.toLowerCase(); // Get the search input value in lowercase
-
-      inputsEl.forEach(function (checkbox) {
-        const parentDiv = checkbox.closest(".city");
-        if (parentDiv) {
-          const cityName = parentDiv
-            .querySelector("label")
-            .textContent.toLowerCase(); // Get the city name in lowercase
-          const shouldShow = cityName.includes(searchValue); // Check if the city name contains the search input
-
-          // Hide or show the city based on the search result
-          parentDiv.style.display = shouldShow ? "block" : "none";
-        }
-      });
-    });
+  searchInput.addEventListener("input", function () {
+    const searchValue = searchInput.value.toLowerCase();
+    let noMatch = true; // Initialize as true
 
     inputsEl.forEach(function (checkbox) {
-      checkbox.addEventListener("click", function (e) {
-        const parentDiv = checkbox.closest(".city"); // Find the closest parent div with class "city"
+      const parentDiv = checkbox.closest(".city");
+      if (parentDiv) {
+        const cityName = parentDiv
+          .querySelector("label")
+          .textContent.toLowerCase();
+        const shouldShow = cityName.includes(searchValue);
+        parentDiv.style.display = shouldShow ? "block" : "none";
 
-        if (parentDiv) {
-          if (e.target.checked) {
-            parentDiv.style.backgroundColor = "#3d84eec2"; // Change background color to blue when checked
-          } else {
-            parentDiv.style.backgroundColor = "#05051fc2"; // Reset to default color when unchecked
-          }
+        if (shouldShow) {
+          noMatch = false; // Set to false if a match is found
         }
-      });
+      }
+    });
+
+    // Update the "Not city match" message display
+    noCityFound.style.display = noMatch ? "block" : "none";
+    form.style.display = noMatch ? "none" : "block";
+  });
+
+  inputsEl.forEach(function (checkbox) {
+    checkbox.addEventListener("click", function (e) {
+      const parentDiv = checkbox.closest(".city");
+
+      if (parentDiv) {
+        if (e.target.checked) {
+          parentDiv.style.backgroundColor = "#3d84eec2";
+        } else {
+          parentDiv.style.backgroundColor = "#05051fc2";
+        }
+      }
     });
   });
+});
+
 </script>
 {% endblock %}
