@@ -141,6 +141,18 @@
       cursor: pointer;
     }
 
+    .fa-house {
+      font-size: 1.7rem;
+    }
+
+    .fa-house:hover{
+      opacity : 0.8;
+    }
+
+    .fa-circle-user {
+      font-size: 2.2rem; 
+    }
+
     @keyframes decreaseWidth {
       0% {
         width: 100%;
@@ -256,20 +268,13 @@
         </h3>
 
         <ul class="nav d-flex align-items-center">
-          <!-- Back to Main Page Button -->
-          <li class="nav-item">
-            <a class="nav-link btn" href="https://www.socialmediaautomation.uxlivinglab.online/" >
-              <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
-              <i class="fa-solid fa-house fa-lg"></i> 
-            </a>
-          </li>
 
-           <!--Username-->
+            <!--Username-->
           <li class="nav-item">
             <span id="nav-username" class="navbar-text">{{ request.session.username }}</span>
           </li>
 
-          <!--Account Dropdown-->
+           <!--Account Dropdown-->
           <li class="nav-item">
             <div class="nav-item dropdown">
               <a class="nav-link dropdown-toggle btn" href="#" role="button" data-bs-toggle="dropdown"
@@ -300,6 +305,14 @@
                 </li>
               </ul>
             </div>
+          </li>
+
+          <!-- Back to Main Page Button -->
+          <li class="nav-item">
+            <a class="nav-link" href="https://www.socialmediaautomation.uxlivinglab.online/" >
+              <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
+              <i class="fa-solid fa-house fa-lg" style="color: white"></i> 
+            </a>
           </li>
 
           <!--Client options-->
