@@ -214,9 +214,11 @@
         <div class="icons8-search"></div>
       </div>
     </div>
-    <div class="no-city-match-container">
+        <div class="no-city-match-container">
       <h1 class="no-city-message">No matching cities found.</h1>
     </div>
+
+        {% if status == 'insert' %}
     <form
       id="city-selection-form"
       method="post"
@@ -238,6 +240,29 @@
       </div>
       <button type="submit" class="submit-button">save</button>
     </form>
+    {% else %}
+    <form
+    id="city-selection-form"
+    method="post"
+    action="{% url 'generate_article:update_saved_target_cities' %}"
+  >
+    {% csrf_token %}
+    <div id="city-list" class="city-list">
+      {% for city in cities %}
+      <div class="city">
+        <label for="city_{{ city.id }}">{{ city.name }}</label>
+        <input
+          id="city_{{ city.id }}"
+          type="checkbox"
+          name="target_cities[]"
+          value="{{ city.name }}"
+        />
+      </div>
+      {% endfor %}
+    </div>
+    <button type="submit" class="submit-button">save</button>
+  </form>
+  {%endif%}
   </div>
 </div>
 
