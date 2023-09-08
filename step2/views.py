@@ -1,3 +1,5 @@
+from django.shortcuts import render
+from django.http import JsonResponse
 import concurrent.futures
 import datetime
 import json
@@ -33,6 +35,9 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
@@ -76,6 +81,7 @@ def download_and_upload_image(image_url):
     except Exception as e:
         print(f"Error: {e}")
         return {'file_url': image_url}
+
 
 def get_event_id():
     dd = datetime.now()
@@ -231,6 +237,18 @@ def under_maintenance(request):
     return HttpResponse("Under maintenance. Please try again later.")
 
 
+def exit_view(request):
+    session_id_from_frontend = request.session.session_key
+    print("frontend", session_id_from_frontend)
+    session_id_from_backend = request.session.get('session_id')
+    print("backend", session_id_from_backend)
+    print("Before flushing:", request.session.get('session_id'))
+    request.session.flush()
+    print("After flushing:", request.session.get('session_id'))
+    # Redirect to another page
+    return redirect("https://100093.pythonanywhere.com/")
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 def frontend_api_request(request):
     '''Acts as a proxy to the external API.
@@ -259,6 +277,39 @@ def handler404(request, exception):
 
 def handler500(request):
     return render(request, 'errors/500.html', status=500)
+
+
+@csrf_exempt
+def fetch_user_info(request):
+    if 'session_id' and 'username' in request.session:
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        if response.status_code == 200:
+            user_data = json.loads(response.text)
+            return user_data
+        else:
+            # where the request to the database fails
+            return None
+    return "Error Handling your request"
 
 
 def home(request):
@@ -1042,7 +1093,67 @@ def client(request):
 
 
 def targeted_cities(request):
-    return render(request, 'dowell/target_cities.html')
+    if 'session_id' in request.session and 'username' in request.session:
+        if request.method == "GET":
+            # Your existing code to retrieve cities
+            url = 'http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/'
+
+            cities = []
+            try:
+                response = requests.get(url=url)
+                cities = response.json()
+            except Exception as e:
+                print('An error occurred:', str(e))
+
+            context_dict = {'cities': cities}
+            return render(request, 'dowell/target_cities.html', context_dict)
+    return render(request, 'error.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
+def save_targeted_cities(request):
+    if request.method != "POST":
+        return HttpResponseRedirect(reverse("generate_article:target_cities"))
+    else:
+        # Receive selected cities from the form
+        # target_city = request.POST.get("target_cities") #for sigle cities
+        # print(target_city)
+        # for multiple cities, can also work for one
+        target_cities = request.POST.getlist('target_cities[]')
+        print(target_cities)
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "target_cities": {
+                    "target_city": target_cities,
+                },
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+        user_data = fetch_user_info(request)
+        print(user_data)
+        messages.success(
+            request, "target_cities details updated successfully.")
+
+        return HttpResponseRedirect(reverse("generate_article:target_cities"))
 
 
 @csrf_exempt
@@ -1060,7 +1171,56 @@ def user_usage(request):
 @csrf_exempt
 @xframe_options_exempt
 def user_plan(request):
-    return render(request, 'user_plan.html')
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            return render(request, 'user_plan.html')
+        elif request.method == "POST":
+
+            data = request.POST.dict()
+
+            return HttpResponse(f'This is the data in the post request.{str(data)}')
+    else:
+        return render(request, 'error.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
+def hash_mention(request):
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            return render(request, 'hash_mention.html')
+        elif request.method == "POST":
+
+            hashtag_list = request.POST.get('hashtags_list').split(',')
+            mentions_list = request.POST.get('mentions_list').split(',')
+
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {"user_id": request.session['user_id']},
+                "update_field": {
+                    "mentions_list": mentions_list,
+                    "hashtag_list": hashtag_list,
+                },
+                "platform": "bangalore"
+            }
+
+            data = json.dumps(payload)
+            response = requests.request("POST", url, headers=headers, data=data)
+            print(response)
+
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
+
 
 
 @csrf_exempt
@@ -1929,18 +2089,27 @@ def generate_article(request):
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("image")
 
+            # fetch user data to get #tags, mentions, and target cities
+            user_data = fetch_user_info(request)
+            print("Here we have alot of", user_data)
+            # if user_data:
+            # user_tags_mentions = user_data.get("tags_mentions", "")
+            # user_selected_cities = user_data.get("selected_cities", "")
+
             # Set your OpenAI API key here
             openai.api_key = settings.OPENAI_KEY
 
             # Build prompt
             prompt_limit = 280
+            # Modify the prompt to include user data
             prompt = (
                 f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
-                f" Generate only 2 paragraphs. "
+                f" Generate only 2 paragraphs."
+                # f" Include the following #tags and mentions: {user_tags_mentions}."
+                # f" Also, add #tags on the target cities the user selected: {user_selected_cities}."
                 [:prompt_limit]
                 + "..."
             )
-
             # Variables for loop control
             duration = 5  # Total duration in seconds
             interval = 1  # Interval between generating articles in seconds
@@ -1963,7 +2132,7 @@ def generate_article(request):
                 paragraphs = article.split("\n\n")
                 article_str = "\n\n".join(paragraphs)
 
-                sources = urllib.parse.unquote("https://openai.com")
+                sources = urllib.parse.unquote("")
 
                 try:
                     with transaction.atomic():

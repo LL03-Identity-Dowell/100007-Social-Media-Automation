@@ -71,7 +71,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
     # 'djangobower.finders.BowerFinder',
 ]
 
@@ -95,6 +94,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'step2.context_processors.session_id',
+                'website.context_processors.session_id',
             ],
         },
     },
