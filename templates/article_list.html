@@ -12,48 +12,56 @@
                     style=" font-size: calc(1.375rem + 1.5vw)!important;">Article List</h1></div>
                     <div class="total-post_button">
                         <p>Total posts count: {{ posts|length }}</p>
-                         <span><a href="{% url 'generate_article:index-view' %}" type="submit" class="btn btn-primary btn-view">Create
-                    Article</a></span>
+                         <!-- <span>
+                            <a href="{% url 'generate_article:index-view' %}" type="submit" class="btn btn-primary btn-view">CreateArticle</a>
+                        </span> -->
                     </div>
-
 
             <div class="table-container">
                 <div class="table-row-header">
                 </div>
 
-                {% for post in page_post %}
-                    <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="title" value="{{ post.title }}">
-                        <input type="hidden" name="paragraph" value="{{ post.paragraph }}">
-                        <input type="hidden" name="source" value="{{ post.source }}">
-                        <div class="flex">
-                            <div>
-                                <div class="table-row">
-                                    <div class="table-column" style="color: #1434A4;font-size: 20px; font-weight: 600;">
-                                        <p>{{ post.title }}</p>
+                {% if page_post %}
+                    {% for post in page_post %}
+                        <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="title" value="{{ post.title }}">
+                            <input type="hidden" name="paragraph" value="{{ post.paragraph }}">
+                            <input type="hidden" name="source" value="{{ post.source }}">
+                            <div class="flex">
+                                <div>
+                                    <div class="table-row">
+                                        <div class="table-column" style="color: #1434A4;font-size: 20px; font-weight: 600;">
+                                            <p>{{ post.title }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="table-row">
+                                        <div class="table-column">
+                                            <p>{{ post.paragraph|truncatewords:50 }}</p>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div class="table-row">
-                                    <div class="table-column">
-                                        <p>{{ post.paragraph|truncatewords:50 }}</p>
-                                    </div>
+                                <div class="button-container">
+                                    <button type="submit" class="btn btn-primary btn-view">View Article</button>
                                 </div>
                             </div>
-                            <div class="button-container">
-                                <button type="submit" class="btn btn-primary btn-view">View Article</button>
-                            </div>
-                        </div>
 
-                    </form>
-                {% endfor %}
-
+                        </form>
+                    {% endfor %}
+                {% else %}
+                <div style="padding-bottom: 4rem; margin: 10rem auto;  width: 100%; text-align: center;">
+                    <p>No Articles here. Create articles below by clicking on the button below</p>
+                    <span>
+                        <a href="{% url 'generate_article:index-view' %}" type="submit" class="btn btn-primary btn-view">Create Article</a>
+                    </span>
+                </div>
+                {% endif %}
                 </tbody>
                 </table>
                
                 <center>
-
+                    <div ></div>
                     <div class="pagination">
                         {% if page_post.has_previous %}
                             <a href="?page={{ page_post.previous_page_number }}">Previous</a>
