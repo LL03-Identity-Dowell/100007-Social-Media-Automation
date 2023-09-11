@@ -7,11 +7,58 @@ window.onload = function downdis() {
     console.log("Hellow On Load")
 }
 
+//Custom Notification popup
+function displayNotification(message) {
+    // Create a new notification element
+    var notification = document.createElement('div');
+    notification.classList.add('custom-notification');
+    notification.innerHTML = `
+    <div class="notification">
+      ${message}
+      <button class="close-button">&times;</button>
+    </div>
+  `;
+
+    document.body.appendChild(notification);
+
+    // Add an event listener to the close button
+    var closeButton = notification.querySelector('.close-button');
+    closeButton.addEventListener('click', function () {
+        notification.style.display = 'none';
+    });
+
+    // Automatically close the notification after a set duration
+    notification.classList.add('timeout');
+    var contentElement = notification.querySelector('.notification');
+    var animationDuration = 10000; // Animation duration in milliseconds
+    var animationStartTime = Date.now();
+
+    function decreaseWidth() {
+        var currentTime = Date.now();
+        var elapsedTime = currentTime - animationStartTime;
+        var progress = elapsedTime / animationDuration;
+        var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
+
+        contentElement.style.setProperty('--after-width', updatedWidth + '%');
+
+        if (progress < 1) {
+            requestAnimationFrame(decreaseWidth);
+        } else {
+            notification.style.display = 'none'; // Hide the notification
+        }
+    }
+
+    requestAnimationFrame(decreaseWidth);
+}
+
+
+
 
 document.querySelector('#edit-post').onclick = editPost;
 document.querySelector('#save-post').onclick = savePost;
 document.querySelector('#delete-post').onclick = deletePost;
 var postti = document.getElementById('post-title')
+
 var postpar = document.getElementById('post-paragraph')
 var postsor = document.getElementById('post-sources')
 
@@ -30,7 +77,34 @@ function deletePost() {
 }
 
 
+let CACHE_IMAGE;
+let CACHE_PARAGRAPHS;
+let CACHE_SOURCES;
+let CACHE_TITLE;
+
+window.onload = function () {
+    var prevStrData = localStorage.getItem("previousState");
+
+    if (prevStrData) {
+        document.querySelector('.img-overlay').classList.add("show-overlay");
+        var prevData = JSON.parse(prevStrData);
+        CACHE_IMAGE = prevData.image;
+        CACHE_PARAGRAPHS = prevData.paragraphs
+        CACHE_SOURCES = prevData.sources;
+        CACHE_TITLE = prevData.title;
+
+        editPost();
+        updateImage();
+    }
+
+}
+
+//status of post editing
+let editing = false;
+
 function editPost() {
+    editing = true
+    document.querySelector('.img-overlay').classList.add("show-overlay");
     // Add an input element to edit the title
     let titleInput = document.createElement('input');
     titleInput.setAttribute('class', 'form-control');
@@ -41,9 +115,14 @@ function editPost() {
 
 
     // Add a textarea element to edit post content
-    let postText = Array(...document.querySelectorAll('.post-paragraph'))
-        .map(element => element.innerHTML)
-        .join('\n');
+    let postText;
+    if (CACHE_PARAGRAPHS) {
+        postText = CACHE_PARAGRAPHS.join('\n');
+    } else {
+        postText = Array(...document.querySelectorAll('.post-paragraph'))
+            .map(element => element.innerHTML)
+            .join('\n');
+    }
     let paragraphsInput = document.createElement('textarea');
     paragraphsInput.setAttribute('class', 'form-control');
     paragraphsInput.setAttribute('id', 'paragraphs-input');
@@ -52,9 +131,15 @@ function editPost() {
     document.querySelector('#post-paragraphs').replaceWith(paragraphsInput);
 
     // Add a textarea element to edit post sources
-    let postSources = Array(...document.querySelectorAll('.post-source'))
-        .map(element => element.innerHTML)
-        .join('\n');
+    let postSources;
+    if (CACHE_SOURCES) {
+        postSources = CACHE_SOURCES.join('\n');
+    } else {
+        postSources = Array(...document.querySelectorAll('.post-source'))
+            .map(element => element.innerHTML)
+            .join('\n');
+    }
+
     let sourcesInput = document.createElement('textarea');
     sourcesInput.setAttribute('class', 'form-control');
     sourcesInput.setAttribute('id', 'sources-input');
@@ -65,7 +150,9 @@ function editPost() {
 
 
 function savePost() {
+    editing = false;
 
+    document.querySelector('.img-overlay').classList.remove("show-overlay")
     console.log("Remember to save to database...");
 
     // Save the new title to the DOM and update hidden input value
@@ -114,7 +201,7 @@ function savePost() {
         sDiv.appendChild(p);
     } else {
 
-        postSources = postSources.map(source => {
+        postSources.map(source => {
             let a = document.createElement('a');
             let sInput = document.createElement('input');
 
@@ -130,34 +217,86 @@ function savePost() {
             sDiv.appendChild(a);
             sDiv.appendChild(sInput);
         });
+        console.log(postSources);
     }
 
     document.querySelector('#sources-input').replaceWith(sDiv);
 
+    //Call character count function
+    updCharacWrdCnt();
+
+
     // Save state to localStorage/ implementing some caching
-    //let currImage = document.querySelector(".post-img");
-    //let postData = {
-    //  title: newTitle,
-    //  paragraphs: postParagraphs,
-    //  sources: postSources,
-    //  image: currImage
-    //}
+    let currImageSrc = document.querySelector(".post-img").src;
+    let postData = {
+        title: newTitle,
+        paragraphs: postParagraphs,
+        sources: postSources,
+        image: currImageSrc
+    }
+    localStorage.setItem('previousState', JSON.stringify(postData));
 }
 
 
-//image overlay show and hide
-let overlayDiv = document.querySelector('.img-overlay');
-let editPostBtn = document.querySelector('#edit-post');
-let savePostBtn = document.querySelector('#save-post');
+// Intercept form submission
+document.getElementById('post-forn').addEventListener('submit', (event) => {
+    // console.log(editting)
+    if (editing) {
+        // Ask user to save before proceeding
+        displayNotification("You have unsaved changes, please save");
 
+        // Prevent form submission
+        event.preventDefault();
 
-editPostBtn.addEventListener("click", () => {
-    overlayDiv.classList.add("show-overlay");
+    }
 });
 
-savePostBtn.addEventListener("click", () => {
-    overlayDiv.classList.remove("show-overlay");
+
+document.addEventListener("DOMContentLoaded", () => {
+    updCharacWrdCnt();
 })
+
+// Word count, Character count, Hashtag count
+let wordCount = 0;
+let characCount = 0;
+let hashTagCount = 0;
+
+const updCharacWrdCnt = () => {
+    let paragraphContent;
+    let paragraphCharacCount;
+    let paragraphWordArray;
+    let paragraphWordCount;
+    let hashTagMatches;
+    hashTagCount = 0;
+
+    let titleContent = document.getElementById("post-title").textContent;
+
+    let titleCharacCount = titleContent.length;
+    characCount = titleCharacCount;
+
+    let titleWordArray = titleContent.split(" ").filter(word => word !== "");
+    let titleWordCount = titleWordArray.length;
+    wordCount = titleWordCount;
+
+    Array(...document.querySelectorAll('.post-paragraph'))
+        .map((element) => {
+            paragraphContent = element.textContent;
+
+            paragraphCharacCount = paragraphContent.length;
+            characCount += paragraphCharacCount;
+
+            paragraphWordArray = paragraphContent.split(" ").filter(word => word !== "");
+            paragraphWordCount = paragraphWordArray.length;
+            wordCount += paragraphWordCount;
+
+            hashTagMatches = paragraphContent.match(/#/g);
+            hashTagCount += hashTagMatches ? hashTagMatches.length : 0;
+        })
+
+    document.getElementById("word-count").textContent = `${wordCount} Word(s)`;
+    document.getElementById("charac-count").textContent = `${characCount} Character(s)`;
+    document.getElementById("hashtag-count").textContent = `${hashTagCount} Hashtag(s)`;
+}
 
 
 //handle search
@@ -298,13 +437,21 @@ const searchPhoto = async (term) => {
 
 
 const updateImage = () => {
-    if (imageSrc == "") {
-        return
-    }
+
     sideImage = document.querySelector(".post-img");
     hiddenImageInput = document.querySelector("#images");
 
-    // update hidden input value
-    hiddenImageInput.value = imageSrc;
-    sideImage.src = imageSrc;
+    if (imageSrc) {
+
+        // update hidden input value
+        hiddenImageInput.value = imageSrc;
+        sideImage.src = imageSrc;
+
+    } else if (imageSrc == "" && CACHE_IMAGE) {
+
+        // update hidden input value
+        hiddenImageInput.value = CACHE_IMAGE;
+        sideImage.src = CACHE_IMAGE;
+    }
+
 }

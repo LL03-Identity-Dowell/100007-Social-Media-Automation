@@ -3,14 +3,14 @@
 }
 
 #edit-button {
-    background:#6c757d;
+    background: #6c757d;
 }
 
 #post-post {
     background: #1B3474;
 }
 
-#dot-btn:hover{
+#dot-btn:hover {
     opacity: 0.8;
 }
 
@@ -18,12 +18,12 @@
     color: white;
     background-color: var(--dark-blue);
     border-color: var(--dark-blue);
-    }
+}
 
-    .btn-dark-blue:hover{
+.btn-dark-blue:hover {
     color: white;
     background-color: rgb(20, 38, 85);
-    }
+}
 
 .image-container {
     position: relative;
@@ -40,12 +40,13 @@
     display: none;
 }
 
-.show-overlay{
+.show-overlay {
     display: block;
 }
 
-.post-img{
+.post-img {
     border-radius: 6px;
+    min-width: 100%;
 }
 
 .glass-button {
@@ -54,8 +55,8 @@
     border: 0;
     text-decoration: none;
     border-radius: 15px;
-    background-color: rgba(255,255,255,0.7);
-    border: 1px solid rgba(255,255,255,0.1);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(1px);
     color: rgb(4 7 81 / 80%);
     font-size: 11px;
@@ -66,10 +67,10 @@
 }
 
 .glass-button:hover {
-    background-color: rgba(255,255,255,0.5);
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
-.post-options{
+.post-options {
     width: 50%;
     padding: 28px;
 }
@@ -79,7 +80,7 @@
 
 .modal-content {
     width: 430px;
-    border:none;
+    border: none;
 }
 
 .modal-body {
@@ -103,10 +104,27 @@
     vertical-align: middle;
 }
 
-.col-md-4 > img{
+.col-md-4>img {
     cursor: pointer;
 }
 
-.borderToggle{
+.borderToggle {
     border: 3px solid blue;
+}
+
+/* horizontal line */
+
+#hr {
+    margin: 1rem 0;
+}
+
+#word-charac-count {
+    font-weight: 600;
+    color: #7b7b93;
+}
+
+@media (min-width: 1200px) {
+    #word-count {
+        max-width: 914px;
+    }
 }

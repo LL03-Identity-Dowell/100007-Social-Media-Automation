@@ -5,12 +5,12 @@
 
 {% block style %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'step2/css/post_detail.css'%}">
+  <link rel="stylesheet" type="text/css" href="{% static 'step2/css/post_detail.css' %}">
 {% endblock %}
 
 {% block script %}
   {{ block.super }}
-  <script type="text/javascript" src="{% static 'step2/js/post_detail.js'%}"></script>
+  <script type="text/javascript" src="{% static 'step2/js/post_detail.js' %}"></script>
 {% endblock %}
 
 
@@ -32,10 +32,10 @@
     </ul>
   </div>
 
-  <form action="{% url 'generate_article:save-post' %}" method="post">
+  <form action="{% url 'generate_article:save-post' %}" method="post" id="post-forn">
     {% csrf_token %}
     <div id="post-title" >{{ post.title }}</div>
-    <input id="title" type= "hidden" name="title" value="{{ post.title }}">
+    <input id="title" type="hidden" name="title" value="{{ post.title }}">
 
     <hr>
 
@@ -75,7 +75,7 @@
           </button>
         </div>
         <img src ={{images}} alt="Random meme..." class="img-fluid post-img">
-        <input id="images" type= "hidden" name="images" value="{{images}}">
+        <input id="images" type="hidden" name="images" value="{{images}}">
       </div>
 
       <div class="post-options">
@@ -239,14 +239,30 @@
 
     </div>
 
+    <div id="hr" style="border-bottom: 2px solid #495057; width: 90%"></div>
+
+    <div class="container mb-3" id="word-charac-count" style="width: 800px !important;">
+      <div class="row">
+        <div class="col" id="word-count">
+          {% comment %} 0 Word(s) {% endcomment %}
+        </div>
+        <div class="col" id="charac-count">
+          {% comment %} 0 Character(s) {% endcomment %}
+        </div>
+        <div class="col" id="hashtag-count">
+          {% comment %} 0 Hashtag(s) {% endcomment %}
+        </div>
+      </div>
+    </div>
+
     {% if profile == 'Admin' or 'Add/Edit'%}
-    <div class="text-center">
+    <div class="text-center" style="margin-right: 148px;">
       <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;">Back</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
       <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
     </div>
     {% else %}
-    <div class="text-center">
+    <div class="text-center" style="margin-right: 148px;">
       <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;;">Back</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
       <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;" onclick="showAdminMessage()">Next</button>
@@ -256,6 +272,7 @@
     {% endif %}
 
 </div>
+
 
   <!-- Modal -->
 <div class="modal fade" id="largeModal" tabindex="-1" aria-labelledby="basicModal" aria-hidden="true">
@@ -268,7 +285,7 @@
           <div class="form-outline">
             <input type="text" id="search_input" class="form-control" placeholder="Search images" />
           </div>
-          <button id="search_btn" class="btn btn-primary" style="background-color: #36519e;">
+          <button id="search_btn" class="btn btn-primary" style="height: 38px; background-color: #36519e;">
             <i class="fas fa-search"></i>
           </button>
         </div>
