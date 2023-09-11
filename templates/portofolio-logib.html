@@ -2,9 +2,10 @@
 {% load static %}
 
 {% block script %}
-	<script src="{% static 'main.js' %}"></script>
+<script src="{% static 'main.js' %}"></script>
 {% endblock script %}
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/portfolio-logoib.css'%}">
 
     <center>
 
@@ -14,88 +15,6 @@
             <p class="line-1 anim-typewriter">You Don't Have A Portofolio, Please <a class="link-1" href="https://100093.pythonanywhere.com/">Create One Here!!!</a> </p>
     </center>
 
-    <style>
-        @import url(https://fonts.googleapis.com/css?family=Anonymous+Pro);
-
-/* Global */
-html{
-  min-height: 100%;
-  overflow: hidden;
-}
-.link-1 {
-    color:red;
-    font-weight:600;
-    text-decoration: underline;
-}
-
-.line-1{
-    position: relative;
-    top: 50%;
-    width: 24em;
-    margin: 0 auto;
-    border-right: 2px solid rgba(255,255,255,.75);
-    font-size: 150%;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    transform: translateY(-50%);
-}
-
-/* Animation */
-.anim-typewriter{
-  animation: typewriter 4s steps(44) 1s 1 normal both,
-             blinkTextCursor 500ms steps(44) infinite normal;
-}
-@keyframes typewriter{
-  from{width: 0;}
-  to{width: 24em;}
-}
-@keyframes blinkTextCursor{
-  from{border-right-color: rgba(255,255,255,.75);}
-  to{border-right-color: transparent;}
-}
-
-    </style>
-
-    <script>
-
-checkstatus()
-
-function checkstatus() {
-  var lav = document.getElementById("useronline-status-icons");
-
-
-  // AJAX GET request
-  $.ajax({
-    url: 'https://100014.pythonanywhere.com/en/live_status',
-    type: 'GET',
-    success: function(data) {
-      lav.style.color="green"
-    //   lav.innerHTML = JSON.stringify(data);
-    },
-    error: function(error) {
-    //   console.error(error);
-     lav.style.color="red"
-    }
-  });
-
-  // AJAX POST request
-  $.ajax({
-    url: 'https://100014.pythonanywhere.com/en/live_status',
-    type: 'POST',
-    data: JSON.stringify({ session_id:"f5u2udocbu8e3mg12hw9tb1h0h5wzcbe",product: "Living Lab Admin"}),
-    contentType: 'application/json',
-    success: function(data) {
-      console.log(data);
-    },
-    error: function(error) {
-      console.error(error);
-    }
-  });
-}
-
-setInterval(checkstatus, 60000);
-
-</script>
+<script type="text/javascript" src="{% static 'step2/js/portfolio-logoib.js'%}"></script>
 
 {% endblock %}

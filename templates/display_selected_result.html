@@ -1,73 +1,21 @@
 <!DOCTYPE html>
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-<style>
-    * {
-        box-sizing: border-box;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    href="https://fonts.googleapis.com/css?family=Raleway"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" type="text/css" href="{% static 'step2/css/display_seleceted_result.css'%}">
+  <body>
+    <div id="ansDisplay">
+      <p>
+        Done submitting your ranks. Go to
+        <a href="https://www.socialmediaautomation.uxlivinglab.online/"
+          >home page</a
+        >
+      </p>
+    </div>
 
-    /*body {*/
-    /*    background-color: #f1f1f1;*/
-    /*}*/
-
-    #ansDisplay {
-        background-color: #ffffff;
-        margin: 100px auto;
-        font-family: Raleway;
-        padding: 40px;
-        width: 70%;
-        min-width: 300px;
-    }
-
-
-</style>
-<body>
-
-<div id="ansDisplay">
-    <p> Done submitting your ranks. Go to <a href="https://www.socialmediaautomation.uxlivinglab.online/">home page</a></p>
-</div>
-
-
-<script>
-
-checkstatus()
-
-function checkstatus() {
-  var lav = document.getElementById("useronline-status-icons");
-
-
-  // AJAX GET request
-  $.ajax({
-    url: 'https://100014.pythonanywhere.com/en/live_status',
-    type: 'GET',
-    success: function(data) {
-      lav.style.color="green"
-    //   lav.innerHTML = JSON.stringify(data);
-    },
-    error: function(error) {
-    //   console.error(error);
-     lav.style.color="red"
-    }
-  });
-
-  // AJAX POST request
-  $.ajax({
-    url: 'https://100014.pythonanywhere.com/en/live_status',
-    type: 'POST',
-    data: JSON.stringify({ session_id:"f5u2udocbu8e3mg12hw9tb1h0h5wzcbe",product: "Living Lab Admin"}),
-    contentType: 'application/json',
-    success: function(data) {
-      console.log(data);
-    },
-    error: function(error) {
-      console.error(error);
-    }
-  });
-}
-
-setInterval(checkstatus, 60000);
-
-</script>
-</body>
+    <script src="{% static 'step2/js/display_selected_result.js' %}"></script>
+  </body>
 </html>

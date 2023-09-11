@@ -2,31 +2,12 @@
 {% load static %}
 
 {% block style %}
-  {{ block.super }}
-  <style>
-    .blue-rounded-container {
-      background-color: var(--dark-blue);
-      color: white;
-      padding: 10px 50px;
-      border-radius: 10px;
-      margin: 20px;
-      text-align: center;
-    }
-
-    .btn-dark-blue {
-      color: white;
-      background-color: var(--dark-blue);
-      border-color: var(--dark-blue);
-    }
-
-    .btn-dark-blue:hover {
-      color: white;
-      background-color: rgb(20, 38, 85);
-    }
-  </style>
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/user_usage.css'%}">
 {% endblock %}
 
 {% block stuff %}
+
   <h1 class="mb-1">
     <span class="blue-text">Current Plan: </span><span>Startup</span>
   </h1>
