@@ -1,11 +1,316 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <p>Target Cities Goes Here</p>
-</body>
-</html>
+{% extends "article/base.html" %} {% load static %} {% block script %}
+<script src="{% static 'main.js' %}"></script>
+{% endblock script %} {% block style %}
+<style>
+  :root {
+    --dark-blue: rgb(27, 52, 116);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  main {
+    /* Fill the screen. */
+    width: 100%;
+    height: 100%;
+    /* Remove all margins and paddings. */
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  body,
+  main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    /* Set background image. */
+    background-image: url("{% static 'photos/pens.jpg' %}");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    /* Align items */
+    align-items: center;
+  }
+
+  .content-container {
+    width: 1000px;
+    height: 600px;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 20px;
+    background-color: rgba(230, 230, 230, 78%);
+    box-shadow: rgb(0 0 0 / 25%) 2px 2px 5px;
+    padding-top: 30px;
+  }
+  .wrapper-container {
+    width: 54%;
+    padding: 0;
+  }
+  .search-container {
+    background: rgba(18, 84, 226, 0.829);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    margin-bottom: 2px;
+  }
+  .heading-container {
+    padding: 0 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 200px;
+  }
+  .search-container h2 {
+    font-size: 25px;
+    color: #fff;
+    font-weight: bold;
+    padding: 0;
+    margin: 0;
+    width: max-content;
+  }
+  .search-wrapper {
+    height: 60px;
+    width: 60px;
+    background-color: var(--dark-blue);
+    padding: 5px;
+  }
+
+  .icons8-search {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAsMCwyNTYsMjU2IgpzdHlsZT0iZmlsbDojMDAwMDAwOyI+CjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtcnVsZT0ibm9uemVybyIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIHN0cm9rZS1kYXNoYXJyYXk9IiIgc3Ryb2tlLWRhc2hvZmZzZXQ9IjAiIGZvbnQtZmFtaWx5PSJub25lIiBmb250LXdlaWdodD0ibm9uZSIgZm9udC1zaXplPSJub25lIiB0ZXh0LWFuY2hvcj0ibm9uZSIgc3R5bGU9Im1peC1ibGVuZC1tb2RlOiBub3JtYWwiPjxnIHRyYW5zZm9ybT0ic2NhbGUoMy41NTU1NiwzLjU1NTU2KSI+PHBhdGggZD0iTTMxLDExYy0xMS4wMjcsMCAtMjAsOC45NzMgLTIwLDIwYzAsMTEuMDI3IDguOTczLDIwIDIwLDIwYzMuOTc0MTcsMCA3LjY3MjM4LC0xLjE3ODQzIDEwLjc4OTA2LC0zLjE4NTU1bDEyLjkzNzUsMTIuOTM3NWMxLjY2NCwxLjY2NCA0LjM2MjM5LDEuNjY0IDYuMDI1MzksMGMxLjY2NCwtMS42NjQgMS42NjQsLTQuMzYxMzkgMCwtNi4wMjUzOWwtMTIuOTM3NSwtMTIuOTM3NWMyLjAwNzEyLC0zLjExNjY4IDMuMTg1NTUsLTYuODE0OSAzLjE4NTU1LC0xMC43ODkwNmMwLC0xMS4wMjcgLTguOTczLC0yMCAtMjAsLTIwek0zMSwxOWM2LjYxNiwwIDEyLDUuMzg0IDEyLDEyYzAsNi42MTYgLTUuMzg0LDEyIC0xMiwxMmMtNi42MTYsMCAtMTIsLTUuMzg0IC0xMiwtMTJjMCwtNi42MTYgNS4zODQsLTEyIDEyLC0xMnoiPjwvcGF0aD48L2c+PC9nPgo8L3N2Zz4=")
+      50% 50% no-repeat;
+    background-size: 100%;
+  }
+  .heading-container span {
+    margin-top: 6px;
+    height: 12px;
+    width: 30px;
+    position: relative;
+    align-self: center;
+  }
+  .heading-container span::before,
+  .heading-container span::after {
+    content: "";
+    border-radius: 2px;
+    height: 6px;
+    width: 20px;
+    position: absolute;
+    background: #fff;
+  }
+  .heading-container span::after {
+    left: 0;
+    transform: rotate(45deg);
+  }
+  .heading-container span::before {
+    transform: rotate(-45deg);
+    right: 0;
+  }
+
+  .city-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    height: 420px;
+    width: 100%;
+    overflow-y: scroll;
+  }
+  .no-city-match-container{
+    display: flex;
+    flex-direction: column;
+    height: 464px;
+    justify-content: center;
+    align-items: center;
+    display: none;
+    position: relative;
+  }
+  .city-list div {
+    position: relative;
+    width: 100%;
+    height: 60px;
+    font-size: 22px;
+    font-weight: 700;
+    color: rgb(128, 128, 128);
+    background-color: #05051fc2;
+    cursor: pointer;
+  }
+  .city-list div:hover {
+    opacity: 0.96;
+  }
+  .city-list div label {
+    width: 100%;
+    height: 60px;
+    padding: 10px 0 5px 66px;
+    cursor: pointer;
+  }
+
+  .city-list div input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+    inset: 0;
+  }
+
+  .submit-button {
+    background-color: var(--dark-blue);
+    color: #fff;
+    border: 0;
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 3px;
+    font-weight: bold;
+    margin-top: 10px;
+    transition: all ease-in-out 200ms;
+  }
+  .submit-button:hover {
+    opacity: 0.96;
+  }
+  .submit-button:active {
+    opacity: 0.92;
+    scale: 1.02;
+  }
+  .search-input {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    padding-inline: 30px;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  .search-input::placeholder {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  .no-city-message{
+    text-align: center;
+    position: absolute;
+    width: max-content;
+    top: 36%;
+    font-weight: bold;
+    left: 5%;
+  }
+
+</style>
+{% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
+<div
+  class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1"
+>
+  <div class="wrapper-container">
+    <div class="search-container">
+      <input
+        type="search"
+        class="search-input"
+        placeholder="List of the Cities"
+      />
+      <div class="search-wrapper">
+        <div class="icons8-search"></div>
+      </div>
+    </div>
+        <div class="no-city-match-container">
+      <h1 class="no-city-message">No matching cities found.</h1>
+    </div>
+
+        {% if status == 'insert' %}
+    <form
+      id="city-selection-form"
+      method="post"
+      action="{% url 'generate_article:save_target_cities' %}"
+    >
+      {% csrf_token %}
+      <div id="city-list" class="city-list">
+        {% for city in cities %}
+        <div class="city">
+          <label for="city_{{ city.id }}">{{ city.name }}</label>
+          <input
+            id="city_{{ city.id }}"
+            type="checkbox"
+            name="target_cities[]"
+            value="{{ city.name }}"
+          />
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="submit-button">save</button>
+    </form>
+    {% else %}
+    <form
+    id="city-selection-form"
+    method="post"
+    action="{% url 'generate_article:update_saved_target_cities' %}"
+  >
+    {% csrf_token %}
+    <div id="city-list" class="city-list">
+      {% for city in cities %}
+      <div class="city">
+        <label for="city_{{ city.id }}">{{ city.name }}</label>
+        <input
+          id="city_{{ city.id }}"
+          type="checkbox"
+          name="target_cities[]"
+          value="{{ city.name }}"
+        />
+      </div>
+      {% endfor %}
+    </div>
+    <button type="submit" class="submit-button">save</button>
+  </form>
+  {%endif%}
+  </div>
+</div>
+
+<script type="module">
+document.addEventListener("DOMContentLoaded", async function () {
+  const inputsEl = document.querySelectorAll('[type="checkbox"]');
+  const searchInput = document.querySelector(".search-input");
+  const noCityFound = document.querySelector('.no-city-match-container');
+  const form = document.getElementById("city-selection-form")
+
+  searchInput.addEventListener("input", function () {
+    const searchValue = searchInput.value.toLowerCase();
+    let noMatch = true; // Initialize as true
+
+    inputsEl.forEach(function (checkbox) {
+      const parentDiv = checkbox.closest(".city");
+      if (parentDiv) {
+        const cityName = parentDiv
+          .querySelector("label")
+          .textContent.toLowerCase();
+        const shouldShow = cityName.includes(searchValue);
+        parentDiv.style.display = shouldShow ? "block" : "none";
+
+        if (shouldShow) {
+          noMatch = false; // Set to false if a match is found
+        }
+      }
+    });
+
+    // Update the "Not city match" message display
+    noCityFound.style.display = noMatch ? "block" : "none";
+    form.style.display = noMatch ? "none" : "block";
+  });
+
+  inputsEl.forEach(function (checkbox) {
+    checkbox.addEventListener("click", function (e) {
+      const parentDiv = checkbox.closest(".city");
+
+      if (parentDiv) {
+        if (e.target.checked) {
+          parentDiv.style.backgroundColor = "#3d84eec2";
+        } else {
+          parentDiv.style.backgroundColor = "#05051fc2";
+        }
+      }
+    });
+  });
+});
+
+</script>
+{% endblock %}

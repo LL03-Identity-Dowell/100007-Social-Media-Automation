@@ -40,15 +40,17 @@
   />
 </head>
 
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/unscheduled.css'%}">
-<script type="text/javascript" src="{% static 'step2/js/unscheduled.js'%}"></script>
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'step2/css/unscheduled.css'%}"
+/>
+<script
+  type="text/javascript"
+  src="{% static 'step2/js/unscheduled.js'%}"
+></script>
 
 <body>
-
-
-  
-
-
   <div style="width: 100%">
     <div class="container mt-5 mb-5 pt-3 pb-3">
       <!--<div class="s-alert hide">-->
@@ -82,6 +84,10 @@
             <label>
               <input type="checkbox" value="youtube" />
               <span class="fa fa-youtube"></span>
+            </label>
+            <label>
+              <input type="checkbox" value="pinterest" />
+              <span class="fa fa-pinterest"></span>
             </label>
           </div>
           <div id="schedule-btns">
@@ -118,7 +124,7 @@
           <tbody id="article-list"></tbody>
         </table>
 
-        <div id="paginationContainer"> </div>
+        <div id="paginationContainer"></div>
       </div>
     </div>
   </div>
