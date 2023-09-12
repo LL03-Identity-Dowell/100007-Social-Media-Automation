@@ -3,6 +3,7 @@
   align-items: center;
   justify-content: space-between;
 }
+
 .btn-primary {
   /* background-color: rgb(20, 38, 85) ; */
   width: 130px;
@@ -32,10 +33,12 @@
   margin-top: 4px;
   width: 100px;
 }
+
 .button-container {
   margin-top: 35px;
   margin-left: 10px;
 }
+
 .flex {
   display: flex;
   justify-content: space-around;
