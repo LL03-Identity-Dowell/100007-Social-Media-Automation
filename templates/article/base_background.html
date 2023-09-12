@@ -6,7 +6,7 @@
   <script src="{% static 'main.js' %}"></script>
 {% endblock script %}
 
-{% block style %}
+<!-- {% block style %}
   {{ block.super }}
   <style>
 
@@ -62,50 +62,13 @@
     }
 
   </style>
-{% endblock %}
+{% endblock %} -->
 
 {% block content %}
+  <link rel="stylesheet" type="text/css" href="{% static 'step1/css/base_background.css' %}">
+
   <div class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1">
     {% block stuff %}{% endblock %}
   </div>
-          <script>
-
-checkstatus()
-
-function checkstatus() {
-  var lav = document.getElementById("useronline-status-icons");
-
-
-        // AJAX GET request
-        $.ajax({
-        url: 'https://100014.pythonanywhere.com/en/live_status',
-        type: 'GET',
-        success: function(data) {
-          lav.style.color="green"
-        //   lav.innerHTML = JSON.stringify(data);
-        },
-        error: function(error) {
-        //   console.error(error);
-         lav.style.color="red"
-        }
-        });
-
-        // AJAX POST request
-        $.ajax({
-        url: 'https://100014.pythonanywhere.com/en/live_status',
-        type: 'POST',
-        data: JSON.stringify({ session_id:{{ request.session.session_id }},product: "Social Media Automation"}),
-        contentType: 'application/json',
-        success: function(data) {
-          console.log(data);
-        },
-        error: function(error) {
-          console.error(error);
-        }
-        });
-        }
-
-        setInterval(checkstatus, 60000);
-
-          </script>
+  <script src="{% static 'step1/js/base_background.js' %}"></script>
 {% endblock %}
