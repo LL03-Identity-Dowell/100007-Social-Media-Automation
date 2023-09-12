@@ -22,24 +22,23 @@ class CreditHandler:
         disable_key = data.get("disable_key")
 
         if not is_active:
-            messages.error(request, 'SERVICE KEY is not activated')
-            credit_response.update({'success': False, 'message': 'SERVICE KEY is not activated', 'error_code': 2})
+            messages.error(request, 'PLEASE ACTIVATE THE SERVICE/API KEY')
+            credit_response.update(
+                {'success': False, 'message': 'PLEASE ACTIVATE THE SERVICE/API KEY', 'error_code': 2})
             request.session['credit_response'] = credit_response
             return credit_response
 
         if disable_key:
-            messages.error(request, 'YOUR SERVICE KEY IS DISABLED BY ADMIN.')
+            messages.error(request, 'YOUR SERVICE/API KEY IS DISABLED')
             credit_response.update(
-                {'success': False, 'message': 'YOUR SERVICE KEY IS DISABLED BY ADMIN.', 'error_code': 3})
+                {'success': False, 'message': 'YOUR SERVICE/API KEY IS DISABLED', 'error_code': 3})
             request.session['credit_response'] = credit_response
             return credit_response
 
         if user_credits <= 0:
-            messages.error(request, "You have less credits. If you want to buy more credits click the 'Buy Credits' "
-                                    "button")
+            messages.error(request, "KINDLY BUY CREDITS")
             credit_response.update(
-                {'success': False, 'message': "You have less credits. If you want to buy more credits click the "
-                                              "'Buy Credits' button", "link": "https://uxlivinglab.com/",
+                {'success': False, 'message': "KINDLY BUY CREDITS", "link": "https://uxlivinglab.com/",
                  'error_code': 4})
             request.session['credit_response'] = credit_response
             return credit_response
@@ -58,8 +57,8 @@ class CreditHandler:
             return credit_response
 
         if not social_media_service.get('is_active'):
-            messages.error(request, 'Social Media service is inactive')
-            credit_response.update({'success': False, 'message': 'Social Media service is inactived'})
+            messages.error(request, 'PLEASE ACTIVATE THE SOCIAL MEDIA SERVICE')
+            credit_response.update({'success': False, 'message': 'PLEASE ACTIVATE THE SOCIAL MEDIA SERVICE'})
             request.session['credit_response'] = credit_response
             return credit_response
 
