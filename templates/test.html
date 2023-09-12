@@ -2,12 +2,40 @@
 <html lang="en">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/test.css'%}">
 <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
         crossorigin="anonymous"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
       integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
 <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /*body {*/
+    /*    background-color: #f1f1f1;*/
+    /*}*/
+
+    #ansDisplay {
+        background-color: #ffffff;
+        margin: 100px auto;
+        font-family: Raleway;
+        padding: 40px;
+        width: 70%;
+        min-width: 300px;
+    }
+
+    .answer {
+        height: 40px;
+        background-color: #D3D3D3;
+        border-radius: 4px;
+        padding: 4px
+    }
+
+    .answer_rank {
+        float: right;
+    }
+</style>
 <body>
 
 <div id="ansDisplay">
@@ -34,7 +62,136 @@
     </form>
 
 </div>
-<script type="text/javascript" src="{% static 'step2/js/test.js'%}"></script>
+<script>
+
+
+
+    let non_zero_ranks=0;
+
+
+    $(function () {
+
+//code to populate the selects
+        let data = [];
+        let selected_counter = 0;
+        for (var count = 1; count <= 12; count++) {
+            data[count - 1] = {"code": count, "name": count}
+        }
+
+        function populate(data) {
+            data.forEach(function (e, i) {
+                $('select').append($('<option></option>').val(e.code).text(e.name));
+
+            });
+        }
+
+        populate(data);
+
+        //if ranking==0, enable option 1, do this incrementally for the rest
+        function updateOptionClickableAbility() {
+            //enable all options with value of plus 1
+            var op = document.getElementsByTagName("option");
+            for (var i = 0; i < op.length; i++) {
+                console.log(`${op[i].value}##${non_zero_ranks}`);
+                if(parseInt(op[i].value)-1 === non_zero_ranks ){
+                  op[i].disabled = false;
+                  op[i-1].disabled=false
+                }else{
+                    op[i].disabled = true;
+                }
+            }
+        }
+updateOptionClickableAbility()
+        $('select').on('change', function (event) { // This binds listeners to the change event on all the select elements
+            var sId = this.id; // store off the changed element id
+            var vId = this.value; // store off the changed element value
+            non_zero_ranks = 0;//always initialize number of ranks which are zero
+            $('select').each(function () { // this loops across the same set of elements
+                if (this.id !== sId && this.value === vId) { // If it is not the triggering element and the value is the same, do something
+                    this.options.selectedIndex = 0; // reset the value to 'rank'
+                }
+                if (this.value != 0) {
+                    non_zero_ranks++
+                }
+                                    updateOptionClickableAbility()
+
+            });
+        });
+    });
+
+
+
+
+
+        $('#rateForm').submit(function () {
+        // Check the number of ranks selected...
+        if (non_zero_ranks >= 3) {
+            return true;
+        } else {
+            alert("You need to rank more than three sentences to submit.")
+            return false; // return false to cancel form action
+
+        }
+    });
+
+
+    $("#rateForm").validate({
+        rules: {
+            rank_1: {required: true},
+            rank_2: {required: true},
+            rank_3: {required: true},
+            rank_4: {required: true},
+            rank_5: {required: true},
+            rank_6: {required: true},
+            rank_7: {required: true},
+            rank_8: {required: true},
+            rank_9: {required: true},
+            rank_10: {required: true},
+            rank_11: {required: true},
+            rank_12: {required: true}
+        }
+    });
+
+
+
+checkstatus()
+
+function checkstatus() {
+  var lav = document.getElementById("useronline-status-icons");
+
+
+  // AJAX GET request
+  $.ajax({
+    url: 'https://100014.pythonanywhere.com/en/live_status',
+    type: 'GET',
+    success: function(data) {
+      lav.style.color="green"
+    //   lav.innerHTML = JSON.stringify(data);
+    },
+    error: function(error) {
+    //   console.error(error);
+     lav.style.color="red"
+    }
+  });
+
+  // AJAX POST request
+  $.ajax({
+    url: 'https://100014.pythonanywhere.com/en/live_status',
+    type: 'POST',
+    data: JSON.stringify({ session_id:"f5u2udocbu8e3mg12hw9tb1h0h5wzcbe",product: "Living Lab Admin"}),
+    contentType: 'application/json',
+    success: function(data) {
+      console.log(data);
+    },
+    error: function(error) {
+      console.error(error);
+    }
+  });
+}
+
+setInterval(checkstatus, 60000);
+
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"

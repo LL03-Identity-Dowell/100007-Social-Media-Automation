@@ -3,7 +3,47 @@
 
 {% block style %}
 {{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/user_plan.css'%}">
+<style type="text/css">
+.pricing-container {
+  margin-bottom: 70px;
+}
+
+.pricing-btn {
+  background-color: var(--dark-blue);
+  border-radius: 10px;
+  border-style: none;
+  text-align: center;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Inter,-apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  height: 50px;
+  letter-spacing: normal;
+  line-height: 1.5;
+  outline: none;
+  overflow: hidden;
+  padding: 14px 30px;
+  position: relative;
+}
+
+.pricing-btn > a {
+  color: white;
+}
+
+.pricing-btn:hover {
+  background-color: rgb(20, 38, 85);
+}
+
+@media (min-width: 768px) {
+  .pricing-btn {
+    padding: 14px 22px;
+    width: 238px;
+  }
+}
+
+</style>
 {% endblock %}
 
 {% block stuff %}

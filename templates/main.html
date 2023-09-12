@@ -2,12 +2,10 @@
 {% load static %}
 
 {% block script %}
-<script src="{% static 'main.js' %}"></script>
+	<script src="{% static 'main.js' %}"></script>
 {% endblock script %}
 
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/main.css'%}">
-
 <!-- <p>Django Event Calendar</p> -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -26,6 +24,68 @@
     </div>
   </div>
 </div>
+
+	<style>
+		.purple-text {
+			color: #7e25c2;
+		}
+	</style>
+
+    <style type="text/css">
+			.grid-container
+			{
+				display: grid;
+				grid-gap: 5px;
+				grid-template-columns: 75fr 25fr;
+				grid-template-rows:5vh 95vh;
+			}
+			.item1
+			{
+				background-color: #203474;
+				grid-column-start: 1;
+				grid-column-end: 6;
+			}
+
+
+			.item2
+			{
+				grid-column-start: 1;
+				grid-column-end: 2;
+			}
+			.item{
+				display: grid;
+				text-align: center;
+				grid-template-columns: repeat(5,20fr);
+			}
+
+			.item3
+			{
+				grid-column-start: 2;
+				grid-column-end: 3;
+			}
+			svg{
+				transform: rotate(90deg);
+				border-radius: 10px;
+			}
+			.myHeadings{
+				text-align: center;
+			}
+			#whiteStorm{
+				font-family: cursive;
+				font-style: italic;
+				color: #6b2722;
+			}
+				.txtpadding{
+				padding:2.5%;
+			}
+			.mylist{
+				display: flex;
+				list-style: none;
+				padding: 5px;
+				color: white;
+			}
+			/* media query that breaks page, sending image below*/
+		</style>
 
 		<div class="grid-container">
 			<div>
