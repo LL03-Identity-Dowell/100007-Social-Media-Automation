@@ -13,8 +13,10 @@ class CreditHandler:
         data = response
         credit_response = {}
         if not data:
-            messages.error(request, 'An error occurred while processing request')
-            credit_response.update({'success': False, 'message': 'An error occurred', 'error_code': 1})
+            messages.error(
+                request, 'PLEASE CREATE SERVICE/API KEY FOR THIS WORKSPACE')
+            credit_response.update(
+                {'success': False, 'message': 'An error occurred', 'error_code': 1})
             request.session['credit_response'] = credit_response
             return credit_response
         is_active = data.get("is_active")
@@ -52,17 +54,20 @@ class CreditHandler:
                 break
         if not social_media_service:
             messages.error(request, 'Social Media service not found')
-            credit_response.update({'success': False, 'message': 'Social Media service not found'})
+            credit_response.update(
+                {'success': False, 'message': 'Social Media service not found'})
             request.session['credit_response'] = credit_response
             return credit_response
 
         if not social_media_service.get('is_active'):
             messages.error(request, 'PLEASE ACTIVATE THE SOCIAL MEDIA SERVICE')
-            credit_response.update({'success': False, 'message': 'PLEASE ACTIVATE THE SOCIAL MEDIA SERVICE'})
+            credit_response.update(
+                {'success': False, 'message': 'PLEASE ACTIVATE THE SOCIAL MEDIA SERVICE'})
             request.session['credit_response'] = credit_response
             return credit_response
 
-        request.session['remaining_credits'] = response.get('remaining_credits')
+        request.session['remaining_credits'] = response.get(
+            'remaining_credits')
         if request.session.get('credit_response', ):
             del request.session['credit_response']
         response['success'] = True
@@ -72,12 +77,14 @@ class CreditHandler:
         data = response
 
         if not data:
-            messages.error(request, 'An error occurred while processing request')
+            messages.error(
+                request, 'An error occurred while processing request')
             return {'success': False, 'message': 'An error occurred'}
         if not data.get('success'):
             messages.error(request, response.get('message'))
             return response
-        request.session['remaining_credits'] = response.get('remaining_credits')
+        request.session['remaining_credits'] = response.get(
+            'remaining_credits')
         messages.success(request, 'Credits was successfully consumed')
         return response
 
@@ -102,7 +109,6 @@ class CreditHandler:
             response = {}
         return self.format_response(request, response)
 
-
     def consume_step_1_credit(self, request: WSGIRequest):
         """
         This method consumes credits on step 1
@@ -116,7 +122,8 @@ class CreditHandler:
 
         product_type = 'product_service'
         try:
-            response = credit.consume_credit(sub_service_ids=sub_service_ids, product_type=product_type)
+            response = credit.consume_credit(
+                sub_service_ids=sub_service_ids, product_type=product_type)
         except CouldNotConsumeCreditError:
             response = {}
         return self.format_steps_response(request, response)
@@ -133,7 +140,8 @@ class CreditHandler:
 
         product_type = 'product_service'
         try:
-            response = credit.consume_credit(sub_service_ids=sub_service_ids, product_type=product_type)
+            response = credit.consume_credit(
+                sub_service_ids=sub_service_ids, product_type=product_type)
         except CouldNotConsumeCreditError:
             response = {}
         return self.format_steps_response(request, response)
@@ -150,11 +158,11 @@ class CreditHandler:
 
         product_type = 'product_service'
         try:
-            response = credit.consume_credit(sub_service_ids=sub_service_ids, product_type=product_type)
+            response = credit.consume_credit(
+                sub_service_ids=sub_service_ids, product_type=product_type)
         except CouldNotConsumeCreditError:
             response = {}
         return self.format_steps_response(request, response)
-
 
     def consume_step_4_credit(self, request: WSGIRequest):
         """
@@ -168,7 +176,8 @@ class CreditHandler:
 
         product_type = 'product_service'
         try:
-            response = credit.consume_credit(sub_service_ids=sub_service_ids, product_type=product_type)
+            response = credit.consume_credit(
+                sub_service_ids=sub_service_ids, product_type=product_type)
         except CouldNotConsumeCreditError:
             response = {}
         return self.format_steps_response(request, response)
@@ -181,7 +190,8 @@ class CreditHandler:
         response = self.login(request)
 
         if not response.get('services'):
-            credit_response.update({'success': False, 'message': 'No services found error'})
+            credit_response.update(
+                {'success': False, 'message': 'No services found error'})
             request.session['credit_response'] = credit_response
             return credit_response
 
@@ -193,7 +203,8 @@ class CreditHandler:
                 break
         if not social_media_service:
             messages.error(request, 'Social Media service not found')
-            credit_response.update({'success': False, 'message': 'Social Media service not found'})
+            credit_response.update(
+                {'success': False, 'message': 'Social Media service not found'})
             request.session['credit_response'] = credit_response
             return credit_response
 
@@ -204,7 +215,8 @@ class CreditHandler:
                 break
         if not sub_service_data:
             messages.error(request, 'Sub Service Not Found')
-            credit_response.update({'success': False, 'message': 'Sub Service Not Found'})
+            credit_response.update(
+                {'success': False, 'message': 'Sub Service Not Found'})
             request.session['credit_response'] = credit_response
             return credit_response
 
