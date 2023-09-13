@@ -51,6 +51,8 @@ def index(request):
             print(industryForm.is_valid())
             sentencesForm = SentencesForm(request.POST)
             print(industryForm.is_valid())
+            userid=request.session['user_id']
+            topic=get_client_approval(userid)
 
             if industryForm.is_valid() and sentencesForm.is_valid():
 
@@ -78,6 +80,7 @@ def index(request):
                             "objmod": adjective,
                             "email":email,
                             'user':user,
+                            'approve':topic
                        
                         }
                 
@@ -97,12 +100,12 @@ def index(request):
                             "session_id": request.session["session_id"],
                             "org_id" : request.session['org_id'],
                             'username':request.session['username'],
-                            'event_id':create_event()['event_id']
+                            'event_id':create_event()['event_id'],
+                            'client_admin_id': request.session['userinfo']['client_admin_id']
                 }
-                userid=request.session['user_id']
-                topic=get_client_approval(userid)
+               
                 print(topic)
-                if topic =='True':
+                if topic['topic'] =='True':
                     async_task("automate.services.step_1",auto_strings,data_di,hook='automate.services.hook_now')
                     print('yes.......o')
                     return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
@@ -537,7 +540,7 @@ def insert_form_data(data_dict):
     return response.json()
 
 
-
+# get user aproval
 def get_client_approval(user):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
@@ -562,14 +565,20 @@ def get_client_approval(user):
 
     print(response)
     response_data_json = json.loads(response.json())
-    topic='None'
+    print(response_data_json)
+
     try:
         for value in response_data_json['data']:
-            topic=value['topic']
-            return(topic)
+            aproval={
+                'topic':value['topic'],
+                'post':value['post'],
+                'article':value['article'],
+                'schedule':value['schedule']
+            }
+        return(aproval)
     except:
-        pass
-    return(topic)
+        aproval={'topic':'False'}
+    return(aproval)
 
 
 # added code for posts

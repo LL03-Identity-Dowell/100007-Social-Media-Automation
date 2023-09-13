@@ -4,6 +4,11 @@ from create_article import settings
 from website.models import Sentences, SentenceResults, SentenceRank
 from django.db import transaction
 from datetime import datetime
+from step2.views import save_data
+import concurrent.futures
+import openai
+import urllib
+import urllib.parse
 import random
 import time
 @transaction.atomic
@@ -108,6 +113,10 @@ def step_1 (auto_strings,data_di):
     }
     Ranked_dic=selected_result(article_id,data_dic)
     inserts=insert_form_data(Ranked_dic)
+    if auto_strings['approve']['article'] == True:
+        generate=generate_article(data_dic)
+    else:
+        print('done inserting')
     return(inserts)
 
 def hook_now(task):
@@ -233,4 +242,131 @@ def insert_form_data(data_dict):
     response = requests.post(url, json=data, headers=headers)
     print(response.json())
     print("-------------end of insert function---------------")
-    return response.json()
+    return (data_dict)
+
+
+    
+def generate_article(data_dic):
+    start_datetime = datetime.now()
+    Rank=['1', '2', '3', '4', '5',' 6', '7',' 8', '9', '10','11','12',]
+    api_no =  random.choice(Rank)
+    key=f'api_sentence_{api_no}'
+    print(key)
+
+    
+    RESEARCH_QUERY = data_dic[key]['sentence']
+    subject = data_dic["subject"]
+    verb = None
+    target_industry = None
+    qualitative_categorization = None
+    targeted_for = None
+    designed_for = None
+    targeted_category = None
+    user_ids = data_dic["user_id"]
+    session_id=data_dic["session_id"]
+    
+    # image = data_dic["image"]
+
+    # Set your OpenAI API key here
+    openai.api_key = settings.OPENAI_KEY
+
+    # Build prompt
+    prompt_limit = 280
+    prompt = (
+        f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
+        f" Generate only 2 paragraphs. "
+        [:prompt_limit]
+        + "..."
+    )
+
+    # Variables for loop control
+    duration = 5  # Total duration in seconds
+    interval = 1  # Interval between generating articles in seconds
+    start_time = time.time()
+
+    def generate_and_save_article():
+        nonlocal start_time
+
+        # Generate article using OpenAI's GPT-3
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=prompt,
+            temperature=0.5,
+            max_tokens=1024,
+            n=1,
+            stop=None,
+            timeout=60,
+        )
+        article = response.choices[0].text
+        paragraphs = article.split("\n\n")
+        article_str = "\n\n".join(paragraphs)
+
+        sources = urllib.parse.unquote("https://openai.com")
+
+        try:
+            with transaction.atomic():
+                event_id = create_event()['event_id']
+                user_id = user_ids 
+                client_admin_id = data_dic["client_admin_id"]
+
+                # Save data for step 3
+                step3_data = {
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': client_admin_id,
+                    "title": RESEARCH_QUERY,
+                    "target_industry": target_industry,
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted_for": targeted_for,
+                    "designed_for": designed_for,
+                    "targeted_category": targeted_category,
+                    "source": sources,
+                    "image": None,
+                    "paragraph": article_str,
+                    "citation_and_url": sources,
+                    "subject": subject,
+                }
+                save_data('step3_data', 'step3_data',
+                            step3_data, '34567897799')
+
+                # Save data for step 2
+                step2_data = {
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': client_admin_id,
+                    "title": RESEARCH_QUERY,
+                    "target_industry": target_industry,
+                    "paragraph": article_str,
+                    "source": sources,
+                    "subject": subject,
+                    "citation_and_url": sources,
+                }
+                save_data('step2_data', 'step2_data',
+                            step2_data, '9992828281')
+
+        except:
+            
+            pass
+        # Update start_time for the next iteration
+        start_time = time.time()
+
+    # Create ThreadPoolExecutor
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        while True:
+            if time.time() - start_time >= duration:
+                break
+
+            executor.submit(generate_and_save_article)
+
+            # Wait before generating the next article
+            time.sleep(interval)
+
+    end_datetime = datetime.now()
+    time_taken = end_datetime - start_datetime
+    print(f"Task started at: {start_datetime}")
+    print(f"Task completed at: {end_datetime}")
+    print(f"Total time taken: {time_taken}")
+   
+    return ('done')

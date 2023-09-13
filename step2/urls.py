@@ -44,6 +44,8 @@ urlpatterns = [
     path('link/linkedin/form/', views.linkedin_form, name='linkedin-form'),
     path('link/youtube/', views.youtube, name='youtube'),
     path('link/youtube/form/', views.youtube_form, name='youtube-form'),
+    path('link/pinterest/', views.Pinterest, name='pinterest'),
+    path('link/pinterest/form/', views.pinterest_form, name='pinterest-form'),
     path('client/profile/', views.client_profile, name='client-profile'),
     path('client/profile/form/', views.client_profile_form,
          name='client-profile-form'),
