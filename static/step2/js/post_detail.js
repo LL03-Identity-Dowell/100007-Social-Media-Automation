@@ -7,6 +7,28 @@ window.onload = function downdis() {
     console.log("Hellow On Load")
 }
 
+const defaultImageSrcArr = [
+    'https://images.pexels.com/photos/2818118/pexels-photo-2818118.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/3184424/pexels-photo-3184424.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg',
+    'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/6749745/pexels-photo-6749745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/6132751/pexels-photo-6132751.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/326259/pexels-photo-326259.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/262438/pexels-photo-262438.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+    'https://images.pexels.com/photos/4560142/pexels-photo-4560142.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+]
+
+const defaultImageCount = 15;
+
+
+
 //Custom Notification popup
 function displayNotification(message) {
     // Create a new notification element
@@ -241,7 +263,7 @@ function savePost() {
 document.getElementById('post-forn').addEventListener('submit', (event) => {
     // console.log(editting)
     if (editing) {
-        // Ask user to save before proceeding
+
         displayNotification("You have unsaved changes, please save");
 
         // Prevent form submission
@@ -302,35 +324,61 @@ const updCharacWrdCnt = () => {
 $('#search_input').on("input", async function () {
 
     let imageId = 0;
-    let pexelsImageContainer = document.getElementById('pexels-image-row');
+    let pexelsImageContainer = document.querySelector('.pexels-image-row');
     let searchTerm = document.getElementById('search_input').value;
 
 
 
     pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <div class="spinner-border text-primary style="width: 3rem; height: 3rem;" role="status"> <span class="visually-hidden">Loading...</span> </div> </div>'
 
-    if (searchTerm == "") {
-        pexelsImageContainer.innerHTML = "";
-    } else {
-
-        let { srcArray, totalResults } = await searchPhoto(searchTerm);
-        //console.log(srcResult);
-
-        if (totalResults > 0) {
+    //function append images to div
+    const appendImages = (sourceArray, totalImageResults) => {
+        if (totalImageResults > 0) {
             pexelsImageContainer.innerHTML = "";
-            for (let imgSrc of srcArray) {
+            for (let imgSrc of sourceArray) {
                 imageId += 1;
-                pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
+                pexelsImageContainer.innerHTML += `<div class="carousel-cell"><img class="carousel-cell-image pexels-img" id=${imageId} src=${imgSrc} alt="pexels image"></div>`
+
+                // `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
             }
         } else {
             pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <p> Sorry, no image found, try another term </p> </div>'
         }
     }
 
+    if (searchTerm == "") {
+        pexelsImageContainer.innerHTML = "";
+        appendImages(defaultImageSrcArr, defaultImageCount);
+
+    } else {
+
+        let { srcArray, totalResults } = await searchPhoto(searchTerm);
+        //console.log(srcResult);
+        await appendImages(srcArray, totalResults);
+        var myModal = document.getElementById('largeModal');
+        var myFlickity = new Flickity(document.getElementById('myflickity'), {
+            "groupCells": true,
+            "draggable": false,
+            "pageDots": false,
+            "initialIndex": 1
+        });
+
+        myModal.addEventListener('shown.bs.modal', function () {
+            // Resize the existing Flickity carousel
+            myFlickity.resize();
+
+        });
+
+    }
+
+
     const allImages = document.querySelectorAll('.pexels-img')
     allImages.forEach((image) => {
         image.addEventListener("click", (e) => { handleImageSelect(e) }, false);
     })
+
+
+
 
     //event.stopPropagation();
 });
@@ -415,7 +463,7 @@ const searchPhoto = async (term) => {
 
         let srcArray = [];
         await getPexelApiKey();
-        let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=12&orientation=landscape`, {
+        let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=15&orientation=landscape`, {
             headers: {
                 Authorization: PEXEL_API_KEY
             }
@@ -454,3 +502,57 @@ const updateImage = () => {
     }
 
 }
+
+
+// show carousel after modal shown
+// $('#largeModal').on('shown.bs.modal', function (event) {
+//     $('.gallery').flickity('resize');
+// });
+
+// let $myModal = $('#largeModal')
+// let $myflickity = $('#myflickity').flickity({ "groupCells": true });
+// $myModal.on('shown.bs.modal', function () {
+//     $myflickity.flickity('resize');
+// });
+
+// let $myModal = $('#largeModal');
+// let $myflickity = $('#myflickity').flickity({ "groupCells": true });
+
+// // Attach a handler to the modal's shown.bs.modal event
+// $myModal.on('shown.bs.modal', function () {
+//     // Check if the carousel is not initialized yet
+//     if (!$myflickity.data('flickity')) {
+//         // Initialize the Flickity carousel
+//         $myflickity.flickity({ "groupCells": true });
+//     } else {
+//         // Resize the existing Flickity carousel
+//         $myflickity.flickity('resize');
+//     }
+// });
+
+// // show carousel after modal shown
+// $('#myModal').on('shown.bs.modal', function (event) {
+//     $('.gallery').flickity('resize');
+// });
+
+var myModal = document.getElementById('largeModal');
+var myFlickity = new Flickity(document.getElementById('myflickity'), {
+    "groupCells": true,
+    "draggable": false,
+    "pageDots": false,
+    "initialIndex": 1
+});
+
+myModal.addEventListener('shown.bs.modal', function () {
+
+    // Resize the existing Flickity carousel
+    myFlickity.resize();
+
+});
+
+
+const allImages = document.querySelectorAll('.pexels-img')
+
+allImages.forEach((image) => {
+    image.addEventListener("click", (e) => { handleImageSelect(e) }, false);
+})
