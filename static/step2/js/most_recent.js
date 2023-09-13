@@ -109,6 +109,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Previous Button
     const prevButton = document.createElement("button");
     prevButton.textContent = "Previous";
+
     prevButton.addEventListener("click", () => {
       if (currentPage > 1) {
         currentPage--;
@@ -144,6 +145,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       moreButton.style.display = "none";
     }
     moreButton.textContent = ">>";
+
     moreButton.addEventListener("click", () => {
       const maxPage = Math.ceil(totalPages / 7); // Increase '5' to display more page numbers at once
       const nextGroupLastPage = currentPage + 5;
@@ -163,13 +165,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         updatePaginationButtons();
       }
     });
-
     paginationContainer.appendChild(nextButton);
 
     updatePaginationButtons(totalCount);
   }
 
   async function displayDataForCurrentPage() {
+    $("html, body").animate({ scrollTop: 0 });
+
     const { data, totalCount } = await fetchedData();
 
     const sortedData = data.sort((a, b) => new Date(b.time) - new Date(a.time));
