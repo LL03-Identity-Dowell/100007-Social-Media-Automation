@@ -78,6 +78,7 @@ def download_and_upload_image(image_url):
         print(f"Error: {e}")
         return {'file_url': image_url}
 
+
 def get_event_id():
     dd = datetime.now()
     time = dd.strftime("%d:%m:%Y,%H:%M:%S")
@@ -1964,7 +1965,7 @@ def generate_article(request):
                 paragraphs = article.split("\n\n")
                 article_str = "\n\n".join(paragraphs)
 
-                sources = urllib.parse.unquote("https://openai.com")
+                sources = urllib.parse.unquote("")
 
                 try:
                     with transaction.atomic():
