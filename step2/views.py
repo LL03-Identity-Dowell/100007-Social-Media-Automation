@@ -2185,18 +2185,9 @@ def generate_article(request):
     start_datetime = datetime.now()
     session_id = request.GET.get('session_id', None)
     if 'session_id' in request.session and 'username' in request.session:
-
         if request.method != "POST":
             return HttpResponseRedirect(reverse("generate_article:main-view"))
         else:
-            # credit_handler = CreditHandler()
-            # credit_response = credit_handler.check_if_user_has_enough_credits(
-            #     sub_service_id=STEP_2_SUB_SERVICE_ID,
-            #     request=request,
-            # )
-
-            # if not credit_response.get('success'):
-            #     return redirect(reverse('credit_error_view'))
             RESEARCH_QUERY = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2208,43 +2199,20 @@ def generate_article(request):
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("image")
 
-            # fetch user data to get #tags, mentions, and target cities
+            user_selected_cities = []
+            hashtags = []
+            user_tags_mentions = []
             user_data = fetch_user_info(request)
-            print("Here we have alot of", user_data)
-            # Parse the JSON data
-            data = json.loads(user_data)
-
-            # Iterate through the data
-            for item in data["data"]:
-                # Extract target cities if available
+            for item in user_data["data"]:
                 if "target_city" in item:
-                    user_selected_cities = item["target_city"]
-                    print("User-selected cities:", user_selected_cities)
-                else:
-                    print("No user-selected cities")
+                    user_selected_cities.extend(item["target_city"])
 
-                # Extract hashtags if available
                 if "hashtag_list" in item:
-                    hashtags = item["hashtag_list"]
-                    print("Hashtags:", hashtags)
-                else:
-                    print("No hashtags")
+                    hashtags.extend(item["hashtag_list"])
 
-                # Extract mentions if available
                 if "mentions_list" in item:
-                    user_tags_mentions = item["mentions_list"]
-                    print("User tags and mentions:", user_tags_mentions)
-                else:
-                    print("No user tags and mentions")
+                    user_tags_mentions.extend(item["mentions_list"])
 
-            # Check if any of the data was missing and handle accordingly
-            if not user_selected_cities:
-                print("No user-selected cities were found.")
-            if not hashtags:
-                print("No hashtags were found.")
-            if not user_tags_mentions:
-                print("No user tags and mentions were found.")
-            # Format user-generated data for hashtags, mentions, and cities
             formatted_hashtags = " ".join(hashtags) if hashtags else ""
             formatted_mentions = " ".join(
                 f"@{mention}" for mention in user_tags_mentions) if user_tags_mentions else ""
@@ -2261,14 +2229,15 @@ def generate_article(request):
             prompt = (
                 f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
                 f" Generate only 2 paragraphs."
-                f" Include the following at the end of the article {formatted_hashtags} {formatted_mentions} ."
+                f" Include the following at the end of the article {formatted_hashtags}."
                 f" Also, append {formatted_cities} to the end of the article ."
                 [:prompt_limit]
                 + "..."
             )
 
+
             # Variables for loop control
-            duration = 5  # Total duration in seconds
+            duration =4.1   # Total duration in seconds
             interval = 1  # Interval between generating articles in seconds
             start_time = time.time()
 
@@ -2317,7 +2286,6 @@ def generate_article(request):
                         }
                         save_data('step3_data', 'step3_data',
                                   step3_data, '34567897799')
-
                         # Save data for step 2
                         step2_data = {
                             "user_id": user_id,
@@ -2356,12 +2324,15 @@ def generate_article(request):
             print(f"Task started at: {start_datetime}")
             print(f"Task completed at: {end_datetime}")
             print(f"Total time taken: {time_taken}")
+
             # credit_handler = CreditHandler()
             # credit_handler.consume_step_2_credit(request)
+
             return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
         return render(request, 'error.html')
+
 
 
 @csrf_exempt

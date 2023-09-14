@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,8 +39,6 @@
             {{ sentence.sentence }}
             <span class="answer_rank">
               <label>
-                {# attach counter to class and name tags values for uniqueness
-                #}
                 <select
                   name="rank_{{ forloop.counter }}"
                   class="required"
