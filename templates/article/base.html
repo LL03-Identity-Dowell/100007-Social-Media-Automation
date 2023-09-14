@@ -217,6 +217,10 @@
     .btn-dark {
       background-color: #212529;
     }
+
+    .modal-dialog {
+      max-width: 274px;
+    }
   </style>
   {% block style %}{% endblock style %}
 
@@ -368,21 +372,61 @@
 
     </main>
 
+    {% comment %} <div class="modal-sm fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <strong>Please note</strong>
+            <p>The workspace you are logged in doesn't have SERVICE KEY</p>
+          </div>
+        </div>
+      </div>
+    </div> {% endcomment %}
+
+
+    <div class="modal fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="alertModal" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+             <strong>Please note</strong>
+            <p>The workspace you are logged in doesn't have SERVICE KEY</p>
+          </div>
+          <div class="modal-footer">
+          </div>
+        </div>
+      </div>
+    </div>
+    
   </div>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <!-- JavaScript function to clear sessionStorage -->
       <script>
-        // Retrieve the session_id from the context passed by Django
-        var session_id = "{{ session_id|default:'' }}";
-        var session_id = "{{ session_id|default:'' }}";
-console.log(session_id);
+         // Get references to the modal
+        const modal = document.getElementById('serviceAlertModal');
 
-        // Check if session_id is not empty and store it in sessionStorage
-        if (session_id) {
-            sessionStorage.setItem('session_id', session_id);
+        // Define the function to show the modal
+        function showModal() {
+          // Use Bootstrap's modal method to show the modal
+          const bootstrapModal = new bootstrap.Modal(modal);
+          bootstrapModal.show();
         }
+
+        // Get all button and link elements on the page
+        const buttonsAndLinks = document.querySelectorAll('button, a');
+
+        // Add the click event listener to all buttons and links
+        buttonsAndLinks.forEach(element => {
+          element.addEventListener('click', showModal);
+        });
+
     </script>
     <script>
         function clearSessionStorage() {
@@ -432,6 +476,9 @@ console.log(session_id);
 
       requestAnimationFrame(decreaseWidth);
     });
+
+
+
   </script>
 
 
