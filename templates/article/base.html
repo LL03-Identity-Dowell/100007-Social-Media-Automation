@@ -400,7 +400,6 @@
             <!--Username-->
           <li class="nav-item">
             <span id="nav-username" class="navbar-text">{{ request.session.username }}</span>
-            <span id="nav-username" class="navbar-text">{{ request.session.username }}</span>
           </li>
 
            <!--Account Dropdown-->
@@ -444,10 +443,6 @@
 
           <!-- Back to Main Page Button -->
           <li class="nav-item">
-            <a class="nav-link" href="https://www.socialmediaautomation.uxlivinglab.online/" >
-              <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
-              <i class="fa-solid fa-house fa-lg" style="color: white"></i> 
-            </a>
             <a class="nav-link" href="https://www.socialmediaautomation.uxlivinglab.online/" >
               <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
               <i class="fa-solid fa-house fa-lg" style="color: white"></i> 
@@ -570,7 +565,10 @@
 
         triggers.forEach(element => {
           
-          element.addEventListener("click", toggleModal);
+          element.addEventListener("click", (event) =>{
+            event.preventDefault();
+            toggleModal();
+          });
         }) 
         
         closeButton.addEventListener("click", toggleModal);
