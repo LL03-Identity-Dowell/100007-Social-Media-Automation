@@ -36,6 +36,7 @@ from pymongo import MongoClient
 
 from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
+from credits.credit_handler import CreditHandler
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 
@@ -358,10 +359,10 @@ def main(request):
 
         if not has_access(request.session['portfolio_info']):
             return render(request, 'portofolio-logib.html')
-        # credit_handler = CreditHandler()
-        # credit_data_response = credit_handler.login(request)
-        # if not credit_data_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
+        credit_handler = CreditHandler()
+        credit_data_response = credit_handler.login(request)
+        if not credit_data_response.get('success'):
+            return redirect(reverse('credit_error_view'))
         return render(request, 'main.html')
     else:
         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
