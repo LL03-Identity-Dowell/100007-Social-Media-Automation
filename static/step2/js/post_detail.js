@@ -7,22 +7,22 @@ window.onload = function downdis() {
     console.log("Hellow On Load")
 }
 
-const defaultImageSrcArr = [
-    'https://images.pexels.com/photos/2818118/pexels-photo-2818118.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/3184424/pexels-photo-3184424.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg',
-    'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/6749745/pexels-photo-6749745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/6132751/pexels-photo-6132751.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/326259/pexels-photo-326259.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/262438/pexels-photo-262438.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-    'https://images.pexels.com/photos/4560142/pexels-photo-4560142.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+const defaultImageArr = [
+    { src: 'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: 'pexels image' },
+    { src: 'https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/2818118/pexels-photo-2818118.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/3184424/pexels-photo-3184424.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/6749745/pexels-photo-6749745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/6132751/pexels-photo-6132751.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/326259/pexels-photo-326259.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/262438/pexels-photo-262438.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
+    { src: 'https://images.pexels.com/photos/4560142/pexels-photo-4560142.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" }
 ]
 
 const defaultImageCount = 15;
@@ -329,45 +329,60 @@ $('#search_input').on("input", async function () {
 
 
 
-    pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <div class="spinner-border text-primary style="width: 3rem; height: 3rem;" role="status"> <span class="visually-hidden">Loading...</span> </div> </div>'
+    // pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <div class="spinner-border text-primary style="width: 3rem; height: 3rem;" role="status"> <span class="visually-hidden">Loading...</span> </div> </div>'
 
     //function append images to div
-    const appendImages = (sourceArray, totalImageResults) => {
+    const appendImages = (ImagesDetailsArray, totalImageResults) => {
         if (totalImageResults > 0) {
-            pexelsImageContainer.innerHTML = "";
-            for (let imgSrc of sourceArray) {
+            // pexelsImageContainer.innerHTML = "";
+
+            pexelsImageContainer.parentNode.removeChild(pexelsImageContainer);
+            const carousalContainer = document.getElementById("carousalContainer");
+
+            carousalContainer.innerHTML = `<div id="myflickity" class="main-carousel pexels-image-row" data-flickity>
+                                            </div>`
+            // while (pexelsImageContainer.firstChild) {
+            //     pexelsImageContainer.removeChild(pexelsImageContainer.firstChild);
+            // }
+            let newPexelsImageContainer = document.querySelector('.pexels-image-row');
+
+
+            for (let imgDetails of ImagesDetailsArray) {
+                console.log(imgDetails.alt);
                 imageId += 1;
-                pexelsImageContainer.innerHTML += `<div class="carousel-cell"><img class="carousel-cell-image pexels-img" id=${imageId} src=${imgSrc} alt="pexels image"></div>`
+                newPexelsImageContainer.innerHTML += `<div class="carousel-cell">
+                                                        <img class="carousel-cell-image pexels-img" id=${imageId} src=${imgDetails.src} alt='${imgDetails.alt}'>
+                                                    </div>`
 
                 // `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
             }
+
+            var myFlickity = new Flickity(newPexelsImageContainer, {
+                contain: true,
+                wrapAround: true,
+                cellAlign: 'left',
+                "groupCells": true,
+                "draggable": false,
+                "pageDots": false,
+                "initialIndex": 1
+            });
+
+            myFlickity.resize()
+
         } else {
             pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <p> Sorry, no image found, try another term </p> </div>'
         }
     }
 
     if (searchTerm == "") {
-        pexelsImageContainer.innerHTML = "";
-        appendImages(defaultImageSrcArr, defaultImageCount);
+        // pexelsImageContainer.innerHTML = "";
+        appendImages(defaultImageArr, defaultImageCount);
 
     } else {
 
-        let { srcArray, totalResults } = await searchPhoto(searchTerm);
+        let { imgDetailsArray, totalResults } = await searchPhoto(searchTerm);
         //console.log(srcResult);
-        await appendImages(srcArray, totalResults);
-        var myModal = document.getElementById('largeModal');
-        var myFlickity = new Flickity(document.getElementById('myflickity'), {
-            "groupCells": true,
-            "draggable": false,
-            "pageDots": false,
-            "initialIndex": 1
-        });
-
-        myModal.addEventListener('shown.bs.modal', function () {
-            // Resize the existing Flickity carousel
-            myFlickity.resize();
-
-        });
+        appendImages(imgDetailsArray, totalResults);
 
     }
 
@@ -402,11 +417,15 @@ searchBtn.addEventListener("click", (event) => {
 
 // handle image select
 let imageSrc = "";
+let imageAlt = "";
 const handleImageSelect = (e) => {
     const elementId = e.target.id;
     const img = document.getElementById(elementId);
     imageSrc = img.src;
+    imageAlt = img.alt;
+    console.log(imageAlt);
     img.classList.add("borderToggle");
+    document.querySelector(".image_paragraph").textContent = imageAlt;
 
     const images = document.querySelectorAll('.pexels-img');
     images.forEach((image) => {
@@ -461,7 +480,7 @@ const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
 const searchPhoto = async (term) => {
     try {
 
-        let srcArray = [];
+        let imgDetailsArray = [];
         await getPexelApiKey();
         let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=15&orientation=landscape`, {
             headers: {
@@ -474,9 +493,16 @@ const searchPhoto = async (term) => {
         // console.log(totalResults);
         jsonData.photos.map(image => {
             // console.log(image.src.medium);
-            srcArray.push(image.src.medium);
+            // console.log(image.alt);
+            let imgDetails = {
+                src: image.src.medium,
+                alt: image.alt
+            }
+
+            imgDetailsArray.push(imgDetails);
+
         })
-        return { srcArray, totalResults };
+        return { imgDetailsArray, totalResults };
     } catch (err) {
         console.error(`Error fecthing images: ${err}`)
     }
@@ -504,39 +530,11 @@ const updateImage = () => {
 }
 
 
-// show carousel after modal shown
-// $('#largeModal').on('shown.bs.modal', function (event) {
-//     $('.gallery').flickity('resize');
-// });
-
-// let $myModal = $('#largeModal')
-// let $myflickity = $('#myflickity').flickity({ "groupCells": true });
-// $myModal.on('shown.bs.modal', function () {
-//     $myflickity.flickity('resize');
-// });
-
-// let $myModal = $('#largeModal');
-// let $myflickity = $('#myflickity').flickity({ "groupCells": true });
-
-// // Attach a handler to the modal's shown.bs.modal event
-// $myModal.on('shown.bs.modal', function () {
-//     // Check if the carousel is not initialized yet
-//     if (!$myflickity.data('flickity')) {
-//         // Initialize the Flickity carousel
-//         $myflickity.flickity({ "groupCells": true });
-//     } else {
-//         // Resize the existing Flickity carousel
-//         $myflickity.flickity('resize');
-//     }
-// });
-
-// // show carousel after modal shown
-// $('#myModal').on('shown.bs.modal', function (event) {
-//     $('.gallery').flickity('resize');
-// });
-
 var myModal = document.getElementById('largeModal');
 var myFlickity = new Flickity(document.getElementById('myflickity'), {
+    contain: true,
+    wrapAround: true,
+    cellAlign: 'left',
     "groupCells": true,
     "draggable": false,
     "pageDots": false,
@@ -549,7 +547,6 @@ myModal.addEventListener('shown.bs.modal', function () {
     myFlickity.resize();
 
 });
-
 
 const allImages = document.querySelectorAll('.pexels-img')
 
