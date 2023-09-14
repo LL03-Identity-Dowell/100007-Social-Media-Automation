@@ -13,6 +13,12 @@
   <!-- JavaScript Flickity-->
   <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
   
+
+  <!-- CSS Flickity-->
+  <link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
+  <!-- JavaScript Flickity-->
+  <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
+  
   <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
   <!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">-->
   <!--<link rel="preconnect" href="https://fonts.googleapis.com">-->
@@ -159,6 +165,18 @@
       font-size: 2.2rem; 
     }
 
+    .fa-house {
+      font-size: 1.7rem;
+    }
+
+    .fa-house:hover{
+      opacity : 0.8;
+    }
+
+    .fa-circle-user {
+      font-size: 2.2rem; 
+    }
+
     @keyframes decreaseWidth {
       0% {
         width: 100%;
@@ -180,6 +198,10 @@
     }
   </style>
   <style>
+    
+    li.nav-item {
+      margin-right: -8px;
+    }
     
     li.nav-item {
       margin-right: -8px;
@@ -217,6 +239,55 @@
     .btn-dark {
       background-color: #212529;
     }
+
+    #serviceAlertDialog {
+      max-width: 274px;
+    }
+
+
+
+    .do-modal {
+        z-index: 10;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(1.1);
+        transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+    }
+    .do-modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 1rem 1.5rem;
+        width: 24rem;
+        border-radius: 0.5rem;
+    }
+    .do-close-button {
+        float: right;
+        width: 1.5rem;
+        line-height: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 0.25rem;
+        background-color: lightgray;
+    }
+    .do-close-button:hover {
+        background-color: darkgray;
+    }
+    .do-show-modal {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1.0);
+        transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+    }
+
 
     #serviceAlertDialog {
       max-width: 274px;
@@ -325,9 +396,14 @@
         <ul class="nav d-flex align-items-center">
 
             <!--Username-->
+
+            <!--Username-->
           <li class="nav-item">
             <span id="nav-username" class="navbar-text">{{ request.session.username }}</span>
+            <span id="nav-username" class="navbar-text">{{ request.session.username }}</span>
           </li>
+
+           <!--Account Dropdown-->
 
            <!--Account Dropdown-->
           <li class="nav-item">
@@ -348,6 +424,8 @@
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-plan' %}">My Plan</a></li>
                   <li><a class="dropdown-item" href="{% url 'generate_article:hash_mention' %}">Hash Tags and
                       Mentions</a></li>
+                  <li><a class="dropdown-item" href="{% url 'generate_article:hash_mention' %}">Hash Tags and
+                      Mentions</a></li>
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-team' %}">My Team</a></li>
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-usage' %}">My Usage</a></li>
                 <li>
@@ -363,12 +441,19 @@
           </li>
 
           <!-- Back to Main Page Button -->
+
+          <!-- Back to Main Page Button -->
           <li class="nav-item">
             <a class="nav-link" href="https://www.socialmediaautomation.uxlivinglab.online/" >
               <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
               <i class="fa-solid fa-house fa-lg" style="color: white"></i> 
             </a>
+            <a class="nav-link" href="https://www.socialmediaautomation.uxlivinglab.online/" >
+              <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
+              <i class="fa-solid fa-house fa-lg" style="color: white"></i> 
+            </a>
           </li>
+
 
           <!--Client options-->
           <li class="nav-item">
@@ -517,7 +602,68 @@
             sessionStorage.removeItem("session_id");
         }
     </script>
+  <!-- JavaScript function to clear sessionStorage -->
+
+    <!-- SERVICE KEY MODAL SCRIPT-->
+      <script>
+
+        {% comment %} var do_modal = document.querySelector(".do-modal");
+        var triggers = document.querySelectorAll('button, a');
+        var closeButton = document.querySelector(".do-close-button");
+
+        function toggleModal() {
+            do_modal.classList.toggle("do-show-modal");
+        }
+
+        function windowOnClick(event) {
+            if (event.target === do_modal) {
+                toggleModal();
+            }
+        }
+
+        triggers.forEach(element => {
+          
+          element.addEventListener("click", toggleModal);
+        }) 
+        
+        closeButton.addEventListener("click", toggleModal);
+        window.addEventListener("click", windowOnClick); {% endcomment %}
+
+         // Get references to the modal
+        {% comment %} const modal = document.getElementById('serviceAlertModal');
+
+        // Define the function to show the modal
+        function showModal() {
+          const bootstrapModal = new bootstrap.Modal(modal);
+          bootstrapModal.show();
+        }
+
+        // Get all button and link elements on the page
+        const buttonsAndLinks = document.querySelectorAll('button, a');
+
+        // Add the click event listener to all buttons and links
+        buttonsAndLinks.forEach(element => {
+          element.addEventListener('click', showModal);
+        }); {% endcomment %}
+
+
+
+
+    </script>
+    <script>
+        function clearSessionStorage() {
+            sessionStorage.removeItem("session_id");
+        }
+    </script>
   <script>
+
+    //  function disableBackButton() {
+    //         if (window.location.href === 'https://www.socialmediaautomation.uxlivinglab.online#?session_id=mrz9uwx01d87535pqvpdger4bli94xf2&id=100093') {
+    //             window.location.replace('https://www.socialmediaautomation.uxlivinglab.online#?session_id=mrz9uwx01d87535pqvpdger4bli94xf2&id=100093');
+    //         }
+
+    //     }
+
 
     //  function disableBackButton() {
     //         if (window.location.href === 'https://www.socialmediaautomation.uxlivinglab.online#?session_id=mrz9uwx01d87535pqvpdger4bli94xf2&id=100093') {
