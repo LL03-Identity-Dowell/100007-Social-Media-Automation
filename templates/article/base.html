@@ -196,6 +196,62 @@
     .btn-dark {
       background-color: #212529;
     }
+
+
+     {% comment %} alert modal style {% endcomment %}
+    .trigger{
+      text-align: center;
+      padding: 7px 13px;
+      background: #3e3e3e;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      border: none;
+      border-radius: 5px;
+      font-family: cursive;
+    }
+
+    .modal {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(1.1);
+        transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+    }
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 1rem 1.5rem;
+        width: 24rem;
+        border-radius: 0.5rem;
+    }
+    .close-button {
+        float: right;
+        width: 1.5rem;
+        line-height: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 0.25rem;
+        background-color: lightgray;
+    }
+    .close-button:hover {
+        background-color: darkgray;
+    }
+    .show-modal {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1.0);
+        transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+    }
+
   </style>
   {% block style %}{% endblock style %}
 
@@ -328,47 +384,41 @@
       {% block content %}{% endblock %}
 
     </main>
-      <div class="modal fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="alertModal" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                  <div class="modal-header">
-                      <strong>Please note</strong>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
 
-                      <p>{{ request.session.credit_response.message }}</p>
-                  </div>
-                  <div class="modal-footer">
-                  </div>
-              </div>
-          </div>
+      <div class="modal">
+        <div class="modal-content">
+            <span class="close-button">×</span>
+            <h1>Hello, I am a modal!</h1>
+        </div>
       </div>
+
   </div>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-      {% if request.session.credit_response %}
+      {% comment %} {% if request.session.credit_response %} {% endcomment %}
           <script>
-              // Get references to the modal
-              const modal = document.getElementById('serviceAlertModal');
+            var modal = document.querySelector(".modal");
+            var trigger = document.querySelector('button, a');
+            var closeButton = document.querySelector(".close-button");
 
-              // Define the function to show the modal
-              function showModal() {
-                  const bootstrapModal = new bootstrap.Modal(modal);
-                  bootstrapModal.show();
-              }
+            function toggleModal() {
+                modal.classList.toggle("show-modal");
+            }
 
-              // Get all button and link elements on the page
-              const buttonsAndLinks = document.querySelectorAll('button, a');
+            function windowOnClick(event) {
+                if (event.target === modal) {
+                    toggleModal();
+                }
+            }
 
-              // Add the click event listener to all buttons and links
-              buttonsAndLinks.forEach(element => {
-                  element.addEventListener('click', showModal);
-              });
+            trigger.addEventListener("click", toggleModal);
+            closeButton.addEventListener("click", toggleModal);
+            window.addEventListener("click", windowOnClick);
+
 
           </script>
-      {% endif %}
+      {% comment %} {% endif %} {% endcomment %}
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
