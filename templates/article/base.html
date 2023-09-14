@@ -387,6 +387,8 @@
     </div> {% endcomment %}
 
 
+
+    <!-- SERVICE KEY MODAL -->
     <div class="modal fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="alertModal" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -408,13 +410,14 @@
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <!-- JavaScript function to clear sessionStorage -->
+
+    <!-- SERVICE KEY MODAL SCRIPT-->
       <script>
          // Get references to the modal
         const modal = document.getElementById('serviceAlertModal');
 
         // Define the function to show the modal
         function showModal() {
-          // Use Bootstrap's modal method to show the modal
           const bootstrapModal = new bootstrap.Modal(modal);
           bootstrapModal.show();
         }
