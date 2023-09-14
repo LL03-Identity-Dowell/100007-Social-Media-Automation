@@ -328,11 +328,48 @@
       {% block content %}{% endblock %}
 
     </main>
+      <div class="modal fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="alertModal" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <strong>Please note</strong>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
 
+                      <p>{{ request.session.credit_response.message }}</p>
+                  </div>
+                  <div class="modal-footer">
+                  </div>
+              </div>
+          </div>
+      </div>
   </div>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      {% if request.session.credit_response %}
+          <script>
+              // Get references to the modal
+              const modal = document.getElementById('serviceAlertModal');
+
+              // Define the function to show the modal
+              function showModal() {
+                  const bootstrapModal = new bootstrap.Modal(modal);
+                  bootstrapModal.show();
+              }
+
+              // Get all button and link elements on the page
+              const buttonsAndLinks = document.querySelectorAll('button, a');
+
+              // Add the click event listener to all buttons and links
+              buttonsAndLinks.forEach(element => {
+                  element.addEventListener('click', showModal);
+              });
+
+          </script>
+      {% endif %}
+
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var closeButtons = document.querySelectorAll('.close-button');
