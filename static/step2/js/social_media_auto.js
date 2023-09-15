@@ -1,55 +1,7 @@
-{% extends "article/base_background.html" %} {% load static %} {% block style %}
-{{ block.super }}
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="{% static 'step2/css/social_media_auto.css'%}"
-/>
-{% endblock %} {% block stuff %}
-<h2 class="mb-5 blue-text">My Channels</h2>
-{% comment %}
-<p>User has social profile {{ user_has_social_media_profile }}</p>
-{% endcomment %} {% comment %}
-<p>User has linked accounts {{ linked_accounts }}</p>
-{% endcomment %}
-
-<div class="d-flex flex-wrap justify-content-center">
-  <a href="{% url 'generate_article:facebook' %}">
-    <i class="fa-brands facebook fa-4x m-2"></i>
-  </a>
-
-  <a href="{% url 'generate_article:twitter' %}">
-    <i class="fa-brands twitter fa-4x m-2"></i>
-  </a>
-
-  <a href="{% url 'generate_article:instagram' %}">
-    <i class="fa-brands instagram fa-4x m-2"></i>
-  </a>
-
-  <a href="{% url 'generate_article:linkedin' %}">
-    <i class="fa-brands linkedin fa-4x m-2"></i>
-  </a>
-
-  <a href="{% url 'generate_article:youtube' %}">
-    <i class="fa-brands youtube fa-4x m-2"></i>
-  </a>
-
-  <a href="{% url 'generate_article:pinterest-form' %}">
-    <i class="fa-brands pinterest fa-4x m-2"></i>
-  </a>
-</div>
-
-<a
-  class="mt-5 px-5 btn btn-dark-blue connect-button"
-  onclick="newUserStatus ? showPopup.showLinkAcc() : showPopup.showActivate()"
-  >Connect</a
->
-
-<script>
   // varaible from views checking if user has social profile
   var userStatus = "{{user_has_social_media_profile}}";
-  var linkedAccounts = "{{linked_accounts}}";
-
+  var linkedAccounts = '{{linked_accounts}}';
+console.log(userStatus);
   var encodedValue = linkedAccounts;
   var parser = new DOMParser();
   var doc = parser.parseFromString(encodedValue, "text/html");
@@ -208,6 +160,3 @@
       buttonContainerDone.appendChild(doneButton3);
     },
   };
-</script>
-
-{% endblock %}

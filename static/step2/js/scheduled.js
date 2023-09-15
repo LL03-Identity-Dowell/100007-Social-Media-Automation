@@ -115,6 +115,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         currentPage--;
         displayDataForCurrentPage();
         updatePaginationButtons();
+        scrollToTop()
       }
     });
 
@@ -135,6 +136,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         currentPage = i;
         displayDataForCurrentPage();
         updatePaginationButtons();
+        
       });
       paginationContainer.appendChild(pageLink);
     }
@@ -151,6 +153,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       currentPage = Math.min(nextGroupLastPage, maxPage);
       displayDataForCurrentPage();
       updatePaginationButtons();
+      
     });
     paginationContainer.appendChild(moreButton);
 
@@ -162,6 +165,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         currentPage++;
         displayDataForCurrentPage();
         updatePaginationButtons();
+        
       }
     });
 
@@ -169,6 +173,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     updatePaginationButtons(totalCount);
   }
+
 
   async function displayDataForCurrentPage() {
     const { data, totalCount } = await fetchedData();
@@ -181,7 +186,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     displayData(dataToShow, totalCount);
     displayPagination(totalCount);
+    $("html, body").animate({ scrollTop: 0 });
   }
+ 
 
   displayDataForCurrentPage();
 });

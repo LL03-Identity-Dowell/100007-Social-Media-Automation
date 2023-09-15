@@ -221,6 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     paginationContainer.innerHTML = "";
 
+    
+
       // Previous Button
       const prevButton = document.createElement('button');
       prevButton.textContent = 'Previous';
@@ -288,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updatePaginationButtons(totalCount);
   }
 
+  
   function updatePaginationButtons(totalCount) {
     const totalPages = Math.ceil(totalCount / itemsPerPage);
 
@@ -308,13 +311,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function displayDataForCurrentPage() {
     const { data, totalCount } = await fetchedData();
-
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const dataToShow = data.slice(startIndex, endIndex);
-    console.log(dataToShow);
     displayData( dataToShow, totalCount);
     displayPagination(totalCount);
+    $("html, body").animate({ scrollTop: 0 });
 
   }
 
