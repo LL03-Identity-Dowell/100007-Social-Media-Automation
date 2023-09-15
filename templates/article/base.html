@@ -512,16 +512,18 @@
     </div> {% endcomment %}
 
 
-
+      {% if request.session.credit_response %}
     <!-- SERVICE KEY MODAL -->
 
     <div class="do-modal">
         <div class="do-modal-content">
             <span class="do-close-button">×</span>
              <strong>Please note</strong>
-            <p>The workspace you are logged in doesn't have SERVICE KEY</p>
+            <p>{{ request.session.credit_response.message }}</p>
         </div>
     </div>
+
+      {% endif %}
 
     {% comment %} <div class="modal fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="alertModal" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" id="serviceAlertDialog">
@@ -591,7 +593,9 @@
           element.addEventListener('click', showModal);
         }); {% endcomment %}
 
-
+        {% if request.session.credit_response %}
+            toggleModal();
+        {% endif %}
 
 
     </script>
