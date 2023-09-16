@@ -7,26 +7,71 @@ window.onload = function downdis() {
     console.log("Hellow On Load")
 }
 
-const defaultImageArr = [
-    { src: 'https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: 'pexels image' },
-    { src: 'https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/2818118/pexels-photo-2818118.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/3184424/pexels-photo-3184424.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/6749745/pexels-photo-6749745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/6132751/pexels-photo-6132751.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/326259/pexels-photo-326259.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/262438/pexels-photo-262438.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" },
-    { src: 'https://images.pexels.com/photos/4560142/pexels-photo-4560142.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1', alt: "pexels image" }
+
+// Defualt images details
+const defaultImageDetailsArr = [
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/photo-of-hand-holding-a-black-smartphone-2818118/", author: "Magnus Mueller", authorUrl: "https://www.pexels.com/@magnus-mueller-1398178/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/close-up-photography-of-smartphone-icons-267350/", author: "pixabay", authorUrl: "https://www.pexels.com/@pixabay/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/person-wearing-white-silicone-strap-black-smartwatch-267394/", author: "Pixabay", authorUrl: "https://www.pexels.com/@pixabay/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/happy-ethnic-woman-sitting-at-table-with-laptop-3769021/", author: "Andrea Piacquadio", authorUrl: "https://www.pexels.com/@olly/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/photo-of-people-near-wooden-table-3184418/", author: "fauxels", authorUrl: "https://www.pexels.com/@fauxels/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/people-discuss-about-graphs-and-rates-3184292/", author: "Fauxels", authorUrl: "https://www.pexels.com/@fauxels/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/group-of-people-gathered-around-wooden-table-3184360/", author: "Fauxels", authorUrl: "https://www.pexels.com/@fauxels/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/silver-imac-displaying-collage-photos-1779487/", author: "Designecologist", authorUrl: "https://www.pexels.com/@designecologist/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/photo-of-audi-parked-near-trees-1402787/", author: "Vlad Alexandru Popa", authorUrl: "https://www.pexels.com/@vladalex94/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/football-game-1618200/", author: "football wife", authorUrl: "https://www.pexels.com/@football-wife-577822/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/patient-in-front-of-an-autorefractor-6749745/", author: "Antoni Shkraba", authorUrl: "https://www.pexels.com/@shkrabaanthony/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/woman-in-formal-wear-using-atm-6132751/", author: "Elise", authorUrl: "https://www.pexels.com/@coincloud/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/car-with-red-interior-326259/", author: "Pixabay", authorUrl: "https://www.pexels.com/@pixabay/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/abstract-accuracy-accurate-aim-262438/", author: "Pixabay", authorUrl: "https://www.pexels.com/@pixabay/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/excited-african-american-male-student-celebrating-successful-results-of-exams-4560142/", author: "Ketut Subiyanto", authorUrl: "https://www.pexels.com/@ketut-subiyanto/"
+    }
 ]
 
 const defaultImageCount = 15;
 
+
+// set defualt src and alt of images in default image array
+document.addEventListener("DOMContentLoaded", function () {
+    let alldefaultImageArray = Array(...document.querySelectorAll('.pexels-img'));
+    alldefaultImageArray.forEach((image, index) => {
+        defaultImageDetailsArr[index].src = image.src;
+        defaultImageDetailsArr[index].alt = image.alt;
+    })
+});
+
+
+//image array from pexels search API
+let copyImgDetailsArray = [];
 
 
 //Custom Notification popup
@@ -328,35 +373,28 @@ $('#search_input').on("input", async function () {
     let searchTerm = document.getElementById('search_input').value;
 
 
-
-    // pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <div class="spinner-border text-primary style="width: 3rem; height: 3rem;" role="status"> <span class="visually-hidden">Loading...</span> </div> </div>'
-
-    //function append images to div
+    //function append carousel images to div
     const appendImages = (ImagesDetailsArray, totalImageResults) => {
         if (totalImageResults > 0) {
-            // pexelsImageContainer.innerHTML = "";
 
-            pexelsImageContainer.parentNode.removeChild(pexelsImageContainer);
             const carousalContainer = document.getElementById("carousalContainer");
+            carousalContainer.innerHTML = "";
 
             carousalContainer.innerHTML = `<div id="myflickity" class="main-carousel pexels-image-row" data-flickity>
                                             </div>`
-            // while (pexelsImageContainer.firstChild) {
-            //     pexelsImageContainer.removeChild(pexelsImageContainer.firstChild);
-            // }
+
             let newPexelsImageContainer = document.querySelector('.pexels-image-row');
 
 
             for (let imgDetails of ImagesDetailsArray) {
-                console.log(imgDetails.alt);
+                // console.log(imgDetails.alt);
                 imageId += 1;
                 newPexelsImageContainer.innerHTML += `<div class="carousel-cell">
                                                         <img class="carousel-cell-image pexels-img" id=${imageId} src=${imgDetails.src} alt='${imgDetails.alt}'>
                                                     </div>`
-
-                // `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
             }
 
+            // initialize Flickity carousel
             var myFlickity = new Flickity(newPexelsImageContainer, {
                 contain: true,
                 wrapAround: true,
@@ -375,14 +413,14 @@ $('#search_input').on("input", async function () {
     }
 
     if (searchTerm == "") {
-        // pexelsImageContainer.innerHTML = "";
-        appendImages(defaultImageArr, defaultImageCount);
+        copyImgDetailsArray = [];
+        appendImages(defaultImageDetailsArr, defaultImageCount);
 
     } else {
 
-        let { imgDetailsArray, totalResults } = await searchPhoto(searchTerm);
+        let totalResults = await searchPhoto(searchTerm);
         //console.log(srcResult);
-        appendImages(imgDetailsArray, totalResults);
+        appendImages(copyImgDetailsArray, totalResults);
 
     }
 
@@ -392,10 +430,6 @@ $('#search_input').on("input", async function () {
         image.addEventListener("click", (e) => { handleImageSelect(e) }, false);
     })
 
-
-
-
-    //event.stopPropagation();
 });
 
 
@@ -418,14 +452,25 @@ searchBtn.addEventListener("click", (event) => {
 // handle image select
 let imageSrc = "";
 let imageAlt = "";
+let imgUrl = document.getElementById("imageURL");
+let imgAuthor = document.getElementById("imageAuthor");
+let authUrl = document.getElementById("authorURL");
+
 const handleImageSelect = (e) => {
     const elementId = e.target.id;
     const img = document.getElementById(elementId);
     imageSrc = img.src;
     imageAlt = img.alt;
-    console.log(imageAlt);
+    // console.log(imageAlt);
     img.classList.add("borderToggle");
     document.querySelector(".image_paragraph").textContent = imageAlt;
+
+    // console.log(copyImgDetailsArray.length);
+    if (copyImgDetailsArray.length === 0) {
+        imageDetailsDisplay(defaultImageDetailsArr, img);
+    } else {
+        imageDetailsDisplay(copyImgDetailsArray, img);
+    }
 
     const images = document.querySelectorAll('.pexels-img');
     images.forEach((image) => {
@@ -435,6 +480,18 @@ const handleImageSelect = (e) => {
         }
     });
 };
+
+
+//handle image details display
+const imageDetailsDisplay = (detailsArray, imgElemnt) => {
+    detailsArray.forEach((imageDetail) => {
+        if (imgElemnt.src == imageDetail.src) {
+            imgUrl.innerHTML = `<strong>URL: </strong>${imageDetail.url}`;
+            imgAuthor.innerHTML = `<strong>Author: </strong>${imageDetail.author}`;
+            authUrl.innerHTML = `<strong>Author URL: </strong>${imageDetail.authorUrl}`;
+        }
+    })
+}
 
 
 const removeSelect = () => {
@@ -476,11 +533,12 @@ getPexelApiKey();
 
 
 // Pexels API fetch function
+
 const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
 const searchPhoto = async (term) => {
     try {
+        let imgDetailsArray = []
 
-        let imgDetailsArray = [];
         await getPexelApiKey();
         let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=15&orientation=landscape`, {
             headers: {
@@ -496,13 +554,16 @@ const searchPhoto = async (term) => {
             // console.log(image.alt);
             let imgDetails = {
                 src: image.src.medium,
-                alt: image.alt
+                alt: image.alt,
+                url: image.url,
+                author: image.photographer,
+                authorUrl: image.photographer_url
             }
 
             imgDetailsArray.push(imgDetails);
-
         })
-        return { imgDetailsArray, totalResults };
+        copyImgDetailsArray = imgDetailsArray;
+        return totalResults;
     } catch (err) {
         console.error(`Error fecthing images: ${err}`)
     }
@@ -530,6 +591,7 @@ const updateImage = () => {
 }
 
 
+// Initialize Flickity carousel
 var myModal = document.getElementById('largeModal');
 var myFlickity = new Flickity(document.getElementById('myflickity'), {
     contain: true,
@@ -549,7 +611,6 @@ myModal.addEventListener('shown.bs.modal', function () {
 });
 
 const allImages = document.querySelectorAll('.pexels-img')
-
 allImages.forEach((image) => {
     image.addEventListener("click", (e) => { handleImageSelect(e) }, false);
 })
