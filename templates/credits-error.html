@@ -15,9 +15,9 @@
             <div class=" col-md-6">
                 <img src="https://media.discordapp.net/attachments/1078589105207787581/1113098637795393567/Social_media_automation.png?width=431&height=431" alt="Social Media">
             </div>
-            <div class="col-md-6" style="margin-top: 7rem!important;">
-                <p class="fs-3"> <span class="text-danger" style="font-weight: 700;">Opps!</span> You can't perform this action because of the following:</p>
-                
+            <div class="col-md-6" style="margin-top: 13rem!important;">
+                <!-- <p class="fs-3"> <span class="text-danger" style="font-weight: 700;">Opps!</span> You can't perform this action because of the following:</p>
+                 -->
                 {% for message in messages %}
                     <p class="lead">{{ message }}</p>
                 {% endfor %}
@@ -25,7 +25,7 @@
                 <div class="d-flex justify-content-center">
                     <a href="{% url 'generate_article:home' %}" class="btn btn-secondary me-2" >Reload</a>
                     {% if messages %}
-                        <a href="https://ll05-ai-dowell.github.io/100105-DowellApiKeySystem/#" target="_blank" class="btn btn-primary me-2">Activate Key</a>
+                        <a href="https://ll05-ai-dowell.github.io/100105-DowellApiKeySystem/#" target="_blank" class="btn btn-primary me-2">Activate</a>
                     {% endif %}
                     {% if error_code == 4 %}
                         <a class="btn btn-success" href="{{ link }}">Buy more credits</a>
