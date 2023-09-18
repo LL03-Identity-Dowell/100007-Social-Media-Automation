@@ -124,6 +124,7 @@ function displayNotification(message) {
 document.querySelector('#edit-post').onclick = editPost;
 document.querySelector('#save-post').onclick = savePost;
 document.querySelector('#delete-post').onclick = deletePost;
+var postti = document.getElementById('post-title')
 
 var postpar = document.getElementById('post-paragraph')
 var postsor = document.getElementById('post-sources')

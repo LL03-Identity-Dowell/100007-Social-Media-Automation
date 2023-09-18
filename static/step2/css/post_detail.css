@@ -112,7 +112,6 @@
 .borderToggle {
     border: 3px solid blue;
 }
-
 #search_input:focus {
     box-shadow: 0 0 0 1.2px rgb(49 54 61 / 25%);
     border: none;
@@ -133,9 +132,6 @@
     font-weight: 600;
     color: #7b7b93;
 }
-
-
-
 
 /* external css: flickity.css */
 
