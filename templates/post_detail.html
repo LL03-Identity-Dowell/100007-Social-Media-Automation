@@ -5,12 +5,12 @@
 
 {% block style %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'step2/css/post_detail.css'%}">
+  <link rel="stylesheet" type="text/css" href="{% static 'step2/css/post_detail.css' %}">
 {% endblock %}
 
 {% block script %}
   {{ block.super }}
-  <script type="text/javascript" src="{% static 'step2/js/post_detail.js'%}"></script>
+  <script type="text/javascript" src="{% static 'step2/js/post_detail.js' %}"></script>
 {% endblock %}
 
 
@@ -32,17 +32,19 @@
     </ul>
   </div>
 
-  <form action="{% url 'generate_article:save-post' %}" method="post">
+  <form action="{% url 'generate_article:save-post' %}" method="post" id="post-forn">
     {% csrf_token %}
     <div id="post-title" >{{ post.title }}</div>
-    <input id="title" type= "hidden" name="title" value="{{ post.title }}">
+    <input id="title" type="hidden" name="title" value="{{ post.title }}">
 
     <hr>
 
     <div id="post-paragraphs">
       {% for p in post.paragraph %}
+      {% if p.strip != '' %}
       <div class="post-paragraph">{{ p }}</div>
-      <input class="text" type = "hidden" name="text" value="{{ p }}">
+      <input class="text" type="hidden" name="paragraphs[]" value="{{ p|safe }}">
+      {% endif %}
       {% endfor %}
     </div>
 
@@ -73,7 +75,7 @@
           </button>
         </div>
         <img src ={{images}} alt="Random meme..." class="img-fluid post-img">
-        <input id="images" type= "hidden" name="images" value="{{images}}">
+        <input id="images" type="hidden" name="images" value="{{images}}">
       </div>
 
       <div class="post-options">
@@ -237,15 +239,31 @@
 
     </div>
 
+    <div id="hr" style="border-bottom: 2px solid #495057; width: 90%"></div>
+
+    <div class="container mb-3" id="word-charac-count" style="width: 800px !important;">
+      <div class="row">
+        <div class="col" id="word-count">
+          {% comment %} 0 Word(s) {% endcomment %}
+        </div>
+        <div class="col" id="charac-count">
+          {% comment %} 0 Character(s) {% endcomment %}
+        </div>
+        <div class="col" id="hashtag-count">
+          {% comment %} 0 Hashtag(s) {% endcomment %}
+        </div>
+      </div>
+    </div>
+
     {% if profile == 'Admin' or 'Add/Edit'%}
-    <div class="text-center">
-      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;">Previous</a>
+    <div class="text-center" style="margin-right: 148px;">
+      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;">Back</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
       <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
     </div>
     {% else %}
-    <div class="text-center">
-      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;;">Previous</a>
+    <div class="text-center" style="margin-right: 148px;">
+      <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2"  id="post-post" style="color: white; margin-right: 2.5rem !important;;">Back</a>
       {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
       <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;" onclick="showAdminMessage()">Next</button>
     </div>
@@ -253,20 +271,42 @@
   </form>
     {% endif %}
 
+      {% comment %} <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 1">
+          <img src="https://images.pexels.com/photos/18287651/pexels-photo-18287651/free-photo-of-reading-newspaper.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 2">
+          <img src="https://images.pexels.com/photos/17831000/pexels-photo-17831000/free-photo-of-couple-looking-at-smartphone.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 3">
+          <img src="https://images.pexels.com/photos/17891239/pexels-photo-17891239/free-photo-of-machine-pouring-coffee-to-cup.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 4"> {% endcomment %}
+
+   
+    
 </div>
+
+   {% comment %} <div class="container mt-5">
+        <h1 class="text-center">Custom Image Carousel</h1>
+        <div id="custom-carousel" class="owl-carousel">
+            <div class="item"><img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 1"></div>
+            <div class="item"><img src="https://images.pexels.com/photos/18287651/pexels-photo-18287651/free-photo-of-reading-newspaper.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 2"></div>
+            <div class="item"><img src="https://images.pexels.com/photos/17831000/pexels-photo-17831000/free-photo-of-couple-looking-at-smartphone.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 3"></div>
+            <div class="item"><img src="https://images.pexels.com/photos/17891239/pexels-photo-17891239/free-photo-of-machine-pouring-coffee-to-cup.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 4"></div>
+        </div>
+    </div> {% endcomment %}
+  
+
+
+
 
   <!-- Modal -->
 <div class="modal fade" id="largeModal" tabindex="-1" aria-labelledby="basicModal" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-xl">
     <div class="modal-content">
       
       <div class="modal-header" onclick="removeSelect();">
       
         <div class="input-group d-flex align-items-center justify-content-center ">
+          <h4 class="me-5">Select Image</h4>
           <div class="form-outline">
             <input type="text" id="search_input" class="form-control" placeholder="Search images" />
           </div>
-          <button id="search_btn" class="btn btn-primary" style="background-color: #36519e;">
+          <button id="search_btn" class="btn btn-primary" style="height: 38px; background-color: #36519e;">
             <i class="fas fa-search"></i>
           </button>
         </div>
@@ -276,24 +316,106 @@
 
       <div class="modal-body">
 
-          <div class="container text-center my-3">
+          {% comment %} <div class="container text-center my-3">
               <div class="row mx-auto my-auto" id="pexels-image-row">   
 
               </div>
+          </div> {% endcomment %}
+          <div class="container" id="carousalContainer">
+            <div id="myflickity" class="main-carousel pexels-image-row" data-flickity>
+              <div class="carousel-cell">
+                 <img class="carousel-cell-image pexels-img" id="1" src="https://images.pexels.com/photos/2818118/pexels-photo-2818118.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Photo of Hand Holding a Black Smartphone">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="2" src="https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Close-up Photography of Smartphone Icons">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="3" src="https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Person Wearing White Silicone Strap Black Smartwatch">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="4" src="https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Happy ethnic woman sitting at table with laptop">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="5" src="https://images.pexels.com/photos/3184424/pexels-photo-3184424.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Photo Of People Near Wooden Table">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="6" src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="People Discuss About Graphs and Rates">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="7" src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Group of People Gathered Around Wooden Table">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="8" src="https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg" alt="Silver Imac Displaying Collage Photos">
+              </div>
+              <div class="carousel-cell">
+                 <img class="carousel-cell-image pexels-img" id="9" src="https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Photo of Audi Parked near Trees">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="10" src="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Football Game">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="11" src="https://images.pexels.com/photos/6749745/pexels-photo-6749745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Patient in front of an Autorefractor">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="12" src="https://images.pexels.com/photos/6132751/pexels-photo-6132751.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Woman in Formal Wear using ATM">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="13" src="https://images.pexels.com/photos/326259/pexels-photo-326259.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Car With Red Interior">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="14" src="https://images.pexels.com/photos/262438/pexels-photo-262438.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Red and White Dart on Darts Board">
+              </div>
+              <div class="carousel-cell">
+                <img class="carousel-cell-image pexels-img" id="15" src="https://images.pexels.com/photos/4560142/pexels-photo-4560142.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Excited African American male student celebrating successful results of exams">
+              </div>
+            </div>
           </div>
 
+          <div class="image_details mt-3 mb-4 text-center" onclick="removeSelect();">
+            <p class="image_paragraph mx-3" >The Dowell UX Livinglab is an innovative research and development laboratory that focuses on the use of technology to improve the quality of life.</p>
+            <p id="imageURL" class="image_paragraph mx-3"><strong>URL: </strong>Pexels.com</p>
+            <p id="imageAuthor" class="image_paragraph mx-3"><strong>Author: </strong>Pexels</p>
+            <p id="authorURL" class="image_paragraph mx-3 "><strong>Author URL: </strong>Pexels.com</p>
+          </div>
+         
       </div>
-
-      <div class="modal-footer" onclick="removeSelect();">
-
-                <button type="button" class="btn btn-primary btn-dark-blue" data-bs-dismiss="modal" onclick="updateImage();" style="font-size: small;">Update Post</button>
-
-      </div>
-
+      
+    
+      
+      <button type="button" class="mb-3 mx-auto btn btn-primary btn-dark-blue" data-bs-dismiss="modal" onclick="updateImage();" style="font-size: medium; width: 195px;">Update Post</button>
+ 
     </div>
   </div>
 </div>
 
+
+
+{% comment %} <!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        <div class="gallery js-flickity"
+          data-flickity-options='{ "imagesLoaded": true, "percentPosition": false }'>
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="orange tree" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="submerged" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="look-out" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="One World Trade" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="drizzle" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="cat nose" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>  {% endcomment %}
 
 {% endblock %}
 

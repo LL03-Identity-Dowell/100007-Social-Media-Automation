@@ -1,0 +1,82 @@
+.pagination {
+  display: inline-block;
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.pagination a.active {
+  background-color: #0a58ca;
+  color: white;
+  border-radius: 90px;
+}
+
+.pagination a:hover:not(.active) {
+  background-color: #ddd;
+  border-radius: 50px;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+}
+.btn-primary {
+  background-color: #0d6efd;
+}
+.btn-dark {
+  background-color: #212529;
+}
+.purple-text {
+  color: #7e25c2;
+}
+.grid-container {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: 75fr 25fr;
+  grid-template-rows: 5vh 95vh;
+}
+.item1 {
+  background-color: #203474;
+  grid-column-start: 1;
+  grid-column-end: 6;
+}
+
+.item2 {
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+.item {
+  display: grid;
+  text-align: center;
+  grid-template-columns: repeat(5, 20fr);
+}
+
+.item3 {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+svg {
+  transform: rotate(90deg);
+  border-radius: 10px;
+}
+.myHeadings {
+  text-align: center;
+}
+#whiteStorm {
+  font-family: cursive;
+  font-style: italic;
+  color: #6b2722;
+}
+.txtpadding {
+  padding: 2.5%;
+}
+.mylist {
+  display: flex;
+  list-style: none;
+  padding: 5px;
+  color: white;
+}
+/* media query that breaks page, sending image below*/
