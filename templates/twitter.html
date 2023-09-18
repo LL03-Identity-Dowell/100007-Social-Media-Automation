@@ -1,27 +1,9 @@
-{% extends "article/base_background.html" %} {% load static %} {% block style %}
+{% extends "article/base_background.html" %} {% load static %} 
+{% block style %}
 {{ block.super }}
-<style type="text/css">
-  form {
-    width: 400px;
-    max-width: 90%;
-  }
-
-  .btn-dark-blue {
-    color: white;
-    background-color: var(--dark-blue);
-    border-color: var(--dark-blue);
-  }
-
-  .btn-dark-blue:hover {
-    color: white;
-    background-color: rgb(20, 38, 85);
-  }
-
-  .fa-twitter {
-    color: #35a5fa;
-  }
-</style>
-{% endblock %} {% block stuff %}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/twitter.css'%}">
+{% endblock %} 
+{% block stuff %}
 <div class="m-2">
   <i class="fa-brands fa-twitter fa-4x"></i>
 </div>
