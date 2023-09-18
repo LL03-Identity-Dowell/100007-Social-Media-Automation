@@ -3,8 +3,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   const searchInput = document.querySelector(".search-input");
   const noCityFound = document.querySelector(".no-city-match-container");
   const form = document.getElementById("city-selection-form");
+  const cancelBtn = document.getElementById("cancel-button");
 
-  searchInput.addEventListener("input", function () {
+  function handleInput() {
+    console.log("clicked");
     const searchValue = searchInput.value.toLowerCase();
     let noMatch = true; // Initialize as true
 
@@ -26,8 +28,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Update the "Not city match" message display
     noCityFound.style.display = noMatch ? "block" : "none";
     form.style.display = noMatch ? "none" : "block";
-  });
-
+  }
   inputsEl.forEach(function (checkbox) {
     checkbox.addEventListener("click", function (e) {
       const parentDiv = checkbox.closest(".city");
@@ -40,5 +41,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
       }
     });
+  });
+
+  searchInput.addEventListener("input", handleInput);
+
+  cancelBtn.addEventListener("click", function () {
+    searchInput.value = "";
+    handleInput();
   });
 });
