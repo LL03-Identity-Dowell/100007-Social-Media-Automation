@@ -2,64 +2,18 @@
 
 {% load static %}
 
+{% comment %} <style type="text/css"> 
+
+</style> {% endcomment %}
+
 {% block style %}
-{{ block.super }}
-<style type="text/css">
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'step2/css/hash_mention.css' %}">
+{% endblock %}
 
-  .content-container{
-    background-color: rgba(230, 230, 230, 95%);
-  }
-
-  .container {
-    width: 69%;
-    }
-
-  .btn-dark-blue {
-    color: white;
-    background-color: var(--dark-blue);
-    border-color: var(--dark-blue);
-  }
-
-  .btn-dark-blue:hover {
-      color: white;
-      background-color: rgb(20, 38, 85);
-  }
-
-
-  /* Custom styles for the save button */
-  .save-button {
-      transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
-  }
-
-  .saved-button{
-      transform: scale(1.05); 
-  }
-
-  .check-icon {
-      display: none;
-  }
-
-  .saved-button .check-icon{
-      display: inline-block;
-      margin-right: 5px;
-  }
-
-  #tag_input:focus, #men_input:focus {
-    box-shadow: 0 0 0 1.2px rgb(49 54 61 / 25%);
-    border: none;
-    outline: none; 
-  }
-
-  .save-button {
-    border-radius: 16px !important;
-    width: 129px;
-  }
-
-  #tagBtn:focus, #mentionBtn:focus, .save-button:focus{
-    box-shadow: 0 0 0 0.1rem rgba(38,143,255,.5);
-  }
-
-</style>
+{% block script %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'step2/js/hash_mention.js' %}"></script>
 {% endblock %}
 
 
@@ -102,7 +56,7 @@
       </div>
 
       <div class="text-center">
-        <button class="btn btn-primary rounded btn-dark-blue save-button mt-5" onclick="submitForm();">Save <i class="fas fa-check check-icon"></i></button>
+        <button class="btn btn-primary rounded btn-dark-blue save-button mt-5" onclick="submitForm();" id="saveBtn">Save <i class="fas fa-check check-icon"></i></button>
       </div>
     </form>
     {% else %}
@@ -143,87 +97,12 @@
     </form>
     {%endif%}
   </div>   
+
 </div>
 
-
+{% comment %} 
 <script>
+ 
+</script> {% endcomment %}
 
-    tagBtn = document.getElementById("tagBtn");
-    mentionBtn = document.getElementById("mentionBtn");
-
-    tagBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      pushData('hashtag_value', 'tag_input', 'tag_col');
-    })
-
-    mentionBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      pushData('mention_value', 'men_input', 'men_col');
-    })
-
-    function pushData(name, inputId, col) {
-      let addHash;
-      let view = document.getElementById(col);
-      var inputText = document.getElementById(inputId).value;
-
-       if(!inputText){
-        return;
-      }
-
-      if (col == "tag_col") {
-        addHash = `#${inputText}`;
-      }else{
-        addHash = inputText;
-      }
-
-      view.innerHTML += `<div class="form-check me-3 role="tags_mentions">
-                          <input class="form-check-input" type="checkbox" value="${addHash}" name="${name}" id="${name}">
-                          <label class="form-check-label font-italic" for="${name}" id="mention_list" style="font-weight: 500">
-                            ${addHash}
-                          </label>
-                          <button style="font-size: 10px;" type="button" class="btn-close btn-sm" aria-label="Close"  onclick="removeDiv(this)"></button>
-                        </div>`;
-      document.getElementById(inputId).value = "";
-
-    }
-    
-    function submitForm() {
-      // Gather data from hashtags and mentions
-      const hashtagsList = Array.from(document.querySelectorAll('input[name="hashtag_value"]:checked'))
-          .map(checkbox => checkbox.value);
-      const mentionsList = Array.from(document.querySelectorAll('input[name="mention_value"]:checked'))
-          .map(checkbox => checkbox.value);
-
-      // Update the hidden input fields with the collected data
-      document.getElementById('hashtags_list').value = hashtagsList.join(',');
-      document.getElementById('mentions_list').value = mentionsList.join(',');
-
-      // Submit the form to  backend
-      document.getElementById('hashMentionForm').submit();
-    }
-
-
-    function removeDiv(button) {
-      const divToRemove = button.parentElement; // Get the parent div
-      if (divToRemove) {
-        divToRemove.remove();
-      }
-    }
-
-    // for save button transition
-    //function toggleSaved(button, event) {
-    //  button.classList.toggle('saved-button');
-    //  if (button.classList.contains('saved-button')) {
-    //      button.innerHTML = 'Saved <i class="fas fa-check check-icon"></i>';
-     // } else {
-    //      button.innerHTML = 'Save <i class="fas fa-check check-icon"></i>';
-    //  }
-
-      // Prevent the form submission
-     // event.preventDefault();
-     // return false;
-    //}
-
-</script>
 {% endblock %}

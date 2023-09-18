@@ -79,7 +79,8 @@
 /* images modal styling */
 
 .modal-content {
-    width: 430px;
+    width: 1078px;
+    /* height: 93vh; */
     border: none;
 }
 
@@ -111,8 +112,6 @@
 .borderToggle {
     border: 3px solid blue;
 }
-
-/* added this line till 122 cos I saw it on the live server */
 #search_input:focus {
     box-shadow: 0 0 0 1.2px rgb(49 54 61 / 25%);
     border: none;
@@ -134,7 +133,6 @@
     color: #7b7b93;
 }
 
-/* from below till 198 was copied from the live server */
 /* external css: flickity.css */
 
 /* * {
