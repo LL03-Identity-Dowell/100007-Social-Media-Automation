@@ -1,11 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <p>Target Cities Goes Here</p>
-</body>
-</html>
+{% extends "article/base.html" %} {% load static %} {% block script %}
+<script src="{% static 'main.js' %}"></script>
+{% endblock script %} {% block style %}
+<link rel="stylesheet" href="{% static 'step2/css/target_cities.css' %}" />
+<style>
+  main {
+    /* Set background image. */
+    background-image: url("{% static 'photos/pens.jpg' %}");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    /* Align items */
+    align-items: center;
+  }
+</style>
+{% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
+<div
+  class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1"
+>
+  <div class="wrapper-container">
+    <div class="search-container">
+      <input
+        type="search"
+        class="search-input"
+        placeholder="List of the Cities"
+      />
+      <div class="search-wrapper">
+        <div class="icons8-search"></div>
+      </div>
+    </div>
+    <div class="no-city-match-container">
+      <h1 class="no-city-message">No matching cities found.</h1>
+    </div>
+
+    {% if status == 'insert' %}
+    <form
+      id="city-selection-form"
+      method="post"
+      action="{% url 'generate_article:save_target_cities' %}"
+    >
+      {% csrf_token %}
+      <div id="city-list" class="city-list">
+        {% for city in cities %}
+        <div class="city">
+          <label for="city_{{ city.id }}">{{ city.name }}</label>
+          <input
+            id="city_{{ city.id }}"
+            type="checkbox"
+            name="target_cities[]"
+            value="{{ city.name }}"
+          />
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="submit-button">save</button>
+    </form>
+    {% else %}
+    <form
+      id="city-selection-form"
+      method="post"
+      action="{% url 'generate_article:update_saved_target_cities' %}"
+    >
+      {% csrf_token %}
+      <div id="city-list" class="city-list">
+        {% for city in cities %}
+        <div class="city">
+          <label for="city_{{ city.id }}">{{ city.name }}</label>
+          <input
+            id="city_{{ city.id }}"
+            type="checkbox"
+            name="target_cities[]"
+            value="{{ city.name }}"
+          />
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="submit-button">save</button>
+    </form>
+    {%endif%}
+  </div>
+</div>
+
+<script type="module" src="{% static 'step2/js/target_cities.js' %}"></script>
+
+{% endblock %}

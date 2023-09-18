@@ -1,6 +1,10 @@
 {% extends "article/base_steps.html" %} {% load static %} {% load is_string_tags
 %} {% block style %} {{ block.super }}
 <style>
+  .cover {
+    padding: 0 60px 0 0;
+  }
+
   .post-source {
     display: block;
   }
@@ -149,36 +153,59 @@
   //   document.querySelector("#sources-input").replaceWith(div);
   // }
 
-  var postParagraphs = document.querySelectorAll(".post-paragraph");
+  // var postParagraphs = document.querySelectorAll(".post-paragraph");
 
-  postParagraphs.forEach(function (paragraph) {
-    
-    var textContent = paragraph.textContent;
-    var wordCount = textContent.split(/\s+/).filter(function (word) {
-      return word.length > 0;
-    }).length;
+  // postParagraphs.forEach(function (paragraph) {
 
-    var characterCount = textContent.length;
-    var hashtags = textContent.match(/#\w+/g);
-    var hashtagCount = hashtags ? hashtags.length : 0;
+  //   var textContent = paragraph.textContent;
+  //   var wordCount = textContent.split(/\s+/).filter(function (word) {
+  //     return word.length > 0;
+  //   }).length;
 
-    var wordCountElement = document.querySelector(".paragraph-count1");
-    var characterCountElement = document.querySelector(".paragraph-count2");
-    var hashtageCountElement = document.querySelector(".paragraph-count");
+  //   var characterCount = textContent.length;
+  //   var hashtags = textContent.match(/#\w+/g);
+  //   var hashtagCount = hashtags ? hashtags.length : 0;
 
-    wordCountElement.textContent = wordCount + " words";
-    characterCountElement.textContent = characterCount + " characters";
-    hashtageCountElement.textContent = hashtagCount + " hashtag";
+  //   var wordCountElement = document.querySelector(".paragraph-count1");
+  //   var characterCountElement = document.querySelector(".paragraph-count2");
+  //   var hashtageCountElement = document.querySelector(".paragraph-count");
 
+  //   wordCountElement.textContent = wordCount + " words";
+  //   characterCountElement.textContent = characterCount + " characters";
+  //   hashtageCountElement.textContent = hashtagCount + " hashtag";
 
-  });
+  // });
 
+  var postParagraphsDiv = document.getElementById("post-paragraphs");
+  var htmlContent = postParagraphsDiv.innerHTML;
 
+  // Remove HTML tags to get plain text
+  var plainText = htmlContent.replace(/<[^>]*>/g, "");
+
+  // Split the plain text into words and count them
+  var words = plainText.split(/\s+/);
+  var wordCount = words.length;
+
+  // Count the total number of characters (including spaces)
+  var charCount = plainText.length;
+
+  // Count the number of hashtags (assuming hashtags start with '#')
+  var hashtagCount = (plainText.match(/#/g) || []).length;
+
+  // Display the counts in the desired elements
+  var wordCountElement = document.querySelector(".paragraph-count1");
+  var charCountElement = document.querySelector(".paragraph-count2");
+  var hashtagCountElement = document.querySelector(".paragraph-count");
+
+  wordCountElement.textContent = wordCount + " " + "Words";
+  charCountElement.textContent = charCount + " " + "Characters";
+  hashtagCountElement.textContent = hashtagCount + " " + "Hashtags";
+  
 </script>
 
 {% endblock %} {% block content %}
 
-<div class="m-4">
+<div class="m-4 cover">
   <a
     href="javascript:history.back()"
     class="back-button"
@@ -237,8 +264,8 @@
 
     <div id="post-paragraphs">
       {% for p in post.paragraph %}
-        <div class="post-paragraph" id="postPara">{{ p }}</div>
-        <input type="hidden" name="text" value="{{ p }}" id="para" />
+      <div class="post-paragraph" id="postPara">{{ p }}</div>
+      <input type="hidden" name="text" value="{{ p }}" id="para" />
       {% endfor %}
       <div class="words_wrapper">
         <div><span class="paragraph-count1"></span></div>
