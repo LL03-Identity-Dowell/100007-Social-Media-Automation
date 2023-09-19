@@ -614,15 +614,18 @@
         triggers.forEach(element => {
           
           element.addEventListener("click", (event) =>{
-              console.log('This is the href attribute');
-              console.log(element.getAttribute('href'));
-              let url = element.getAttribute('href');
+              if (element.tagName === 'A') {
+                  let url = element.getAttribute('href');
 
               if (disallowedUrls.includes(url)) {
                   event.preventDefault();
-              displayNotification("{{ request.session.credit_response.message }}");
+
+              }
+              } else {
+                  event.preventDefault();
               }
 
+              displayNotification("{{ request.session.credit_response.message }}");
           });
         }) 
         
