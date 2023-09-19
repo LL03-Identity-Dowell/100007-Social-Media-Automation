@@ -609,12 +609,20 @@
                 toggleModal();
             }
         }
+              let disallowedUrls = ['/website/', '/article_list/articles/', '/article_list/', '/recent/', '/comments/', '/schedule/'];
 
         triggers.forEach(element => {
           
           element.addEventListener("click", (event) =>{
-            event.preventDefault();
+              console.log('This is the href attribute');
+              console.log(element.getAttribute('href'));
+              let url = element.getAttribute('href');
+
+              if (disallowedUrls.includes(url)) {
+                  event.preventDefault();
               displayNotification("{{ request.session.credit_response.message }}");
+              }
+
           });
         }) 
         
