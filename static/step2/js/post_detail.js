@@ -540,7 +540,7 @@ const searchPhoto = async (term) => {
         let imgDetailsArray = []
 
         await getPexelApiKey();
-        let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=15&orientation=landscape`, {
+        let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=15&orientation=square`, {
             headers: {
                 Authorization: PEXEL_API_KEY
             }
