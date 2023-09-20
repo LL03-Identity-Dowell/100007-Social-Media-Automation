@@ -6,7 +6,7 @@ main {
 
 .content-container {
   width: 1000px;
-  height: 600px;
+  height: 700px;
   max-width: 100%;
   max-height: 100%;
   margin: 20px;
@@ -100,7 +100,13 @@ main {
   height: 420px;
   width: 100%;
   overflow-y: scroll;
+  align-items: center;
 }
+
+.city-list::-webkit-scrollbar {
+  width: 0;
+}
+
 .no-city-match-container {
   display: flex;
   flex-direction: column;
@@ -110,14 +116,14 @@ main {
   display: none;
   position: relative;
 }
-.city-list div {
+.city {
   position: relative;
-  width: 100%;
-  height: 60px;
+  width: 70%;
+  height: 54px;
   font-size: 22px;
   font-weight: 700;
   color: rgb(128, 128, 128);
-  background-color: #05051fc2;
+  background-color: transparent;
   cursor: pointer;
 }
 .city-list div:hover {
@@ -126,7 +132,7 @@ main {
 .city-list div label {
   width: 100%;
   height: 60px;
-  padding: 10px 0 5px 66px;
+  padding: 10px 0 5px 40px;
   cursor: pointer;
 }
 
@@ -137,15 +143,24 @@ main {
 }
 
 .submit-button {
-  background-color: var(--dark-blue);
-  color: #fff;
+  background-color: #e6cd41;
+  color: #333;
   border: 0;
-  width: 100%;
-  padding: 6px 8px;
+  font-size: 18px;
+  width: 160px;
+  padding: 13px 8px;
   border-radius: 3px;
   font-weight: bold;
-  margin-top: 10px;
+  margin-top: 20px;
   transition: all ease-in-out 200ms;
+}
+
+.submit-button-wrapper {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 40px;
 }
 .submit-button:hover {
   opacity: 0.96;

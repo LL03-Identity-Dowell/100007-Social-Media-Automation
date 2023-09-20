@@ -35,9 +35,9 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       if (parentDiv) {
         if (e.target.checked) {
-          parentDiv.style.backgroundColor = "#3d84eec2";
+          parentDiv.style.backgroundColor = "rgb(27, 52, 116)";
         } else {
-          parentDiv.style.backgroundColor = "#05051fc2";
+          parentDiv.style.backgroundColor = "transparent";
         }
       }
     });
