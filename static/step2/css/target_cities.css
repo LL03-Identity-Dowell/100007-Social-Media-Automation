@@ -6,7 +6,7 @@ main {
 
 .content-container {
   width: 1000px;
-  height: 700px;
+  height: 800px;
   max-width: 100%;
   max-height: 100%;
   margin: 20px;
@@ -97,7 +97,7 @@ main {
   display: flex;
   flex-direction: column;
   gap: 1px;
-  height: 420px;
+  height: 560px;
   width: 100%;
   overflow-y: scroll;
   align-items: center;
