@@ -1,4 +1,3 @@
-# Create your views here.
 from django.shortcuts import render, redirect
 from django.views import View
 
@@ -34,4 +33,4 @@ class CreditErrorView(CreditBaseView):
             self.context_dict.update(credit_response)
         except TypeError:
             return redirect('generate_article:home')
-        return render(request, 'credits-error.html', self.context_dict)
+        return redirect('generate_article:home')

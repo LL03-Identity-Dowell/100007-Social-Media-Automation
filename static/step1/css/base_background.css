@@ -24,16 +24,6 @@ main {
   flex-direction: column;
 }
 
-main {
-  /* Set background image. */
-  background-image: url("{% static 'photos/pens.jpg' %}");
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-size: cover;
-  /* Align items */
-  align-items: center;
-}
-
 .content-container {
   width: 1000px;
   height: 600px;
