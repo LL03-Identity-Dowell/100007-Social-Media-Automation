@@ -37,13 +37,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         ${
           week !== 0 ? ", " + week + ` ${week === 1 ? "week" : "weeks"}` : ""
         } ago
-        
+
         `;
     }
     if (month === 0) {
       return `${week !== 0 ? week + ` ${week === 1 ? "week" : "weeks"}` : ""}
         ${day !== 0 ? ", " + day + ` ${day === 1 ? "day" : "days"}` : ""} ago
-        
+
         `;
     }
   };
@@ -171,8 +171,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   async function displayDataForCurrentPage() {
-    $("html, body").animate({ scrollTop: 0 });
-
+        $("html, body").animate({ scrollTop: 0 });
     const { data, totalCount } = await fetchedData();
 
     const sortedData = data.sort((a, b) => new Date(b.time) - new Date(a.time));

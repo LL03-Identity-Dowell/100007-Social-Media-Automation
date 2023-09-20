@@ -57,8 +57,8 @@ class SentencesForm(forms.ModelForm):
 
         }
         help_texts = {
-            'verb': _('(verbs eg.optimise, inform)'),
-            'adjective': _('(adjectives eg. Automate, Efficient)'),
+            'verb': _('(verbs eg. test)'),
+            'adjective': _(''),
             'object': _('(e.g digital documentation)')
             # 'subject': _('(subject of a sentence is the person, place, thing, or idea that is performing the action)'),
         }
