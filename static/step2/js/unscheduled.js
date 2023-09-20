@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (data === "social_media_channels") {
           location.href = "http://127.0.0.1:8000/social_media_channels/";
-        } else if (data === "sheduled") {
+        } else if (data === "scheduled") {
           location.href = "http://127.0.0.1:8000/scheduled/";
         }
 
@@ -106,8 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   };
-  
-  
+
+
   const itemsPerPage = 5;
   let currentPage = 1;
 
@@ -156,11 +156,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const checkboxes = form.querySelectorAll("input[type='checkbox']");
         let selectedArticle = { ...showData[index] };
         selectedArticle.social = [];
+        selectedArticle.special = [];
 
         checkboxes.forEach((checkbox) => {
           if (checkbox.checked) {
-            if (checkbox.value === "twitter") {
-              selectedArticle[checkbox.value] = checkbox.value;
+            if (checkbox.value === "twitter" || checkbox.value === "pinterest") {
+              selectedArticle.special.push(checkbox.value);
             } else {
               selectedArticle.social.push(checkbox.value);
             }
@@ -211,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-   
+
   function displayPagination(totalCount) {
     const totalPages = Math.ceil(totalCount / itemsPerPage);
 
@@ -235,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       // Display page numbers
-      
+
       const startPage = (Math.floor((currentPage - 1) / 5) * 5) + 1;
       const endPage = Math.min(startPage + 4, totalPages);
 
@@ -254,7 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
         paginationContainer.appendChild(pageLink);
       }
 
-     
+
       // More Button
       const moreButton = document.createElement('span');
       if (totalPages<= 7) {
@@ -270,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       paginationContainer.appendChild(moreButton);
 
-       
+
       // Next Button
       const nextButton = document.createElement('button');
       nextButton.textContent = 'Next';
@@ -306,6 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function displayDataForCurrentPage() {
+        $("html, body").animate({ scrollTop: 0 });
     const { data, totalCount } = await fetchedData();
 
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -314,11 +316,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(dataToShow);
     displayData( dataToShow, totalCount);
     displayPagination(totalCount);
-
   }
 
 
   displayDataForCurrentPage();
 
-  
+
 });

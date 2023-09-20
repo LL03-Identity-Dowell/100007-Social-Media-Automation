@@ -7,6 +7,73 @@ window.onload = function downdis() {
     console.log("Hellow On Load")
 }
 
+
+// Defualt images details
+const defaultImageDetailsArr = [
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/photo-of-hand-holding-a-black-smartphone-2818118/", author: "Magnus Mueller", authorUrl: "https://www.pexels.com/@magnus-mueller-1398178/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/close-up-photography-of-smartphone-icons-267350/", author: "pixabay", authorUrl: "https://www.pexels.com/@pixabay/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/person-wearing-white-silicone-strap-black-smartwatch-267394/", author: "Pixabay", authorUrl: "https://www.pexels.com/@pixabay/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/happy-ethnic-woman-sitting-at-table-with-laptop-3769021/", author: "Andrea Piacquadio", authorUrl: "https://www.pexels.com/@olly/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/photo-of-people-near-wooden-table-3184418/", author: "fauxels", authorUrl: "https://www.pexels.com/@fauxels/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/people-discuss-about-graphs-and-rates-3184292/", author: "Fauxels", authorUrl: "https://www.pexels.com/@fauxels/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/group-of-people-gathered-around-wooden-table-3184360/", author: "Fauxels", authorUrl: "https://www.pexels.com/@fauxels/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/silver-imac-displaying-collage-photos-1779487/", author: "Designecologist", authorUrl: "https://www.pexels.com/@designecologist/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/photo-of-audi-parked-near-trees-1402787/", author: "Vlad Alexandru Popa", authorUrl: "https://www.pexels.com/@vladalex94/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/football-game-1618200/", author: "football wife", authorUrl: "https://www.pexels.com/@football-wife-577822/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/patient-in-front-of-an-autorefractor-6749745/", author: "Antoni Shkraba", authorUrl: "https://www.pexels.com/@shkrabaanthony/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/woman-in-formal-wear-using-atm-6132751/", author: "Elise", authorUrl: "https://www.pexels.com/@coincloud/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/car-with-red-interior-326259/", author: "Pixabay", authorUrl: "https://www.pexels.com/@pixabay/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/abstract-accuracy-accurate-aim-262438/", author: "Pixabay", authorUrl: "https://www.pexels.com/@pixabay/"
+    },
+    {
+        src: "", alt: "", url: "https://www.pexels.com/photo/excited-african-american-male-student-celebrating-successful-results-of-exams-4560142/", author: "Ketut Subiyanto", authorUrl: "https://www.pexels.com/@ketut-subiyanto/"
+    }
+]
+
+const defaultImageCount = 15;
+
+
+// set defualt src and alt of images in default image array
+document.addEventListener("DOMContentLoaded", function () {
+    let alldefaultImageArray = Array(...document.querySelectorAll('.pexels-img'));
+    alldefaultImageArray.forEach((image, index) => {
+        defaultImageDetailsArr[index].src = image.src;
+        defaultImageDetailsArr[index].alt = image.alt;
+    })
+});
+
+
+//image array from pexels search API
+let copyImgDetailsArray = [];
+
+
 //Custom Notification popup
 function displayNotification(message) {
     // Create a new notification element
@@ -241,7 +308,7 @@ function savePost() {
 document.getElementById('post-forn').addEventListener('submit', (event) => {
     // console.log(editting)
     if (editing) {
-        // Ask user to save before proceeding
+
         displayNotification("You have unsaved changes, please save");
 
         // Prevent form submission
@@ -302,37 +369,67 @@ const updCharacWrdCnt = () => {
 $('#search_input').on("input", async function () {
 
     let imageId = 0;
-    let pexelsImageContainer = document.getElementById('pexels-image-row');
+    let pexelsImageContainer = document.querySelector('.pexels-image-row');
     let searchTerm = document.getElementById('search_input').value;
 
 
+    //function append carousel images to div
+    const appendImages = (ImagesDetailsArray, totalImageResults) => {
+        if (totalImageResults > 0) {
 
-    pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <div class="spinner-border text-primary style="width: 3rem; height: 3rem;" role="status"> <span class="visually-hidden">Loading...</span> </div> </div>'
+            const carousalContainer = document.getElementById("carousalContainer");
+            carousalContainer.innerHTML = "";
 
-    if (searchTerm == "") {
-        pexelsImageContainer.innerHTML = "";
-    } else {
+            carousalContainer.innerHTML = `<div id="myflickity" class="main-carousel pexels-image-row" data-flickity>
+                                            </div>`
 
-        let { srcArray, totalResults } = await searchPhoto(searchTerm);
-        //console.log(srcResult);
+            let newPexelsImageContainer = document.querySelector('.pexels-image-row');
 
-        if (totalResults > 0) {
-            pexelsImageContainer.innerHTML = "";
-            for (let imgSrc of srcArray) {
+
+            for (let imgDetails of ImagesDetailsArray) {
+                // console.log(imgDetails.alt);
                 imageId += 1;
-                pexelsImageContainer.innerHTML += `<div class="col-md-4" style="padding-bottom: 5px;"> <img src=${imgSrc} class="img-fluid pexels-img" id=${imageId} alt="pexels image" style="height: 65px; width: 103px;"> </div>`
+                newPexelsImageContainer.innerHTML += `<div class="carousel-cell">
+                                                        <img class="carousel-cell-image pexels-img" id=${imageId} src=${imgDetails.src} alt='${imgDetails.alt}'>
+                                                    </div>`
             }
+
+            // initialize Flickity carousel
+            var myFlickity = new Flickity(newPexelsImageContainer, {
+                contain: true,
+                wrapAround: true,
+                cellAlign: 'left',
+                "groupCells": true,
+                "draggable": false,
+                "pageDots": false,
+                "initialIndex": 1
+            });
+
+            myFlickity.resize()
+
         } else {
             pexelsImageContainer.innerHTML = '<div class="d-flex justify-content-center"> <p> Sorry, no image found, try another term </p> </div>'
         }
     }
+
+    if (searchTerm == "") {
+        copyImgDetailsArray = [];
+        appendImages(defaultImageDetailsArr, defaultImageCount);
+
+    } else {
+
+        let totalResults = await searchPhoto(searchTerm);
+        //console.log(srcResult);
+        appendImages(copyImgDetailsArray, totalResults);
+
+    }
+
 
     const allImages = document.querySelectorAll('.pexels-img')
     allImages.forEach((image) => {
         image.addEventListener("click", (e) => { handleImageSelect(e) }, false);
     })
 
-    //event.stopPropagation();
 });
 
 
@@ -354,11 +451,26 @@ searchBtn.addEventListener("click", (event) => {
 
 // handle image select
 let imageSrc = "";
+let imageAlt = "";
+let imgUrl = document.getElementById("imageURL");
+let imgAuthor = document.getElementById("imageAuthor");
+let authUrl = document.getElementById("authorURL");
+
 const handleImageSelect = (e) => {
     const elementId = e.target.id;
     const img = document.getElementById(elementId);
     imageSrc = img.src;
+    imageAlt = img.alt;
+    // console.log(imageAlt);
     img.classList.add("borderToggle");
+    document.querySelector(".image_paragraph").textContent = imageAlt;
+
+    // console.log(copyImgDetailsArray.length);
+    if (copyImgDetailsArray.length === 0) {
+        imageDetailsDisplay(defaultImageDetailsArr, img);
+    } else {
+        imageDetailsDisplay(copyImgDetailsArray, img);
+    }
 
     const images = document.querySelectorAll('.pexels-img');
     images.forEach((image) => {
@@ -368,6 +480,18 @@ const handleImageSelect = (e) => {
         }
     });
 };
+
+
+//handle image details display
+const imageDetailsDisplay = (detailsArray, imgElemnt) => {
+    detailsArray.forEach((imageDetail) => {
+        if (imgElemnt.src == imageDetail.src) {
+            imgUrl.innerHTML = `<strong>URL: </strong>${imageDetail.url}`;
+            imgAuthor.innerHTML = `<strong>Author: </strong>${imageDetail.author}`;
+            authUrl.innerHTML = `<strong>Author URL: </strong>${imageDetail.authorUrl}`;
+        }
+    })
+}
 
 
 const removeSelect = () => {
@@ -388,7 +512,7 @@ async function getPexelApiKey() {
             PEXEL_API_KEY = apiKey;
             // console.log("from cache:", apiKey);
         } else {
-            const response = await fetch('http://127.0.0.1:8000/proxy-api/');
+            const response = await fetch('https://www.socialmediaautomation.uxlivinglab.online/proxy-api/');
 
             // Check if the response status is OK
             if (!response.ok) {
@@ -409,13 +533,14 @@ getPexelApiKey();
 
 
 // Pexels API fetch function
+
 const PEXEL_BASE_URL = 'https://api.pexels.com/v1/search';
 const searchPhoto = async (term) => {
     try {
+        let imgDetailsArray = []
 
-        let srcArray = [];
         await getPexelApiKey();
-        let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=12&orientation=landscape`, {
+        let res = await fetch(`${PEXEL_BASE_URL}?query=${term}&per_page=15&orientation=square`, {
             headers: {
                 Authorization: PEXEL_API_KEY
             }
@@ -426,9 +551,19 @@ const searchPhoto = async (term) => {
         // console.log(totalResults);
         jsonData.photos.map(image => {
             // console.log(image.src.medium);
-            srcArray.push(image.src.medium);
+            // console.log(image.alt);
+            let imgDetails = {
+                src: image.src.medium,
+                alt: image.alt,
+                url: image.url,
+                author: image.photographer,
+                authorUrl: image.photographer_url
+            }
+
+            imgDetailsArray.push(imgDetails);
         })
-        return { srcArray, totalResults };
+        copyImgDetailsArray = imgDetailsArray;
+        return totalResults;
     } catch (err) {
         console.error(`Error fecthing images: ${err}`)
     }
@@ -454,3 +589,28 @@ const updateImage = () => {
     }
 
 }
+
+
+// Initialize Flickity carousel
+var myModal = document.getElementById('largeModal');
+var myFlickity = new Flickity(document.getElementById('myflickity'), {
+    contain: true,
+    wrapAround: true,
+    cellAlign: 'left',
+    "groupCells": true,
+    "draggable": false,
+    "pageDots": false,
+    "initialIndex": 1
+});
+
+myModal.addEventListener('shown.bs.modal', function () {
+
+    // Resize the existing Flickity carousel
+    myFlickity.resize();
+
+});
+
+const allImages = document.querySelectorAll('.pexels-img')
+allImages.forEach((image) => {
+    image.addEventListener("click", (e) => { handleImageSelect(e) }, false);
+})

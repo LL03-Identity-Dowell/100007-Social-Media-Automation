@@ -10,9 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-import os
-import mimetypes
 from pathlib import Path
+import mimetypes
+import os
 
 from decouple import config
 
@@ -71,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
     # 'djangobower.finders.BowerFinder',
 ]
 
@@ -189,8 +190,7 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-
-# 'logs' directory
+# # 'logs' directory
 LOGGING_DIR = os.path.join(BASE_DIR, 'LOGS')
 
 LOGGING = {
