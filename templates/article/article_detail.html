@@ -5,38 +5,10 @@
   type="text/css"
   href="{% static 'step2/css/article_detail.css' %}"
 />
-{% endblock %} {% block script %} {{ block.super }}
+{% endblock %}
 
-<script src="{% static 'step2/js/article_detail.js' %}"></script>
-{% endblock %} {% block content %} {% block script %} {{ block.super }}
-<script>
-  var postParagraphsDiv = document.getElementById("post-paragraphs");
-  var htmlContent = postParagraphsDiv.innerHTML;
-
-  // Remove HTML tags to get plain text
-  var plainText = htmlContent.replace(/<[^>]*>/g, "");
-
-  // Split the plain text into words and count them
-  var words = plainText.split(/\s+/);
-  var wordCount = words.length;
-
-  // Count the total number of characters (including spaces)
-  var charCount = plainText.length;
-
-  // Count the number of hashtags (assuming hashtags start with '#')
-  var hashtagCount = (plainText.match(/#/g) || []).length;
-
-  // Display the counts in the desired elements
-  var wordCountElement = document.querySelector(".paragraph-count1");
-  var charCountElement = document.querySelector(".paragraph-count2");
-  var hashtagCountElement = document.querySelector(".paragraph-count");
-
-  wordCountElement.textContent = wordCount + " " + "Words";
-  charCountElement.textContent = charCount + " " + "Characters";
-  hashtagCountElement.textContent = hashtagCount + " " + "Hashtags";
-</script>
-
-{% endblock %} {% block content %}
+<!-- <script src="{% static 'step2/js/article_detail.js' %}"></script> -->
+{% block content %}
 
 <div class="m-4 cover">
   <a
@@ -106,16 +78,79 @@
         <div><span class="paragraph-count"></span></div>
       </div>
     </div>
-    <hr />
-    <div class="character-container">
-      <ul class="character-content">
-        <li class="content">word(s)</li>
-        <li class="content">character(s)</li>
-        <li class="content">hashtag(s)</li>
+    <div
+      class="content-information"
+      style="display: flex; justify-content: center"
+    >
+      <ul
+        class="content-container"
+        style="
+          width: 60%;
+          display: flex;
+          list-style-type: none;
+          justify-content: space-around;
+        "
+      >
+        <li id="word-count">words</li>
+        <li id="charac-count">character</li>
+        <li id="hashtag-count">hashtag</li>
       </ul>
     </div>
-    <hr />
   </form>
 </div>
 
+<script src="{% static 'step2/js/article_detail.js' %}"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    updCharacWrdCnt();
+  });
+
+  // Word count, Character count, Hashtag count
+  let wordCount = 0;
+  let characCount = 0;
+  let hashTagCount = 0;
+  console.log(wordCount);
+
+  const updCharacWrdCnt = () => {
+    let paragraphContent;
+    let paragraphCharacCount;
+    let paragraphWordArray;
+    let paragraphWordCount;
+    let hashTagMatches;
+    hashTagCount = 0;
+
+    let titleContent = document.getElementById("post-title").textContent;
+
+    let titleCharacCount = titleContent.length;
+    characCount = titleCharacCount;
+
+    let titleWordArray = titleContent.split(" ").filter((word) => word !== "");
+    let titleWordCount = titleWordArray.length;
+    wordCount = titleWordCount;
+
+    Array(...document.querySelectorAll(".post-paragraph")).map((element) => {
+      paragraphContent = element.textContent;
+
+      paragraphCharacCount = paragraphContent.length;
+      characCount += paragraphCharacCount;
+
+      paragraphWordArray = paragraphContent
+        .split(" ")
+        .filter((word) => word !== "");
+      paragraphWordCount = paragraphWordArray.length;
+      wordCount += paragraphWordCount;
+
+      hashTagMatches = paragraphContent.match(/#/g);
+      hashTagCount += hashTagMatches ? hashTagMatches.length : 0;
+    });
+
+    document.getElementById("word-count").textContent = `${wordCount} Word(s)`;
+    document.getElementById(
+      "charac-count"
+    ).textContent = `${characCount} Character(s)`;
+    document.getElementById(
+      "hashtag-count"
+    ).textContent = `${hashTagCount} Hashtag(s)`;
+  };
+</script>
 {% endblock %}
