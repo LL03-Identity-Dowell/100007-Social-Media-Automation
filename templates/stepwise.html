@@ -348,7 +348,7 @@
 
 <script>
 
-  {% comment %} console.log({{ sentencesForm.adjective}})  {% endcomment %}
+  {% comment %} console.log({{ sentencesForm.adjective}})  
   {% comment %} <select name="subject_determinant" class="form-select" id="id_subject_determinant">
   <option value="-"></option>
 
@@ -407,6 +407,7 @@ let specifyTopic;
 let yourTopic;
 //has/had
 let activites; 
+let specifyPurpose;
 let specifyActivity;
 let purposeOfArticle;
 
@@ -430,9 +431,10 @@ function updateDisplay(){
   yourTopic = document.getElementById("id_subject").value;
   //has/had
   activites = document.getElementById("id_verb").value;
+  specifyPurpose = document.getElementById("id_object_determinant").value;
   specifyActivity = document.getElementById("id_adjective").value;
   purposeOfArticle = document.getElementById("id_object").value;
-  let sentencePreview = `${capitalizedSpecifyTopic} ${yourTopic} has/had ${activites} the/an ${specifyActivity} ${purposeOfArticle}`;
+  let sentencePreview = `${capitalizedSpecifyTopic} ${yourTopic} has/had ${activites} ${specifyPurpose} ${specifyActivity} ${purposeOfArticle}`;
   display.innerHTML = sentencePreview;
 }
 
