@@ -4,9 +4,9 @@ const saveBtn = document.getElementById("saveBtn");
 let checkboxes;
 
 function updateSaveButtonState() {
-     const hashtagsChecked = document.querySelectorAll('input[name="hashtag_value"]:checked').length > 0;
-     const mentionsChecked = document.querySelectorAll('input[name="mention_value"]:checked').length > 0;
-     saveBtn.disabled = !(hashtagsChecked || mentionsChecked);
+    const hashtagsChecked = document.querySelectorAll('input[name="hashtag_value"]:checked').length > 0;
+    const mentionsChecked = document.querySelectorAll('input[name="mention_value"]:checked').length > 0;
+    saveBtn.disabled = !(hashtagsChecked || mentionsChecked);
 }
 
 updateSaveButtonState();
@@ -17,7 +17,7 @@ tagBtn.addEventListener("click", (e) => {
     pushData('hashtag_value', 'tag_input', 'tag_col');
     checkboxes = document.querySelectorAll('input[name="hashtag_value"], input[name="mention_value"]');
     addEvent(checkboxes); addEvent(checkboxes);
-     updateSaveButtonState();
+    updateSaveButtonState();
 })
 
 mentionBtn.addEventListener("click", (e) => {
@@ -25,7 +25,7 @@ mentionBtn.addEventListener("click", (e) => {
     pushData('mention_value', 'men_input', 'men_col');
     checkboxes = document.querySelectorAll('input[name="hashtag_value"], input[name="mention_value"]');
     addEvent(checkboxes);
-     updateSaveButtonState();
+    updateSaveButtonState();
 })
 
 function pushData(name, inputId, col) {
@@ -79,7 +79,7 @@ function removeDiv(button) {
     }
     checkboxes = document.querySelectorAll('input[name="hashtag_value"], input[name="mention_value"]');
     addEvent(checkboxes);
-     updateSaveButtonState();
+    updateSaveButtonState();
 }
 
 // Add event listeners to checkboxes
