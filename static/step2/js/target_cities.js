@@ -32,12 +32,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   inputsEl.forEach(function (checkbox) {
     checkbox.addEventListener("click", function (e) {
       const parentDiv = checkbox.closest(".city");
+      const labelEl = parentDiv.querySelector("label");
 
       if (parentDiv) {
         if (e.target.checked) {
           parentDiv.style.backgroundColor = "rgb(27, 52, 116)";
+          labelEl.style.color = "#fff";
         } else {
           parentDiv.style.backgroundColor = "transparent";
+          labelEl.style.color = "#333";
         }
       }
     });

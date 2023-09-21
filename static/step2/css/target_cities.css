@@ -16,7 +16,7 @@ main {
 }
 
 .wrapper-container {
-  width: 54%;
+  width: 70%;
   padding: 0;
 }
 .search-container {
@@ -25,7 +25,8 @@ main {
   justify-content: space-between;
   height: 60px;
   margin-bottom: 10px;
-  gap: 10px;
+  gap: 30px;
+  width: 100%;
 }
 .heading-container {
   padding: 0 0 0 40px;
@@ -134,6 +135,8 @@ main {
   height: 60px;
   padding: 10px 0 5px 40px;
   cursor: pointer;
+  color: #333;
+  font-weight: normal;
 }
 
 .city-list div input[type="checkbox"] {
@@ -178,6 +181,7 @@ main {
   padding-inline: 30px;
   font-size: 20px;
   font-weight: bold;
+  background-color: transparent;
 }
 .search-input::-webkit-search-cancel-button {
   opacity: 0;
