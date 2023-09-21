@@ -1,42 +1,15 @@
 {% extends "article/base_steps.html" %} {% load static %} {% load is_string_tags
-%} {% block style %} {{ block.super }}
-<link
-  rel="stylesheet"
-  type="text/css"
-  href="{% static 'step2/css/article_detail.css' %}"
-/>
-{% endblock %} {% block script %} {{ block.super }}
+%} {% block style %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/article_detail.css' %}">
+{% endblock %}
+{% block script %}
+{{ block.super }}
 
 <script src="{% static 'step2/js/article_detail.js' %}"></script>
-{% endblock %} {% block content %} {% block script %} {{ block.super }}
-<script>
-  var postParagraphsDiv = document.getElementById("post-paragraphs");
-  var htmlContent = postParagraphsDiv.innerHTML;
+{% endblock %}
 
-  // Remove HTML tags to get plain text
-  var plainText = htmlContent.replace(/<[^>]*>/g, "");
-
-  // Split the plain text into words and count them
-  var words = plainText.split(/\s+/);
-  var wordCount = words.length;
-
-  // Count the total number of characters (including spaces)
-  var charCount = plainText.length;
-
-  // Count the number of hashtags (assuming hashtags start with '#')
-  var hashtagCount = (plainText.match(/#/g) || []).length;
-
-  // Display the counts in the desired elements
-  var wordCountElement = document.querySelector(".paragraph-count1");
-  var charCountElement = document.querySelector(".paragraph-count2");
-  var hashtagCountElement = document.querySelector(".paragraph-count");
-
-  wordCountElement.textContent = wordCount + " " + "Words";
-  charCountElement.textContent = charCount + " " + "Characters";
-  hashtagCountElement.textContent = hashtagCount + " " + "Hashtags";
-</script>
-
-{% endblock %} {% block content %}
+{% block content %}
 
 <div class="m-4 cover">
   <a
@@ -94,7 +67,7 @@
     </div>
     <input id="title" type="hidden" name="title" value="{{ post.title }}" />
     <hr />
-    <p>Hello</p>
+
     <div id="post-paragraphs">
       {% for p in post.paragraph %}
       <div class="post-paragraph" id="postPara">{{ p }}</div>
@@ -107,15 +80,7 @@
       </div>
     </div>
     <hr />
-    <div class="character-container">
-      <ul class="character-content">
-        <li class="content">word(s)</li>
-        <li class="content">character(s)</li>
-        <li class="content">hashtag(s)</li>
-      </ul>
-    </div>
     <hr />
   </form>
 </div>
-
 {% endblock %}

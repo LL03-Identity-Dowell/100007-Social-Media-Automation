@@ -1,4 +1,4 @@
-{% extends "article/base_steps.html" %} 
+{% extends "article/base_steps.html" %}
 {% load static %}
 {% block content %}
 <!DOCTYPE html>
@@ -6,7 +6,6 @@
     <head>
      <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/stepwise.css'%}">
 {% comment %} <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
       integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous"> {% endcomment %}
     </head>
@@ -239,7 +238,6 @@
     {#    </div>#}
 
 <div class="tab">
-  <p>Sample Topic: The Livinglab was testing workflow ai digital documentation. </p>
     <h1><b>Industry Information:</b></h1>
     {% for input in industryForm %}
         <p>
@@ -306,7 +304,10 @@
         {{ sentencesForm.adjective }}
         {{ sentencesForm.adjective.errors }}
     </span>
+
 </div>
+<br>
+         <p>Sample Topic Output: The Livinglab was testing workflow ai digital documentation. </p>
 
     {#todo remove final part in order to generate different messages#}
     {#    <div class="tab"><h1><b>Sentence Grammar</b></h1>#}

@@ -13,8 +13,8 @@ class CreditHandler:
         data = response
         credit_response = {}
         if not data:
-            messages.error(request, 'An error occurred while processing request')
-            credit_response.update({'success': False, 'message': 'An error occurred', 'error_code': 1})
+            credit_response.update({'success': False, 'message': 'Please create a service/api Key for this workspace', 'error_code': 1})
+            # PLEASE CREATE SERVICE/API KEY FOR THIS WORKSPACE
             request.session['credit_response'] = credit_response
             return credit_response
         is_active = data.get("is_active")
@@ -22,24 +22,22 @@ class CreditHandler:
         disable_key = data.get("disable_key")
 
         if not is_active:
-            messages.error(request, 'SERVICE KEY is not activated')
-            credit_response.update({'success': False, 'message': 'SERVICE KEY is not activated', 'error_code': 2})
+            credit_response.update(
+                {'success': False, 'message': 'Please activate the service/api key', 'error_code': 2})
+                # PLEASE ACTIVATE THE SERVICE/API KEY
             request.session['credit_response'] = credit_response
             return credit_response
 
         if disable_key:
-            messages.error(request, 'YOUR SERVICE KEY IS DISABLED BY ADMIN.')
             credit_response.update(
-                {'success': False, 'message': 'YOUR SERVICE KEY IS DISABLED BY ADMIN.', 'error_code': 3})
+                {'success': False, 'message': 'Your service/api key is disabled', 'error_code': 3})
+                # YOUR SERVICE/API KEY IS DISABLED
             request.session['credit_response'] = credit_response
             return credit_response
 
         if user_credits <= 0:
-            messages.error(request, "You have less credits. If you want to buy more credits click the 'Buy Credits' "
-                                    "button")
             credit_response.update(
-                {'success': False, 'message': "You have less credits. If you want to buy more credits click the "
-                                              "'Buy Credits' button", "link": "https://uxlivinglab.com/",
+                {'success': False, 'message': "kindly buy credits", "link": "https://uxlivinglab.com/",
                  'error_code': 4})
             request.session['credit_response'] = credit_response
             return credit_response
@@ -52,14 +50,13 @@ class CreditHandler:
                 social_media_service = service_data
                 break
         if not social_media_service:
-            messages.error(request, 'Social Media service not found')
             credit_response.update({'success': False, 'message': 'Social Media service not found'})
             request.session['credit_response'] = credit_response
             return credit_response
 
         if not social_media_service.get('is_active'):
-            messages.error(request, 'Social Media service is inactive')
-            credit_response.update({'success': False, 'message': 'Social Media service is inactived'})
+            credit_response.update({'success': False, 'message': 'Please activate social media service'})
+            # PLEASE ACTIVATE THE SOCIAL MEDIA SERVICE
             request.session['credit_response'] = credit_response
             return credit_response
 
@@ -73,7 +70,6 @@ class CreditHandler:
         data = response
 
         if not data:
-            messages.error(request, 'An error occurred while processing request')
             return {'success': False, 'message': 'An error occurred'}
         if not data.get('success'):
             messages.error(request, response.get('message'))
@@ -193,7 +189,6 @@ class CreditHandler:
                 social_media_service = service_data
                 break
         if not social_media_service:
-            messages.error(request, 'Social Media service not found')
             credit_response.update({'success': False, 'message': 'Social Media service not found'})
             request.session['credit_response'] = credit_response
             return credit_response
@@ -204,8 +199,8 @@ class CreditHandler:
                 sub_service_data = sub_service
                 break
         if not sub_service_data:
-            messages.error(request, 'Sub Service Not Found')
-            credit_response.update({'success': False, 'message': 'Sub Service Not Found'})
+            messages.error(request, 'Please activate the service/api key')
+            credit_response.update({'success': False, 'message': 'Please activate the service/api key'})
             request.session['credit_response'] = credit_response
             return credit_response
 
@@ -213,8 +208,8 @@ class CreditHandler:
         remaining_credits = response.get('total_credits')
 
         if remaining_credits < sub_service_credits:
-            message = f'You do not have enough credits to access perform actions on this step. You have {str(remaining_credits)} credits. Required credits is {str(sub_service_credits)}'
-            messages.error(request, message=message)
+            message = f'You do not have enough credits to access perform actions on this step. You have {str(remaining_credits)} credits. Required credits are: {str(sub_service_credits)}'
+
             credit_response.update({'success': False, 'message': message})
             request.session['credit_response'] = credit_response
             return credit_response
