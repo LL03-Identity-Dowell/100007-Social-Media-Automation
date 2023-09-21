@@ -56,7 +56,7 @@
       </div>
 
       <div class="text-center">
-        <button class="btn btn-primary rounded btn-dark-blue save-button mt-5" onclick="submitForm();" id="saveBtn">Save <i class="fas fa-check check-icon"></i></button>
+        <button class="btn btn-primary rounded btn-dark-blue save-button mt-5" onclick="submitForm();" id="saveBtn" disabled >Save <i class="fas fa-check check-icon"></i></button>
       </div>
     </form>
     {% else %}
@@ -92,7 +92,7 @@
       </div>
 
       <div class="text-center">
-        <button class="btn btn-primary rounded btn-dark-blue save-button mt-5" onclick="submitForm();">Save <i class="fas fa-check check-icon"></i></button>
+        <button class="btn btn-primary rounded btn-dark-blue save-button mt-5" onclick="submitForm();" disabled id="saveBtn">Save <i class="fas fa-check check-icon"></i></button>
       </div>
     </form>
     {%endif%}

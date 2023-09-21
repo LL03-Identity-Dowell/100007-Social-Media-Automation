@@ -23,25 +23,26 @@
     transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
 }
 
-/* 
-.btn.btn-primary:disabled {
+
+/*.btn.btn-primary:disabled {*/
+/*    opacity: 0.4;*/
+/*    cursor: default !important;*/
+/*}*/
+
+
+/*button:disabled {*/
+/*    opacity: 0.4 !important;*/
+/*    cursor: not-allowed !important;*/
+/*    pointer-events: all !important;*/
+/*} */
+
+
+.btn:disabled {
     opacity: 0.4;
-    cursor: default !important;
-
-} */
-
-
-
-/* button:disabled {
-    opacity: 0.4 !important;
     cursor: not-allowed;
-    pointer-events: all !important;
-} */
-
-
-/* .btn:disabled {
-    cursor: default !important;
-} */
+    pointer-events: none;
+    /* Disable pointer events to prevent interactions */
+}
 
 
 .saved-button {
