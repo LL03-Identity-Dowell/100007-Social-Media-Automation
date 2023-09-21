@@ -7,7 +7,6 @@
 />
 {% endblock %}
 
-<!-- <script src="{% static 'step2/js/article_detail.js' %}"></script> -->
 {% block content %}
 
 <div class="m-4 cover">
@@ -144,13 +143,13 @@
       hashTagCount += hashTagMatches ? hashTagMatches.length : 0;
     });
 
-    document.getElementById("word-count").textContent = `${wordCount} Word(s)`;
+    document.getElementById("word-count").textContent = `${wordCount} word(s)`;
     document.getElementById(
       "charac-count"
-    ).textContent = `${characCount} Character(s)`;
+    ).textContent = `${characCount} character(s)`;
     document.getElementById(
       "hashtag-count"
-    ).textContent = `${hashTagCount} Hashtag(s)`;
+    ).textContent = `${hashTagCount} hashtag(s)`;
   };
 </script>
 {% endblock %}

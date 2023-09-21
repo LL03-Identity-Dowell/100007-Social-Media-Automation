@@ -1,15 +1,14 @@
 {% extends "article/base_steps.html" %} {% load static %} {% load is_string_tags
-%} {% block style %}
-{{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/article_detail.css' %}">
-{% endblock %}
-{% block script %}
-{{ block.super }}
+%} {% block style %} {{ block.super }}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'step2/css/article_detail.css' %}"
+/>
+{% endblock %} {% block script %} {{ block.super }}
 
 <script src="{% static 'step2/js/article_detail.js' %}"></script>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 
 <div class="m-4 cover">
   <a
@@ -79,8 +78,93 @@
         <div><span class="paragraph-count"></span></div>
       </div>
     </div>
-    <hr />
-    <hr />
+    <div
+      class="content-information"
+      style="display: flex; justify-content: center"
+    >
+      <ul
+        class="content-container"
+        style="
+          width: 60%;
+          display: flex;
+          list-style-type: none;
+          justify-content: space-around;
+        "
+      >
+        <li id="word-count">words</li>
+        <li id="charac-count">character</li>
+        <li id="hashtag-count">hashtag</li>
+      </ul>
+    </div>
   </form>
+  <div style="margin-top: 12px; display: flex; width: 100%">
+    <button
+      style="
+        border: 0;
+        width: 200px;
+        padding: 1rem;
+        margin-left: auto;
+        background: gold;
+        border-radius: 8px;
+      "
+    >
+      Ok
+    </button>
+  </div>
 </div>
+
+<!-- <script src="{% static 'step2/js/article_detail.js' %}"></script> -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    updCharacWrdCnt();
+  });
+
+  // Word count, Character count, Hashtag count
+  let wordCount = 0;
+  let characCount = 0;
+  let hashTagCount = 0;
+  console.log(wordCount);
+
+  const updCharacWrdCnt = () => {
+    let paragraphContent;
+    let paragraphCharacCount;
+    let paragraphWordArray;
+    let paragraphWordCount;
+    let hashTagMatches;
+    hashTagCount = 0;
+
+    let titleContent = document.getElementById("post-title").textContent;
+
+    let titleCharacCount = titleContent.length;
+    characCount = titleCharacCount;
+
+    let titleWordArray = titleContent.split(" ").filter((word) => word !== "");
+    let titleWordCount = titleWordArray.length;
+    wordCount = titleWordCount;
+
+    Array(...document.querySelectorAll(".post-paragraph")).map((element) => {
+      paragraphContent = element.textContent;
+
+      paragraphCharacCount = paragraphContent.length;
+      characCount += paragraphCharacCount;
+
+      paragraphWordArray = paragraphContent
+        .split(" ")
+        .filter((word) => word !== "");
+      paragraphWordCount = paragraphWordArray.length;
+      wordCount += paragraphWordCount;
+
+      hashTagMatches = paragraphContent.match(/#/g);
+      hashTagCount += hashTagMatches ? hashTagMatches.length : 0;
+    });
+
+    document.getElementById("word-count").textContent = `${wordCount} word(s)`;
+    document.getElementById(
+      "charac-count"
+    ).textContent = `${characCount} character(s)`;
+    document.getElementById(
+      "hashtag-count"
+    ).textContent = `${hashTagCount} hashtag(s)`;
+  };
+</script>
 {% endblock %}
