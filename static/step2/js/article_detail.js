@@ -101,32 +101,6 @@ function savePost() {
   document.querySelector("#sources-input").replaceWith(div);
 }
 
-<<<<<<< Updated upstream
-var postParagraphsDiv = document.getElementById("post-paragraphs");
-var htmlContent = postParagraphsDiv.innerHTML;
-
-// Remove HTML tags to get plain text
-var plainText = htmlContent.replace(/<[^>]*>/g, "");
-
-// Split the plain text into words and count them
-var words = plainText.split(/\s+/);
-var wordCount = words.length;
-
-// Count the total number of characters (including spaces)
-var charCount = plainText.length;
-
-// Count the number of hashtags (assuming hashtags start with '#')
-var hashtagCount = (plainText.match(/#/g) || []).length;
-
-// Display the counts in the desired elements
-var wordCountElement = document.querySelector(".paragraph-count1");
-var charCountElement = document.querySelector(".paragraph-count2");
-var hashtagCountElement = document.querySelector(".paragraph-count");
-
-wordCountElement.textContent = wordCount + " " + "Words";
-charCountElement.textContent = charCount + " " + "Characters";
-hashtagCountElement.textContent = hashtagCount + " " + "Hashtags";
-=======
 document.addEventListener("DOMContentLoaded", () => {
   updCharacWrdCnt();
 });
@@ -178,4 +152,3 @@ const updCharacWrdCnt = () => {
     "hashtag-count"
   ).textContent = `${hashTagCount} Hashtag(s)`;
 };
->>>>>>> Stashed changes
