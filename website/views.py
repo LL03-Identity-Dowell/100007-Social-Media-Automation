@@ -44,8 +44,8 @@ def index(request):
         # )
 
         if request.method == "POST":
-            if not credit_response.get('success'):
-                return redirect(reverse('credit_error_view'))
+            # if not credit_response.get('success'):
+            #     return redirect(reverse('credit_error_view'))
             industryForm = IndustryForm(request.POST)
             print(industryForm.is_valid())
             sentencesForm = SentencesForm(request.POST)
