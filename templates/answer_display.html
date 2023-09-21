@@ -1,302 +1,87 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
-        crossorigin="anonymous"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
-      integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-<!--<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>-->
-<script type="text/javascript" src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js" ></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+    href="https://fonts.googleapis.com/css?family=Raleway"
+    rel="stylesheet"
+  />
+  <script
+  src="https://code.jquery.com/jquery-3.6.0.js"
+  integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+  crossorigin="anonymous"
+  ></script>
+  <link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+  integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU"
+  crossorigin="anonymous"
+  />
+  <link rel="stylesheet" type="text/css" href="{% static 'step2/css/answer_display.css' %}" />
+  <!--<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>-->
+  <script
+    type="text/javascript"
+    src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"
+  ></script>
 
-<style>
-    /* {#    todo transfer it to an independent #} */
-    * {
-        box-sizing: border-box;
-    }
-
-    /*body {*/
-    /*    background-color: #f1f1f1;*/
-    /*}*/
-
-    #ansDisplay {
-        background-color: #ffffff;
-        margin: 100px auto;
-        font-family: Raleway;
-        padding: 40px;
-        width: 70%;
-        min-width: 300px;
-    }
-
-    .answer {
-        height: 40px auto;
-        background-color: #D3D3D3;
-        border-radius: 4px;
-        padding: 3px
-
-    }
-
-    .answer_rank {
-        float: right;
-    }
-
-
-    .s-alert {
-        position: fixed;
-        right: 0;
-        top: 75px;
-        font-style: italic;
-        background-color: rgba(255, 255, 255, 0.8);
-        padding: 20px 40px;
-        min-width: 420px;
-        border-radius: 4px;
-        /* border-left: 7px solid green; */
-        z-index: 50;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateX(100%);
-        transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-        backdrop-filter: blur(0);
-        -webkit-backdrop-filter: blur(0);
-    }
-    .s-alert::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-  transition: width 30s linear;
-    height: 4px;
-    background-color: green;
-}
-.s-alert.show {
-        opacity: 1;
-        visibility: visible;
-        transform: translateX(0%);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        z-index: 100;
-    }
-
-    .s-alert.hide {
-        opacity: 0;
-        visibility: hidden;
-        transform: translateX(100%);
-        backdrop-filter: blur(0);
-        -webkit-backdrop-filter: blur(0);
-    }
-    .s-alert.timeout.show::after {
-    animation: decreaseWidth 20s linear forwards;
-}
-
-@keyframes decreaseWidth {
-    0% {
-        width: 100%;
-    }
-    100% {
-        width: 0;
-    }
-}
-
-
-    .close-icon {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 26px;
-        cursor: pointer;
-    }
-       .close-icon1 {
-        position: absolute;
-        top: 0;
-        right: 10px;
-        font-size: 26px;
-        cursor: pointer;
-    }
-#alertPopup {
-    position: fixed;
-    top: 0;
-    left: 37%;
-    transform: translateY(-100%);
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 10px 20px;
-    width: 520px;
-    border-radius: 4px;
-    z-index: 50;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-    backdrop-filter: blur(0);
-    -webkit-backdrop-filter: blur(0);
-}
-
-
-#alertPopup.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 100;
-}
-</style>
-
-<body>
-
-
-<div id="ansDisplay">
-    <form name="form1" id='rateForm' method="post" action="{% url 'selected_result' %}">
-        {% csrf_token %}
-        {% for sentence in sentences %}
+  <body>
+    <div id="ansDisplay">
+      <form
+        name="form1"
+        id="rateForm"
+        method="post"
+        action="{% url 'selected_result' %}"
+      >
+        {% csrf_token %} {% for sentence in sentences %}
         <p>{{ sentence.sentence_type }}</p>
-    <div class="answer" style="height: auto;">
-    <p>{{ sentence.sentence }}
-        <span class="answer_rank">
-            <label>
-                {# attach counter to class and name tags values for uniqueness #}
-                <select name="rank_{{ forloop.counter }}" class="required" id="selector_{{ forloop.counter }}">
-                    <option value="0" disabled selected>Rank</option>
-                    {% for rank in ranks %}
-                        <option value="{{ rank }}">{{ rank }}</option>
-                    {% endfor %}
+        <div class="answer" style="height: auto">
+          <p>
+            {{ sentence.sentence }}
+            <span class="answer_rank">
+              <label>
+                <select
+                  name="rank_{{ forloop.counter }}"
+                  class="required"
+                  id="selector_{{ forloop.counter }}"
+                >
+                  <option value="0" disabled selected>Rank</option>
+                  {% for rank in ranks %}
+                  <option value="{{ rank }}">{{ rank }}</option>
+                  {% endfor %}
                 </select>
-            </label>
-        </span>
-    </p>
-    </div>
+              </label>
+            </span>
+          </p>
+        </div>
 
-            <br>
+        <br />
         {% endfor %}
-        <a href="{% url 'index' %}" type=button class="btn btn-danger">Cancel</a>
+        <a href="{% url 'index' %}" type="button" class="btn btn-danger"
+          >Cancel</a
+        >
         <button type="submit" class="btn btn-success">SUBMIT</button>
-    </form>
+      </form>
 
-    <div class="s-alert">
+      <div class="s-alert">
         <span class="fas fa-exclamation-circle"></span>
         <span class="msg">Submitting your ranked topics...</span>
         <span class="close-icon" onclick="closeAlert()">&times;</span>
-    </div>
-    <div id="alertPopup" class="s-alert hide">
+      </div>
+      <div id="alertPopup" class="s-alert hide">
         <span class="fas fa-exclamation-circle"></span>
-    <span class="msg">You need to rank more than three sentences to submit.</span>
-    <span class="close-icon1" onclick="closeAlert1()">&times;</span>
-</div>
+        <span class="msg"
+          >You need to rank more than three sentences to submit.</span
+        >
+        <span class="close-icon1" onclick="closeAlert1()">&times;</span>
+      </div>
+    </div>
+    
+    <script type="text/javascript" src="{% static 'step2/js/answer_display.js'%}"></script>
 
-</div>
-
-<script>
-     function goBack() {
-    history.back();
-  }
-    let non_zero_ranks = 0;
-
-    function preview() {
-        console.log(document.form1.rank_1.value);
-        console.log(document.form1.rank_2.value);
-        console.log(document.form1.rank_3.value);
-        console.log(document.form1.rank_4.value);
-    }
-
-    $(function () {
-        // code to populate the selects
-        let data = [];
-        let selected_counter = 0;
-        for (var count = 1; count <= 12; count++) {
-            data[count - 1] = {"code": count, "name": count}
-        }
-
-        function populate(data) {
-            data.forEach(function (e, i) {
-                $('select').append($('<option></option>').val(e.code).text(e.name));
-            });
-        }
-
-        populate(data);
-
-        function updateOptionClickableAbility() {
-            // Keep an array of all used ranks.
-            var used_ranks = [];
-            // Get all select elements.
-            var selects = document.getElementsByTagName("select");
-
-            Array(...selects).forEach(select => {
-                // Add the selected value to the used ranks.
-                if (select.value !== '0') {
-                    used_ranks.push(select.value);
-                }
-                // Go over all options for that select element
-                Array(...select.getElementsByTagName("option")).forEach(option => {
-                    // If the option is not an integer, skip
-                    if (!parseInt(option.value)) {
-                        return;
-                    }
-                    // If that option's value is not selected and the value has been used, disable the option.
-                    if ((option.value !== select.value) && (used_ranks.includes(option.value))) {
-                        option.disabled = true;
-                    } else {
-                        option.disabled = false;
-                    }
-                });
-            });
-        }
-
-        updateOptionClickableAbility();
-
-        $('select').on('change', function (event) {
-            var sId = this.id;
-            var vId = this.value;
-            non_zero_ranks = 0;
-            $('select').each(function () {
-                if (this.id !== sId && this.value === vId) {
-                    this.options.selectedIndex = 0;
-                }
-                if (this.value != 0) {
-                    non_zero_ranks++
-                }
-                updateOptionClickableAbility();
-            });
-        });
-    });
-
-
-    $('#rateForm').submit(function () {
-        if (non_zero_ranks >= 3) {
-            // AmagiLoader.show();
-
-            // Wait for the loader to finish loading
-            setTimeout(() => {
-                $('.s-alert').addClass('show timeout');
-
-                // After the alert is shown, hide it after 20 seconds
-                setTimeout(() => {
-                    $('.s-alert').addClass("hide");
-                }, 20000);
-            });
-
-            return true;
-        } else {
-            $('#alertPopup').addClass('show');
-            return false;
-        }
-    });
-
-
-    function closeAlert() {
-        var alert = document.querySelector('.s-alert');
-        alert.style.display = 'none';
-    }
-    function closeAlert1() {
-        var alert = document.querySelector('#alertPopup');
-        alert.style.display = 'none';
-    }
-
-</script>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
-        crossorigin="anonymous"></script>
-
-
-</body>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+      crossorigin="anonymous"
+    ></script>
+  </body>
 </html>

@@ -512,7 +512,7 @@ async function getPexelApiKey() {
             PEXEL_API_KEY = apiKey;
             // console.log("from cache:", apiKey);
         } else {
-            const response = await fetch('http://127.0.0.1:8000/proxy-api/');
+            const response = await fetch('https://www.socialmediaautomation.uxlivinglab.online/proxy-api/');
 
             // Check if the response status is OK
             if (!response.ok) {
