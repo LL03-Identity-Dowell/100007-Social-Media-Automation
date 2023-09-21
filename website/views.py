@@ -53,7 +53,7 @@ def index(request):
             print(industryForm.is_valid())
             userid=request.session['user_id']
             topic=get_client_approval(userid)
-
+            print(topic)
             if industryForm.is_valid() and sentencesForm.is_valid():
 
                 # Adding the step 1 form data into the user session
@@ -415,6 +415,8 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
 @xframe_options_exempt
 @transaction.atomic
 def selected_result(request):
+    userid=request.session['user_id']
+    topic=get_client_approval(userid)
     try:
         if 'session_id' and 'username' in request.session:
             if request.method == 'POST':
@@ -452,6 +454,7 @@ def selected_result(request):
                     }
                     
                 data_dictionary = request.POST.dict()
+                data_dictionary['client_admin_id']= request.session['userinfo']['client_admin_id']
                 data_dictionary.pop('csrfmiddlewaretoken')
                 request.session['data_dictionary'] = {
                     **request.session['data_dictionary'],
@@ -459,18 +462,25 @@ def selected_result(request):
                 }
 
                 # del request.session['data_dictionary']
-                
+                data_dic=request.session['data_dictionary']
 
                 insert_form_data(request.session['data_dictionary'])
+               
+                print(topic)
+                if topic['article'] =='True':
+                    async_task("automate.services.generate_article",data_dic,hook='automate.services.hook_now2')
+                    print('yes.......o')
+                else:
+                    pass
 
                 # Removing industry form data and sentence forms data from the session
                 request.session.pop('industry_form_data', None)
                 request.session.pop('sentences_form_data', None)
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_1_credit(request)
-
                 # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
                 return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+
         else:
             return render(request, 'error.html')
     except Exception as e:

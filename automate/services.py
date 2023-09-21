@@ -14,7 +14,7 @@ import time
 @transaction.atomic
 def step_1 (auto_strings,data_di):
     # sleep time to allow for redirection in main app
-    time.sleep(15)
+    time.sleep(25)
     print('starting----------------')
     def api_call(grammar_arguments=None):
         if grammar_arguments is None:
@@ -113,7 +113,7 @@ def step_1 (auto_strings,data_di):
     }
     Ranked_dic=selected_result(article_id,data_dic)
     inserts=insert_form_data(Ranked_dic)
-    if auto_strings['approve']['article'] == True:
+    if auto_strings['approve']['article'] == 'True':
         generate=generate_article(data_dic)
     else:
         print('done inserting')
@@ -245,15 +245,13 @@ def insert_form_data(data_dict):
     return (data_dict)
 
 
-    
+@transaction.atomic
 def generate_article(data_dic):
     start_datetime = datetime.now()
-    Rank=['1', '2', '3', '4', '5',' 6', '7',' 8', '9', '10','11','12',]
+    Rank=['1', '2', '3', '4', '5','6', '7','8', '9', '10','11','12',]
     api_no =  random.choice(Rank)
     key=f'api_sentence_{api_no}'
-    print(key)
 
-    
     RESEARCH_QUERY = data_dic[key]['sentence']
     subject = data_dic["subject"]
     verb = None
@@ -299,6 +297,7 @@ def generate_article(data_dic):
         )
         article = response.choices[0].text
         paragraphs = article.split("\n\n")
+        print(paragraphs)
         article_str = "\n\n".join(paragraphs)
 
         sources = urllib.parse.unquote("https://openai.com")
@@ -306,6 +305,7 @@ def generate_article(data_dic):
         try:
             with transaction.atomic():
                 event_id = create_event()['event_id']
+               
                 user_id = user_ids 
                 client_admin_id = data_dic["client_admin_id"]
 
@@ -329,7 +329,7 @@ def generate_article(data_dic):
                 }
                 save_data('step3_data', 'step3_data',
                             step3_data, '34567897799')
-
+            
                 # Save data for step 2
                 step2_data = {
                     "user_id": user_id,
@@ -345,10 +345,10 @@ def generate_article(data_dic):
                 }
                 save_data('step2_data', 'step2_data',
                             step2_data, '9992828281')
-
-        except:
-            
-            pass
+                
+        except Exception as e:
+            print(f"Error saving data: {str(e)}")
+            return('not saved')
         # Update start_time for the next iteration
         start_time = time.time()
 
@@ -370,3 +370,9 @@ def generate_article(data_dic):
     print(f"Total time taken: {time_taken}")
    
     return ('done')
+
+
+
+def hook_now2(task):
+
+    print(task.result)

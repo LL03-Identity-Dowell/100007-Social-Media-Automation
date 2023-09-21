@@ -6,4 +6,9 @@ GET_METHOD = 'GET'
 
 POST_METHOD = 'POST'
 
+
 UPLOAD_IMAGE_ENDPOINT = 'https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-image-to-drive/'
+
+
+def session_id(request):
+    return {'session_id': request.GET.get("session_id", None)}

@@ -10,9 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-import os
-import mimetypes
 from pathlib import Path
+import mimetypes
+import os
 
 from decouple import config
 
@@ -96,6 +96,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'step2.context_processors.session_id',
+                'website.context_processors.session_id',
             ],
         },
     },
@@ -201,8 +203,7 @@ Q_CLUSTER = {
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-
-# 'logs' directory
+# # 'logs' directory
 LOGGING_DIR = os.path.join(BASE_DIR, 'LOGS')
 
 LOGGING = {
