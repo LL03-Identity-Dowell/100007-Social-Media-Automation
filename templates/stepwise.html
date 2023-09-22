@@ -100,8 +100,10 @@
 
     .popup {
     position: fixed;
-    top: 20px; /* Adjust the top position as per your needs */
-    right: 20px; /* Adjust the right position as per your needs */
+    /* Adjust the top position as per your needs */
+    /* top: 20px;  */
+    /* Adjust the right position as per your needs */
+    /* right: 20px;  */
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.8); /* Adjust the alpha value (0.8 in this example) */
     border: none;
@@ -149,8 +151,14 @@
 }
 
 @keyframes slideIn {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(0); }
+    0% { 
+      transform: translateX(100%); 
+      /* margin-left: 100%; */
+    }
+    100% { 
+      transform: translateX(0); 
+      /* margin-left: 50% */
+    }
 }
 
 
@@ -342,6 +350,10 @@
 
         <span class="step"></span>
         <span class="step"></span>
+    </div>
+
+    <div class="popup">
+      sometgindfsadf
     </div>
 </form>
 

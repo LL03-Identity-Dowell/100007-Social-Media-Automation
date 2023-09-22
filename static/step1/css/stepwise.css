@@ -86,7 +86,7 @@ button:hover {
 .popup {
   position: fixed;
   top: 20px; /* Adjust the top position as per your needs */
-  right: 20px; /* Adjust the right position as per your needs */
+  right: 50%; /* Adjust the right position as per your needs */
   padding: 20px;
   background-color: rgba(
     255,
