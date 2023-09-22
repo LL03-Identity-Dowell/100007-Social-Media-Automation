@@ -1224,7 +1224,7 @@ def save_targeted_cities(request):
         messages.success(
             request, "target_cities details inserted successfully.")
 
-        return HttpResponseRedirect(reverse("generate_article:target_cities"))
+        return HttpResponseRedirect(reverse("generate_article:main-view"))
 
 
 @csrf_exempt
@@ -1267,7 +1267,7 @@ def update_saved_targeted_cities(request):
         messages.success(
             request, "target_cities details updated successfully.")
 
-        return HttpResponseRedirect(reverse("generate_article:target_cities"))
+        return HttpResponseRedirect(reverse("generate_article:main-view"))
 
 
 @csrf_exempt
