@@ -137,8 +137,8 @@ main {
 }
 
 .submit-button {
-  background-color: #e6cd41;
-  color: #333;
+  background-color: var(--dark-blue);
+  color: #fff;
   border: 0;
   font-size: 18px;
   width: 160px;
