@@ -100,10 +100,8 @@
 
     .popup {
     position: fixed;
-    /* Adjust the top position as per your needs */
-    /* top: 20px;  */
-    /* Adjust the right position as per your needs */
-    /* right: 20px;  */
+    top: 20px; /* Adjust the top position as per your needs */
+    right: 45%; /* Adjust the right position as per your needs */
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.8); /* Adjust the alpha value (0.8 in this example) */
     border: none;
@@ -132,9 +130,10 @@
     bottom: 0;
     left: 0;
     width: 100%; /* Set initial width to full */
-  transition: width 30s linear;
+    transition: width 30s linear;
     height: 4px;
     background-color: green;
+    animation: decreaseWidth 10s linear forwards;
 }
 
 .popup.timeout::after {
@@ -151,14 +150,8 @@
 }
 
 @keyframes slideIn {
-    0% { 
-      transform: translateX(100%); 
-      /* margin-left: 100%; */
-    }
-    100% { 
-      transform: translateX(0); 
-      /* margin-left: 50% */
-    }
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0); }
 }
 
 
@@ -350,10 +343,6 @@
 
         <span class="step"></span>
         <span class="step"></span>
-    </div>
-
-    <div class="popup">
-      sometgindfsadf
     </div>
 </form>
 
