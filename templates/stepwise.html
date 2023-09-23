@@ -306,8 +306,10 @@
     </span>
 
 </div>
-<br>
-         <p style="margin-top: 29px; font-size: 1.1rem; font-style: italic;"><span style="font-weight: 600">Your sample output (present/past perfect) :</span> <span id="sentencePreview" style="color: #250ddb;"> The Livinglab was testing workflow ai digital documentation.<span> </p>
+
+        <br>
+        <p style="margin-top: 29px; font-size: 1.1rem; font-style: italic;">Sample Topic Output: The Livinglab was testing workflow ai digital documentation. </p>
+         <p style="margin-top: 29px; font-size: 1.1rem; font-style: italic;"><span style="font-weight: 600">Your sample output:</span> <span id="sentencePreview" style="color: #250ddb;"> The Livinglab was testing workflow ai digital documentation.<span> </p>
          <p style="font-size: smaller;">Click 'Submit' to view more topic instances<p>
 
     {#todo remove final part in order to generate different messages#}
@@ -434,7 +436,7 @@ function updateDisplay(){
   specifyPurpose = document.getElementById("id_object_determinant").value;
   specifyActivity = document.getElementById("id_adjective").value;
   purposeOfArticle = document.getElementById("id_object").value;
-  let sentencePreview = `${capitalizedSpecifyTopic} ${yourTopic} has/had ${activites} ${specifyPurpose} ${specifyActivity} ${purposeOfArticle}`;
+  let sentencePreview = `${capitalizedSpecifyTopic} ${yourTopic} ${activites}  ${specifyActivity} ${purposeOfArticle}`;
   display.innerHTML = sentencePreview;
 }
 
