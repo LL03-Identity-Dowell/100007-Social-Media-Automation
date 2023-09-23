@@ -1,0 +1,49 @@
+.btn-dark-blue {
+    color: white;
+    background-color: var(--dark-blue);
+    border-color: var(--dark-blue);
+}
+
+.btn-dark-blue:hover {
+    color: white;
+    background-color: rgb(20, 38, 85);
+}
+
+.container {
+    width: 69%;
+}
+
+.input-label {
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: var(--dark-blue);
+}
+
+#category:focus,
+#topic:focus {
+    box-shadow: 0 0 0 1.2px rgb(49 54 61 / 25%);
+    border: none;
+    outline: none;
+}
+
+.save-button {
+    transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
+}
+
+.save-button {
+
+    width: 129px;
+}
+
+
+.save-button:focus {
+    box-shadow: 0 0 0 0.1rem rgba(38, 143, 255, .5);
+}
+
+.button-container {
+    align-items: center;
+    display: flex;
+    flex-direction: row-reverse;
+    padding-right: 28px;
+
+}
