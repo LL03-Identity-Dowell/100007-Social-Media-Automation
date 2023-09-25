@@ -3,18 +3,27 @@
 {% endblock script %} {% block style %}
 <link rel="stylesheet" href="{% static 'step2/css/target_cities.css' %}" />
 <style>
-  main {
+  .col {
     /* Set background image. */
     background-image: url("{% static 'photos/pens.jpg' %}");
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
-    align-items: center;
     width: 100% !important;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: none !important;
   }
   .row {
-    margin-right: 0;
-    margin-left: 0px;
+    height: 100vh !important;
+    margin: 0 !important;
+  }
+  .flex-grow-1 {
+    flex-grow: 0 !important;
   }
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
