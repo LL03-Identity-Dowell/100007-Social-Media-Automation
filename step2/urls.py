@@ -6,7 +6,7 @@ app_name = 'generate_article'
 
 urlpatterns = [
     # path('', views.under_maintenance, name='home'),
-    path('', views.dowell_login, name="dowell_login"),
+    path('', views.dowell_login, name="dowelllogin"),
     path('main', views.main, name='main-view'),
     path('scheduled/', views.scheduled, name='scheduled-posts'),
     path('scheduled_json/', views.scheduled_json, name='scheduled-jsonposts'),
