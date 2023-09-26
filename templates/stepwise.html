@@ -435,7 +435,7 @@ function updateDisplay(){
   specifyPurpose = document.getElementById("id_object_determinant").value;
   specifyActivity = document.getElementById("id_adjective").value;
   purposeOfArticle = document.getElementById("id_object").value;
-  let sentencePreview = `${capitalizedSpecifyTopic} ${yourTopic} has/had ${activites} ${specifyPurpose} ${specifyActivity} ${purposeOfArticle}`;
+  let sentencePreview = `${capitalizedSpecifyTopic} ${yourTopic} (was/had/is)  ${activites} (-ing/-ed) ${specifyPurpose} ${specifyActivity} ${purposeOfArticle}`;
   display.innerHTML = sentencePreview;
 }
 
