@@ -74,8 +74,32 @@ $(function () {
   });
 });
 
+// $("#rateForm").submit(function () {
+//   if (non_zero_ranks >= 3) {
+//     // AmagiLoader.show();
+
+//     // Wait for the loader to finish loading
+//     setTimeout(() => {
+//       $(".s-alert").addClass("show timeout");
+
+//       // After the alert is shown, hide it after 20 seconds
+//       setTimeout(() => {
+//         $(".s-alert").addClass("hide");
+//       }, 20000);
+//     });
+
+//     return true;
+//   } else {
+//     $("#alertPopup").addClass("show");
+//     return false;
+//   }
+// });
+
 $("#rateForm").submit(function () {
-  if (non_zero_ranks >= 3) {
+  if (non_zero_ranks < 3) {
+    $("#alertPopup").addClass("show");
+    return false;
+  } else {
     // AmagiLoader.show();
 
     // Wait for the loader to finish loading
@@ -89,9 +113,6 @@ $("#rateForm").submit(function () {
     });
 
     return true;
-  } else {
-    $("#alertPopup").addClass("show");
-    return false;
   }
 });
 
