@@ -7,12 +7,6 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- CSS Flickity-->
-  <link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
-  <!-- JavaScript Flickity-->
-  <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
-
   <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
   <!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">-->
   <!--<link rel="preconnect" href="https://fonts.googleapis.com">-->
@@ -128,8 +122,11 @@
                 </li>
                 <li><a class="dropdown-item" href="{% url 'generate_article:reset-password' %}">Reset Password</a></li>
                 <!--<li><a class="dropdown-item" href="https://100093.pythonanywhere.com/">Go Back to Admin Page</a></li>-->
+                <!--<li><a class="dropdown-item"-->
+                <!--    href="https://100014.pythonanywhere.com/en/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online">Logout</a>-->
+                <!--</li>-->
                 <li><a class="dropdown-item"
-                    href="https://100014.pythonanywhere.com/en/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online">Logout</a>
+                    href="{% url 'generate_article:logout' %}">Logout</a>
                 </li>
               </ul>
             </div>
@@ -139,10 +136,9 @@
           <li class="nav-item">
             <a class="nav-link" href="https://www.socialmediaautomation.uxlivinglab.online/" >
               <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
-              <i class="fa-solid fa-house fa-lg" style="color: white"></i>
+              <i class="fa-solid fa-house fa-lg" style="color: white"></i> 
             </a>
           </li>
-
 
           <!--Client options-->
           <li class="nav-item">
@@ -205,13 +201,65 @@
     </div> -->
 
 
+    {% comment %} <div class="modal-sm fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <strong>Please note</strong>
+            <p>The workspace you are logged in doesn't have SERVICE KEY</p>
+          </div>
+        </div>
+      </div>
+    </div> {% endcomment %}
+
+
+
+    <!-- SERVICE KEY MODAL -->
+
+    {% comment %} <div class="do-modal">
+        <div class="do-modal-content">
+            <span class="do-close-button">×</span>
+             <strong>Please note</strong>
+            <p>The workspace you are logged in doesn't have SERVICE KEY</p>
+        </div>
+    </div> {% endcomment %}
+
+    {% comment %} <div class="modal fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="alertModal" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" id="serviceAlertDialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+             <strong>Please note</strong>
+            <p>The workspace you are logged in doesn't have SERVICE KEY</p>
+          </div>
+          <div class="modal-footer">
+          </div>
+        </div>
+      </div>
+    </div> {% endcomment %}
+
+    
   </div>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <!-- JavaScript function to clear sessionStorage -->
+      <script>
+        // Retrieve the session_id from the context passed by Django
+        var session_id = "{{ session_id|default:'' }}";
+        var session_id = "{{ session_id|default:'' }}";
+console.log(session_id);
 
-
+        // Check if session_id is not empty and store it in sessionStorage
+        if (session_id) {
+            sessionStorage.setItem('session_id', session_id);
+        }
+    </script>
     <script>
 
         // JavaScript fctn to clear sessionStorage
@@ -264,7 +312,50 @@
         }
 
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+checkstatus();
+
+function checkstatus() {
+  var lav = document.getElementById("useronline-status-icons");
+
+  // AJAX GET request
+  $.ajax({
+    url: "https://100014.pythonanywhere.com/en/live_status",
+    type: "GET",
+    success: function (data) {
+      lav.style.color = "green";
+      //   lav.innerHTML = JSON.stringify(data);
+    },
+    error: function (error) {
+      //   console.error(error);
+      lav.style.color = "red";
+    },
+  });
+
+  // AJAX POST request
+  $.ajax({
+    url: "https://100014.pythonanywhere.com/en/live_status",
+    type: "POST",
+    // data: JSON.stringify({ session_id:{{ request.session.session_id }},product: "Social Media Automation"}),
+    data: JSON.stringify({
+      session_id: request.session.session_id,
+      product: "Social Media Automation",
+    }),
+    contentType: "application/json",
+    success: function (data) {
+      console.log(data);
+    },
+    error: function (error) {
+      console.error(error);
+    },
+  });
+}
+
+setInterval(checkstatus, 60000);
+
+</script>
 
 <!-- 
     <script>
@@ -353,6 +444,7 @@
 
 
     </script>
+
 
 
 

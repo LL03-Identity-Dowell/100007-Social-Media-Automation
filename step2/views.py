@@ -288,12 +288,12 @@ def has_access(portfolio_info):
     return True
 
 
-def home(request):
-    session_id = request.GET.get("session_id", None)
-    if session_id:
+def dowell_login(request):
+    try:
+        session_id = request.GET.get('session_id', None)
         request.session["session_id"] = session_id
         return redirect("http://127.0.0.1:8000/main")
-    else:
+    except:
         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
@@ -392,6 +392,17 @@ def forget_password(request):
 def login(request):
     return render(request, 'login.html')
     # return HttpResponseRedirect(reverse("generate_article:main-view"))
+
+def Logout(request):
+    session_id=request.session.get("session_id")
+    if session_id:
+        try:
+            del request.session["session_id"]
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+        except:
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+    else:
+        return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
 
 
 @csrf_exempt
@@ -624,6 +635,14 @@ def social_media_channels(request):
     context_data = {'user_has_social_media_profile': user_has_social_media_profile,
                     'linked_accounts': linked_accounts}
     return render(request, 'social_media_channels.html', context_data)
+
+def linked_account_json(request):
+    username = request.session['username']
+    linked_accounts = check_connected_accounts(username)
+
+    return JsonResponse({'response': linked_accounts})
+    
+    
 
 
 @csrf_exempt
