@@ -636,6 +636,14 @@ def social_media_channels(request):
                     'linked_accounts': linked_accounts}
     return render(request, 'social_media_channels.html', context_data)
 
+def linked_account_json(request):
+    username = request.session['username']
+    linked_accounts = check_connected_accounts(username)
+
+    return JsonResponse({'response': linked_accounts})
+    
+    
+
 
 @csrf_exempt
 @xframe_options_exempt

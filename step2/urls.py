@@ -86,6 +86,7 @@ urlpatterns = [
     path('hash-tags-and-mensions/', views.hash_mention, name='save_hash_mention'),
     path('update-hash-tags-and-mensions/',
          views.update_hash_mention, name='update_hash_mention'),
+    path('linked-account/', views.linked_account_json, name='linked-account'),
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]
