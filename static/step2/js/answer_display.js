@@ -97,14 +97,14 @@ $(function () {
 
 $("#rateForm").submit(function () {
   if (non_zero_ranks < 3) {
-    $("#alertPopup").addClass("show");
+    $("#alertPopup").addClass("show timeout");
     return false;
   } else {
     // AmagiLoader.show();
 
     // Wait for the loader to finish loading
     setTimeout(() => {
-      $(".s-alert").addClass("show timeout");
+      $("#alertSuccess").addClass("show timeout");
 
       // After the alert is shown, hide it after 20 seconds
       setTimeout(() => {
@@ -117,7 +117,7 @@ $("#rateForm").submit(function () {
 });
 
 function closeAlert() {
-  var alert = document.querySelector(".s-alert");
+  var alert = document.querySelector("#alertSuccess");
   alert.style.display = "none";
 }
 function closeAlert1() {
