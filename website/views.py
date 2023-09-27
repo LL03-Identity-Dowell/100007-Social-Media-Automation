@@ -3,6 +3,7 @@ from datetime import datetime
 import requests
 from django.contrib import messages
 from django.db import transaction
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -12,8 +13,6 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
-from credits.constants import STEP_1_SUB_SERVICE_ID
-from credits.credit_handler import CreditHandler
 from step2.views import create_event
 from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -559,3 +558,18 @@ def schedule(request):
 
 def login(request):
     return render(request, 'login.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
+def category_topic(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            #
+            return render(request, 'category_topic.html', )
+        elif request.method == "POST":
+
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
