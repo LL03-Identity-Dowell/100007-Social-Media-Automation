@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   function handleInput() {
     console.log("clicked");
     const searchValue = searchInput.value.toLowerCase();
-    let noMatch = true; // Initialize as true
+    let noMatch = true;
 
     inputsEl.forEach(function (checkbox) {
       const parentDiv = checkbox.closest(".city");

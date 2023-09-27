@@ -122,8 +122,11 @@
                 </li>
                 <li><a class="dropdown-item" href="{% url 'generate_article:reset-password' %}">Reset Password</a></li>
                 <!--<li><a class="dropdown-item" href="https://100093.pythonanywhere.com/">Go Back to Admin Page</a></li>-->
+                <!--<li><a class="dropdown-item"-->
+                <!--    href="https://100014.pythonanywhere.com/en/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online">Logout</a>-->
+                <!--</li>-->
                 <li><a class="dropdown-item"
-                    href="https://100014.pythonanywhere.com/en/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online">Logout</a>
+                    href="{% url 'generate_article:logout' %}">Logout</a>
                 </li>
               </ul>
             </div>
@@ -309,7 +312,50 @@ console.log(session_id);
         }
 
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+checkstatus();
+
+function checkstatus() {
+  var lav = document.getElementById("useronline-status-icons");
+
+  // AJAX GET request
+  $.ajax({
+    url: "https://100014.pythonanywhere.com/en/live_status",
+    type: "GET",
+    success: function (data) {
+      lav.style.color = "green";
+      //   lav.innerHTML = JSON.stringify(data);
+    },
+    error: function (error) {
+      //   console.error(error);
+      lav.style.color = "red";
+    },
+  });
+
+  // AJAX POST request
+  $.ajax({
+    url: "https://100014.pythonanywhere.com/en/live_status",
+    type: "POST",
+    // data: JSON.stringify({ session_id:{{ request.session.session_id }},product: "Social Media Automation"}),
+    data: JSON.stringify({
+      session_id: request.session.session_id,
+      product: "Social Media Automation",
+    }),
+    contentType: "application/json",
+    success: function (data) {
+      console.log(data);
+    },
+    error: function (error) {
+      console.error(error);
+    },
+  });
+}
+
+setInterval(checkstatus, 60000);
+
+</script>
 
 <!-- 
     <script>
@@ -398,6 +444,7 @@ console.log(session_id);
 
 
     </script>
+
 
 
 

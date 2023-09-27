@@ -10,8 +10,7 @@
       integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous"> {% endcomment %}
     </head>
 
-
-<style>
+    <style>
     * {
         box-sizing: border-box;
     }
@@ -157,6 +156,7 @@
 
 
 </style>
+
 <body>
 
 <form id="regForm" action="{% url 'index' %}" method="post">
@@ -306,8 +306,9 @@
     </span>
 
 </div>
-<br>
-         <p style="margin-top: 29px; font-size: 1.1rem; font-style: italic;"><span style="font-weight: 600">Your sample output (present/past perfect) :</span> <span id="sentencePreview" style="color: #250ddb;"> The Livinglab was testing workflow ai digital documentation.<span> </p>
+
+        <p style="margin-top: 29px; font-size: 1.1rem; font-style: italic;">Sample Topic Output: The Livinglab was testing workflow ai digital documentation. </p>
+         <p style="margin-top: 29px; font-size: 1.1rem; font-style: italic;"><span style="font-weight: 600">Your sample output:</span> <span id="sentencePreview" style="color: #250ddb;"> The Livinglab was testing workflow ai digital documentation.<span> </p>
          <p style="font-size: smaller;">Click 'Submit' to view more topic instances<p>
 
     {#todo remove final part in order to generate different messages#}
@@ -348,7 +349,7 @@
 
 <script>
 
-  {% comment %} console.log({{ sentencesForm.adjective}})  
+  {% comment %} console.log({{ sentencesForm.adjective}})  {% endcomment %}
   {% comment %} <select name="subject_determinant" class="form-select" id="id_subject_determinant">
   <option value="-"></option>
 
@@ -391,22 +392,22 @@
 
 //  <option value="an" selected>an</option>
 
-//</select 
+//</select
 
-//======================== 
-//<input type="text" name="verb" value="skills learning" class="form-control" maxlength="100" required id="id_verb"> {% 
+//========================
+//<input type="text" name="verb" value="skills learning" class="form-control" maxlength="100" required id="id_verb"> {%
 
 // ========================
 
 //<input type="text" name="adjective" value="training" class="form-control" maxlength="100" required id="id_adjective">
 
-//======================== 
-// <input type="text" name="object" value="to educate" class="form-control" maxlength="100" required id="id_object"> 
+//========================
+// <input type="text" name="object" value="to educate" class="form-control" maxlength="100" required id="id_object">
 
 let specifyTopic;
 let yourTopic;
 //has/had
-let activites; 
+let activites;
 let specifyPurpose;
 let specifyActivity;
 let purposeOfArticle;
@@ -421,7 +422,7 @@ function capitalizeFirstLetter(word) {
 
   const firstLetter = word.charAt(0).toUpperCase();
   const restOfWord = word.slice(1);
-  
+
   return firstLetter + restOfWord;
 }
 
@@ -434,7 +435,7 @@ function updateDisplay(){
   specifyPurpose = document.getElementById("id_object_determinant").value;
   specifyActivity = document.getElementById("id_adjective").value;
   purposeOfArticle = document.getElementById("id_object").value;
-  let sentencePreview = `${capitalizedSpecifyTopic} ${yourTopic} has/had ${activites} ${specifyPurpose} ${specifyActivity} ${purposeOfArticle}`;
+  let sentencePreview = `${capitalizedSpecifyTopic} ${yourTopic} (was/had/is)  ${activites} (-ing/-ed) ${specifyPurpose} ${specifyActivity} ${purposeOfArticle}`;
   display.innerHTML = sentencePreview;
 }
 

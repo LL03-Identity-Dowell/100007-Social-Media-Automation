@@ -126,6 +126,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const fetchedSocials = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/linked-account/");
+      let data = await res.json();
+      data = data.response;
+      return data;
+    } catch (error) {
+      alert("Error fetching data:");
+      return { data: []};
+    }
+  };
+  // fetchedSocials()
+
    function displayData(showData, totalCount) {
     let container = document.getElementById("article-list");
     container.innerHTML = "";
@@ -152,19 +165,74 @@ document.addEventListener("DOMContentLoaded", () => {
           scheduleBtns.removeChild(dateTimeEl);
         }
       }
-      const handleSubmit = () => {
+      const handleSubmit = async () => {
+        const data = await fetchedSocials()
         const checkboxes = form.querySelectorAll("input[type='checkbox']");
         let selectedArticle = { ...showData[index] };
         selectedArticle.social = [];
         selectedArticle.special = [];
-
+        
         checkboxes.forEach((checkbox) => {
           if (checkbox.checked) {
-            if (checkbox.value === "twitter" || checkbox.value === "pinterest") {
-              selectedArticle.special.push(checkbox.value);
-            } else {
-              selectedArticle.social.push(checkbox.value);
-            }
+           if (!data.includes(checkbox.value)) {
+              console.log(checkbox.value);
+              
+              //Custom Notification popup
+              function displayNotification(message) {
+                // Create a new notification element
+                var notification = document.createElement('div');
+                notification.classList.add('custom-notification');
+                notification.innerHTML = `
+                <div class="notification">
+                  ${message}
+                  <button class="close-button">&times;</button>
+                </div>
+              `;
+
+                document.body.appendChild(notification);
+
+                // Add an event listener to the close button
+                var closeButton = notification.querySelector('.close-button');
+                closeButton.addEventListener('click', function () {
+                    notification.style.display = 'none';
+                });
+
+                // Automatically close the notification after a set duration
+                notification.classList.add('timeout');
+                var contentElement = notification.querySelector('.notification');
+                var animationDuration = 10000; // Animation duration in milliseconds
+                var animationStartTime = Date.now();
+
+                function decreaseWidth() {
+                    var currentTime = Date.now();
+                    var elapsedTime = currentTime - animationStartTime;
+                    var progress = elapsedTime / animationDuration;
+                    var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
+
+                    contentElement.style.setProperty('--after-width', updatedWidth + '%');
+
+                    if (progress < 1) {
+                        requestAnimationFrame(decreaseWidth);
+                    } else {
+                        notification.style.display = 'none'; // Hide the notification
+                    }
+                }
+
+                requestAnimationFrame(decreaseWidth);
+              }
+
+
+              // You can use like so: 
+              displayNotification(`${checkbox.value} account have not been linked`);
+           }else{
+            console.log(checkbox.value);
+              if (checkbox.value === "twitter" || checkbox.value === "pinterest") {
+                selectedArticle.special.push(checkbox.value);
+              } else {
+                selectedArticle.social.push(checkbox.value);
+              }
+
+           }
           }
         });
 
@@ -176,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         console.log(selectedArticle, index);
-        sendData(selectedArticle, options);
+        // sendData(selectedArticle, options);
 
         // Remove the dateTimeEl element from the form if it was added during the process
         if (dateTimeEl.parentElement === scheduleBtns) {
