@@ -17,7 +17,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 from create_article import settings
 from step2.views import create_event
 from website.forms import IndustryForm, SentencesForm
-from website.models import Sentences, SentenceResults, SentenceRank
+from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
 from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer
@@ -668,8 +668,21 @@ def category_topic(request):
             #
             return render(request, 'category_topic.html', )
         elif request.method == "POST":
-            import pdb
-            pdb.set_trace()
+            website_manager = WebsiteManager()
+
+            data = {
+                'category_list': request.POST.get('category_list').split(','),
+                'topic_list': request.POST.get('topic_list').split(','),
+                'email': request.session['userinfo']['email'],
+                'created_by': request.session['userinfo']['email'],
+            }
+            if data.get('category_list'):
+                website_manager.create_user_categories_from_list(data)
+                messages.success(request, 'Categories saved successfully')
+
+            if data.get('topic_list'):
+                website_manager.create_user_topics_from_list(data)
+                messages.success(request, 'Topics have been saved successfully')
             return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')

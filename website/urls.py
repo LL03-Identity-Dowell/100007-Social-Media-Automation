@@ -16,5 +16,5 @@ urlpatterns = [
     url('not_scheduled/', views.not_scheduled, name='not_scheduled'),
     url('new_main/', views.new_home, name='new_home'),
     url('posts/', views.posts, name='posts'),
-    path('category-topic', views.category_topic, name='category_topic'),
+    path('categories-and-topics', views.category_topic, name='category_topic'),
 ]
