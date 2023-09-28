@@ -63,15 +63,15 @@
         <button type="submit" class="btn btn-success">SUBMIT</button>
       </form>
 
-      <div class="s-alert">
+      <div class="s-alert" id="alertSuccess">
         <span class="fas fa-exclamation-circle"></span>
         <span class="msg">Submitting your ranked topics...</span>
         <span class="close-icon" onclick="closeAlert()">&times;</span>
       </div>
-      <div id="alertPopup" class="s-alert hide">
+      <div class="s-alert" id="alertPopup" >
         <span class="fas fa-exclamation-circle"></span>
         <span class="msg"
-          >You need to rank more than three sentences to submit.</span
+          >You need to rank three or more sentences to submit.</span
         >
         <span class="close-icon1" onclick="closeAlert1()">&times;</span>
       </div>
