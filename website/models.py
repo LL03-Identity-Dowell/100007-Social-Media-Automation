@@ -229,3 +229,15 @@ class WebsiteManager:
                     name=name,
                     created_by=data.get('created_by'),
                 )
+
+    def get_user_categories_by_email(self, data):
+        """
+        This method returns categories created by a user
+        """
+        return Category.objects.filter(user__email=data.get('email'))
+
+    def get_user_topics_by_email(self, data):
+        """
+        This method returns topics created by a user
+        """
+        return UserTopic.objects.filter(user__email=data.get('email'))
