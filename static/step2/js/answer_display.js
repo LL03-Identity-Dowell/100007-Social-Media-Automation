@@ -97,36 +97,25 @@ $(function () {
 
 $("#rateForm").submit(function () {
   if (non_zero_ranks < 3) {
-    $("#alertPopup").addClass("show timeout");
+    displayNotification("You need to rank three or more sentences to submit.");
     return false;
   } else {
-    // AmagiLoader.show();
-
-    // Wait for the loader to finish loading
-    setTimeout(() => {
-      $("#alertSuccess").addClass("show timeout");
-
-      // After the alert is shown, hide it after 20 seconds
-      setTimeout(() => {
-        $(".s-alert").addClass("hide");
-      }, 20000);
-    });
-
+    displayNotification("Submitting your ranked topics...");
     return true;
   }
 });
 
-function closeAlert() {
-  var alert = document.querySelector("#alertSuccess");
-  alert.style.display = "none";
-}
-function closeAlert1() {
-  var alert = document.querySelector("#alertPopup");
-  alert.style.display = "none";
-}
+// function closeAlert() {
+//   var alert = document.querySelector("#alertSuccess");
+//   alert.style.display = "none";
+// }
+// function closeAlert1() {
+//   var alert = document.querySelector("#alertPopup");
+//   alert.style.display = "none";
+// }
 
 
-displayNotification("Testing notification");
+// displayNotification("Testing notification");
 
 //Custom Notification popup
 function displayNotification(message) {
