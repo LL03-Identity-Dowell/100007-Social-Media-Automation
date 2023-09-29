@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 
 
 class BaseModel(models.Model):
@@ -186,3 +186,46 @@ class MTopic(models.Model):
 
     class Meta:
         ordering = ['-updated']
+
+
+class WebsiteManager:
+
+    def create_user_categories_from_list(self, data: dict):
+        """
+        This method creates user categories from a list
+        """
+        with transaction.atomic():
+            category_list = data.get('category_list')
+            user = User.objects.filter(email=data.get('email'))
+            if user:
+                user = user.first()
+            else:
+                user = User.objects.create(user)
+            for name in category_list:
+                if name is '':
+                    continue
+                Category.objects.create(
+                    user=user,
+                    name=name,
+                    created_by=data.get('created_by'),
+                )
+
+    def create_user_topics_from_list(self, data: dict):
+        """
+        This method creates user topics from a list
+        """
+        with transaction.atomic():
+            topic_list = data.get('topic_list')
+            user = User.objects.filter(email=data.get('email'))
+            if user:
+                user = user.first()
+            else:
+                user = User.objects.create(user)
+            for name in topic_list:
+                if name is '':
+                    continue
+                UserTopic.objects.create(
+                    user=user,
+                    name=name,
+                    created_by=data.get('created_by'),
+                )
