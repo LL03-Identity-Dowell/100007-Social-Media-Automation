@@ -72,9 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
           location.href = "http://127.0.0.1:8000/social_media_channels/";
         } else if (data === "most_recent") {
           location.href = "http://127.0.0.1:8000/recent/";
+        }else if (data === "credit_error") {
+          window.location.replace("http://127.0.0.1:8000/main");
         }
 
-        debugger;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -98,9 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
           location.href = "http://127.0.0.1:8000/social_media_channels/";
         } else if (data === "scheduled") {
           location.href = "http://127.0.0.1:8000/scheduled/";
+        }else if (data === "credit_error") {
+          window.location.replace("http://127.0.0.1:8000/main");
         }
-
-        debugger;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
