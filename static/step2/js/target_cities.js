@@ -3,10 +3,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   const searchInput = document.querySelector(".search-input");
   const noCityFound = document.querySelector(".no-city-match-container");
   const form = document.getElementById("city-selection-form");
+  const cancelBtn = document.getElementById("cancel-button");
 
-  searchInput.addEventListener("input", function () {
+  function handleInput() {
+    console.log("clicked");
     const searchValue = searchInput.value.toLowerCase();
-    let noMatch = true; // Initialize as true
+    let noMatch = true;
 
     inputsEl.forEach(function (checkbox) {
       const parentDiv = checkbox.closest(".city");
@@ -26,19 +28,28 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Update the "Not city match" message display
     noCityFound.style.display = noMatch ? "block" : "none";
     form.style.display = noMatch ? "none" : "block";
-  });
-
+  }
   inputsEl.forEach(function (checkbox) {
     checkbox.addEventListener("click", function (e) {
       const parentDiv = checkbox.closest(".city");
+      const labelEl = parentDiv.querySelector("label");
 
       if (parentDiv) {
         if (e.target.checked) {
-          parentDiv.style.backgroundColor = "#3d84eec2";
+          parentDiv.style.backgroundColor = "rgb(27, 52, 116)";
+          labelEl.style.color = "#fff";
         } else {
-          parentDiv.style.backgroundColor = "#05051fc2";
+          parentDiv.style.backgroundColor = "transparent";
+          labelEl.style.color = "#333";
         }
       }
     });
+  });
+
+  searchInput.addEventListener("input", handleInput);
+
+  cancelBtn.addEventListener("click", function () {
+    searchInput.value = "";
+    handleInput();
   });
 });

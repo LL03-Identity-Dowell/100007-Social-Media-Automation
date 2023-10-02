@@ -37,3 +37,19 @@
   text-transform: capitalize;
   font-size: 22px;
 }
+
+.content-information {
+  display: flex;
+  justify-content: center;
+}
+
+.content-container {
+  width: 60%;
+  display: flex;
+  list-style-type: none;
+  justify-content: space-around;
+}
+
+/* .content-information li {
+  
+} */
