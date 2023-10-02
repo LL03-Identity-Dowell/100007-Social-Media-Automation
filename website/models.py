@@ -105,7 +105,9 @@ class Sentences(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     subject_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS,
                                            default=DETERMINANTS[0][0])
-    subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
+    # subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
+    topic = models.ForeignKey(UserTopic, on_delete=models.PROTECT, null=True, blank=True,
+                              related_name='sentence')
     subject_number = models.CharField(max_length=100, blank=False)
     object_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS, default=DETERMINANTS[0][0])
     object = models.CharField(max_length=100, blank=False)

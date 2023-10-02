@@ -50,13 +50,13 @@ class SentencesForm(forms.ModelForm):
     class Meta:
         model = Sentences
         fields = (
-            'subject_determinant', 'subject', 'subject_number', 'object_determinant', 'object', 'object_number',
+            'subject_determinant', 'topic', 'subject_number', 'object_determinant', 'object', 'object_number',
             'verb', 'adjective',
         )
         labels = {
             'subject_determinant': _('Specify Topic'),
             'object': _('Purpose of Article'),
-            'subject': _('Your topic'),
+            'topic': _('Your topic'),
             'object_determinant': _('Specify Purpose'),
             'verb': _('Activities'),
             'adjective': _('Can you specify activity'),
@@ -72,7 +72,7 @@ class SentencesForm(forms.ModelForm):
 
         widgets = {
             'subject_determinant': forms.Select(attrs={'class': 'form-select'}),
-            'subject': forms.Select(attrs={'class': 'form-select'}),
+            'topic': forms.Select(attrs={'class': 'form-select'}),
             'object_determinant': forms.Select(attrs={'class': 'form-select'}),
             'object': forms.TextInput(attrs={'class': 'form-control'}),
             'verb': forms.TextInput(attrs={'class': 'form-control'}),
