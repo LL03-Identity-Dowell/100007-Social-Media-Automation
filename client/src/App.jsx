@@ -1,14 +1,9 @@
-import { useState } from 'react'
-
 function App() {
-
   return (
     <>
-     <div>
-      Hello World
-     </div>
+      <div className='bg-customBlue text-white'>Hello World</div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
