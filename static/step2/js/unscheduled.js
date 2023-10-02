@@ -72,9 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
           location.href = "http://127.0.0.1:8000/social_media_channels/";
         } else if (data === "most_recent") {
           location.href = "http://127.0.0.1:8000/recent/";
+        }else if (data === "credit_error") {
+          window.location.replace("http://127.0.0.1:8000/main");
         }
 
-        debugger;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -98,9 +99,9 @@ document.addEventListener("DOMContentLoaded", () => {
           location.href = "http://127.0.0.1:8000/social_media_channels/";
         } else if (data === "scheduled") {
           location.href = "http://127.0.0.1:8000/scheduled/";
+        }else if (data === "credit_error") {
+          window.location.replace("http://127.0.0.1:8000/main");
         }
-
-        debugger;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -121,7 +122,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
       return { data, totalCount };
     } catch (error) {
-      alert("Error fetching data:");
+      //Custom Notification popup
+function displayNotification(message) {
+    // Create a new notification element
+    var notification = document.createElement('div');
+    notification.classList.add('custom-notification');
+    notification.innerHTML = `
+    <div class="notification">
+      ${message}
+      <button class="close-button">&times;</button>
+    </div>
+  `;
+
+    document.body.appendChild(notification);
+
+    // Add an event listener to the close button
+    var closeButton = notification.querySelector('.close-button');
+    closeButton.addEventListener('click', function () {
+        notification.style.display = 'none';
+    });
+
+    // Automatically close the notification after a set duration
+    notification.classList.add('timeout');
+    var contentElement = notification.querySelector('.notification');
+    var animationDuration = 10000; // Animation duration in milliseconds
+    var animationStartTime = Date.now();
+
+    function decreaseWidth() {
+        var currentTime = Date.now();
+        var elapsedTime = currentTime - animationStartTime;
+        var progress = elapsedTime / animationDuration;
+        var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
+
+        contentElement.style.setProperty('--after-width', updatedWidth + '%');
+
+        if (progress < 1) {
+            requestAnimationFrame(decreaseWidth);
+        } else {
+            notification.style.display = 'none'; // Hide the notification
+        }
+    }
+
+    requestAnimationFrame(decreaseWidth);
+}
+
+
+// You can use like so: 
+displayNotification("You do not have any article to post, create more.");
       return { data: [], totalCount: 0 };
     }
   };
