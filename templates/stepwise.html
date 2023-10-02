@@ -40,7 +40,7 @@
 
     /* Hide all steps by default: */
     .tab {
-        display: none;
+        display: block;
     }
 
     button#nextBtn {
@@ -256,15 +256,15 @@
         {{ sentencesForm.subject_determinant }}
         &nbsp;&nbsp;
            <span class="help_text">{{ sentencesForm.subject_determinant.help_text }}</span>
-        <span>{{ sentencesForm.subject.label }}:
-            {% if sentencesForm.subject.field.required %}
+        <span>{{ sentencesForm.topic.label }}:
+            {% if sentencesForm.topic.field.required %}
                 <span class="required_field">*</span>&nbsp;&nbsp;
             {% endif %}
-            <span class="help_text">{{ sentencesForm.subject.help_text }}</span>
+            <span class="help_text">{{ sentencesForm.topic.help_text }}</span>
         </span>
-        &nbsp;{{ sentencesForm.subject }}
+        &nbsp;{{ sentencesForm.topic }}
         &nbsp;{{ sentencesForm.subject_number }}
-        {{ sentencesForm.subject.errors }}
+        {{ sentencesForm.topic.errors }}
     </span>
 
     <span class="input-group mb-3">
@@ -412,7 +412,7 @@ let specifyPurpose;
 let specifyActivity;
 let purposeOfArticle;
 
-const idValues = ["id_subject_determinant", "id_subject", "id_verb", "id_object_determinant", "id_adjective", "id_object"]
+  const idValues = ["id_subject_determinant", "id_topic", "id_verb", "id_object_determinant", "id_adjective", "id_object"]
 const display = document.getElementById("sentencePreview");
 
 function capitalizeFirstLetter(word) {
@@ -429,7 +429,7 @@ function capitalizeFirstLetter(word) {
 function updateDisplay(){
   specifyTopic = document.getElementById("id_subject_determinant").value;
   let capitalizedSpecifyTopic = capitalizeFirstLetter(specifyTopic);
-  yourTopic = document.getElementById("id_subject").value;
+    yourTopic = document.getElementById("id_topic").value;
   //has/had
   activites = document.getElementById("id_verb").value;
   specifyPurpose = document.getElementById("id_object_determinant").value;

@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from website.models import User, IndustryData, Sentences, Category
+from website.models import User, IndustryData, Sentences, Category, UserTopic
 
 
 class UserEmailForm(forms.ModelForm):
@@ -78,6 +78,14 @@ class SentencesForm(forms.ModelForm):
             'verb': forms.TextInput(attrs={'class': 'form-control'}),
             'adjective': forms.TextInput(attrs={'class': 'form-control'})
         }
+
+    def __init__(self, *args, **kwargs):
+        email = kwargs.pop('email')
+        super(SentencesForm, self).__init__(*args, **kwargs)
+
+        self.fields['topic'].queryset = UserTopic.objects.filter(user__email=email)
+
+
 
     def clean(self):
         cleaned_data = super().clean()

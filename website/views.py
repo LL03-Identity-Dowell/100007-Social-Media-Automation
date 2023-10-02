@@ -33,7 +33,7 @@ def index(request):
         user = website_manager.get_or_create_user({'email': request.session['userinfo']['email']})
         email = request.session['userinfo']['email']
         industryForm = IndustryForm(email=email)
-        sentencesForm = SentencesForm()
+        sentencesForm = SentencesForm(email=email)
         try:
             profile = str(request.session['operations_right'])
         except:
@@ -52,7 +52,7 @@ def index(request):
             #     return redirect(reverse('credit_error_view'))
             industryForm = IndustryForm(request.POST, email=email)
             print(industryForm.is_valid())
-            sentencesForm = SentencesForm(request.POST)
+            sentencesForm = SentencesForm(request.POST, email=email)
             print(industryForm.is_valid())
             userid=request.session['user_id']
             topic=get_client_approval(userid)
@@ -70,7 +70,8 @@ def index(request):
                 industry.save()
 
                 object = sentencesForm.cleaned_data['object'].lower()
-                subject = sentencesForm.cleaned_data['subject']
+                subject = sentencesForm.cleaned_data['topic'].name
+
                 verb = sentencesForm.cleaned_data['verb']
                 objdet = sentencesForm.cleaned_data['object_determinant']
                 adjective = sentencesForm.cleaned_data['adjective']
@@ -184,7 +185,7 @@ def index(request):
                     sentence_grammar = Sentences.objects.create(
                         user=user,
                         object=object,
-                        subject=subject,
+                        topic=sentencesForm.cleaned_data['topic'],
                         verb=verb,
                         adjective=adjective,
                     )
@@ -250,7 +251,10 @@ def index(request):
 
         if form_data:
             industryForm = IndustryForm(form_data, email=email)
-            sentencesForm = SentencesForm(form_data)
+            sentencesForm = SentencesForm(form_data, email=email)
+        else:
+            industryForm = IndustryForm(email=email)
+            sentencesForm = SentencesForm(email=email)
 
         forms = {'industryForm': industryForm,
                  'sentencesForm': sentencesForm, 'profile': profile}
@@ -675,10 +679,11 @@ def category_topic(request):
 
             data = {
                 'category_list': request.POST.get('category_list').split(','),
-                'topic_list': request.POST.get('topic_list').split(','),
+                'topic_list': request.POST.get('topic_value').split(','),
                 'email': request.session['userinfo']['email'],
                 'created_by': request.session['userinfo']['email'],
             }
+
             if data.get('category_list'):
                 website_manager.create_user_categories_from_list(data)
                 messages.success(request, 'Categories saved successfully')
