@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from website.models import User, IndustryData, Sentences
+
+from website.models import User, IndustryData, Sentences, Category
 
 
 class UserEmailForm(forms.ModelForm):
@@ -15,16 +16,22 @@ class UserEmailForm(forms.ModelForm):
 class IndustryForm(forms.ModelForm):
     class Meta:
         model = IndustryData
-        fields = ('target_industry', 'target_product')
+        fields = ('category', 'target_product')
         labels = {
-            'target_industry':_('Category'),
+            'category': _('Category'),
             'target_product':_('Product/Services'),
         }
         widgets = {
-            'target_industry': forms.Select(attrs={'class': 'form-select'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
             # 'target_industry': forms.TextInput(attrs={'class': 'form-select'}),
             'target_product': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        email = kwargs.pop('email')
+        super(IndustryForm, self).__init__(*args, **kwargs)
+
+        self.fields['category'].queryset = Category.objects.filter(user__email=email)
 
 
 
