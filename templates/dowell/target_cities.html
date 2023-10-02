@@ -3,18 +3,24 @@
 {% endblock script %} {% block style %}
 <link rel="stylesheet" href="{% static 'step2/css/target_cities.css' %}" />
 <style>
-  main {
+  .col {
     /* Set background image. */
     background-image: url("{% static 'photos/pens.jpg' %}");
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
-    align-items: center;
     width: 100% !important;
+    height: 100% !important;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
   }
   .row {
-    margin-right: 0;
-    margin-left: 0px;
+    height: 92vh !important;
+    margin: 0 !important;
   }
 </style>
 {% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
@@ -31,7 +37,7 @@
           width="54"
           height="54"
           viewBox="0,0,256,256"
-          style="fill: #000000"
+          style="fill: #000"
         >
           <g
             fill="#1b3474"
