@@ -40,7 +40,7 @@
 
     /* Hide all steps by default: */
     .tab {
-        display: block;
+        display: none;
     }
 
     button#nextBtn {
@@ -412,7 +412,7 @@ let specifyPurpose;
 let specifyActivity;
 let purposeOfArticle;
 
-  const idValues = ["id_subject_determinant", "id_topic", "id_verb", "id_object_determinant", "id_adjective", "id_object"]
+  const idValues = ["id_subject_determinant", "id_subject", "id_verb", "id_object_determinant", "id_adjective", "id_object"]
 const display = document.getElementById("sentencePreview");
 
 function capitalizeFirstLetter(word) {
@@ -429,7 +429,7 @@ function capitalizeFirstLetter(word) {
 function updateDisplay(){
   specifyTopic = document.getElementById("id_subject_determinant").value;
   let capitalizedSpecifyTopic = capitalizeFirstLetter(specifyTopic);
-    yourTopic = document.getElementById("id_topic").value;
+    yourTopic = document.getElementById("id_subject").value;
   //has/had
   activites = document.getElementById("id_verb").value;
   specifyPurpose = document.getElementById("id_object_determinant").value;
