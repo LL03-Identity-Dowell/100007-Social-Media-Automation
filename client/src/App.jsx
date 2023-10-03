@@ -1,5 +1,14 @@
-const App = () => {
-  return <div className='bg-customBlue text-white'>App</div>;
-};
 
-export default App;
+function App() {
+
+  return (
+    <>
+     <div>
+      Hello World
+     </div>
+    </>
+  )
+}
+
+export default App
+
