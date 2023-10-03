@@ -134,3 +134,5 @@ db.sqlite3
 
 #log files
 *.log
+client/package-lock.json
+client/package-lock.json
