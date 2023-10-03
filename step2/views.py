@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
 import datetime
 import json
 import random
@@ -3053,6 +3054,7 @@ def Save_Post(request):
         if request.method == "POST":
             title = request.POST.get("title")
             paragraphs_list = request.POST.getlist("paragraphs[]")
+            print('paragraphs_list:',paragraphs_list)
             source = request.POST.get("source")
             # target_industry = request.POST.get("p-content")
             qualitative_categorization = request.POST.get(
@@ -3063,8 +3065,10 @@ def Save_Post(request):
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
             combined_article = "\n\n".join(paragraphs_list)
+            print('combined_article',combined_article[0:230])
             paragraph_without_commas = combined_article.replace(
                 '.', '. ').replace(',.', '.')
+            print('paragraph_without_commas:',paragraph_without_commas)
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -3302,140 +3306,143 @@ def update_schedule(pk):
     return ('scheduled')
 
 
+def get_key(user_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "ayrshare_info",
+        "document": "ayrshare_info",
+        "team_member_ID": "100007001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    post = json.loads(response.json())
+    for article in post['data']:
+        key=article['profileKey']
+    return key
+
+def api_call(postes,platforms,key,image,request,post_id):
+    
+    payload = {'post': postes,
+                'platforms': platforms,
+                'profileKey': key,
+                'mediaUrls': [image],
+                }
+    headers = {'Content-Type': 'application/json',
+                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                        json=payload,
+                        headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        messages.error(request, 'error in posting')
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_most_recent(post_id)
+
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
+
+
+def api_call_schedule(postes,platforms,key,image,request,post_id,formart):
+    
+    payload = {'post': postes,
+                'platforms': platforms,
+                'profileKey': key,
+                'mediaUrls': [image],
+                'scheduleDate': str(formart),
+                }
+    headers = {'Content-Type': 'application/json',
+                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                        json=payload,
+                        headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        for error in r1.json()['posts']:
+            for message in error['errors']:
+                messages.error(request, message['message'][:62])
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_most_recent(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
+    
+    
+
+
 @csrf_exempt
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
-        credit_handler = CreditHandler()
-        credit_response = credit_handler.check_if_user_has_enough_credits(
-            sub_service_id=STEP_4_SUB_SERVICE_ID,
-            request=request,
-        )
+        # credit_handler = CreditHandler()
+        # credit_response = credit_handler.check_if_user_has_enough_credits(
+        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+        #     request=request,
+        # )
 
-        if not credit_response.get('success'):
-            return JsonResponse('credit_error', safe=False)
+        # if not credit_response.get('success'):
+        #     return JsonResponse('credit_error', safe=False)
+        start_datetime = datetime.now()
         data = json.loads(request.body.decode("utf-8"))
-        print(data)
         title = data['title']
         paragraph = data['paragraph']
         image = data['image']
         logo = "Created and posted by #samanta #uxlivinglab"
         post_id = data['PK']
         postes = f"{title} {paragraph}.{logo}"
-        twitter_post = f"{postes[0:235]}.{logo}"
+        twitter_post = f"{paragraph[0:235]}.{logo}"
+        print(twitter_post)
         try:
             platforms = data['social']
             splited = data['special']
         except:
             splited = None
-        print(splited)
-        print(platforms)
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
-
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "ayrshare_info",
-            "document": "ayrshare_info",
-            "team_member_ID": "100007001",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-        # profile = request.session['operations_right']
-
-        post = json.loads(response.json())
-        if len(post['data']) == 0:
-            messages.error(request, 'create a user account ')
-            return JsonResponse('social_media_channels', safe=False)
-
-        for posts in post['data']:
-            if len(posts['aryshare_details']['social_platforms']) == 0:
-                messages.error(request, 'create a user account ')
-                return JsonResponse('social_media_channels', safe=False)
-            else:
-                for posts in post['data']:
-                    linked_acct = posts['aryshare_details']['social_platforms']
-                    key = posts['profileKey']
-                    social_accounts = []
-                for media in platforms:
-                    if media in linked_acct:
-                        social_accounts.append(media)
-                if len(social_accounts) == 0:
-                    messages.error(
-                        request, 'you can post to other accounts')
-                else:
-                    "posting to Various social media"
-                    payload = {'post': postes,
-                               'platforms': social_accounts,
-                               'profileKey': key,
-                               'mediaUrls': [image],
-                               }
-                    headers = {'Content-Type': 'application/json',
-                               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-                    r1 = requests.post('https://app.ayrshare.com/api/post',
-                                       json=payload,
-                                       headers=headers)
-                    print(r1.json())
-                    if r1.json()['status'] == 'error':
-                        messages.error(request, 'error in posting')
-                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                        messages.success(
-                            request, 'post have been sucessfully posted')
-                        # credit_handler = CreditHandler()
-                        # credit_handler.consume_step_4_credit(request)
-                        update = update_most_recent(post_id)
-
-                    else:
-                        for warnings in r1.json()['warnings']:
-                            messages.error(request, warnings['message'])
-
-                # for twitter
-                twitter = []
-                for media in splited:
-                    if media in linked_acct:
-                        twitter.append(media)
-                if len(twitter) == 0:
-                    messages.error(
-                        request, 'you can post to other accounts')
-                else:
-
-                    payload = {'post': twitter_post,
-                               'platforms': twitter,
-                               'profileKey': key,
-                               'mediaUrls': [image],
-                               }
-                    headers = {'Content-Type': 'application/json',
-                               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-                    r1 = requests.post('https://app.ayrshare.com/api/post',
-                                       json=payload,
-                                       headers=headers)
-                    print(r1.json())
-                    if r1.json()['status'] == 'error':
-                        messages.error(
-                            request, 'error in posting Twitter or pinterest')
-                    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                        messages.success(
-                            request, 'post have been successfully posted')
-                        # credit_handler = CreditHandler()
-                        # credit_handler.consume_step_4_credit(request)
-                        update_most_recent(post_id)
-
-                    else:
-                        for warnings in r1.json()['warnings']:
-                            messages.error(request, warnings['message'])
-
-            return JsonResponse('most_recent', safe=False)
-
+        user_id=request.session['user_id']
+        key= get_key(user_id)
+        if len(splited)==0:
+            arguments =(
+                (postes,platforms,key,image,request,post_id),
+        )
+        elif len(platforms) == 0:
+            arguments =(
+                (twitter_post,splited,key,image,request,post_id)
+        )
+        else:
+            arguments =(
+                (postes,platforms,key,image,request,post_id),
+                (twitter_post,splited,key,image,request,post_id)
+        )
+        "posting to Various social media"
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Using lambda, unpacks the tuple (*f) into api_call(*args)
+            executor.map(lambda f: api_call(*f), arguments)
+            end_datetime = datetime.now()
+            time_taken = end_datetime - start_datetime
+            print(f"Total time taken: {time_taken}")
+        return JsonResponse('most_recent', safe=False)
     else:
         return JsonResponse('social_media_channels', safe=False)
 
@@ -3452,6 +3459,7 @@ def Media_schedule(request):
 
         # if not credit_response.get('success'):
         #     return redirect(reverse('credit_error_view'))
+        start_datetime = datetime.now()
         data = json.loads(request.body.decode("utf-8"))
         timezone = request.session['timezone']
         title = data['title']
@@ -3467,9 +3475,8 @@ def Media_schedule(request):
             splited = data['special']
         except:
             splited = None
+            platforms =None
         print(splited)
-        print(platforms)
-
         # formarting time for utc
         formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
         current_time = pytz.timezone(timezone)
@@ -3479,111 +3486,34 @@ def Media_schedule(request):
         string = str(shedulded)[:-6]
         formart = datetime.strptime(
             string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
-
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "ayrshare_info",
-            "document": "ayrshare_info",
-            "team_member_ID": "100007001",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-        # profile = request.session['operations_right']
-
-        post = json.loads(response.json())
-        if len(post['data']) == 0:
-            messages.error(request, 'create a user account ')
-            return JsonResponse('social_media_channels', safe=False)
+        
+        user_id=request.session['user_id']
+        key= get_key(user_id)
+        if len(splited)==0:
+            arguments =(
+                (postes,platforms,key,image,request,post_id,formart),
+        )
+        elif len(platforms) == 0:
+            arguments =(
+                (twitter_post,splited,key,image,request,post_id,formart)
+        )
         else:
-            for posts in post['data']:
-                linked_acct = posts['aryshare_details']['social_platforms']
-                key = posts['profileKey']
-                social_accounts = []
-            for media in platforms:
-                if media in linked_acct:
-                    social_accounts.append(media)
-            if len(social_accounts) == 0:
-                messages.error(request, 'you can post to other accounts ')
-
-            else:
-                "posting to Various social media"
-                payload = {'post': postes,
-                           'platforms': social_accounts,
-                           'profileKey': key,
-                           'mediaUrls': [image],
-                           'scheduleDate': str(formart)
-                           }
-                headers = {'Content-Type': 'application/json',
-                           'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-                r1 = requests.post('https://app.ayrshare.com/api/post',
-                                   json=payload,
-                                   headers=headers)
-                print(r1.json())
-                if r1.json()['status'] == 'error':
-                    messages.error(request, 'error in scheduling')
-                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                    # credit_handler = CreditHandler()
-                    # credit_handler.consume_step_4_credit(request)
-                    messages.success(
-                        request, 'post have been successfully scheduled')
-                    update = update_schedule(post_id)
-                    print(update)
-
-                else:
-                    for warnings in r1.json()['warnings']:
-                        messages.error(request, warnings['message'])
-
-            # for twitter
-            twitter = []
-            for media in splited:
-                if media in linked_acct:
-                    twitter.append(media)
-            if len(twitter) == 0:
-                messages.error(
-                    request, 'you can post to other accounts')
-            else:
-                payload = {'post': twitter_post,
-                           'platforms': twitter,
-                           'profileKey': key,
-                           'mediaUrls': [image],
-                           'scheduleDate': str(formart)
-                           }
-                headers = {'Content-Type': 'application/json',
-                           'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-                r1 = requests.post('https://app.ayrshare.com/api/post',
-                                   json=payload,
-                                   headers=headers)
-                print(r1.json())
-                if r1.json()['status'] == 'error':
-                    messages.error(request, 'error in scheduling Twitter')
-                elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-                    # credit_handler = CreditHandler()
-                    # credit_handler.consume_step_4_credit(request)
-                    messages.success(
-                        request, 'post have been sucessfully scheduled')
-                    update = update_schedule(post_id)
-                    print(update)
-
-                else:
-                    for warnings in r1.json()['warnings']:
-                        messages.error(request, warnings['message'])
-
-        return JsonResponse('scheduled', safe=False)
-
+            arguments =(
+                (postes,platforms,key,image,request,post_id,formart),
+                (twitter_post,splited,key,image,request,post_id,formart)
+        )
+        "posting to Various social media"
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Using lambda, unpacks the tuple (*f) into api_call(*args)
+            executor.map(lambda f: api_call_schedule(*f), arguments)
+            end_datetime = datetime.now()
+            time_taken = end_datetime - start_datetime
+            print(f"Total time taken: {time_taken}")
+        return JsonResponse('most_recent', safe=False)
     else:
         return JsonResponse('social_media_channels', safe=False)
+
+   
 
 
 # @login_required(login_url = '/accounts/login/')
