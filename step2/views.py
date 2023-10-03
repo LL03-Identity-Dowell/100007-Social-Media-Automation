@@ -394,8 +394,9 @@ def login(request):
     return render(request, 'login.html')
     # return HttpResponseRedirect(reverse("generate_article:main-view"))
 
+
 def Logout(request):
-    session_id=request.session.get("session_id")
+    session_id = request.session.get("session_id")
     if session_id:
         try:
             del request.session["session_id"]
@@ -637,13 +638,12 @@ def social_media_channels(request):
                     'linked_accounts': linked_accounts}
     return render(request, 'social_media_channels.html', context_data)
 
+
 def linked_account_json(request):
     username = request.session['username']
     linked_accounts = check_connected_accounts(username)
 
     return JsonResponse({'response': linked_accounts})
-    
-    
 
 
 @csrf_exempt
@@ -3054,7 +3054,7 @@ def Save_Post(request):
         if request.method == "POST":
             title = request.POST.get("title")
             paragraphs_list = request.POST.getlist("paragraphs[]")
-            print('paragraphs_list:',paragraphs_list)
+            print('paragraphs_list:', paragraphs_list)
             source = request.POST.get("source")
             # target_industry = request.POST.get("p-content")
             qualitative_categorization = request.POST.get(
@@ -3065,10 +3065,10 @@ def Save_Post(request):
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
             combined_article = "\n\n".join(paragraphs_list)
-            print('combined_article',combined_article[0:230])
+            print('combined_article', combined_article[0:230])
             paragraph_without_commas = combined_article.replace(
                 '.', '. ').replace(',.', '.')
-            print('paragraph_without_commas:',paragraph_without_commas)
+            print('paragraph_without_commas:', paragraph_without_commas)
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -3328,22 +3328,23 @@ def get_key(user_id):
     response = requests.request("POST", url, headers=headers, data=data)
     post = json.loads(response.json())
     for article in post['data']:
-        key=article['profileKey']
+        key = article['profileKey']
     return key
 
-def api_call(postes,platforms,key,image,request,post_id):
-    
+
+def api_call(postes, platforms, key, image, request, post_id):
+
     payload = {'post': postes,
-                'platforms': platforms,
-                'profileKey': key,
-                'mediaUrls': [image],
-                }
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               }
     headers = {'Content-Type': 'application/json',
-                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
     r1 = requests.post('https://app.ayrshare.com/api/post',
-                        json=payload,
-                        headers=headers)
+                       json=payload,
+                       headers=headers)
     print(r1.json())
     if r1.json()['status'] == 'error':
         messages.error(request, 'error in posting')
@@ -3354,26 +3355,25 @@ def api_call(postes,platforms,key,image,request,post_id):
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
 
-
     else:
         for warnings in r1.json()['warnings']:
             messages.error(request, warnings['message'])
 
 
-def api_call_schedule(postes,platforms,key,image,request,post_id,formart):
-    
+def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
+
     payload = {'post': postes,
-                'platforms': platforms,
-                'profileKey': key,
-                'mediaUrls': [image],
-                'scheduleDate': str(formart),
-                }
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               'scheduleDate': str(formart),
+               }
     headers = {'Content-Type': 'application/json',
-                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
     r1 = requests.post('https://app.ayrshare.com/api/post',
-                        json=payload,
-                        headers=headers)
+                       json=payload,
+                       headers=headers)
     print(r1.json())
     if r1.json()['status'] == 'error':
         for error in r1.json()['posts']:
@@ -3389,52 +3389,67 @@ def api_call_schedule(postes,platforms,key,image,request,post_id,formart):
     else:
         for warnings in r1.json()['warnings']:
             messages.error(request, warnings['message'])
-    
-    
 
 
 @csrf_exempt
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
-        # credit_handler = CreditHandler()
-        # credit_response = credit_handler.check_if_user_has_enough_credits(
-        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-        #     request=request,
-        # )
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_4_SUB_SERVICE_ID,
+            request=request,
+        )
 
-        # if not credit_response.get('success'):
-        #     return JsonResponse('credit_error', safe=False)
+        if not credit_response.get('success'):
+            return JsonResponse('credit_error', safe=False)
         start_datetime = datetime.now()
         data = json.loads(request.body.decode("utf-8"))
         title = data['title']
         paragraph = data['paragraph']
+        paragraph2 = paragraph[0:230]
         image = data['image']
+
+        # Logo in its own paragraph
         logo = "Created and posted by #samanta #uxlivinglab"
+
         post_id = data['PK']
-        postes = f"{title} {paragraph}.{logo}"
-        twitter_post = f"{paragraph[0:235]}.{logo}"
+
+        # Splitting the content and logo into separate paragraphs
+        postes_paragraph1 = f"{paragraph[0:2000]}."
+        postes_paragraph2 = logo
+
+        # Combining the paragraphs with a newline character
+        postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
+
+        twitter_post_paragraph1 = paragraph2
+        twitter_post_paragraph2 = logo
+
+        twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
+
         print(twitter_post)
         try:
             platforms = data['social']
             splited = data['special']
+            print(platforms)
         except:
-            splited = None
-        user_id=request.session['user_id']
-        key= get_key(user_id)
-        if len(splited)==0:
-            arguments =(
-                (postes,platforms,key,image,request,post_id),
-        )
-        elif len(platforms) == 0:
-            arguments =(
-                (twitter_post,splited,key,image,request,post_id)
-        )
+            pass
+        user_id = request.session['user_id']
+        key = get_key(user_id)
+        if len(splited) == 0:
+            arguments = (
+                (postes, platforms, key, image, request, post_id),
+            )
+        if len(platforms) == 0:
+            arguments = (
+                (twitter_post, splited, key, image, request, post_id),
+            )
+            print(splited, twitter_post)
         else:
-            arguments =(
-                (postes,platforms,key,image,request,post_id),
-                (twitter_post,splited,key,image,request,post_id)
-        )
+            arguments = (
+                (postes, platforms, key, image, request, post_id),
+                (twitter_post, splited, key, image, request, post_id)
+            )
         "posting to Various social media"
         with concurrent.futures.ThreadPoolExecutor() as executor:
             # Using lambda, unpacks the tuple (*f) into api_call(*args)
@@ -3451,33 +3466,46 @@ def Media_Post(request):
 def Media_schedule(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
-        # credit_handler = CreditHandler()
-        # credit_response = credit_handler.check_if_user_has_enough_credits(
-        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-        #     request=request,
-        # )
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_4_SUB_SERVICE_ID,
+            request=request,
+        )
 
-        # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
+        if not credit_response.get('success'):
+            return redirect(reverse('credit_error_view'))
         start_datetime = datetime.now()
         data = json.loads(request.body.decode("utf-8"))
         timezone = request.session['timezone']
         title = data['title']
         paragraph = data['paragraph']
+        paragraph2 = paragraph[0:230]
         image = data['image']
         logo = "Created and posted by #samanta #uxlivinglab"
         post_id = data['PK']
         schedule = data['schedule']
-        postes = f"{title} {paragraph}.{logo}"
-        twitter_post = f"{postes[0:230]}.{logo}"
+
+        # Adding a period to the end of the content before "Created and posted by"
+        postes_paragraph1 = f"{paragraph[0:2000]}."
+        postes_paragraph2 = logo
+
+        # Combining the paragraphs with a newline character
+        postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
+
+        # Adding a period to the end of the content before "Created and posted by"
+        twitter_post_paragraph1 = f"{paragraph2[0:235]}."
+        twitter_post_paragraph2 = logo
+
+        # Combining the paragraphs with a newline character
+        twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}"
+
         try:
             platforms = data['social']
             splited = data['special']
         except:
-            splited = None
-            platforms =None
+            pass
         print(splited)
-        # formarting time for utc
+        # Formatting time for utc
         formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
         current_time = pytz.timezone(timezone)
         localize = current_time.localize(formart)
@@ -3486,35 +3514,32 @@ def Media_schedule(request):
         string = str(shedulded)[:-6]
         formart = datetime.strptime(
             string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
-        
-        user_id=request.session['user_id']
-        key= get_key(user_id)
-        if len(splited)==0:
-            arguments =(
-                (postes,platforms,key,image,request,post_id,formart),
-        )
-        elif len(platforms) == 0:
-            arguments =(
-                (twitter_post,splited,key,image,request,post_id,formart)
-        )
+
+        user_id = request.session['user_id']
+        key = get_key(user_id)
+        if len(splited) == 0:
+            arguments = (
+                (postes, platforms, key, image, request, post_id, formart),
+            )
+        if len(platforms) == 0:
+            arguments = (
+                (twitter_post, splited, key, image, request, post_id, formart)
+            )
         else:
-            arguments =(
-                (postes,platforms,key,image,request,post_id,formart),
-                (twitter_post,splited,key,image,request,post_id,formart)
-        )
+            arguments = (
+                (postes, platforms, key, image, request, post_id, formart),
+                (twitter_post, splited, key, image, request, post_id, formart)
+            )
         "posting to Various social media"
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Using lambda, unpacks the tuple (*f) into api_call(*args)
+            # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
             executor.map(lambda f: api_call_schedule(*f), arguments)
             end_datetime = datetime.now()
             time_taken = end_datetime - start_datetime
             print(f"Total time taken: {time_taken}")
-        return JsonResponse('most_recent', safe=False)
+        return JsonResponse('scheduled', safe=False)
     else:
         return JsonResponse('social_media_channels', safe=False)
-
-   
-
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)
