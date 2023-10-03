@@ -1,105 +1,3 @@
-// console.log({{ sentencesForm.adjective }})  
-// <select name="subject_determinant" class="form-select" id="id_subject_determinant">
-//   <option value="-"></option>
-
-//   <option value="the" selected>the</option>
-
-//   <option value="a">a</option>
-
-//   <option value="an">an</option>
-
-// </select> 
-
-// ======================== 
-
-//  <select name="subject" class="form-select" id="id_subject">
-//   <option value="Livinglab">Livinglab</option>
-
-//   <option value="Innovation">Innovation</option>
-
-//   <option value="User experience">User experience</option>
-
-//   <option value="Storytelling">Storytelling</option>
-
-//   <option value="Consumer Behaviour">Consumer Behaviour</option>
-
-//   <option value="Behavioral economics">Behavioral economics</option>
-
-//   <option value="Consumer Insights">Consumer Insights</option>
-
-//   <option value="Statistics" selected>Statistics</option>
-
-// </select> 
-
-//========================
-//<select name="object_determinant" class="form-select" id="id_object_determinant">
-// <option value="-"></option>
-
-//  <option value="the">the</option>
-
-//  <option value="a">a</option>
-
-//  <option value="an" selected>an</option>
-
-//</select
-
-//========================
-//<input type="text" name="verb" value="skills learning" class="form-control" maxlength="100" required id="id_verb"> {%
-
-// ========================
-
-//<input type="text" name="adjective" value="training" class="form-control" maxlength="100" required id="id_adjective">
-
-//========================
-// <input type="text" name="object" value="to educate" class="form-control" maxlength="100" required id="id_object">
-
-let specifyTopic;
-let yourTopic;
-//has/had
-let activites;
-let specifyPurpose;
-let specifyActivity;
-let purposeOfArticle;
-
-const idValues = ["id_subject_determinant", "id_subject", "id_verb", "id_object_determinant", "id_adjective", "id_object"]
-const display = document.getElementById("sentencePreview");
-
-function capitalizeFirstLetter(word) {
-    if (word.length === 0) {
-        return word; // Return the word as-is if it's empty
-    }
-
-    const firstLetter = word.charAt(0).toUpperCase();
-    const restOfWord = word.slice(1);
-
-    return firstLetter + restOfWord;
-}
-
-function updateDisplay() {
-    specifyTopic = document.getElementById("id_subject_determinant").value;
-    let capitalizedSpecifyTopic = capitalizeFirstLetter(specifyTopic);
-    yourTopic = document.getElementById("id_subject").value;
-    //has/had
-    activites = document.getElementById("id_verb").value;
-    specifyPurpose = document.getElementById("id_object_determinant").value;
-    specifyActivity = document.getElementById("id_adjective").value;
-    purposeOfArticle = document.getElementById("id_object").value;
-    let sentencePreview = `${capitalizedSpecifyTopic} ${yourTopic} (was/had/is)  ${activites} (-ing/-ed) ${specifyPurpose} ${specifyActivity} ${purposeOfArticle}`;
-    display.innerHTML = sentencePreview;
-}
-
-idValues.forEach(id => {
-    const element = document.getElementById(id);
-    if (element) {
-        element.addEventListener("change", updateDisplay);
-    }
-})
-
-updateDisplay();
-
-
-
-
 function notAdmin() {
   $("div.warning").fadeIn(300).delay(1500).fadeOut(500);
 }
@@ -139,7 +37,7 @@ function nextPrev(n) {
   if (currentTab >= x.length) {
     // ... the form gets submitted:
     document.getElementById("regForm").submit();
-      displayNotification("Generating topics...");
+    showPopup("Generating topics...");
     AmagiLoader.show();
     const popup = document.querySelector(".popup");
     popup.classList.add("timeout");
@@ -155,50 +53,21 @@ function nextPrev(n) {
   showTab(currentTab);
 }
 
-//Custom Notification popup
-function displayNotification(message) {
-    // Create a new notification element
-    var notification = document.createElement('div');
-    notification.classList.add('custom-notification');
-    notification.innerHTML = `
-    <div class="notification">
-      ${message}
-      <button class="close-button">&times;</button>
-    </div>
+function showPopup(message) {
+  const popup = document.createElement("div");
+  popup.className = "popup";
+  popup.innerHTML = `
+    <span class="cancel-icon">&times;</span>
+    <p>${message}</p>
   `;
 
-    document.body.appendChild(notification);
-
-    // Add an event listener to the close button
-    var closeButton = notification.querySelector('.close-button');
-    closeButton.addEventListener('click', function () {
-        notification.style.display = 'none';
+  const cancelIcon = popup.querySelector(".cancel-icon");
+  cancelIcon.addEventListener("click", () => {
+    popup.remove();
   });
 
-    // Automatically close the notification after a set duration
-    notification.classList.add('timeout');
-    var contentElement = notification.querySelector('.notification');
-    var animationDuration = 10000; // Animation duration in milliseconds
-    var animationStartTime = Date.now();
-
-    function decreaseWidth() {
-        var currentTime = Date.now();
-        var elapsedTime = currentTime - animationStartTime;
-        var progress = elapsedTime / animationDuration;
-        var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
-
-        contentElement.style.setProperty('--after-width', updatedWidth + '%');
-
-        if (progress < 1) {
-            requestAnimationFrame(decreaseWidth);
-        } else {
-            notification.style.display = 'none'; // Hide the notification
-        }
-    }
-
-    requestAnimationFrame(decreaseWidth);
+  document.body.appendChild(popup);
 }
-
 
 function validateForm() {
   // This function deals with validation of the form fields
