@@ -135,8 +135,7 @@ db.sqlite3
 #log files
 *.log
 
-
-
+client/package-lock.json
 
 # Logs
 logs
@@ -162,3 +161,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
