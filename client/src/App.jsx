@@ -4,6 +4,7 @@ import Step1 from "./pages/step1/Step1"
 import Sidebar from "./components/sidebar/Sidebar"
 import Step2 from "./pages/step2/Step2"
 
+
 function App() {
 
   return (
@@ -30,3 +31,4 @@ function App() {
 }
 
 export default App
+

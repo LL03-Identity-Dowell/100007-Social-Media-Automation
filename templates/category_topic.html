@@ -1,0 +1,50 @@
+{% extends "article/base_background.html" %}
+
+{% load static %}
+
+
+{% block style %}
+  {{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'step2/css/category_topic.css' %}"> 
+{% endblock %}
+
+{% block script %}
+  {{ block.super }}
+  {% comment %} <script type="text/javascript" src="{% static 'step2/js/category_topic.js' %}"></script> {% endcomment %}
+{% endblock %}
+
+
+
+{% block stuff %}
+
+<div class="container">
+
+  <div class="flex-wrap justify-content-center">
+    <h3 class="blue-text text-center mb-5">Category and Topic</h3>
+   
+    <form method="post" id="hashMentionForm" >
+
+      <div class="mb-4 d-flex">
+        <label for="category" class="col col-form-label input-label">Category</label>
+        <div class="col-sm-10 d-flex align-items-center">
+          <input type="text" class="form-control" placeholder="Enter Category" id="category" style="height: 55px;">
+        </div>
+      </div>
+
+      <div class="mb-3 d-flex">
+        <label for="topic" class="col col-form-label input-label" >Topic</label>
+        <div class="col-sm-10 d-flex align-items-center" style="margin-left: 41px;">
+          <input type="text" class="form-control" placeholder="Enter Topic" id="topic" style="height: 55px;">
+        </div>
+      </div>
+
+      <div class="text-center button-container">
+        <button class="btn btn-primary btn-dark-blue save-button mt-4"  id="saveBtn">Save</button>
+      </div>
+    </form>
+   
+  </div>   
+
+</div>
+
+{% endblock %}

@@ -16,7 +16,8 @@ class CreditBaseView(View):
     def dispatch(self, request, *args, **kwargs):
         """ Customized dispatch method
         """
-        response = super(CreditBaseView, self).dispatch(request, *args, **kwargs)
+        response = super(CreditBaseView, self).dispatch(
+            request, *args, **kwargs)
         return response
 
 
@@ -27,10 +28,10 @@ class CreditErrorView(CreditBaseView):
         This view handles all the errors that relate to the credit system
         """
         if request.GET.get('reload') == '1':
-            return redirect('generate_article:home')
+            return redirect('generate_article:dowelllogin')
         credit_response = request.session.get('credit_response')
         try:
             self.context_dict.update(credit_response)
         except TypeError:
-            return redirect('generate_article:home')
-        return redirect('generate_article:home')
+            return redirect('generate_article:dowelllogin')
+        return redirect('generate_article:dowelllogin')
