@@ -7,7 +7,9 @@ import Article from "./pages/Article/Article"
 import Post from "./pages/Post/Post"
 import Schedule from "./pages/Schedule/Schedule"
 import Comment from "./pages/Comment/Comment"
+import NotFound from "./pages/NotFound/NotFound"
 
+import StaticticsRouter from "./pages/Statistics/StatisticsRouter"
 
 function App() {
 
@@ -27,6 +29,8 @@ function App() {
             <Route path='/post' element={<Post />} />
             <Route path='/schedule' element={<Schedule />} />
             <Route path='/comment' element={<Comment />} />
+            <Route path="/statistics/*" element={<StaticticsRouter />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
 
