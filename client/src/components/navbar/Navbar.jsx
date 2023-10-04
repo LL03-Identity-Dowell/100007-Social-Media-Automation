@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import logoImage from '../../../public/images/dowell-logo.png'
+import logoImage from '/images/dowell-logo.png'
 
 import Searchbar from '../Searchbar/Searchbar';
 
