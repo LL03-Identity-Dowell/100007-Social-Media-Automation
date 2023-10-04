@@ -1,31 +1,36 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
+
 import Navbar from "./components/navbar/Navbar"
-import Step1 from "./pages/step1/Step1"
-import Sidebar from "./components/sidebar/Sidebar"
-import Step2 from "./pages/step2/Step2"
+import Sidebar from "./components/Sidebar/Sidebar"
+import Topic from "./pages/Topic/Topic"
+import Article from "./pages/Article/Article"
+import Post from "./pages/Post/Post"
+import Schedule from "./pages/Schedule/Schedule"
+import Comment from "./pages/Comment/Comment"
 
 
 function App() {
 
   return (
     <>
-     <div>
-      <div className="grid ">
-        <Navbar/>
+      <Navbar />
+      <div className="grid">
         <div className="grid grid-cols-6">
           <div className="col-span-1">
 
-          <Sidebar/>
+            <Sidebar />
           </div>
 
-        <Routes>
-          <Route path='/' element={<Step1/>}/>
-          <Route path='/step2' element={<Step2/>}/>
-        </Routes>
+          <Routes>
+            <Route path='/' element={<Topic />} />
+            <Route path='/article' element={<Article />} />
+            <Route path='/post' element={<Post />} />
+            <Route path='/schedule' element={<Schedule />} />
+            <Route path='/comment' element={<Comment />} />
+          </Routes>
         </div>
 
       </div>
-     </div>
     </>
   )
 }

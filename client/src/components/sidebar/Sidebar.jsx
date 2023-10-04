@@ -3,8 +3,21 @@ import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return <div>
-    <Link to="/">Step1</Link>
-    <Link to="/step2">Step2</Link>
+    <Link to="/">
+      <div>Topic</div>
+    </Link>
+    <Link to="/article">
+      <div>Article</div>
+    </Link>
+    <Link to="/post">
+      <div>Post</div>
+    </Link>
+    <Link to="/schedule">
+      <div>Schedule</div>
+    </Link>
+    <Link to="/comment">
+      <div>Comment</div>
+    </Link>
   </div>;
 };
 
