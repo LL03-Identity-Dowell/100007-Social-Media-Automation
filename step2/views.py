@@ -3032,7 +3032,8 @@ def post_detail(request):
                 output.append(pictures)
         images = output[1]
         print(profile)
-
+        messages.info(
+            request, 'You are limited to use only images from Samanta AI due to security and privacy policy')
         return render(request, 'post_detail.html', {'post': post, 'categories': categories, 'images': images, 'profile': profile})
     else:
         return render(request, 'error.html')
