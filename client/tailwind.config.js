@@ -10,7 +10,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        customBlue: "#1b3474",
+        customBlue: "#1B3474",
+        customPink: "#F6A6C2",
+        customYellow: "#FFE786",
+        customGreen: "#8AABFF",
+        customPurple: "#CC8AFF",
+        customGray: "#212529",
+        customLightblue: "#405AA3",
+        customDarkpuprle: "#8223cb"
       },
       fontSize: {
         tooltipsm: ["0.675rem", "0.8rem"]

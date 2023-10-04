@@ -1,6 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-function Comment() {
+function Comment({show}) {
+    useEffect(()=>{
+        show()
+      }, [])
+
     return (
         <div>Comment</div>
     )

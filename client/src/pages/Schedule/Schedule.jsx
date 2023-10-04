@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-function Schedule() {
+function Schedule({show}) {
+    useEffect(()=>{
+        show()
+      }, [])
     return (
         <div>Schedule</div>
     )

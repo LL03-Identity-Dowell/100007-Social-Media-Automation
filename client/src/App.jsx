@@ -1,7 +1,7 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-
-import Navbar from "./components/navbar/Navbar"
-import Sidebar from "./components/Sidebar/Sidebar"
+import { useState } from "react"
+import { Route, Routes } from "react-router-dom"
+import Home from "./pages/homepage/Home"
+import Layout from "./Layout"
 import Topic from "./pages/Topic/Topic"
 import Article from "./pages/Article/Article"
 import Post from "./pages/Post/Post"
@@ -12,29 +12,31 @@ import NotFound from "./pages/NotFound/NotFound"
 import StaticticsRouter from "./pages/Statistics/StatisticsRouter"
 
 function App() {
+  const [showSidebar, setShowSidebar] = useState(false);
 
+  const handleOpenSideBar = () =>{
+    setShowSidebar(true)
+  }
+  const handleCloseSideBar = () =>{
+    setShowSidebar(false)
+  }
   return (
     <>
-      <Navbar />
-      <div className="grid">
-        <div className="grid grid-cols-6">
-          <div className="col-span-1">
 
-            <Sidebar />
-          </div>
+     <Layout side={showSidebar}>
+       
+        <Routes>
+          <Route path='/' element={<Home close={handleCloseSideBar}/>}/>
+          <Route path='/topic' element={<Topic show={handleOpenSideBar}/>} />
+            <Route path='/article' element={<Article show={handleOpenSideBar}/>} />
+            <Route path='/post' element={<Post show={handleOpenSideBar}/>} />
+            <Route path='/schedule' element={<Schedule show={handleOpenSideBar}/>} />
+            <Route path='/comment' element={<Comment show={handleOpenSideBar}/>} />
+            <Route path="/statistics/*" element={<StaticticsRouter show={handleOpenSideBar}/>} />
+            <Route path="*" element={<NotFound show={handleOpenSideBar}/>} />
+        </Routes>
 
-          <Routes>
-            <Route path='/' element={<Topic />} />
-            <Route path='/article' element={<Article />} />
-            <Route path='/post' element={<Post />} />
-            <Route path='/schedule' element={<Schedule />} />
-            <Route path='/comment' element={<Comment />} />
-            <Route path="/statistics/*" element={<StaticticsRouter />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
-
-      </div>
+      </Layout>
     </>
   )
 }

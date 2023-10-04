@@ -6,7 +6,11 @@ import MyTeam from './MyTeam'
 import MyUsage from './MyUsage'
 import NotFound from '../NotFound/NotFound'
 
-function StatisticsRouter() {
+function StatisticsRouter({show}) {
+    useEffect(()=>{
+        show()
+      }, [])
+      
     return (
         <>
 

@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-import logoImage from '../../../public/images/dowell-logo.png'
+import { FaUser } from 'react-icons/fa';
 
 import Searchbar from '../Searchbar/Searchbar';
+import { logoImage, profile } from '../../assets';
 
 function Navbar() {
     return (
-        <nav className="bg-white dark:bg-gray-900  w-full sticky top-0 border-b border-gray-200 dark:border-gray-600">
+        <nav className="bg-customBlue text-white dark:bg-gray-900  w-full sticky top-0 border-b border-gray-200 dark:border-gray-600">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <Link to="/" className="flex items-center">
                     <img src={logoImage} className="h-8 mr-3" alt="Dowell Logo" />
@@ -36,14 +36,14 @@ function Navbar() {
                     <div className="relative mt-3 md:hidden">
                         <Searchbar />
                     </div>
-                    <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+                    <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg text-white md:flex-row md:space-x-8 md:mt-0 md:border-0 dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
                         <li>
-                            <Link to="/" className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Home</Link>
+                            <Link to="/" className="block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Home</Link>
                         </li>
 
                         {/* Stats Dropdown menu */}
                         <li>
-                            <button id="dropdownNavbarLink" data-dropdown-toggle="statsDropdown" className="flex items-center justify-between w-full py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">My stats<svg className="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                            <button id="dropdownNavbarLink" data-dropdown-toggle="statsDropdown" className="flex items-center justify-between w-full py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">My stats<svg className="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
                             </svg></button>
                             {/* Dropdown */}
@@ -67,12 +67,12 @@ function Navbar() {
                         </li>
 
                         <li>
-                            <Link to="/client-admin" className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover-bg-gray-700 dark:hover-text-white md:dark:hover-bg-transparent dark-border-gray-700">Client Admin</Link>
+                            <Link to="/client-admin" className="block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover-bg-gray-700 dark:hover-text-white md:dark:hover-bg-transparent dark-border-gray-700">Client Admin</Link>
                         </li>
 
                         {/* Settings Dropdown Menu*/}
                         <li>
-                            <button id="dropdownNavbarLink" data-dropdown-toggle="settingsDropdown" className="flex items-center justify-between w-full py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">Settings<svg className="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                            <button id="dropdownNavbarLink" data-dropdown-toggle="settingsDropdown" className="flex items-center justify-between w-full py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent">Settings<svg className="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
                             </svg></button>
                             {/* Dropdown */}
@@ -93,9 +93,10 @@ function Navbar() {
                         <li>
                             {/* profile pic  */}
 
-                            <button data-tooltip-target="user-tooltip" data-tooltip-placement="left" type="button" className="flex mr-3 text-sm bg-transperent rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="right">
+                            <button data-tooltip-target="user-tooltip" data-tooltip-placement="left" type="button" className="flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="right">
                                 <span className="sr-only">Open user menu</span>
-                                <img className="w-8 h-8 rounded-full" src={"/images/profile_photo-1.jpg"} alt="user photo" />
+                                <FaUser title='User Profile' className="w-8 h-8 rounded-full text-customBlue p-1"/>
+                                
                             </button>
 
                             <div id="user-tooltip" role="tooltip" className="absolute z-10 invisible inline-block px-3 py-2 text-tooltipsm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
@@ -106,7 +107,7 @@ function Navbar() {
                             {/* Dropdown menu */}
                             <div className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
                                 <div className="px-4 py-3">
-                                    <span className="block text-sm text-gray-900 dark:text-white">User Name</span>
+                                    <span className="block text-sm dark:text-white">User Name</span>
                                     <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">name@mail.com</span>
                                 </div>
                                 <ul className="py-2" aria-labelledby="user-menu-button">

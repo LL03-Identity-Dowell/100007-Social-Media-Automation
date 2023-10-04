@@ -1,6 +1,10 @@
 import React from 'react'
 
-function MyTeam() {
+function MyTeam({show}) {
+    useEffect(()=>{
+        show()
+      }, [])
+
     return (
         <div>MyTeam</div>
     )
