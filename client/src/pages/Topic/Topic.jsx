@@ -1,6 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-function Topic() {
+function Topic({show}) {
+  useEffect(()=>{
+    show()
+  }, [])
+
   return (
     <div>Topic</div>
   )

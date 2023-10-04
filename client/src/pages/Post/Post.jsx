@@ -1,6 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-function Post() {
+function Post({show}) {
+    useEffect(()=>{
+        show()
+      }, [])
+      
     return (
         <div>Post</div>
     )

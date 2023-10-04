@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return <div>
-    <Link to="/">
+    <Link to="/topic">
       <div>Topic</div>
     </Link>
     <Link to="/article">
@@ -18,7 +18,8 @@ const Sidebar = () => {
     <Link to="/comment">
       <div>Comment</div>
     </Link>
-  </div>;
+
+  </div>
 };
 
 export default Sidebar;

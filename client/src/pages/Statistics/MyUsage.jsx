@@ -1,6 +1,9 @@
 import React from 'react'
 
-function MyUsage() {
+function MyUsage({show}) {
+    useEffect(()=>{
+        show()
+      }, [])
     return (
         <div>MyUsage</div>
     )

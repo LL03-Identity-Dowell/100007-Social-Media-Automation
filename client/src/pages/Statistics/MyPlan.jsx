@@ -1,6 +1,9 @@
 import React from 'react'
 
-function MyPlan() {
+function MyPlan({show}) {
+    useEffect(()=>{
+        show()
+      }, [])
     return (
         <div>MyPlan</div>
     )

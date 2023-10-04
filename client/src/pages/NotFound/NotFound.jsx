@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-function NotFound() {
+function NotFound({show}) {
+    useEffect(()=>{
+        show()
+      }, [])
     return (
         <div>Page not Found</div>
     )
