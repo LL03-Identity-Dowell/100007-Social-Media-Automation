@@ -8,7 +8,7 @@ const Layout = ({ children, side }) => {
   return (
     <div className="grid ">
       <Navbar />
-      <div className="grid grid-cols-6">
+      <div className="grid grid-cols-6 w-full">
       
         {side && <div className="col-span-1"> <Sidebar /></div> }
 
