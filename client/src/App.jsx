@@ -26,7 +26,7 @@ function App() {
   return (
     <>
 
-     <Layout side={showSidebar}>
+     <Layout side={showSidebar} show={handleOpenSideBar}>
        
         <Routes>
           <Route path='/' element={<Home close={handleCloseSideBar}/>}/>

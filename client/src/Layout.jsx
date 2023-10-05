@@ -2,19 +2,23 @@ import React from "react";
 import Navbar from "./components/navbar/Navbar";
 import Sidebar from "./components/sidebar/Sidebar";
 
-const Layout = ({ children, side }) => {
-    // const [showSidebar, setShowSidebar] = useState(false);
-    
-  return (
-    <div className="grid ">
-      <Navbar />
-      <div className="grid grid-cols-6 w-full">
-      
-        {side && <div className="col-span-1"> <Sidebar /></div> }
+const Layout = ({ children, side, show, close }) => {
+  // const [showSidebar, setShowSidebar] = useState(false);
 
-      <main >
-        {children}
-      </main>
+  return (
+    <div className="w-full ">
+      <Navbar />
+      <div className={!side ? " grid w-full " : "grid grid-cols-6"}>
+      <div className={ show && "col-span-1"}> 
+        {side &&  <Sidebar /> }
+      </div>
+
+        <main className={
+            !side ? "grid w-full" : "col-span-5"  
+          }
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

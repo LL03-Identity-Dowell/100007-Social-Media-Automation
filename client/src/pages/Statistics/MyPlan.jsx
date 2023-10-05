@@ -5,7 +5,7 @@ function MyPlan({show}) {
         show()
       }, [])
     return (
-        <div>MyPlan</div>
+        <div className='border-blue-600 border'>MyPlan</div>
     )
 }
 
