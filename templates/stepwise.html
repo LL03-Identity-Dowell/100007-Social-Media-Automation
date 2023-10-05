@@ -40,7 +40,7 @@
 
     /* Hide all steps by default: */
     .tab {
-        display: none;
+        display: block;
     }
 
     button#nextBtn {
@@ -256,15 +256,15 @@
         {{ sentencesForm.subject_determinant }}
         &nbsp;&nbsp;
            <span class="help_text">{{ sentencesForm.subject_determinant.help_text }}</span>
-        <span>{{ sentencesForm.subject.label }}:
-            {% if sentencesForm.subject.field.required %}
+        <span>{{ sentencesForm.topic.label }}:
+            {% if sentencesForm.topic.field.required %}
                 <span class="required_field">*</span>&nbsp;&nbsp;
             {% endif %}
-            <span class="help_text">{{ sentencesForm.subject.help_text }}</span>
+            <span class="help_text">{{ sentencesForm.topic.help_text }}</span>
         </span>
-        &nbsp;{{ sentencesForm.subject }}
+        &nbsp;{{ sentencesForm.topic }}
         &nbsp;{{ sentencesForm.subject_number }}
-        {{ sentencesForm.subject.errors }}
+        {{ sentencesForm.topic.errors }}
     </span>
 
     <span class="input-group mb-3">
@@ -347,7 +347,7 @@
     </div>
 </form>
 
-<script type="text/javascript" src="{% static 'step1/js/stepwise.js'%}"></script>
+<script type="text/javascript" src="{% static 'step2/js/stepwise.js'%}"></script>
 
 {% endblock content %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
