@@ -44,6 +44,7 @@
   backdrop-filter: blur(0);
   -webkit-backdrop-filter: blur(0);
 }
+
 .s-alert::after {
   content: "";
   position: absolute;
@@ -54,6 +55,7 @@
   height: 4px;
   background-color: green;
 }
+
 .s-alert.show {
   opacity: 1;
   visibility: visible;
@@ -70,6 +72,7 @@
   backdrop-filter: blur(0);
   -webkit-backdrop-filter: blur(0);
 }
+
 .s-alert.timeout.show::after {
   animation: decreaseWidth 20s linear forwards;
 }
@@ -78,6 +81,7 @@
   0% {
     width: 100%;
   }
+
   100% {
     width: 0;
   }
@@ -90,6 +94,7 @@
   font-size: 26px;
   cursor: pointer;
 }
+
 .close-icon1 {
   position: absolute;
   top: 0;
@@ -97,6 +102,7 @@
   font-size: 26px;
   cursor: pointer;
 }
+
 #alertPopup {
   position: fixed;
   top: 0;
@@ -121,4 +127,74 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   z-index: 100;
+}
+
+
+/* styling for notification */
+
+.custom-notification {
+  position: fixed;
+  top: 15%;
+  right: 35%;
+  transform: translateY(-50%);
+  margin-bottom: 10px;
+  z-index: 9999;
+  animation: slideIn 0.8s ease-in-out;
+}
+
+.notification {
+  width: auto;
+  background-color: rgba(245, 245, 245, 0.8);
+  /* Adjust the alpha value for transparency */
+  padding: 6px;
+  font-style: italic;
+  margin-top: 10px;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  /* Add a box shadow */
+}
+
+.notification::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--after-width, 100%);
+  transition: width 0.2s linear;
+  /* Adjust the duration as needed */
+  height: 4px;
+  background-color: green;
+}
+
+.notification.timeout::after {
+  animation: decreaseWidth 5s linear forwards;
+  /* Adjust the duration as needed */
+}
+
+.close-button {
+  font-size: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+@keyframes decreaseWidth {
+  0% {
+    width: 100%;
+  }
+
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
