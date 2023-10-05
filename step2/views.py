@@ -1,64 +1,46 @@
-from django.contrib.sessions.models import Session
-from create_article.custom_session_backend import CustomSessionStore
-from create_article import settings
-from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse
-from django.http import HttpResponseRedirect, JsonResponse
-import requests
-import json
-import time
-from datetime import datetime
+from django.shortcuts import render, redirect
+import concurrent.futures
 import datetime
+import json
+import random
+import time
+import traceback
+import urllib
+import urllib.parse
+from datetime import datetime, date
+# image resizing
+from io import BytesIO
+
+import openai
+import pytz
+import requests
+import wikipediaapi
+from PIL import Image
+from ayrshare import SocialPost
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-import wikipediaapi
+from bson import ObjectId
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db import transaction
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime, timedelta, date
 from mega import Mega
-from create_article import settings
-from pymongo import MongoClient
-from django.core.paginator import Paginator
-from bson import ObjectId
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.timezone import localdate, localtime
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Page
-from website.models import Sentences, SentenceResults, SentenceRank, MTopic
-import urllib
-from urllib.request import urlopen
-from django.contrib import messages
 from pexels_api import API
-import random
-from .models import stepFour
-from .forms import StepFourForm, VerifyArticleForm
-from ayrshare import SocialPost
-from django.utils import timezone
-# image resizing
-import base64
-from io import BytesIO
-from PIL import Image, UnidentifiedImageError
-from pytz import timezone
-import pytz
-import openai
-import re
-import os
-from create_article.settings import STATIC_ROOT, BASE_DIR
-import shutil
-import math
-import traceback
-import urllib.parse
-from functools import lru_cache
-import concurrent.futures
-from functools import partial
-from django.utils.decorators import method_decorator
+from pymongo import MongoClient
+
 from config_master import UPLOAD_IMAGE_ENDPOINT
-from django.contrib.auth import logout
-
-
-from django.db import transaction
-
+from create_article import settings
+from credits.constants import STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from credits.constants import STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
+from website.models import Sentences, SentenceResults
+from .forms import VerifyArticleForm
 
 # helper functions
 
@@ -306,12 +288,12 @@ def has_access(portfolio_info):
     return True
 
 
-def home(request):
-    session_id = request.GET.get("session_id", None)
-    if session_id:
+def dowell_login(request):
+    try:
+        session_id = request.GET.get('session_id', None)
         request.session["session_id"] = session_id
         return redirect("http://127.0.0.1:8000/main")
-    else:
+    except:
         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
@@ -410,6 +392,17 @@ def forget_password(request):
 def login(request):
     return render(request, 'login.html')
     # return HttpResponseRedirect(reverse("generate_article:main-view"))
+
+def Logout(request):
+    session_id=request.session.get("session_id")
+    if session_id:
+        try:
+            del request.session["session_id"]
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+        except:
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+    else:
+        return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
 
 
 @csrf_exempt
@@ -642,6 +635,14 @@ def social_media_channels(request):
     context_data = {'user_has_social_media_profile': user_has_social_media_profile,
                     'linked_accounts': linked_accounts}
     return render(request, 'social_media_channels.html', context_data)
+
+def linked_account_json(request):
+    username = request.session['username']
+    linked_accounts = check_connected_accounts(username)
+
+    return JsonResponse({'response': linked_accounts})
+    
+    
 
 
 @csrf_exempt
@@ -3305,14 +3306,14 @@ def update_schedule(pk):
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
-        # credit_handler = CreditHandler()
-        # credit_response = credit_handler.check_if_user_has_enough_credits(
-        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-        #     request=request,
-        # )
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_4_SUB_SERVICE_ID,
+            request=request,
+        )
 
-        # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
+        if not credit_response.get('success'):
+            return JsonResponse('credit_error', safe=False)
         data = json.loads(request.body.decode("utf-8"))
         print(data)
         title = data['title']
@@ -3424,7 +3425,7 @@ def Media_Post(request):
                             request, 'error in posting Twitter or pinterest')
                     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
                         messages.success(
-                            request, 'post have been sucessfully posted')
+                            request, 'post have been successfully posted')
                         # credit_handler = CreditHandler()
                         # credit_handler.consume_step_4_credit(request)
                         update_most_recent(post_id)
