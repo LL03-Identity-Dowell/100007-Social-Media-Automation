@@ -8,8 +8,6 @@ import Post from "./pages/Post/Post"
 import Schedule from "./pages/Schedule/Schedule"
 import Comment from "./pages/Comment/Comment"
 import NotFound from "./pages/NotFound/NotFound"
-
-import StaticticsRouter from "./pages/Statistics/StatisticsRouter"
 import MyPlan from "./pages/Statistics/MyPlan"
 import MyTeam from "./pages/Statistics/MyTeam"
 import MyUsage from "./pages/Statistics/MyUsage"
@@ -35,7 +33,6 @@ function App() {
             <Route path='/post' element={<Post show={handleOpenSideBar}/>} />
             <Route path='/schedule' element={<Schedule show={handleOpenSideBar}/>} />
             <Route path='/comment' element={<Comment show={handleOpenSideBar}/>} />
-            <Route path="/statistics/*" element={<StaticticsRouter />} />
             <Route path="*" element={<NotFound show={handleOpenSideBar}/>} />
             <Route path="/statistics/my-plan" element={<MyPlan show={handleOpenSideBar}/>} />
             <Route path="/statistics/my-team" element={<MyTeam show={handleOpenSideBar}/>} />

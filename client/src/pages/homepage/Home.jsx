@@ -17,6 +17,7 @@ const Home = ({close}) => {
           <p className="text-[#6b2722] font-semibold italic text-[18px] md:text-[22px]">Step by Step</p>
           <p className="text-customGray font-semibold text-[18px] md:text-[22px] pb-6">Ordering Process</p>
         </div>
+        
         <div className="flex justify-between xl:gap-10">
           <Link to="/topic">
             <img src={step1} alt="Topic" className="" title='Topic'/>
@@ -35,8 +36,9 @@ const Home = ({close}) => {
           </Link>
         </div>
       </div>
+
       <div className="flex justify-center">
-        <img src={LadyPixel} alt="ladyPixel" className="w-[200px] xl:w-[500px] xl:mt-6"/>
+        <img src={LadyPixel} alt="ladyPixel" className="w-[200px] md:w-[300px] xl:w-[500px] xl:mt-6"/>
       </div>
     </div>
     </div>
