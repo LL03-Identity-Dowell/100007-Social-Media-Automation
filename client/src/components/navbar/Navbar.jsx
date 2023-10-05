@@ -93,21 +93,21 @@ function Navbar() {
                         <li>
                             {/* profile pic  */}
 
-                            <button data-tooltip-target="user-tooltip" data-tooltip-placement="left" type="button" className="flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="right">
+                            <button data-tooltip-target="user-tooltip" data-tooltip-placement="bottom" type="button" className="flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="right">
                                 <span className="sr-only">Open user menu</span>
                                 <FaUser title='User Profile' className="w-8 h-8 rounded-full text-customBlue p-1" />
 
                             </button>
 
-                            <div id="user-tooltip" role="tooltip" className="absolute z-10 invisible inline-block px-3 py-2 text-tooltipsm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                            <div id="user-tooltip" role="tooltip" className="absolute z-50 invisible inline-block px-3 py-2 text-tooltipsm font-medium text-customBlue bg-white rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                                 User profile
                                 <div className="tooltip-arrow" data-popper-arrow></div>
                             </div>
 
                             {/* Dropdown menu */}
-                            <div className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
+                            <div className="z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
                                 <div className="px-4 py-3">
-                                    <span className="block text-sm dark:text-white">User Name</span>
+                                    <span className="block text-sm  text-gray-700 dark:text-white">User Name</span>
                                     <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">name@mail.com</span>
                                 </div>
                                 <ul className="py-2" aria-labelledby="user-menu-button">
