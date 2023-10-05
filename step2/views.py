@@ -3467,14 +3467,14 @@ def Media_Post(request):
 def Media_schedule(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
-        credit_handler = CreditHandler()
-        credit_response = credit_handler.check_if_user_has_enough_credits(
-            sub_service_id=STEP_4_SUB_SERVICE_ID,
-            request=request,
-        )
+        # credit_handler = CreditHandler()
+        # credit_response = credit_handler.check_if_user_has_enough_credits(
+        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+        #     request=request,
+        # )
 
-        if not credit_response.get('success'):
-            return redirect(reverse('credit_error_view'))
+        # if not credit_response.get('success'):
+        #     return redirect(reverse('credit_error_view'))
         start_datetime = datetime.now()
         data = json.loads(request.body.decode("utf-8"))
         timezone = request.session['timezone']
@@ -3518,19 +3518,21 @@ def Media_schedule(request):
 
         user_id = request.session['user_id']
         key = get_key(user_id)
-        if len(splited) == 0:
-            arguments = (
-                (postes, platforms, key, image, request, post_id, formart),
-            )
+        if len(splited)==0:
+            arguments =(
+                (postes,platforms,key,image,request,post_id,formart),
+        )
         if len(platforms) == 0:
-            arguments = (
-                (twitter_post, splited, key, image, request, post_id, formart)
-            )
+
+            arguments =(
+                (twitter_post,splited,key,image,request,post_id,formart),
+        )
+            print(arguments)
         else:
-            arguments = (
-                (postes, platforms, key, image, request, post_id, formart),
-                (twitter_post, splited, key, image, request, post_id, formart)
-            )
+            arguments =(
+                (postes,platforms,key,image,request,post_id,formart),
+                (twitter_post,splited,key,image,request,post_id,formart)
+        )
         "posting to Various social media"
         with concurrent.futures.ThreadPoolExecutor() as executor:
             # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
