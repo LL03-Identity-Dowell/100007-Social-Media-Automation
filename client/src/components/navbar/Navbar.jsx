@@ -107,7 +107,7 @@ function Navbar() {
                             {/* Dropdown menu */}
                             <div className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
                                 <div className="px-4 py-3">
-                                    <span className="block text-sm dark:text-white">User Name</span>
+                                    <span className="block text-sm text-customBlue">User Name</span>
                                     <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">name@mail.com</span>
                                 </div>
                                 <ul className="py-2" aria-labelledby="user-menu-button">

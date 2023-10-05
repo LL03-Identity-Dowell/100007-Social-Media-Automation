@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Route, Routes } from "react-router-dom"
 
 import MyPlan from './MyPlan'
@@ -7,6 +7,7 @@ import MyUsage from './MyUsage'
 import NotFound from '../NotFound/NotFound'
 
 function StatisticsRouter({show}) {
+
     useEffect(()=>{
         show()
       }, [])
@@ -14,14 +15,9 @@ function StatisticsRouter({show}) {
     return (
         <>
 
-            <Routes>
 
-                <Route path="my-plan" element={<MyPlan />} />
-                <Route path="my-team" element={<MyTeam />} />
-                <Route path="my-usage" element={<MyUsage />} />
-                <Route path="*" element={<NotFound />} />
+                
 
-            </Routes>
 
         </>
 
