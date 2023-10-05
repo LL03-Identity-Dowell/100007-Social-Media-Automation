@@ -8,13 +8,13 @@ const Layout = ({ children, side, show, close }) => {
   return (
     <div className="w-full ">
       <Navbar />
-      <div className={!side ? " grid w-full " : "grid grid-cols-6"}>
+      <div className={!side ? " grid w-full " : "grid grid-cols-10"}>
       <div className={ show && "col-span-1"}> 
         {side &&  <Sidebar /> }
       </div>
 
         <main className={
-            !side ? "grid w-full" : "col-span-5"  
+            !side ? "grid w-full" : "col-span-9"  
           }
         >
           {children}
