@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from django.urls import path
-from django.template import RequestContext
+
 from website import views
 
 urlpatterns = [
@@ -17,4 +17,5 @@ urlpatterns = [
     url('not_scheduled/', views.not_scheduled, name='not_scheduled'),
     url('new_main/', views.new_home, name='new_home'),
     url('posts/', views.posts, name='posts'),
+    path('categories-and-topics', views.category_topic, name='category_topic'),
 ]
