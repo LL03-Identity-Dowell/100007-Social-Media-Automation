@@ -8,95 +8,69 @@ function PostList({ show }) {
     }, [])
 
     return (
-        <div className="relative overflow-x-auto">
-            <div className="text-center text-customTextBlue font-semibold py-6">
+        <div className="relative h-[90vh] lg:h-auto overflow-y-hidden">
+            <div className="text-center text-customTextBlue font-semibold py-2 lg:py-6">
                 <h1 className="text-3xl md:text-4xl">Posts List</h1>
             </div>
             <p className="px-6 py-3 italic">Total posts count: 24</p>
-            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead className="text-sm text-gray-900 uppercase dark:text-gray-400">
-                    <tr>
-                        <th scope="col" className="px-6 py-3">
+            <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
+                <div className="text-sm text-gray-900 uppercase dark:text-gray-400">
+                    <div className='lg:grid grid-cols-5 hidden'>
+                        <span scope="col" className="px-6 py-3 col-span-2">
                             Post Title
-                        </th>
-                        <th scope="col" className="px-6 py-3">
+                        </span>
+                        <span scope="col" className="px-6 py-3 col-span-2">
                             Post Content
-                        </th>
-                        <th scope="col" className="px-6 py-3">
+                        </span>
+                        <span scope="col" className="px-6 py-3 col-span-1">
                             Actions
-                        </th>
+                        </span>
                         {/* <th scope="col" className="px-6 py-3">
                             Price
                         </th> */}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium text-base text-customTextBlue  dark:text-white">
+                    </div>
+                </div>
+                <div className='overflow-y-scroll h-[70vh] lg:h-auto'>
+                    <div className=" dark:bg-gray-800 grid lg:grid-cols-5">
+                        <div scope="row" className="lg:col-span-2 lg:px-6 px-2 py-4 font-medium text-base text-customTextBlue  dark:text-white">
                             The Behavioral economics was Thing Pexels API enables programmatic access to the full Pexels content library, including photos, vid the The Pexels API enables programmatic access to the full Pexels content library
-                        </th>
-                        <td className="px-6 py-4 text-sm">
+                        </div>
+                        <div className="lg:col-span-2 lg:px-6 lg:py-4 px-2 text-sm">
                             Behavioral Economics and the Pexels API Behavioral economics is a field of study that examines the intersection of psychology and economics. It seeks to understand why people make certain decisions, and how those decisions can be influenced by external factors.
-                        </td>
-                        <td className="px-6 py-4">
+                        </div>
+                        <div className="lg:col-span-1 lg:px-6 px-2 py-4">
                             <ExtraSmallBtn title={"View Post"} />
-                        </td>
+                        </div>
 
-                    </tr>
-                    <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium text-base text-customTextBlue  dark:text-white">
+                    </div>
+                    <div className=" dark:bg-gray-800 grid lg:grid-cols-5">
+                        <div scope="row" className="lg:col-span-2 lg:px-6 px-2 py-4 font-medium text-base text-customTextBlue  dark:text-white">
                             The Behavioral economics was Thing Pexels API enables programmatic access to the full Pexels content library, including photos, vid the The Pexels API enables programmatic access to the full Pexels content library
-                        </th>
-                        <td className="px-6 py-4">
+                        </div>
+                        <div className="lg:col-span-2 lg:px-6 lg:py-4 px-2 text-sm">
                             Behavioral Economics and the Pexels API Behavioral economics is a field of study that examines the intersection of psychology and economics. It seeks to understand why people make certain decisions, and how those decisions can be influenced by external factors.
-                        </td>
-                        <td className="px-6 py-4">
-
+                        </div>
+                        <div className="lg:col-span-1 lg:px-6 px-2 py-4">
                             <ExtraSmallBtn title={"View Post"} />
+                        </div>
 
-                        </td>
-
-                    </tr>
-                    <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium text-base text-customTextBlue  dark:text-white">
+                    </div>
+                    <div className=" dark:bg-gray-800 grid lg:grid-cols-5">
+                        <div scope="row" className="lg:col-span-2 lg:px-6 px-2 py-4 font-medium text-base text-customTextBlue  dark:text-white">
                             The Behavioral economics was Thing Pexels API enables programmatic access to the full Pexels content library, including photos, vid the The Pexels API enables programmatic access to the full Pexels content library
-                        </th>
-                        <td className="px-6 py-4">
+                        </div>
+                        <div className="lg:col-span-2 lg:px-6 lg:py-4 px-2 text-sm">
                             Behavioral Economics and the Pexels API Behavioral economics is a field of study that examines the intersection of psychology and economics. It seeks to understand why people make certain decisions, and how those decisions can be influenced by external factors.
-                        </td>
-                        <td className="px-6 py-4">
-
+                        </div>
+                        <div className="lg:col-span-1 lg:px-6 px-2 py-4">
                             <ExtraSmallBtn title={"View Post"} />
-                        </td>
-                    </tr>
-                    <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium text-base text-customTextBlue  dark:text-white">
-                            The Behavioral economics was Thing Pexels API enables programmatic access to the full Pexels content library, including photos, vid the The Pexels API enables programmatic access to the full Pexels content library
-                        </th>
-                        <td className="px-6 py-4">
-                            Behavioral Economics and the Pexels API Behavioral economics is a field of study that examines the intersection of psychology and economics. It seeks to understand why people make certain decisions, and how those decisions can be influenced by external factors.
-                        </td>
-                        <td className="px-6 py-4">
+                        </div>
 
-                            <ExtraSmallBtn title={"View Post"} />
-                        </td>
-                    </tr>
-                    <tr className="bg-white dark:bg-gray-800">
-                        <th scope="row" className="px-6 py-4 font-medium text-base text-customTextBlue  dark:text-white">
-                            The Behavioral economics was Thing Pexels API enables programmatic access to the full Pexels content library, including photos, vid the The Pexels API enables programmatic access to the full Pexels content library
-                        </th>
-                        <td className="px-6 py-4">
-                            Behavioral Economics and the Pexels API Behavioral economics is a field of study that examines the intersection of psychology and economics. It seeks to understand why people make certain decisions, and how those decisions can be influenced by external factors.
-                        </td>
-                        <td className="px-6 py-4">
-
-                            <ExtraSmallBtn title={"View Post"} />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div className="flex justify-center mb-5 mt-3">
+                    </div>
+                    
+                    
+                </div>
+            <div className="flex justify-center mb-5 lg:mt-3">
                 <nav aria-label="Page navigation example">
                     <ul class="inline-flex -space-x-px font-normal">
                         <li>
@@ -123,6 +97,8 @@ function PostList({ show }) {
                     </ul>
                 </nav>
             </div>
+            </div>
+
 
         </div>
     );

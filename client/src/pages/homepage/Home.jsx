@@ -25,7 +25,7 @@ const Home = ({ close }) => {
             <Link to="/article">
               <img src={step2} alt="article" className="" title='Articles' />
             </Link>
-            <Link to="/post/post-list">
+            <Link to="/post-list">
               <img src={step3} alt="post" className="" title='Post' />
             </Link>
             <Link to="/schedule">

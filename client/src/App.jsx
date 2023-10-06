@@ -28,7 +28,7 @@ function App() {
           <Route path='/' element={<Home close={handleCloseSideBar} />} />
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
           <Route path='/article' element={<Article show={handleOpenSideBar} />} />
-          <Route path='/post/post-list' element={<PostList show={handleOpenSideBar} />} />
+          <Route path='/post-list' element={<PostList show={handleOpenSideBar} />} />
           <Route path='/schedule' element={<Schedule show={handleOpenSideBar} />} />
           <Route path='/comment' element={<Comment show={handleOpenSideBar} />} />
           <Route path="*" element={<NotFound show={handleOpenSideBar} />} />

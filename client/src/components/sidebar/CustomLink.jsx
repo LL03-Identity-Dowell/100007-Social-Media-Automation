@@ -7,7 +7,7 @@ const CustomLink = ({ children, to, title }) => {
       to={to}
     >
       <div className=' bg-[#800080] p-2 rounded-md'>{children}</div>
-      <span className='hidden md:block'>{title}</span>
+      <span className='text-sm md:text-md'>{title}</span>
     </Link>
   );
 };
