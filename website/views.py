@@ -22,6 +22,11 @@ from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer
 from django_q.tasks import async_task
 
+def under_maintenance(request):
+    context = {
+        'message': "Kindly bear with us and check back in a few.",
+    }
+    return render(request, 'under_maintenance.html', context)
 
 @csrf_exempt
 @xframe_options_exempt
