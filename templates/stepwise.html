@@ -256,15 +256,15 @@
         {{ sentencesForm.subject_determinant }}
         &nbsp;&nbsp;
            <span class="help_text">{{ sentencesForm.subject_determinant.help_text }}</span>
-        <span>{{ sentencesForm.subject.label }}:
-            {% if sentencesForm.subject.field.required %}
+        <span>{{ sentencesForm.topic.label }}:
+            {% if sentencesForm.topic.field.required %}
                 <span class="required_field">*</span>&nbsp;&nbsp;
             {% endif %}
-            <span class="help_text">{{ sentencesForm.subject.help_text }}</span>
+            <span class="help_text">{{ sentencesForm.topic.help_text }}</span>
         </span>
-        &nbsp;{{ sentencesForm.subject }}
+        &nbsp;{{ sentencesForm.topic }}
         &nbsp;{{ sentencesForm.subject_number }}
-        {{ sentencesForm.subject.errors }}
+        {{ sentencesForm.topic.errors }}
     </span>
 
     <span class="input-group mb-3">
@@ -322,7 +322,7 @@
     {#        <span class="row"><span>{{ sentencesForm.passive.label }}:{% if sentencesForm.passive.field.required %} <span class=" required_field">*</span>{% endif %} </span>{{ sentencesForm.passive }}</span>#}
     {#    </div>#}
 
-    <div style="overflow:auto;" class="mt-5">
+       <div style="overflow:auto;" class="mt-5">
         {% if profile == 'Admin' or 'Add/Edit' %}
         <div style="float:right;">
             <button type="button" id="prevBtn" class="btn btn-danger" onclick="nextPrev(-1)">Previous</button>
