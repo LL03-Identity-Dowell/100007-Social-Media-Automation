@@ -15,15 +15,14 @@ import MyUsage from "./pages/Statistics/MyUsage"
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
 
-  const handleOpenSideBar = () =>{
-    setShowSidebar(true)
-  }
-  const handleCloseSideBar = () =>{
-    setShowSidebar(false)
-  }
+  const handleOpenSideBar = () => {
+    setShowSidebar(true);
+  };
+  const handleCloseSideBar = () => {
+    setShowSidebar(false);
+  };
   return (
     <>
-
      <Layout side={showSidebar} show={handleOpenSideBar}>
        
         <Routes>
@@ -38,11 +37,9 @@ function App() {
             <Route path="/statistics/my-team" element={<MyTeam show={handleOpenSideBar}/>} />
             <Route path="/statistics/my-usage" element={<MyUsage show={handleOpenSideBar}/>} />
         </Routes>
-
       </Layout>
     </>
-  )
+  );
 }
 
-export default App
-
+export default App;

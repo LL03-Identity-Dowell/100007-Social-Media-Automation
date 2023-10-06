@@ -3,7 +3,6 @@ import Navbar from "./components/navbar/Navbar";
 import Sidebar from "./components/sidebar/Sidebar";
 
 const Layout = ({ children, side, show, close }) => {
-  // const [showSidebar, setShowSidebar] = useState(false);
 
   return (
     <div className="w-full ">
@@ -19,6 +18,7 @@ const Layout = ({ children, side, show, close }) => {
         >
           {children}
         </main>
+
       </div>
     </div>
   );

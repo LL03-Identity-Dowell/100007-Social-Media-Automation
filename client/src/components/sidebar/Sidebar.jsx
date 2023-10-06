@@ -1,25 +1,41 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import CustomLink from "./CustomLink";
 
 const Sidebar = () => {
-  return <div className='h-[90vh] overflow-x-hidden flex flex-col text-[#333] font-bold bg-[#d3d3d3] justify-around py-14 items-center'>
-   <Link className='hover:text-blue-600' to='/topic'>
-        Topic
-      </Link>
-      <Link className='hover:text-blue-600' to='/article'>
-        Article
-      </Link>
-      <Link className='hover:text-blue-600' to='/post'>
-        Post
-      </Link>
-      <Link className='hover:text-blue-600' to='/schedule'>
-        Schedule
-      </Link>
-      <Link className='hover:text-blue-600' to='/comment'>
-        Comment
-      </Link>
-
-  </div>
+  return (
+    <div className='flex flex-col w-16 md:w-32 bg-[#d3d3d3] justify-around h-[90vh] py-14 items-center font-bold text-[#333]'>
+      <CustomLink title='Topic' to='/website'>
+        <img
+          src='user-check-solid.svg'
+          className='w-5 h-5 md:h-8 md:w-8'
+          alt=''
+        />
+      </CustomLink>
+      <CustomLink title='Article' to='/articles'>
+        <img
+          src='file-signature-solid.svg'
+          className='w-5 h-5 md:h-8 md:w-8'
+          alt=''
+        />
+      </CustomLink>
+      <CustomLink title='Post' to='/posts'>
+        <img
+          src='calendar-check-solid.svg'
+          className='w-5 h-5 md:h-8 md:w-8'
+          alt=''
+        />
+      </CustomLink>
+      <CustomLink title='Schedule' to='/schedule'>
+        <img
+          src='calendar-days-solid.svg'
+          className='w-5 h-5 md:h-8 md:w-8'
+          alt=''
+        />
+      </CustomLink>
+      <CustomLink title='Comment' to='/comment'>
+        <img src='comment-solid.svg' className='w-5 h-5 md:h-8 md:w-8' alt='' />
+      </CustomLink>
+    </div>
+  );
 };
 
 export default Sidebar;

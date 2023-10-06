@@ -1,10 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaUser } from 'react-icons/fa';
+import { Link } from "react-router-dom";
 
-import Searchbar from '../Searchbar/Searchbar';
-import { logoImage, profile } from '../../assets';
-
+  
 function Navbar() {
     return (
         <nav className="bg-customBlue text-white dark:bg-gray-900  w-full sticky top-0 border-b border-gray-200 dark:border-gray-600">
@@ -137,7 +133,9 @@ function Navbar() {
                 </div>
             </div>
         </nav>
-    );
-}
+
+    )
+
+};
 
 export default Navbar;
