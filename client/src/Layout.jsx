@@ -13,7 +13,7 @@ const Layout = ({ children, side, show, close }) => {
       </div>
 
         <main className={
-            !side ? "grid w-full" : "col-span-9"  
+            !side ? "grid w-full" : "col-span-9 mx-12 py-8"  
           }
         >
           {children}

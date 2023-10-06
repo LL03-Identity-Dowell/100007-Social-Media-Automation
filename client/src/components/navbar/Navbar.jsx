@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import Searchbar from "../Searchbar/Searchbar";
+import { FaUser } from "react-icons/fa"
 
   
 function Navbar() {
