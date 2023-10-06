@@ -8,7 +8,7 @@ import step5 from "./images/Step-5.png";
 import LadyPixel from "./images/Lady-Pixel.png";
 
 
-
 export {
     logoImage, profile, step1, step2, step3, step4, step5, LadyPixel
 }
+

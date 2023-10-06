@@ -1,13 +1,11 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaUser } from 'react-icons/fa';
+import { Link } from "react-router-dom";
+import Searchbar from "../Searchbar/Searchbar";
+import { FaUser } from "react-icons/fa"
 
-import Searchbar from '../Searchbar/Searchbar';
-import { logoImage, profile } from '../../assets';
-
+  
 function Navbar() {
     return (
-        <nav className="bg-customBlue text-white dark:bg-gray-900  w-full sticky top-0 border-b border-gray-200 dark:border-gray-600">
+        <nav className="bg-customBlue text-white dark:bg-gray-900  w-full z-20 sticky top-0 border-b border-gray-200 dark:border-gray-600">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <Link to="/" className="flex items-center">
                     {/* <img src={logoImage} className="h-8 mr-3" alt="Dowell Logo" /> */}
@@ -98,19 +96,19 @@ function Navbar() {
 
                             <button data-tooltip-target="user-tooltip" data-tooltip-placement="left" type="button" className="flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 relative " id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="right">
                                 <span className="sr-only">Open user menu</span>
-                                <FaUser title='User Profile' className="w-8 h-8 rounded-full text-customBlue p-1"/>
+                                <FaUser title='User Profile' className="w-8 h-8 rounded-full text-customBlue p-1" />
                                 <svg className="w-2.5 h-2.5 ml-2.5 absolute -right-4 top-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
-                            </svg>
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                                </svg>
                             </button>
 
-                            <div id="user-tooltip" role="tooltip" className="absolute z-10 invisible inline-block px-3 py-2 text-tooltipsm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                            <div id="user-tooltip" role="tooltip" className="absolute z-50 invisible inline-block px-3 py-2 text-tooltipsm font-medium text-customBlue bg-white rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                                 User profile
                                 <div className="tooltip-arrow" data-popper-arrow></div>
                             </div>
 
                             {/* Dropdown menu */}
-                            <div className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
+                            <div className="z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
                                 <div className="px-4 py-3">
                                     <span className="block text-sm text-customBlue hover:text-customGray">User Name</span>
                                     <span className="block text-sm  text-gray-500 truncate dark:text-gray-400 hover:text-customGray">name@mail.com</span>
@@ -137,7 +135,9 @@ function Navbar() {
                 </div>
             </div>
         </nav>
-    );
-}
+
+    )
+
+};
 
 export default Navbar;
