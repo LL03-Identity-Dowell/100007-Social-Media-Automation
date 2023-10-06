@@ -36,6 +36,7 @@ const Sidebar = () => {
       </CustomLink>
     </div>
   );
+
 };
 
 export default Sidebar;
