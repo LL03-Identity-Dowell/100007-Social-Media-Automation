@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from website.models import User, IndustryData, Sentences, Category, UserTopic
@@ -30,8 +31,8 @@ class IndustryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         email = kwargs.pop('email')
         super(IndustryForm, self).__init__(*args, **kwargs)
-
-        self.fields['category'].queryset = Category.objects.filter(user__email=email)
+        q_filter = Q(user__email=email) | Q(is_default=True)
+        self.fields['category'].queryset = Category.objects.filter(q_filter).order_by('-created_datetime')
 
 
 
@@ -82,8 +83,8 @@ class SentencesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         email = kwargs.pop('email')
         super(SentencesForm, self).__init__(*args, **kwargs)
-
-        self.fields['topic'].queryset = UserTopic.objects.filter(user__email=email)
+        q_filter = Q(user__email=email) | Q(is_default=True)
+        self.fields['topic'].queryset = UserTopic.objects.filter(q_filter).order_by('-created_datetime')
 
 
 
