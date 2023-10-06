@@ -7,7 +7,7 @@ import { logoImage, profile } from '../../assets';
 
 function Navbar() {
     return (
-        <nav className="bg-customBlue text-white dark:bg-gray-900  w-full sticky top-0 border-b border-gray-200 dark:border-gray-600">
+        <nav className="bg-customBlue text-white dark:bg-gray-900  w-full z-20 sticky top-0 border-b border-gray-200 dark:border-gray-600">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <Link to="/" className="flex items-center">
                     {/* <img src={logoImage} className="h-8 mr-3" alt="Dowell Logo" /> */}
