@@ -22,6 +22,11 @@ from website.models import User
 from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer
 
+def under_maintenance(request):
+    context = {
+        'message': "Kindly bear with us and check back in a few.",
+    }
+    return render(request, 'under_maintenance.html', context)
 
 @csrf_exempt
 @xframe_options_exempt
@@ -29,8 +34,11 @@ from website.serializers import SentenceSerializer, IndustrySerializer
 def index(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
-        industryForm = IndustryForm()
-        sentencesForm = SentencesForm()
+        website_manager = WebsiteManager()
+        user = website_manager.get_or_create_user({'email': request.session['userinfo']['email']})
+        email = request.session['userinfo']['email']
+        industryForm = IndustryForm(email=email)
+        sentencesForm = SentencesForm(email=email)
         try:
             profile = str(request.session['operations_right'])
         except:
@@ -47,9 +55,9 @@ def index(request):
         if request.method == "POST":
             # if not credit_response.get('success'):
             #     return redirect(reverse('credit_error_view'))
-            industryForm = IndustryForm(request.POST)
+            industryForm = IndustryForm(request.POST, email=email)
             print(industryForm.is_valid())
-            sentencesForm = SentencesForm(request.POST)
+            sentencesForm = SentencesForm(request.POST, email=email)
             print(industryForm.is_valid())
             userid=request.session['user_id']
             topic=get_client_approval(userid)
@@ -57,8 +65,7 @@ def index(request):
             if industryForm.is_valid() and sentencesForm.is_valid():
 
                 # Adding the step 1 form data into the user session
-                request.session['industry_form_data'] = industryForm.cleaned_data
-                request.session['sentences_form_data'] = sentencesForm.cleaned_data
+                request.session['post_data'] = request.POST
 
                 url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
                 email = request.session['userinfo'].get('email')
@@ -68,7 +75,8 @@ def index(request):
                 industry.save()
 
                 object = sentencesForm.cleaned_data['object'].lower()
-                subject = sentencesForm.cleaned_data['subject']
+                subject = sentencesForm.cleaned_data['topic'].name
+
                 verb = sentencesForm.cleaned_data['verb']
                 objdet = sentencesForm.cleaned_data['object_determinant']
                 adjective = sentencesForm.cleaned_data['adjective']
@@ -83,10 +91,11 @@ def index(request):
                             'approve':topic
                        
                         }
+
                 
                 data_di={
                             'target_product':industryForm.cleaned_data['target_product'],
-                            'target_industry':industryForm.cleaned_data['target_industry'],
+                    'target_industry': industryForm.cleaned_data['category'].name,
                             'subject_determinant':sentencesForm.cleaned_data['subject_determinant'],
                             'subject':subject,
                             'subject_number':sentencesForm.cleaned_data['subject_number'],
@@ -181,7 +190,7 @@ def index(request):
                     sentence_grammar = Sentences.objects.create(
                         user=user,
                         object=object,
-                        subject=subject,
+                        topic=sentencesForm.cleaned_data['topic'],
                         verb=verb,
                         adjective=adjective,
                     )
@@ -243,12 +252,15 @@ def index(request):
         # Checking if the session contains any form data for step one.
         # If available, the forms are initialized with those values
         industry_form_data = request.session.get('industry_form_data')
-        sentences_form_data = request.session.get('sentences_form_data')
+        form_data = request.session.get('form_data')
 
-        if industry_form_data:
-            industryForm = IndustryForm(initial=industry_form_data)
-        if sentences_form_data:
-            sentencesForm = SentencesForm(initial=sentences_form_data)
+        if form_data:
+            industryForm = IndustryForm(form_data, email=email)
+            sentencesForm = SentencesForm(form_data, email=email)
+        else:
+            industryForm = IndustryForm(email=email)
+            sentencesForm = SentencesForm(email=email)
+
         forms = {'industryForm': industryForm,
                  'sentencesForm': sentencesForm, 'profile': profile}
         messages.info(
@@ -672,10 +684,11 @@ def category_topic(request):
 
             data = {
                 'category_list': request.POST.get('category_list').split(','),
-                'topic_list': request.POST.get('topic_list').split(','),
+                'topic_list': request.POST.get('topic_value').split(','),
                 'email': request.session['userinfo']['email'],
                 'created_by': request.session['userinfo']['email'],
             }
+
             if data.get('category_list'):
                 website_manager.create_user_categories_from_list(data)
                 messages.success(request, 'Categories saved successfully')

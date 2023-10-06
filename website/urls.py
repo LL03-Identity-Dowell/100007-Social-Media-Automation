@@ -4,6 +4,7 @@ from django.urls import path
 from website import views
 
 urlpatterns = [
+    # path('', views.under_maintenance, name='index'),
     path('', views.index, name='index'),
     path('api/v1', views.GenerateSentencesAPIView.as_view(), name='index_api'),
     path('schedule/', views.schedule, name='schedule'),

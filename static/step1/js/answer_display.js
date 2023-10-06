@@ -97,10 +97,10 @@ $(function () {
 
 $("#rateForm").submit(function () {
   if (non_zero_ranks < 3) {
-    displayNotification("You need to rank three or more sentences to submit.");
+      displayNotification("You need to rank three or more sentences to submit.");
     return false;
   } else {
-    displayNotification("Submitting your ranked topics...");
+      displayNotification("Submitting your ranked topics...");
     return true;
   }
 });
@@ -119,44 +119,44 @@ $("#rateForm").submit(function () {
 
 //Custom Notification popup
 function displayNotification(message) {
-  // Create a new notification element
-  var notification = document.createElement('div');
-  notification.classList.add('custom-notification');
-  notification.innerHTML = `
+    // Create a new notification element
+    var notification = document.createElement('div');
+    notification.classList.add('custom-notification');
+    notification.innerHTML = `
     <div class="notification">
       ${message}
       <button class="close-button">&times;</button>
     </div>
   `;
 
-  document.body.appendChild(notification);
+    document.body.appendChild(notification);
 
-  // Add an event listener to the close button
-  var closeButton = notification.querySelector('.close-button');
-  closeButton.addEventListener('click', function () {
-    notification.style.display = 'none';
-  });
+    // Add an event listener to the close button
+    var closeButton = notification.querySelector('.close-button');
+    closeButton.addEventListener('click', function () {
+        notification.style.display = 'none';
+    });
 
-  // Automatically close the notification after a set duration
-  notification.classList.add('timeout');
-  var contentElement = notification.querySelector('.notification');
-  var animationDuration = 10000; // Animation duration in milliseconds
-  var animationStartTime = Date.now();
+    // Automatically close the notification after a set duration
+    notification.classList.add('timeout');
+    var contentElement = notification.querySelector('.notification');
+    var animationDuration = 10000; // Animation duration in milliseconds
+    var animationStartTime = Date.now();
 
-  function decreaseWidth() {
-    var currentTime = Date.now();
-    var elapsedTime = currentTime - animationStartTime;
-    var progress = elapsedTime / animationDuration;
-    var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
+    function decreaseWidth() {
+        var currentTime = Date.now();
+        var elapsedTime = currentTime - animationStartTime;
+        var progress = elapsedTime / animationDuration;
+        var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
 
-    contentElement.style.setProperty('--after-width', updatedWidth + '%');
+        contentElement.style.setProperty('--after-width', updatedWidth + '%');
 
-    if (progress < 1) {
-      requestAnimationFrame(decreaseWidth);
-    } else {
-      notification.style.display = 'none'; // Hide the notification
+        if (progress < 1) {
+            requestAnimationFrame(decreaseWidth);
+        } else {
+            notification.style.display = 'none'; // Hide the notification
+        }
     }
-  }
 
-  requestAnimationFrame(decreaseWidth);
+    requestAnimationFrame(decreaseWidth);
 }
