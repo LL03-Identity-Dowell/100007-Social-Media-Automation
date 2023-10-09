@@ -1,6 +1,4 @@
-from django.shortcuts import render, redirect
 import concurrent.futures
-from concurrent.futures import ThreadPoolExecutor
 import datetime
 import json
 import random
@@ -38,8 +36,6 @@ from pymongo import MongoClient
 
 from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
-from credits.constants import STEP_4_SUB_SERVICE_ID
-from credits.credit_handler import CreditHandler
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 
@@ -3030,6 +3026,9 @@ def post_detail(request):
             wit = im.size
             if wit[0] >= width:
                 output.append(pictures)
+        if len(output) == 0:
+            messages.error(request, 'No images found!')
+            return redirect(reverse('generate_article:article-list'))
         images = output[1]
         print(profile)
 
