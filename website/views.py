@@ -54,8 +54,8 @@ def index(request):
             print(industryForm.is_valid())
             sentencesForm = SentencesForm(request.POST, email=email)
             print(industryForm.is_valid())
-            userid=request.session['user_id']
-            topic=get_client_approval(userid)
+            userid = request.session['user_id']
+            topic = get_client_approval(userid)
             print(topic)
             if industryForm.is_valid() and sentencesForm.is_valid():
 
@@ -76,41 +76,40 @@ def index(request):
                 objdet = sentencesForm.cleaned_data['object_determinant']
                 adjective = sentencesForm.cleaned_data['adjective']
                 auto_strings = {
-                            "object": object,
-                            "subject": subject,
-                            "verb": verb,
-                            "objdet": objdet,
-                            "objmod": adjective,
-                            "email":email,
-                            'user':user,
-                            'approve':topic
-                       
-                        }
+                    "object": object,
+                    "subject": subject,
+                    "verb": verb,
+                    "objdet": objdet,
+                    "objmod": adjective,
+                    "email": email,
+                    'user': user,
+                    'approve': topic
 
-                
-                data_di={
-                            'target_product':industryForm.cleaned_data['target_product'],
-                    'target_industry': industryForm.cleaned_data['category'].name,
-                            'subject_determinant':sentencesForm.cleaned_data['subject_determinant'],
-                            'subject':subject,
-                            'subject_number':sentencesForm.cleaned_data['subject_number'],
-                            'object_determinant':objdet,
-                            'object':object,
-                            'object_number':sentencesForm.cleaned_data['object_number'],
-                            'adjective':adjective,
-                            'verb':verb,
-                            "email":email,
-                            'user_id':request.session['user_id'],
-                            "session_id": request.session["session_id"],
-                            "org_id" : request.session['org_id'],
-                            'username':request.session['username'],
-                            'event_id':create_event()['event_id'],
-                            'client_admin_id': request.session['userinfo']['client_admin_id']
                 }
-               
+
+                data_di = {
+                    'target_product': industryForm.cleaned_data['target_product'],
+                    'target_industry': industryForm.cleaned_data['category'].name,
+                    'subject_determinant': sentencesForm.cleaned_data['subject_determinant'],
+                    'subject': subject,
+                    'subject_number': sentencesForm.cleaned_data['subject_number'],
+                    'object_determinant': objdet,
+                    'object': object,
+                    'object_number': sentencesForm.cleaned_data['object_number'],
+                    'adjective': adjective,
+                    'verb': verb,
+                    "email": email,
+                    'user_id': request.session['user_id'],
+                    "session_id": request.session["session_id"],
+                    "org_id": request.session['org_id'],
+                    'username': request.session['username'],
+                    'event_id': create_event()['event_id'],
+                    'client_admin_id': request.session['userinfo']['client_admin_id']
+                }
+
                 print(topic)
-                if topic['topic'] =='True':
-                    async_task("automate.services.step_1",auto_strings,data_di,hook='automate.services.hook_now')
+                if topic['topic'] == 'True':
+                    async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
                     print('yes.......o')
                     return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
                 else:
@@ -192,17 +191,17 @@ def index(request):
 
                     tenses = ['past', 'present', 'future']
                     other_grammar = ['passive',
-                                    'progressive', 'perfect', 'negated']
+                                     'progressive', 'perfect', 'negated']
                     api_results = []
 
                     for tense in tenses:
                         for grammar in other_grammar:
                             arguments = {'tense': tense, grammar: grammar}
-                        
+
                             api_result = api_call(arguments)
 
                             api_results.append(api_result)
-                       
+
                     with transaction.atomic():
                         sentence_results = [
                             SentenceResults(
@@ -234,7 +233,7 @@ def index(request):
                     sentences_dictionary = {
                         'sentences': sentence_results,
                     }
-                    
+
                     # messages.success(
                     #     request, 'Topics generated and ranked successfully. Click on Step 2 to generate articles.')
                     return render(request, 'answer_display.html', context=sentences_dictionary)
@@ -422,8 +421,8 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
 @xframe_options_exempt
 @transaction.atomic
 def selected_result(request):
-    userid=request.session['user_id']
-    topic=get_client_approval(userid)
+    userid = request.session['user_id']
+    topic = get_client_approval(userid)
     try:
         if 'session_id' and 'username' in request.session:
             if request.method == 'POST':
@@ -436,12 +435,12 @@ def selected_result(request):
                 # if not credit_response.get('success'):
                 #     return redirect(reverse('credit_error_view'))
                 sentence_ids = request.session.get('result_ids')
-                
+
                 loop_counter = 1
                 for sentence_id in sentence_ids:
                     selected_rank = request.POST.get(
                         'rank_{}'.format(loop_counter))
-                    
+
                     loop_counter += 1
                     sentence_result = SentenceResults.objects.get(
                         pk=sentence_id)
@@ -459,9 +458,9 @@ def selected_result(request):
                             }
                         }
                     }
-                    
+
                 data_dictionary = request.POST.dict()
-                data_dictionary['client_admin_id']= request.session['userinfo']['client_admin_id']
+                data_dictionary['client_admin_id'] = request.session['userinfo']['client_admin_id']
                 data_dictionary.pop('csrfmiddlewaretoken')
                 request.session['data_dictionary'] = {
                     **request.session['data_dictionary'],
@@ -469,13 +468,13 @@ def selected_result(request):
                 }
 
                 # del request.session['data_dictionary']
-                data_dic=request.session['data_dictionary']
+                data_dic = request.session['data_dictionary']
 
                 insert_form_data(request.session['data_dictionary'])
-               
+
                 print(topic)
-                if topic['article'] =='True':
-                    async_task("automate.services.generate_article",data_dic,hook='automate.services.hook_now2')
+                if topic['article'] == 'True':
+                    async_task("automate.services.generate_article", data_dic, hook='automate.services.hook_now2')
                     print('yes.......o')
                 else:
                     pass
@@ -570,7 +569,7 @@ def get_client_approval(user):
         "team_member_ID": "1071",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {"user_id":user},
+        "field": {"user_id": user},
         "update_field": {
             "order_nos": 21
         },
@@ -586,16 +585,16 @@ def get_client_approval(user):
 
     try:
         for value in response_data_json['data']:
-            aproval={
-                'topic':value['topic'],
-                'post':value['post'],
-                'article':value['article'],
-                'schedule':value['schedule']
+            aproval = {
+                'topic': value['topic'],
+                'post': value['post'],
+                'article': value['article'],
+                'schedule': value['schedule']
             }
-        return(aproval)
+        return (aproval)
     except:
-        aproval={'topic':'False'}
-    return(aproval)
+        aproval = {'topic': 'False'}
+    return (aproval)
 
 
 # added code for posts
