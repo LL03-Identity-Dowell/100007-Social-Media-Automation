@@ -27,16 +27,18 @@ class User(models.Model):
 
 
 class Category(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name='categories')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='categories')
     name = models.CharField(max_length=1000, blank=False, null=False)
+    is_default = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
 
 
 class UserTopic(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name='user_topic')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='user_topic')
     name = models.CharField(max_length=1000, blank=False, null=False)
+    is_default = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
