@@ -3,7 +3,6 @@ import Navbar from "./components/navbar/Navbar";
 import Sidebar from "./components/sidebar/Sidebar";
 
 const Layout = ({ children, side, show, close }) => {
-
   return (
     <div className="w-full ">
       <Navbar />
