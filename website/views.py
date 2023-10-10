@@ -675,19 +675,31 @@ def category_topic(request):
             return render(request, 'category_topic.html', )
         elif request.method == "POST":
             website_manager = WebsiteManager()
+            try:
+                topic_list = request.POST.get('topic_value').split(',')
 
+            except Exception as e:
+                topic_list = None
+
+            try:
+                category_list = request.POST.get('category_list').split(',')
+
+            except Exception as e:
+                category_list = None
             data = {
-                'category_list': request.POST.get('category_list').split(','),
-                'topic_list': request.POST.get('topic_value').split(','),
+                'category_list': category_list,
+                'topic_list': topic_list,
                 'email': request.session['userinfo']['email'],
                 'created_by': request.session['userinfo']['email'],
             }
 
-            if data.get('category_list'):
+            if len(category_list) == 1 and category_list[0] == '':
+                print('No category')
+            else:
                 website_manager.create_user_categories_from_list(data)
                 messages.success(request, 'Categories saved successfully')
 
-            if data.get('topic_list'):
+            if topic_list:
                 website_manager.create_user_topics_from_list(data)
                 messages.success(request, 'Topics have been saved successfully')
             return HttpResponseRedirect(reverse("generate_article:main-view"))
