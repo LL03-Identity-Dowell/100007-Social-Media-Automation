@@ -11,6 +11,12 @@ import NotFound from "./pages/NotFound/NotFound"
 import MyPlan from "./pages/Statistics/MyPlan"
 import MyTeam from "./pages/Statistics/MyTeam"
 import MyUsage from "./pages/Statistics/MyUsage"
+import HashtagsMentions from "./pages/SettingsPages/HashtagsMentions"
+import CategoriesTopic from "./pages/SettingsPages/CategoriesTopic"
+import Address from "./pages/Address/Address"
+import UserProfile from "./pages/UserProfile/UserProfile"
+import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels"
+import ApprovalByClient from "./pages/UserProfile/ApprovalByClient"
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -31,10 +37,16 @@ function App() {
           <Route path='/post-list' element={<PostList show={handleOpenSideBar} />} />
           <Route path='/schedule' element={<Schedule show={handleOpenSideBar} />} />
           <Route path='/comment' element={<Comment show={handleOpenSideBar} />} />
-          <Route path="*" element={<NotFound show={handleOpenSideBar} />} />
-          <Route path="/statistics/my-plan" element={<MyPlan show={handleOpenSideBar} />} />
-          <Route path="/statistics/my-team" element={<MyTeam show={handleOpenSideBar} />} />
-          <Route path="/statistics/my-usage" element={<MyUsage show={handleOpenSideBar} />} />
+          <Route path='/address' element={<Address close={handleCloseSideBar} />} />
+          <Route path='/user-profile' element={<UserProfile close={handleCloseSideBar} />} />
+          <Route path='/social-media-channels' element={<SocialMediaChannels close={handleCloseSideBar} />} />
+          <Route path='/user-approval' element={<ApprovalByClient close={handleCloseSideBar} />} />
+          <Route path="*" element={<NotFound close={handleCloseSideBar} />} />
+          <Route path="/statistics/my-plan" element={<MyPlan close={handleCloseSideBar} />} />
+          <Route path="/statistics/my-team" element={<MyTeam close={handleCloseSideBar} />} />
+          <Route path="/statistics/my-usage" element={<MyUsage close={handleCloseSideBar} />} />
+          <Route path="/settings/hastagsandmentions" element={<HashtagsMentions close={handleCloseSideBar} />} />
+          <Route path="/settings/categoriesandtopic" element={<CategoriesTopic close={handleCloseSideBar} />} />
         </Routes>
       </Layout>
     </>
