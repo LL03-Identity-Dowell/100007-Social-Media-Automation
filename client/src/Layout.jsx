@@ -6,13 +6,13 @@ const Layout = ({ children, side }) => {
     // const [showSidebar, setShowSidebar] = useState(false);
     
   return (
-    <div className="grid ">
+    <div className="grid">
       <Navbar />
       <div className="grid grid-cols-6">
       
         {side && <div className="col-span-1"> <Sidebar /></div> }
 
-      <main >
+      <main className="grid col-start-2 col-end-7">
         {children}
       </main>
       </div>
