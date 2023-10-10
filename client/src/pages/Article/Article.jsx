@@ -22,12 +22,12 @@ const Article = (props) => {
       </div>
       <div className="articles">
         <div className="article">
-          <p className="article-header text-[#1434A4] pb-2">
+          <p className="article-header text-[#1434A4]">
             The Consumer Behaviour was selling designer clothings, shoes and
             bags information.
           </p>
-          <div className="content-button sm:flex-col md:flex md:flex-row justify-between items-baseline">
-            <p className="sm:w-full sm:pb-4 md:w-[70%] lg:w-4/5">
+          <div className="content-button flex flex-col md:flex-row justify-between items-baseline py-4">
+            <p className="w-full pb-4 md:w-[70%] lg:w-4/5">
               The consumer behaviour in the designer clothing, shoe and bag
               industry is changing. Companies are now focusing on understanding
               the needs and wants of their customers and creating experiences
@@ -36,18 +36,18 @@ const Article = (props) => {
               efforts. Companies …
             </p>
             <Button
-              className="sm:w-full sm:mb-6 md:w-[128px]"
+              className="w-full mb-6 md:w-[128px]"
               text="View Article"
             />
           </div>
         </div>
         <div className="article">
-          <p className="article-header text-[#1434A4] pb-2">
+          <p className="article-header text-[#1434A4]">
             The Consumer Behaviour was selling designer clothings, shoes and
             bags information.
           </p>
-          <div className="content-button sm:flex-col md:flex md:flex-row justify-between items-baseline">
-            <p className="sm:w-full sm:pb-4 md:w-[70%] lg:w-4/5">
+          <div className="content-button flex flex-col md:flex-row justify-between items-baseline py-4">
+            <p className="w-full pb-4 md:w-[70%] lg:w-4/5">
               The consumer behaviour in the designer clothing, shoe and bag
               industry is changing. Companies are now focusing on understanding
               the needs and wants of their customers and creating experiences
@@ -56,18 +56,18 @@ const Article = (props) => {
               efforts. Companies …
             </p>
             <Button
-              className="sm:w-full sm:mb-6 md:w-[128px]"
+              className="w-full mb-6 md:w-[128px]"
               text="View Article"
             />
           </div>
         </div>
         <div className="article">
-          <p className="article-header text-[#1434A4] pb-2">
+          <p className="article-header text-[#1434A4]">
             The Consumer Behaviour was selling designer clothings, shoes and
             bags information.
           </p>
-          <div className="content-button sm:flex-col md:flex md:flex-row justify-between items-baseline">
-            <p className="sm:w-full sm:pb-4 md:w-[70%] lg:w-4/5">
+          <div className="content-button flex flex-col md:flex-row justify-between items-baseline py-4">
+            <p className="w-full pb-4 md:w-[70%] lg:w-4/5">
               The consumer behaviour in the designer clothing, shoe and bag
               industry is changing. Companies are now focusing on understanding
               the needs and wants of their customers and creating experiences
@@ -76,7 +76,7 @@ const Article = (props) => {
               efforts. Companies …
             </p>
             <Button
-              className="sm:w-full sm:mb-6 md:w-[128px]"
+              className="w-full mb-6 md:w-[128px]"
               text="View Article"
             />
           </div>
