@@ -3,14 +3,14 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "./node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}",
-    "./node_modules/flowbite/**/*.{js,jsx,ts,tsx}"
+    'node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}'
   ],
 
   theme: {
     extend: {
       colors: {
         customBlue: "#1B3474",
+        customTextBlue: "#1434A4",
         customPink: "#F6A6C2",
         customYellow: "#FFE786",
         customGreen: "#8AABFF",

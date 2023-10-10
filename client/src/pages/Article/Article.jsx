@@ -1,10 +1,15 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "../../components/button";
 
 const Article = (props) => {
-  const { noOfArticles } = props;
+  const { noOfArticles, show } = props;
+
+  useEffect(() => {
+    show();
+  }, []);
+
   return (
     <div className="article-container pt-16 px-6 max-w-6xl">
       <div className="header text-center">
