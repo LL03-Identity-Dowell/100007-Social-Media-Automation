@@ -10,7 +10,7 @@ const Layout = ({ children, side, show }) => {
     }, [])
     
   return (
-    <div className="w-full overflow-hidden">
+    <div className="w-full ">
       <Navbar />
       <div className={!side ? " grid w-full " : "grid grid-cols-10 2xl:grid-cols-12"}>
       <div className={ show && "col-span-1"}> 
