@@ -17,6 +17,7 @@ import Address from "./pages/Address/Address"
 import UserProfile from "./pages/UserProfile/UserProfile"
 import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels"
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient"
+import ClientProfile from "./pages/UserProfile/ClientProfile"
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -41,6 +42,7 @@ function App() {
           <Route path='/user-profile' element={<UserProfile close={handleCloseSideBar} />} />
           <Route path='/social-media-channels' element={<SocialMediaChannels close={handleCloseSideBar} />} />
           <Route path='/user-approval' element={<ApprovalByClient close={handleCloseSideBar} />} />
+          <Route path='/client-profile' element={<ClientProfile close={handleCloseSideBar} />} />
           <Route path="*" element={<NotFound close={handleCloseSideBar} />} />
           <Route path="/statistics/my-plan" element={<MyPlan close={handleCloseSideBar} />} />
           <Route path="/statistics/my-team" element={<MyTeam close={handleCloseSideBar} />} />

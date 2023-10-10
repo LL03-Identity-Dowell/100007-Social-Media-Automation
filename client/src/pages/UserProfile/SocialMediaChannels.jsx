@@ -13,12 +13,12 @@ const SocialMediaChannels = () => {
             </h2>
           </div>
           <div className="flex gap-4">
-            <FaFacebook className="text-5xl text-blue-700"/> 
-            <FaTwitter className="text-5xl text-blue-500"/> 
-            <FaInstagram className="text-5xl text-pink-600"/> 
-            <FaLinkedin className="text-5xl text-blue-800"/>
-            <FaYoutube className="text-5xl text-red-700"/>
-            <FaPinterest className="text-5xl text-red-600"/>
+            <FaFacebook className="text-3xl md:text-5xl text-blue-700"/> 
+            <FaTwitter className="text-3xl md:text-5xl text-blue-500"/> 
+            <FaInstagram className="text-3xl md:text-5xl text-pink-600"/> 
+            <FaLinkedin className="text-3xl md:text-5xl text-blue-800"/>
+            <FaYoutube className="text-3xl md:text-5xl text-red-700"/>
+            <FaPinterest className="text-3xl md:text-5xl text-red-600"/>
           </div>
           <div className="flex justify-center items-center mt-6 md:mt-8">
             <Link
