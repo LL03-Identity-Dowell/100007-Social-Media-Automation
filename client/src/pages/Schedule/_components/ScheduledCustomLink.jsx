@@ -6,7 +6,7 @@ export const ScheduledCustomLink = ({ children, to, pathname }) => {
     <Link
       className={twMerge(
         "text-[#34495e] text-3xl font-bold hover:text-customBlue hover:underline",
-        pathname === "recent" && "text-customBlue underline"
+        pathname === to.split("/")[1] && "text-customBlue underline"
       )}
       to={to}
     >

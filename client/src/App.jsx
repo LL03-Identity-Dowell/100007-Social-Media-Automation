@@ -17,9 +17,6 @@ import Address from "./pages/Address/Address";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
-import ScheduledPage from "./pages/Schedule/_components/Scheduled";
-import UnscheduledPage from "./pages/Schedule/_components/Unscheduled";
-import MostRecent from "./pages/Schedule/_components/MostRecent";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -104,6 +101,7 @@ function App() {
             path='/settings/categoriesandtopic'
             element={<CategoriesTopic close={handleCloseSideBar} />}
           />
+
         </Routes>
       </Layout>
     </>

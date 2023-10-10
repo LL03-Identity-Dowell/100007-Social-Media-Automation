@@ -26,7 +26,7 @@ function Navbar() {
                     </div>
                     
                     <div className="hidden md:block">
-                    <button data-tooltip-target="user-tooltip" data-tooltip-placement="right" type="button" className="relative flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 " id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="right">
+                    <button data-tooltip-target="user-tooltip1" data-tooltip-placement="left" type="button" className="relative flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 " id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown1" data-dropdown-placement="right">
                                 <span className="sr-only">Open user menu</span>
                                 <FaUser className="w-8 h-8 p-1 rounded-full text-customBlue" />
                                 <svg className="w-2.5 h-2.5 ml-2.5 absolute -right-4 top-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
@@ -34,13 +34,13 @@ function Navbar() {
                                 </svg>
                             </button>
 
-                            <div id="user-tooltip" role="tooltip" className="absolute z-50 invisible inline-block px-3 py-2 font-medium bg-white rounded-lg shadow-sm opacity-0 text-tooltipsm text-customBlue tooltip dark:bg-gray-700">
+                            <div id="user-tooltip1" role="tooltip" className="absolute z-50 invisible inline-block px-3 py-2 font-medium bg-white rounded-lg shadow-sm opacity-0 text-tooltipsm text-customBlue tooltip dark:bg-gray-700">
                                 User profile
                                 <div className="tooltip-arrow" data-popper-arrow></div>
                             </div>
 
                             {/* Dropdown menu */}
-                            <div className="z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
+                            <div className="z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown1">
                                 <div className="px-4 py-3">
                                     <span className="block text-sm text-customBlue hover:text-customGray">User Name</span>
                                     <span className="block text-sm text-gray-500 truncate dark:text-gray-400 hover:text-customGray">name@mail.com</span>

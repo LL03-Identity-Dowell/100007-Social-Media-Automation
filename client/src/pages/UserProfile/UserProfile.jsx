@@ -19,26 +19,26 @@ const UserProfile = ({ close }) => {
             </h4>
             
           </div>
-          <div className="flex flex-col md:flex-row justify-center items-center mt-6 md:mt-10 gap-4 md:gap-14 xl:gap-16 ">
-            <Link to="/" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaUser className="text-[100px]"/>
-                <h5 className="font-bold pt-4">View Client's Profile</h5>
+          <div className="flex flex-wrap md:flex-row justify-center items-center mt-6 md:mt-10 gap-4 md:gap-8 xl:gap-12 ">
+            <Link to="/client-profile" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
+                <FaUser className="text-6xl md:text-[100px]"/>
+                <h5 className="font-bold pt-4 text-sm md:text-lg">View Client's Profile</h5>
             </Link>
             <Link to="/social-media-channels" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaMailBulk className="text-[100px]"/>
-                <h5 className="font-bold pt-4">Social Media Channels</h5>
+                <FaMailBulk className="text-6xl md:text-[100px]"/>
+                <h5 className="font-bold pt-4 text-sm md:text-lg">Social Media Channels</h5>
             </Link>
             <Link to="/" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaMapMarkedAlt className="text-[100px]"/>
-                <h5 className="font-bold pt-4">Targeted Cities</h5>
+                <FaMapMarkedAlt className="text-6xl md:text-[100px]"/>
+                <h5 className="font-bold pt-4 text-sm md:text-lg">Targeted Cities</h5>
             </Link>
             <Link to="/user-approval" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaUserCheck className="text-[100px]"/>
-                <h5 className="font-bold pt-4">Approval by clients</h5>
+                <FaUserCheck className="text-6xl md:text-[100px]"/>
+                <h5 className="font-bold pt-4 text-sm md:text-lg">Approval by clients</h5>
             </Link>
             <Link to="/" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaUser className="text-[100px]"/>
-                <h5 className="font-bold pt-4">View Team</h5>
+                <FaUser className="text-6xl md:text-[100px]"/>
+                <h5 className="font-bold pt-4 text-sm md:text-lg">View Team</h5>
             </Link>
           </div>
         </div>
