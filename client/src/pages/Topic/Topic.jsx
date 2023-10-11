@@ -154,14 +154,14 @@ function Topic({ show }) {
             <div className="w-[90%] md:w-[50%] xl:w-[40%] flex gap-8">
               <div class="flex items-center mb-4">
                 <input
-                  id="article"
+                  id="theme"
                   type="radio"
                   value=""
-                  name="article"
+                  name="theme"
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label
-                  for="article"
+                  for="theme"
                   className="ml-2 text-lg font-medium text-customGray dark:text-gray-500"
                 >
                   Singular
@@ -169,14 +169,14 @@ function Topic({ show }) {
               </div>
               <div class="flex items-center mb-4">
                 <input
-                  id="article"
+                  id="theme"
                   type="radio"
                   value=""
-                  name="article"
+                  name="theme"
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label
-                  for="article"
+                  for="theme"
                   className="ml-2 text-lg font-medium text-customGray dark:text-gray-500"
                 >
                   Plural
@@ -248,8 +248,11 @@ function Topic({ show }) {
             </div>
           </div>
 
-          <div className="flex justify-end px-6">
-            <button className="bg-yellow-400 rounded py-2 px-6 md:mr-8">Submit</button>
+          <div className="flex justify-end md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
+            <div className="w-full md:w-[300px] ">
+              <button className="bg-customYellow rounded py-2 px-6 md:mr-8">Submit</button>
+
+            </div>
 
           </div>
         </form>
