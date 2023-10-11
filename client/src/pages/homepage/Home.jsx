@@ -8,8 +8,8 @@ const Home = ({ close }) => {
   }, [])
   return (
     <div className="w-[100vw] h-[90vh]">
-      <div className="flex justify-between flex-col md:flex-row">
-        <div className="text-center w-full px-2 xl:px-6 py-8">
+      <div className="flex flex-col justify-between md:flex-row">
+        <div className="w-full px-2 py-8 text-center xl:px-6">
           <h1 className="text-2xl xl:text-[30px] font-semibold text-customBlue">Automate Your Social Media with Samanta</h1>
           <p className="text-customDarkpuprle font-semibold text-[18px] md:text-[20px] py-4 xl:py-6">Easily Manage all your Social and get Efficient Results</p>
 
@@ -28,7 +28,7 @@ const Home = ({ close }) => {
             <Link to="/post-list">
               <img src={step3} alt="post" className="" title='Post' />
             </Link>
-            <Link to="/schedule">
+            <Link to="/scheduled">
               <img src={step4} alt="schedule" className="" title='Schedule' />
             </Link>
             <Link to="/comment">
