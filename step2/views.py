@@ -1,6 +1,4 @@
-from django.shortcuts import render, redirect
 import concurrent.futures
-from concurrent.futures import ThreadPoolExecutor
 import datetime
 import json
 import random
@@ -3543,6 +3541,22 @@ def Media_schedule(request):
         return JsonResponse('scheduled', safe=False)
     else:
         return JsonResponse('social_media_channels', safe=False)
+
+
+@csrf_exempt
+@xframe_options_exempt
+def admin_approve_social_media(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+
+            return render(request, 'admin_approve.html', )
+        elif request.method == "POST":
+
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
+
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)
