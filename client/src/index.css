@@ -2,12 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-body,
+/* body,
 html,
 * {
   scrollbar-gutter: stable;
-}
-
+} */
 
 .icons8-clock {
   display: inline-block;
@@ -17,4 +16,3 @@ html,
     50% 50% no-repeat;
   background-size: 100%;
 }
-
