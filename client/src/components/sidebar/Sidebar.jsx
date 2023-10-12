@@ -24,7 +24,7 @@ const Sidebar = () => {
           alt=''
         />
       </CustomLink>
-      <CustomLink title='Schedule' to='/schedule'>
+      <CustomLink title='Schedule' to='/scheduled'>
         <img
           src='calendar-days-solid.svg'
           className='w-5 h-5 md:h-8 md:w-8'
