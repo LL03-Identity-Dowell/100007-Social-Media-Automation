@@ -297,7 +297,7 @@ def dowell_login(request):
     try:
         session_id = request.GET.get('session_id', None)
         request.session["session_id"] = session_id
-        return redirect("http://127.0.0.1:8000/main")
+        return redirect("http://127.0.0.1:8000/api/v1/main/")
     except:
         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
