@@ -1,3 +1,11 @@
+import Modal from "./Modal";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Cross2Icon } from "@radix-ui/react-icons";
+import {
+  SocialComponentForPost,
+  SocialComponentForSchedule,
+} from "./SocialComponent";
+
 const dummyData = [
   {
     title:
@@ -561,19 +569,36 @@ const UnscheduledPage = () => {
                 {item.title}
               </h3>
               <p className='text-[#333]'>{item.paragraph}</p>
+
               <div className='self-end space-x-8'>
-                <button
-                  type='button'
-                  className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-customBlue'
-                >
-                  Post Now
-                </button>
-                <button
-                  type='button'
-                  className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-[#5c6388]'
-                >
-                  Schedule
-                </button>
+                <Modal article={item} title='post'>
+                  <Dialog.Close asChild>
+                    <button
+                      className='text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none'
+                      aria-label='Close'
+                    >
+                      <Cross2Icon />
+                    </button>
+                  </Dialog.Close>
+                  <Dialog.Title className=' text-center text-[#1b3476] m-0 text-3xl font-semibold'>
+                    Where do you want to post?
+                  </Dialog.Title>
+                  <SocialComponentForPost article={item} />
+                </Modal>
+                <Modal article={item} title='schedule'>
+                  <Dialog.Close asChild>
+                    <button
+                      className='text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none'
+                      aria-label='Close'
+                    >
+                      <Cross2Icon />
+                    </button>
+                  </Dialog.Close>
+                  <Dialog.Title className=' text-center text-[#1b3476] m-0 text-3xl font-semibold'>
+                    Where do you want to post?
+                  </Dialog.Title>
+                  <SocialComponentForSchedule article={item} />
+                </Modal>
               </div>
             </div>
             <img
