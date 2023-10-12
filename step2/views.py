@@ -39,6 +39,14 @@ from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 
+
+# rest(React endpoints)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import ProfileSerializer
+
+
 # helper functions
 
 global PEXELS_API_KEY
@@ -295,89 +303,79 @@ def dowell_login(request):
         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
 
-@csrf_exempt
-@xframe_options_exempt
-def main(request):
-    if request.session.get("session_id"):
-        user_map = {}
-        redirect_to_living_lab = True
-        # First API
-        url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-        # headers = {"Authorization": f"Bearer {session_id}"}
-        session_id = request.session["session_id"]
-        response_1 = requests.post(url_1, data={"session_id": session_id})
-        if response_1.status_code == 200 and "portfolio_info" in response_1.json():
-            # First API response contains portfolio_info data
-            profile_details = response_1.json()
-            request.session['portfolio_info'] = profile_details['portfolio_info']
-            print('This is the portfolio info  has data for you: ',
-                  profile_details['portfolio_info'])
-            print('This is the user the userID: ',
-                  profile_details['userinfo']['userID'])
-            user_map[profile_details['userinfo']['userID']
-                     ] = profile_details['userinfo']['username']
+class MainAPIView(APIView):
+    def get(self, request):
+        if request.session.get("session_id"):
+            user_map = {}
+            redirect_to_living_lab = True
+            url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
+            session_id = request.session["session_id"]
+            response_1 = requests.post(url_1, data={"session_id": session_id})
 
-            # if has_access(profile_details['portfolio_info']):
-
-            #     messages.error(request,'You are not allowed to access this page')
-            #     return render(request, 'portofolio-logib.html')
-        else:
-            # Second API
-            url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
-            response_2 = requests.post(
-                url_2, data={"session_id": session_id})
-            if response_2.status_code == 200 and "portfolio_info" in response_2.json():
-                profile_details = response_2.json()
+            if response_1.status_code == 200 and "portfolio_info" in response_1.json():
+                profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
-                print(profile_details['portfolio_info'])
                 user_map[profile_details['userinfo']['userID']
                          ] = profile_details['userinfo']['username']
-                # if has_access(profile_details['portfolio_info']):
-                #     messages.error(request,'You are not allowed to access this page')
-                #     return render(request, 'portofolio-logib.html')
-            else:
-                # Neither API returned portfolio_info data
-                profile_details = {}
-                request.session['portfolio_info'] = []
 
-        if "userinfo" in profile_details:
-            request.session['userinfo'] = profile_details['userinfo']
-            request.session['username'] = profile_details['userinfo']['username']
-            request.session['user_id'] = profile_details['userinfo']['userID']
-            request.session['timezone'] = profile_details['userinfo']['timezone']
-
-        if request.session['portfolio_info'] == []:
-            request.session['operations_right'] = 'member'
-            request.session['org_id'] = '0001'
-        else:
-            for info in request.session['portfolio_info']:
-                if info['product'] == 'Social Media Automation':
-                    request.session['operations_right'] = info['operations_right']
-                    request.session['org_id'] = info['org_id']
-                    break
             else:
+                url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
+                response_2 = requests.post(
+                    url_2, data={"session_id": session_id})
+
+                if response_2.status_code == 200 and "portfolio_info" in response_2.json():
+                    profile_details = response_2.json()
+                    request.session['portfolio_info'] = profile_details['portfolio_info']
+                    user_map[profile_details['userinfo']['userID']
+                             ] = profile_details['userinfo']['username']
+
+                else:
+                    profile_details = {}
+                    request.session['portfolio_info'] = []
+
+            if "userinfo" in profile_details:
+                request.session['userinfo'] = profile_details['userinfo']
+                request.session['username'] = profile_details['userinfo']['username']
+                request.session['user_id'] = profile_details['userinfo']['userID']
+                request.session['timezone'] = profile_details['userinfo']['timezone']
+
+            if request.session['portfolio_info'] == []:
                 request.session['operations_right'] = 'member'
-                request.session['org_id'] = info['org_id'] if info else ''
+                request.session['org_id'] = '0001'
+            else:
+                for info in request.session['portfolio_info']:
+                    if info['product'] == 'Social Media Automation':
+                        request.session['operations_right'] = info['operations_right']
+                        request.session['org_id'] = info['org_id']
+                        break
+                else:
+                    request.session['operations_right'] = 'member'
+                    request.session['org_id'] = info['org_id'] if info else ''
 
-        # Map the username with the userID
-        username = user_map.get(request.session['user_id'], None)
-        print(user_map)
+            username = user_map.get(request.session['user_id'], None)
 
-        # Adding session id to the session
-        request.session['session_id'] = session_id
-        if username:
-            username_with_userID = request.session['username'] = username
-        if not has_access(request.session['portfolio_info']):
-            return render(request, 'portofolio-logib.html')
-        # credit_handler = CreditHandler()
-        # credit_handler.login(request)
+            request.session['session_id'] = session_id
 
-        return render(request, 'main.html')
-    else:
-        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
-        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+            if not has_access(request.session['portfolio_info']):
+                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+            # credit_handler = CreditHandler()
+            # credit_handler.login(request)
 
-    return render(request, 'error.html')
+            # Serialize the response data using ProfileSerializer
+            serializer = ProfileSerializer({
+                "userinfo": profile_details.get('userinfo', {}),
+                "portfolio_info": profile_details.get('portfolio_info', []),
+                "username": request.session['username'],
+                "user_id": request.session['user_id'],
+                "timezone": request.session['timezone'],
+                "operations_right": request.session['operations_right'],
+                "org_id": request.session['org_id']
+            })
+
+            return Response(serializer.data)
+
+        else:
+            return redirect("https://100014.pythonanywhere.com/?redirect_url=http:127.0.0.1:8000/")
 
 
 def forget_password(request):
@@ -3517,21 +3515,21 @@ def Media_schedule(request):
 
         user_id = request.session['user_id']
         key = get_key(user_id)
-        if len(splited)==0:
-            arguments =(
-                (postes,platforms,key,image,request,post_id,formart),
-        )
+        if len(splited) == 0:
+            arguments = (
+                (postes, platforms, key, image, request, post_id, formart),
+            )
         if len(platforms) == 0:
 
-            arguments =(
-                (twitter_post,splited,key,image,request,post_id,formart),
-        )
+            arguments = (
+                (twitter_post, splited, key, image, request, post_id, formart),
+            )
             print(arguments)
         else:
-            arguments =(
-                (postes,platforms,key,image,request,post_id,formart),
-                (twitter_post,splited,key,image,request,post_id,formart)
-        )
+            arguments = (
+                (postes, platforms, key, image, request, post_id, formart),
+                (twitter_post, splited, key, image, request, post_id, formart)
+            )
         "posting to Various social media"
         with concurrent.futures.ThreadPoolExecutor() as executor:
             # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
