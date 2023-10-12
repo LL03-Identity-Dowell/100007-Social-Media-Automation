@@ -3558,6 +3558,21 @@ def admin_approve_social_media(request):
         return render(request, 'error.html')
 
 
+@csrf_exempt
+@xframe_options_exempt
+def create_social_media_request(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+
+            return render(request, 'admin_approve.html', )
+        elif request.method == "POST":
+
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
+
+
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)
 # def files_ListSearchView(request):

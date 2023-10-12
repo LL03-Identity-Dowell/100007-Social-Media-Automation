@@ -13,6 +13,7 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+
 class Data(models.Model):
     title = models.CharField(max_length=130)
     paragraph = models.TextField(max_length=2000)
@@ -21,7 +22,8 @@ class Data(models.Model):
         ("Accepted", 'Accepted'),
         ("Rejected", 'Rejected'),
     ]
-    status = models.CharField(max_length=12,choices=STATUS_CHOICES, null = True, blank = True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, null=True, blank=True)
+
 
 class paragraph(models.Model):
     title = models.CharField(max_length=130)
@@ -31,17 +33,18 @@ class paragraph(models.Model):
         ("Accepted", 'Accepted'),
         ("Rejected", 'Rejected'),
     ]
-    status = models.CharField(max_length=12,choices=STATUS_CHOICES, null = True, blank = True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, null=True, blank=True)
+
 
 class stepFour(models.Model):
     title = models.CharField(max_length=130)
     paragraph = models.TextField(max_length=2000)
-    source = models.TextField(max_length=2000, blank =False, null = True)
+    source = models.TextField(max_length=2000, blank=False, null=True)
     qualitative_categorization = models.CharField(max_length=130)
-    targeted_for = models.CharField(max_length = 130)
-    designed_for = models.CharField(max_length = 130)
-    targeted_category = models.CharField(max_length = 130)
-    image = models.ImageField(upload_to ='article_images/')
+    targeted_for = models.CharField(max_length=130)
+    designed_for = models.CharField(max_length=130)
+    targeted_category = models.CharField(max_length=130)
+    image = models.ImageField(upload_to='article_images/')
 
 
 class SocialMediaRequest(BaseModel):
@@ -49,3 +52,15 @@ class SocialMediaRequest(BaseModel):
     email = models.CharField(max_length=500, null=False, blank=False)
     name = models.CharField(max_length=500, null=False, blank=False)
     is_approved = models.BooleanField(default=False)
+
+
+class Step2Manager:
+    def create_social_media_request(self, data):
+        """
+        This method creates social media request
+        """
+        return SocialMediaRequest.objects.create(
+            username=data.get('username'),
+            email=data.get('email'),
+            name=data.get('name'),
+        )
