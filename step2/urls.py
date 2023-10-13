@@ -2,19 +2,21 @@ from django.urls import path
 
 from . import views
 # react endpoints
-from .views import MainAPIView
+from .views import MainAPIView, UserApprovalView, GenerateArticleView, PostListView,DowellLoginAPIView
+
+
 
 app_name = 'generate_article'
 
 urlpatterns = [
     # path('', views.under_maintenance, name='home'),
     path('', views.dowell_login, name="dowelllogin"),
+    # path('main', views.main, name='main-view'),
     path('scheduled/', views.scheduled, name='scheduled-posts'),
     path('scheduled_json/', views.scheduled_json, name='scheduled-jsonposts'),
     path('schedule/', views.unscheduled, name='unscheduled-posts'),
     path('jsonpost/', views.unscheduled_json, name='unscheduled-jsonpost'),
     path('scheduler/', views.post_scheduler, name='post-scheduler'),
-    path('article_list/', views.post_list, name='article-list'),
     path('article_list/articles/', views.list_article_view,
          name='article-list-articles'),
     path('article_list/<str:filter>/', views.filtered_list_article,
@@ -28,11 +30,6 @@ urlpatterns = [
     path('confirm/reset/password/', views.confirm_reset_password,
          name='confirm-reset-password'),
     path('forget_password/', views.forget_password, name='forget_password'),
-    path('user/approval/', views.user_approval, name='user-approval'),
-    path('user/approval/form/', views.user_approval_form,
-         name='user-approval-form'),
-    path('user/approval/form_update/',
-         views.user_approval_form_update, name='user-approval-update'),
     path('social_media_channels/', views.social_media_channels,
          name='social_media_channels'),
     path('link/linkusers/', views.aryshare_profile, name='aryshare'),
@@ -65,7 +62,6 @@ urlpatterns = [
     path('article/generate/', views.index, name='index-view'),
     path('article/automate/', views.generate_article_automatically,
          name='automatic-view'),
-    path('article/AI/', views.generate_article, name='submit-title'),
     path('article/Wiki/', views.generate_article_wiki, name='submit-title-wiki'),
     path('write/article/', views.write_yourself, name='write-yourself'),
     path('verify/article/', views.verify_article, name='verify-article'),
@@ -92,8 +88,15 @@ urlpatterns = [
     # path('saved/',views.save_article,name='save-article'),
 
 
+
     # React endpoints start here
     path('api/v1/main/', MainAPIView.as_view(), name='main-api'),
+    path('api/v1/user-approval/', UserApprovalView.as_view(),
+         name='user_approval_api'),
+    path('api/v1/article/AI/', GenerateArticleView.as_view(), name='submit-title'),
+    path('api/v1/article_list/', PostListView.as_view(), name='submit-title'),
+     path('api/v1/login/', views.DowellLoginAPIView.as_view(), name="dowelllogin-api"),
+
 
 
 

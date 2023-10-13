@@ -196,7 +196,7 @@ Q_CLUSTER = {
     'timeout': 300,
     'retry': 350,
     'queue_limit': 50,
-    'ack_failures':True,
+    'ack_failures': True,
     'attempt_count': 1,
     'bulk': 10,
     'orm': 'default'}
