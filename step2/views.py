@@ -643,6 +643,7 @@ def social_media_channels(request):
                          'Social media request was saved successfully. Wait for the admin to accept the request')
         return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
     else:
+        step_2_manager = Step2Manager()
         username = request.session['username']
         session = request.session['session_id']
         print(session)
@@ -651,6 +652,16 @@ def social_media_channels(request):
         linked_accounts = check_connected_accounts(username)
         context_data = {'user_has_social_media_profile': user_has_social_media_profile,
                         'linked_accounts': linked_accounts}
+        username = request.session['username']
+        org_id = request.session['org_id']
+
+        data = {
+            'username': username,
+            'org_id': org_id,
+        }
+        social_media_request = step_2_manager.get_approved_user_social_media_request(data)
+        if social_media_request:
+            context_data['can_connect'] = True
 
         return render(request, 'social_media_channels.html', context_data)
 

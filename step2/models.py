@@ -60,6 +60,10 @@ class Step2Manager:
         """
         This method creates social media request
         """
+        SocialMediaRequest.objects.filter(
+            username=data.get('username'),
+            org_id=data.get('org_id'),
+        ).delete()
         return SocialMediaRequest.objects.create(
             username=data.get('username'),
             email=data.get('email'),
@@ -79,3 +83,12 @@ class Step2Manager:
     def update_social_media_request_status(self, data):
         return SocialMediaRequest.objects.filter(id__in=data.get('social_media_request_id')).update(
             is_approved=data.get('is_approved'))
+
+    def get_approved_user_social_media_request(self, data):
+        social_media_request = SocialMediaRequest.objects.filter(
+            username=data.get('username'),
+            org_id=data.get('org_id'),
+            is_approved=True,
+        )
+        if social_media_request:
+            return social_media_request.last()
