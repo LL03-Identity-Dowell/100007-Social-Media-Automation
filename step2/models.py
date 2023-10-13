@@ -66,3 +66,16 @@ class Step2Manager:
             name=data.get('name'),
             org_id=data.get('org_id'),
         )
+
+    def get_all_unapproved_social_media_request(self, data):
+        """
+
+        """
+        return SocialMediaRequest.objects.filter(
+            org_id=data.get('org_id'),
+            is_approved=False,
+        )
+
+    def update_social_media_request_status(self, data):
+        return SocialMediaRequest.objects.filter(id__in=data.get('social_media_request_id')).update(
+            is_approved=data.get('is_approved'))

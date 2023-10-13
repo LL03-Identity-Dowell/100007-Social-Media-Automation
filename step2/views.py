@@ -3567,11 +3567,36 @@ def admin_approve_social_media(request):
     session_id = request.GET.get("session_id", None)
     if 'session_id' and 'username' in request.session:
         if request.method == "GET":
-
-            return render(request, 'admin_approve.html', )
+            step_2_manager = Step2Manager()
+            social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+                {
+                    'org_id': request.session.get('org_id'),
+                }
+            )
+            context_data = {
+                'social_media_requests': social_media_requests
+            }
+            return render(request, 'admin_approve.html', context_data)
         elif request.method == "POST":
-
-            return HttpResponseRedirect(reverse("generate_article:main-view"))
+            step_2_manager = Step2Manager()
+            data = {
+                'social_media_request_id': request.POST.getlist('social_media_request_id')
+            }
+            approve = False
+            if request.POST.get('approve') == 'Approve Selected':
+                approve = True
+            elif request.POST.get('approve') == 'Reject Selected':
+                approve = False
+            elif request.POST.get('approve') == 'Approve All':
+                approve = True
+                social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+                    {'org_id': request.session.get('org_id'), }
+                )
+                data['social_media_request_id'] = social_media_requests.values_list('id', flat=True)
+            data['is_approved'] = approve
+            step_2_manager.update_social_media_request_status(data)
+            messages.success(request, 'Status of social media has been updated successfully')
+            return HttpResponseRedirect(reverse("generate_article:admin_approve_social_media"))
     else:
         return render(request, 'error.html')
 
