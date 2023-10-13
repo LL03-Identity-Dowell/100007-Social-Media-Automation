@@ -6,7 +6,7 @@ function PostDetail() {
 
     return (
         <div >
-
+            hello
         </div>
     );
 }

@@ -17,7 +17,7 @@ import Address from "./pages/Address/Address";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
-// import PostDetail from "./pages/Post/PostDetail/PostDetail";
+import PostDetail from "./pages/Post/PostDetail/PostDetail";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -43,10 +43,10 @@ function App() {
             path='/post-list'
             element={<PostList show={handleOpenSideBar} />}
           />
-          {/* <Route
+          <Route
             path='/post-detail'
             element={<PostDetail show={handleOpenSideBar} />}
-          /> */}
+          />
           <Route
             path='/scheduled'
             element={
