@@ -1,21 +1,20 @@
 import React from "react";
-import { Button } from "../../components/button";
 
 const ApprovalByClient = () => {
   return (
-    <div className="bg-pens bg-cover bg-center h-[90vh] ">
-      <div className="bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400">
+    <div className="bg-pens bg-cover bg-center h-[90vh] border border-red-400">
+      <div className="bg-overlay w-full lg:max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400 ">
         <div className="flex justify-center items-center flex-col h-full w-full">
-          <div>
-            <h2 className="text-customBlue font-bold text-2xl xl:text-4xl pb-6">
+          <div className="pt-20 md:pt-20">
+            <h2 className="text-customBlue font-bold text-2xl xl:text-4xl ">
               Approvals
             </h2>
           </div>
 
         <form>
-          <div className="flex justify-center items-start mt-2 md:mt-8 flex-col gap-10">
+          <div className="flex justify-center items-start mt-2 md:mt-8 flex-col md:gap-10">
 
-            <div className="flex gap-6 lg:gap-10">
+            <div className="flex gap-6 lg:gap-10 xs:flex-col md:flex-row">
               <h2 className="text-customBlue text-xl font-bold w-[250px]">
                 Do you want to approve Topic?
               </h2>
@@ -27,7 +26,7 @@ const ApprovalByClient = () => {
               </div>
             </div>
 
-            <div className="flex gap-6 lg:gap-10">
+            <div className="flex gap-6 lg:gap-10 xs:flex-col md:flex-row">
               <h2 className="text-customBlue text-xl font-bold w-[250px]">
                 Do you want to approve Article?
               </h2>
@@ -39,7 +38,7 @@ const ApprovalByClient = () => {
               </div>
             </div>
 
-            <div className="flex gap-6 lg:gap-10">
+            <div className="flex gap-6 lg:gap-10 xs:flex-col md:flex-row">
               <h2 className="text-customBlue text-xl font-bold w-[250px]">
                 Do you want to approve Post?
               </h2>
@@ -51,7 +50,7 @@ const ApprovalByClient = () => {
               </div>
             </div>
 
-            <div className="flex gap-6 lg:gap-10">
+            <div className="flex gap-6 lg:gap-10 xs:flex-col md:flex-row">
               <h2 className="text-customBlue text-xl font-bold w-[250px]">
                 Do you want to approve Schedule?
               </h2>

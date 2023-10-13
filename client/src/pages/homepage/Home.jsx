@@ -1,11 +1,30 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios"
 import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
 
 const Home = ({ close }) => {
+  const navigate = useNavigate()
+
+  useEffect(()=>{
+    // window.location.replace("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/");
+    verifyUser() 
+  }, [])
+
   useEffect(() => {
     close()
   }, [])
+
+  const verifyUser = async () =>{
+   const res = await axios.get("http://127.0.0.1:8000/api/v1/main/?session_id=oc2a817tuvexjw45sbzcf1xkj6uu57pc")
+    try {
+      console.log(res);
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <div className="w-[100vw] h-[90vh]">
       <div className="flex flex-col justify-between md:flex-row">
