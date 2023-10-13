@@ -40,6 +40,7 @@ from credits.constants import STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
+from .models import Step2Manager
 
 # helper functions
 
@@ -625,16 +626,33 @@ def check_connected_accounts(username):
 @csrf_exempt
 @xframe_options_exempt
 def social_media_channels(request):
+    if request.method == "POST":
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        email = request.session['userinfo']['email']
+        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        org_id = request.session['org_id']
+        data = {
+            'username': username,
+            'email': email,
+            'name': name,
+            'org_id': org_id,
+        }
+        step_2_manager.create_social_media_request(data)
+        messages.success(request,
+                         'Social media request was saved successfully. Wait for the admin to accept the request')
+        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+    else:
+        username = request.session['username']
+        session = request.session['session_id']
+        print(session)
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
+            username)
+        linked_accounts = check_connected_accounts(username)
+        context_data = {'user_has_social_media_profile': user_has_social_media_profile,
+                        'linked_accounts': linked_accounts}
 
-    username = request.session['username']
-    session = request.session['session_id']
-    print(session)
-    user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
-        username)
-    linked_accounts = check_connected_accounts(username)
-    context_data = {'user_has_social_media_profile': user_has_social_media_profile,
-                    'linked_accounts': linked_accounts}
-    return render(request, 'social_media_channels.html', context_data)
+        return render(request, 'social_media_channels.html', context_data)
 
 
 def linked_account_json(request):

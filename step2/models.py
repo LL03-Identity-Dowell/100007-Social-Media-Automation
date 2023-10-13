@@ -51,6 +51,7 @@ class SocialMediaRequest(BaseModel):
     username = models.CharField(max_length=500, null=False, blank=False)
     email = models.CharField(max_length=500, null=False, blank=False)
     name = models.CharField(max_length=500, null=False, blank=False)
+    org_id = models.CharField(max_length=500, null=True, blank=True)
     is_approved = models.BooleanField(default=False)
 
 
@@ -63,4 +64,5 @@ class Step2Manager:
             username=data.get('username'),
             email=data.get('email'),
             name=data.get('name'),
+            org_id=data.get('org_id'),
         )
