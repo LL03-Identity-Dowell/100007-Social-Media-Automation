@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+import { UnstyledButton } from '../../../components/UnstyledBtn';
+
 function PostDetail({ show }) {
+
+
     useEffect(() => {
         show()
     }, [])
@@ -27,22 +31,22 @@ function PostDetail({ show }) {
                 >
                     <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
                         <li>
-                            <Link to="/dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                            <Link to="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                                 Edit Post
                             </Link>
                         </li>
                         <li>
-                            <Link to="/settings" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                            <Link to="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                                 Save Post
                             </Link>
                         </li>
                         <li>
-                            <Link to="/earnings" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                            <Link to="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                                 Delete Post
                             </Link>
                         </li>
                         <li>
-                            <Link to="/sign-out" className="block px-4 py-2 hover-bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white">
+                            <Link to="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
                                 Copy Post
                             </Link>
                         </li>
@@ -81,7 +85,7 @@ function PostDetail({ show }) {
 
             <hr className="my-4" />
 
-            <div className="flex flex-col lg:flex-row md:flex-row items-center lg:gap-24">
+            <div className="flex flex-col lg:flex-row md:flex-row md:gap-20 lg:gap-24">
                 <div className="m-3 relative image-container">
                     <div className="img-overlay">
                         <button
@@ -96,47 +100,88 @@ function PostDetail({ show }) {
                     <img src="https://images.pexels.com/photos/261621/pexels-photo-261621.jpeg?auto=compress&cs=tinysrgb&h=350" alt="Random image" className="img-fluid post-img" />
                 </div>
 
-                <div className="post-options">
-                    <div >
-                        <label htmlFor="content" className="block">
+                <div className="post-options mt-5 flex flex-col gap-6">
+
+                    <div class="flex flex-col lg:flex-row lg:gap-8">
+                        <label htmlFor="content" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                             <strong>Qualitative categorization:</strong>
                         </label>
-                        <select name="qualitative_categorization" className="mb-4">
+                        <select
+                            name="qualitative_categorization"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
                             <option value="category">category</option>
                         </select>
                     </div>
 
-                    <div >
-                        <label htmlFor="brand" className="block">
+                    <div class="flex flex-col lg:flex-row lg:gap-8">
+                        <label htmlFor="brand" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                             <strong>Targeted for:</strong>
                         </label>
-                        <select id="brand" name="targeted_for" className="mb-4">
+                        <select
+                            id="brand" name="targeted_for"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
                             <option value="Apple-Technology">Apple-Technology</option>
                         </select>
                     </div>
 
-                    <div >
-                        <label htmlFor="channel" className="block">
+                    <div class="flex flex-col lg:flex-row lg:gap-8">
+                        <label htmlFor="channel" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                             <strong>Designed for:</strong>
                         </label>
-                        <select id="channel" name="designed_for" className="mb-4">
+                        <select
+                            id="channel" name="designed_for"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
                             <option value="Twitter-uxlivinglab">Twitter-uxlivinglab</option>
                         </select>
                     </div>
 
-                    <div >
-                        <label htmlFor="channelbrand" className="block">
+                    <div class="flex flex-col lg:flex-row lg:gap-8">
+                        <label htmlFor="countries" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                             <strong>Targeted category:</strong>
                         </label>
-                        <select id="channelbrand" name="targeted_category" className="mb-4">
+                        <select
+                            id="channelbrand" name="targeted_category"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
                             <option value="Brand">Brand</option>
                         </select>
                     </div>
+
                 </div>
 
             </div>
 
+            <hr className="my-4" />
 
+            <div className="flex justify-around flex-col md:flex-row lg:flex-row gap-4 ">
+                <span className="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500">
+                    <svg className="w-2.5 h-2.5 mr-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
+                    </svg>
+                    550 Word(s)
+                </span>
+                <span className="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500">
+                    <svg className="w-2.5 h-2.5 mr-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
+                    </svg>
+                    4500 Character(s)
+                </span>
+                <span className="bg-gray-100 text-gray-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded mr-2 dark:bg-gray-700 dark:text-gray-400 border border-gray-500">
+                    <svg className="w-2.5 h-2.5 mr-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
+                    </svg>
+                    8 Hashtag(s)
+                </span>
+
+            </div>
+
+            <div className='mt-8 flex gap-12 justify-center'>
+                <UnstyledButton text={"Back"} className="text-base font-semibold bg-customBlue w-[128px] hover:bg-blue-800" />
+                <UnstyledButton text={"Next"} className="text-base font-semibold bg-customBlue w-[128px] hover:bg-blue-800" />
+            </div>
 
 
         </div>
