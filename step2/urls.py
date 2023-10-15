@@ -1,13 +1,14 @@
 from django.urls import path
 
 from . import views
+# react endpoints
+from .views import MainAPIView
 
 app_name = 'generate_article'
 
 urlpatterns = [
     # path('', views.under_maintenance, name='home'),
     path('', views.dowell_login, name="dowelllogin"),
-    path('main', views.main, name='main-view'),
     path('scheduled/', views.scheduled, name='scheduled-posts'),
     path('scheduled_json/', views.scheduled_json, name='scheduled-jsonposts'),
     path('schedule/', views.unscheduled, name='unscheduled-posts'),
@@ -89,4 +90,11 @@ urlpatterns = [
     path('linked-account/', views.linked_account_json, name='linked-account'),
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
+
+
+    # React endpoints start here
+    path('api/v1/main/', MainAPIView.as_view(), name='main-api'),
+
+
+
 ]

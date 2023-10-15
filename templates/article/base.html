@@ -117,6 +117,7 @@
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-plan' %}">My Plan</a></li>
                   <li><a class="dropdown-item" href="{% url 'generate_article:save_hash_mention' %}">Hash Tags and
                       Mentions</a></li>
+                  <li><a class="dropdown-item" href="{% url 'category_topic' %}">Categories and Topics</a></li>
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-team' %}">My Team</a></li>
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-usage' %}">My Usage</a></li>
                 <li>
@@ -255,8 +256,9 @@
         // Retrieve the session_id from the context passed by Django
         var session_id = "{{ session_id|default:'' }}";
         var session_id = "{{ session_id|default:'' }}";
-console.log(session_id);
-
+        console.log(session_id);
+        var portfolioInfo = {{ request.session.portfolio_info|safe }};
+        console.log('Portfolio Info:', portfolioInfo);
         // Check if session_id is not empty and store it in sessionStorage
         if (session_id) {
             sessionStorage.setItem('session_id', session_id);

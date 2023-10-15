@@ -9,9 +9,11 @@ import LadyPixel from "./images/Lady-Pixel.png";
 
 import pens from "./images/pens.jpg";
 
+import spinner from "./images/spinner.svg";
+
 
 export {
     logoImage, profile, step1, step2, step3, step4, step5, LadyPixel,
-    pens
+    pens, spinner
 }
 
