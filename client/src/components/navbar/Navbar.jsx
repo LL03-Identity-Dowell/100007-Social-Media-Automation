@@ -26,13 +26,6 @@ function Navbar() {
                     </div>
 
                     <div className="hidden md:block">
-                        <button data-tooltip-target="user-tooltip1" data-tooltip-placement="left" type="button" className="relative flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 " id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown1" data-dropdown-placement="right">
-                            <span className="sr-only">Open user menu</span>
-                            <FaUser className="w-8 h-8 p-1 rounded-full text-customBlue" />
-                            <svg className="w-2.5 h-2.5 ml-2.5 absolute -right-4 top-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
-                            </svg>
-                        </button>
                         <button data-tooltip-target="user-tooltip1" data-tooltip-placement="right" type="button" className="relative flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 " id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown1" data-dropdown-placement="right">
                             <span className="sr-only">Open user menu</span>
                             <FaUser className="w-8 h-8 p-1 rounded-full text-customBlue" />
