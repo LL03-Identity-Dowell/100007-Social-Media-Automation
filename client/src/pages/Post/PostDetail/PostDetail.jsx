@@ -12,7 +12,7 @@ function PostDetail({ show }) {
 
     return (
 
-        <div className="m-4">
+        <div className="m-4 lg:m-8">
 
             <div class="flex flex-row-reverse">
                 <button
