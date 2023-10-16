@@ -18,6 +18,7 @@ import UserProfile from "./pages/UserProfile/UserProfile";
 import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
 import ClientProfile from "./pages/UserProfile/ClientProfile";
+import TargetCities from "./pages/UserProfile/TargetCities";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -28,8 +29,6 @@ function App() {
   const handleCloseSideBar = () => {
     setShowSidebar(false);
   };
-
-  
 
   return (
     <>
@@ -48,21 +47,15 @@ function App() {
           />
           <Route
             path='/scheduled'
-            element={
-              <ScheduleSection show={handleOpenSideBar} />
-            }
+            element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
             path='/unscheduled'
-            element={
-              <ScheduleSection show={handleOpenSideBar} />
-            }
+            element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
             path='/recent'
-            element={
-              <ScheduleSection show={handleOpenSideBar}  />
-            }
+            element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
             path='/comment'
@@ -109,7 +102,10 @@ function App() {
             path='/settings/categoriesandtopic'
             element={<CategoriesTopic close={handleCloseSideBar} />}
           />
-
+          <Route
+            path='/target-cities'
+            element={<TargetCities close={handleCloseSideBar} />}
+          />
         </Routes>
       </Layout>
     </>
