@@ -27,7 +27,7 @@ const Home = ({ close }) => {
       fetchData(session_id);
     } else {
       // If no session_id, redirect to the login page with session_id as a query parameter
-      window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/`;
+      window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/`;
     }
   };
 
