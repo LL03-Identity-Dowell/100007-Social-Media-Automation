@@ -72,17 +72,7 @@ class IndustryData(BaseModel):
 
 
 class Sentences(models.Model):
-    SUBJECT_CHOICES = (
-        ('Livinglab', 'Livinglab'),
-        ('Innovation', 'Innovation'),
-        ('User experience', 'User experience'),
-        ('Storytelling', 'Storytelling'),
-        ('Consumer Behaviour', 'Consumer Behaviour'),
-        ('Behavioral economics', 'Behavioral economics'),
-        ('Consumer Insights', 'Consumer Insights'),
-        ('Statistics', 'Statistics'),
 
-    )
     DETERMINANTS = (
         ('-', ''),
         ('the', 'the'),
