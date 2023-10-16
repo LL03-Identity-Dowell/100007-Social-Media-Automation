@@ -1,7 +1,4 @@
-from .serializers import SessionSerializer
-from rest_framework.authentication import BaseAuthentication
-from rest_framework.permissions import IsAuthenticated
-from .serializers import UserApprovalSerializer
+import concurrent.futures
 import concurrent.futures
 import datetime
 import json
@@ -37,19 +34,16 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
+from rest_framework import status
+from rest_framework.response import Response
+# rest(React endpoints)
+from rest_framework.views import APIView
 
 from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
-
-
-# rest(React endpoints)
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from .serializers import ProfileSerializer
-
 
 # helper functions
 
@@ -316,12 +310,15 @@ class MainAPIView(APIView):
     def get(self, request):
         # session_id = "1fkxso7olruuft1e7kv7i5cerv9sbwox"
         # if session_id:
-        if request.session.get("session_id"):
+
+        authorization_header = request.META.get('HTTP_AUTHORIZATION')
+        session_id = authorization_header.replace('Bearer ', '')
+
+        if session_id:
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-            session_id = request.session["session_id"]
-            # session_id = "1fkxso7olruuft1e7kv7i5cerv9sbwox"
+
             print("session_id", session_id)
             response_1 = requests.post(url_1, data={"session_id": session_id})
 
