@@ -19,6 +19,7 @@ import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
 import SpecificArticle from "./pages/Article/specificArticle";
 import SpecificPost from "./pages/Post/PostList/specificPost";
+import ClientProfile from "./pages/UserProfile/ClientProfile";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -29,6 +30,9 @@ function App() {
   const handleCloseSideBar = () => {
     setShowSidebar(false);
   };
+
+  
+
   return (
     <>
       <Layout side={showSidebar} show={handleOpenSideBar}>
@@ -83,7 +87,12 @@ function App() {
             element={<UserProfile close={handleCloseSideBar} />}
           />
           <Route
-            path="/social-media-channels"
+
+            path='/client-profile'
+            element={<ClientProfile close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels'
             element={<SocialMediaChannels close={handleCloseSideBar} />}
           />
           <Route

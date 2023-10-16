@@ -1,20 +1,87 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import Loading from "../../components/Loading";
+import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 
 function Topic({ show }) {
+  const [inputs, setInputs] = useState({
+    category: "",
+    product: "",
+    topic: "",
+    article: "",
+    theme: "",
+    purpose: "",
+    verb: "",
+    adjectives: "",
+    success: "",
+    error: "",
+    loading: false,
+  });
+
   useEffect(() => {
     show();
   }, []);
 
+  const handelChange = (e) => {
+    const { name, value } = e.target;
+
+    setInputs({
+      ...inputs,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const data = {
+      category: inputs.category,
+      product: inputs.product,
+      topic: inputs.topic,
+      article: inputs.article,
+      theme: inputs.theme,
+      purpose: inputs.purpose,
+      verb: inputs.verb,
+      adjectives: inputs.adjectives,
+    };
+    setInputs({
+      ...inputs,
+      success: "Topic created successful..!",
+      // error: "Error creating topic..!",
+      loading: true
+    });
+    console.log(data);
+
+    setTimeout(()=>{
+      setInputs({
+        category: "",
+        product: "",
+        topic: "",
+        article: "",
+        theme: "",
+        purpose: "",
+        verb: "",
+        adjectives: "",
+        loading: false,
+      });
+
+    }, 2000)
+  };
+
   return (
     <div>
+      {inputs.loading && <Loading/>}
+      {inputs.success && <SuccessMessages>{inputs.success}</SuccessMessages>}
+      {inputs.success && <ErrorMessages>{inputs.error}</ErrorMessages>}
       <div className="flex flex-col justify-center items-center pb-10">
         <div>
           <h1 className="font-bold text-customGray text-xl md:text-3xl py-4">
             What is your Topic About?
           </h1>
         </div>
-        <form className="w-full mt-4 grid gap-4 md:gap-10">
-
+        <form
+          className="w-full mt-4 grid gap-4 md:gap-10"
+          onSubmit={handleSubmit}
+        >
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px] ">
               <label htmlFor="category" className="text-lg font-semibold">
@@ -31,10 +98,17 @@ function Topic({ show }) {
                 </span>
               </div>
               <select
+                value={inputs.category}
+                onChange={handelChange}
+                name="category"
+                required
                 className="block w-full p-2 pl-[100px] text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
                 placeholder="Search..."
               >
-                <option value="">List1</option>
+                <option >...</option>
+                <option value="list1" >List1</option>
+                <option value="list2">List2</option>
+                <option value="list3">List3</option>
               </select>
             </div>
           </div>
@@ -45,13 +119,15 @@ function Topic({ show }) {
                 Product/Services <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                What is the Product/Services
-                you provide.
+                What is the Product/Services you provide.
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
-              
               <input
+                value={inputs.product}
+                onChange={handelChange}
+                name="product"
+                required
                 type="text"
                 className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
                 placeholder="Type your product and services here.."
@@ -76,10 +152,17 @@ function Topic({ show }) {
                 </span>
               </div>
               <select
+                value={inputs.topic}
+                onChange={handelChange}
+                name="topic"
+                required
                 className="block w-full p-2 pl-[100px] text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
                 placeholder="Search..."
               >
-                <option value="">List1</option>
+                <option>...</option>
+                <option value="list1">List1</option>
+                <option value="list2">List2</option>
+                <option value="list3">List3</option>
               </select>
             </div>
           </div>
@@ -94,46 +177,51 @@ function Topic({ show }) {
               </p>
             </div>
             <div className=" w-[90%] md:w-[50%] xl:w-[40%] flex gap-8">
-              <div class="flex items-center mb-4">
+              <div className="flex items-center mb-4">
                 <input
+                  value="a"
+                  onChange={handelChange}
+                  required
                   id="article"
                   type="radio"
-                  value=""
                   name="article"
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label
-                  for="article"
+                  htmlFor="article"
                   className="ml-2 text-lg font-medium text-customGray dark:text-gray-500"
                 >
                   a
                 </label>
               </div>
-              <div class="flex items-center mb-4">
+              <div className="flex items-center mb-4">
                 <input
+                  value="an"
+                  onChange={handelChange}
+                  required
                   id="article"
                   type="radio"
-                  value=""
                   name="article"
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label
-                  for="article"
+                  htmlFor="article"
                   className="ml-2 text-lg font-medium text-customGray dark:text-gray-500"
                 >
                   an
                 </label>
               </div>
-              <div class="flex items-center mb-4">
+              <div className="flex items-center mb-4">
                 <input
+                  onChange={handelChange}
                   id="article"
                   type="radio"
-                  value=""
+                  value="the"
                   name="article"
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label
-                  for="article"
+                  htmlFor="article"
                   className="ml-2 text-lg font-medium text-customGray dark:text-gray-500"
                 >
                   the
@@ -152,31 +240,34 @@ function Topic({ show }) {
               </p>
             </div>
             <div className="w-[90%] md:w-[50%] xl:w-[40%] flex gap-8">
-              <div class="flex items-center mb-4">
+              <div className="flex items-center mb-4">
                 <input
-                  id="article"
+                  value="singular"
+                  onChange={handelChange}
+                  required
+                  id="theme"
                   type="radio"
-                  value=""
-                  name="article"
+                  name="theme"
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label
-                  for="article"
+                  htmlFor="theme"
                   className="ml-2 text-lg font-medium text-customGray dark:text-gray-500"
                 >
                   Singular
                 </label>
               </div>
-              <div class="flex items-center mb-4">
+              <div className="flex items-center mb-4">
                 <input
-                  id="article"
+                  onChange={handelChange}
+                  id="theme"
                   type="radio"
-                  value=""
-                  name="article"
+                  value="plural"
+                  name="theme"
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
                 <label
-                  for="article"
+                  htmlFor="theme"
                   className="ml-2 text-lg font-medium text-customGray dark:text-gray-500"
                 >
                   Plural
@@ -193,12 +284,17 @@ function Topic({ show }) {
                 Purpose <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                Specify your purpose from thr drop down and iunput your discriptive purpose in the input field below. (e.g, Digital Documentation)
+                Specify your purpose from thr drop down and iunput your
+                discriptive purpose in the input field below. (e.g, Digital
+                Documentation)
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
-              
               <input
+                value={inputs.purpose}
+                onChange={handelChange}
+                name="purpose"
+                required
                 type="text"
                 className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
                 placeholder="Type your purpose here.."
@@ -218,8 +314,10 @@ function Topic({ show }) {
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
-              
               <input
+                value={inputs.verb}
+                onChange={handelChange}
+                name="verb"
                 required
                 type="text"
                 className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
@@ -231,15 +329,18 @@ function Topic({ show }) {
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px]">
               <label htmlFor="category" className="text-lg font-semibold">
-              Adjectives <span className="text-red-600">*</span>
+                Adjectives <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                You can use comma to seperate the adjectives (e.g, Optimise, inform)
+                You can use comma to seperate the adjectives (e.g, Optimise,
+                inform)
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
-              
               <input
+                value={inputs.adjectives}
+                onChange={handelChange}
+                name="adjectives"
                 required
                 type="text"
                 className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
@@ -248,9 +349,12 @@ function Topic({ show }) {
             </div>
           </div>
 
-          <div className="flex justify-end px-6">
-            <button className="bg-yellow-400 rounded py-2 px-6 md:mr-8">Submit</button>
-
+          <div className="flex justify-end md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
+            <div className="w-full md:w-[300px] ">
+              <button className="bg-customYellow rounded py-2 px-6 md:mr-8">
+                Submit
+              </button>
+            </div>
           </div>
         </form>
       </div>
