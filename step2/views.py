@@ -301,31 +301,25 @@ def dowell_login(request):
     try:
         session_id = request.GET.get('session_id', None)
         request.session["session_id"] = session_id
-        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/api/v1/main/")
-    except:
-        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
+        print("Here", session_id)
+        return redirect("http://127.0.0.1:8000/api/v1/main")
+    except Exception as e:
+        print(f"Error setting session ID: {str(e)}")
         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
-
-
-class DowellLoginAPIView(APIView):
-    def post(self, request):
-        serializer = SessionSerializer(data=request.data)
-        if serializer.is_valid():
-            session_id = serializer.validated_data['session_id']
-            request.session["session_id"] = session_id
-            # Handle any other login logic here
-            return Response({"message": "Login successful"}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
+        # session_id = "1fkxso7olruuft1e7kv7i5cerv9sbwox"
+        # if session_id:
         if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
             session_id = request.session["session_id"]
+            # session_id = "1fkxso7olruuft1e7kv7i5cerv9sbwox"
+            print("session_id", session_id)
             response_1 = requests.post(url_1, data={"session_id": session_id})
 
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():

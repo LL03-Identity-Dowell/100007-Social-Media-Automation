@@ -1,29 +1,45 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"
+import axios from "axios";
 import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
 
 const Home = ({ close }) => {
-  const navigate = useNavigate()
-
-  useEffect(()=>{
-    // window.location.replace("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/");
-    verifyUser() 
-  }, [])
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    close()
-  }, [])
+    close();
+    fetchData(); // Fetch data when the component mounts
+    fetchSessionId();
+  }, []);
 
-  const verifyUser = async () =>{
-   const res = await axios.get("http://127.0.0.1:8000/api/v1/main/?session_id=oc2a817tuvexjw45sbzcf1xkj6uu57pc")
+  const fetchSessionId = async () => {
     try {
-      console.log(res);
-      
+      const response = await axios.get("http://127.0.0.1:8000/");
+      const session_id = response.data.session_id;
+      console.log("here", session_id)
+      // Store the session_id, e.g., in local storage, for future use
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching session_id:", error);
     }
-  }
+  };
+  const fetchData = () => {
+    // Define the API URL
+    const apiUrl = "http://127.0.0.1:8000/api/v1/main/";
+
+    // Make a GET request to the API endpoint
+    axios.get(apiUrl)
+      .then((response) => {
+        setData(response.data); // Store the response data in the component state
+
+        console.log("Data from API:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  };
+
+
 
   return (
     <div className="w-[100vw] h-[90vh]">

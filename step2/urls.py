@@ -2,8 +2,7 @@ from django.urls import path
 
 from . import views
 # react endpoints
-from .views import MainAPIView, UserApprovalView, GenerateArticleView, PostListView,DowellLoginAPIView
-
+from .views import MainAPIView, UserApprovalView, GenerateArticleView, PostListView
 
 
 app_name = 'generate_article'
@@ -11,7 +10,6 @@ app_name = 'generate_article'
 urlpatterns = [
     # path('', views.under_maintenance, name='home'),
     path('', views.dowell_login, name="dowelllogin"),
-    # path('main', views.main, name='main-view'),
     path('scheduled/', views.scheduled, name='scheduled-posts'),
     path('scheduled_json/', views.scheduled_json, name='scheduled-jsonposts'),
     path('schedule/', views.unscheduled, name='unscheduled-posts'),
@@ -95,7 +93,6 @@ urlpatterns = [
          name='user_approval_api'),
     path('api/v1/article/AI/', GenerateArticleView.as_view(), name='submit-title'),
     path('api/v1/article_list/', PostListView.as_view(), name='submit-title'),
-     path('api/v1/login/', views.DowellLoginAPIView.as_view(), name="dowelllogin-api"),
 
 
 
