@@ -6,41 +6,50 @@ import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
 const Home = ({ close }) => {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [session_id, setSessionId] = useState("");
 
   useEffect(() => {
     close();
-    fetchData(); // Fetch data when the component mounts
-    fetchSessionId();
+    fetchSessionId(); // Fetch session ID when the component mounts
   }, []);
 
   const fetchSessionId = async () => {
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/");
-      const session_id = response.data.session_id;
-      console.log("here", session_id)
-      // Store the session_id, e.g., in local storage, for future use
-    } catch (error) {
-      console.error("Error fetching session_id:", error);
+    const urlParams = new URLSearchParams(window.location.search);
+    const session_id = urlParams.get('session_id');
+
+    if (session_id) {
+      // Store the session_id in both local storage and session storage
+      localStorage.setItem("session_id", session_id);
+      sessionStorage.setItem("session_id", session_id);
+      console.log(session_id)
+
+      // Proceed to fetch data or handle authenticated user logic
+      fetchData(session_id);
+    } else {
+      // If no session_id, redirect to the login page with session_id as a query parameter
+      window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/`;
     }
   };
-  const fetchData = () => {
+
+  const fetchData = (session_id) => {
     // Define the API URL
     const apiUrl = "http://127.0.0.1:8000/api/v1/main/";
 
-    // Make a GET request to the API endpoint
-    axios.get(apiUrl)
+    // Make a GET request to the API endpoint with the session_id
+    axios
+      .get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${session_id}`, // Include session_id in the headers
+        },
+      })
       .then((response) => {
         setData(response.data); // Store the response data in the component state
-
         console.log("Data from API:", response.data);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
   };
-
-
-
   return (
     <div className="w-[100vw] h-[90vh]">
       <div className="flex flex-col justify-between md:flex-row">

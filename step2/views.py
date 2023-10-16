@@ -302,10 +302,13 @@ def dowell_login(request):
         session_id = request.GET.get('session_id', None)
         request.session["session_id"] = session_id
         print("Here", session_id)
-        return redirect("http://127.0.0.1:8000/api/v1/main")
+        redirect_url = "http://localhost:5173/"
+        if session_id:
+            redirect_url += f"?session_id={session_id}"
+        return redirect(redirect_url)
     except Exception as e:
         print(f"Error setting session ID: {str(e)}")
-        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -367,7 +370,7 @@ class MainAPIView(APIView):
             request.session['session_id'] = session_id
 
             if not has_access(request.session['portfolio_info']):
-                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
             # credit_handler = CreditHandler()
             # credit_handler.login(request)
 
@@ -385,7 +388,7 @@ class MainAPIView(APIView):
             return Response(serializer.data)
 
         else:
-            return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+            return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
 
 
 def forget_password(request):
