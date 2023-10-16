@@ -5,16 +5,29 @@ import { UnstyledButton } from '../../../components/UnstyledBtn';
 
 function PostDetail({ show }) {
 
-
     useEffect(() => {
         show()
     }, [])
+
+    const [editing, setEditing] = useState(false);
+    const [dropdownClass, setDropdownClass] = useState("hidden");
+
+    const editPost = () => {
+        setEditing(true);
+    };
+
+    const savePost = () => {
+        setEditing(false);
+    };
+
+    const imgOverlayClassName = `img-overlay ${editing ? 'show-overlay' : ''}`;
+
 
     return (
 
         <div className="m-4 lg:m-8">
 
-            <div class="flex flex-row-reverse">
+            <div className="flex flex-row-reverse">
                 <button
                     id="dropdownDefaultButton"
                     data-dropdown-toggle="dropdown"
@@ -25,18 +38,20 @@ function PostDetail({ show }) {
                         <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
                     </svg>
                 </button>
+
+                {/* <!-- Dropdown menu --> */}
                 <div
                     id="dropdown"
-                    className="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 absolute right-0"
+                    className="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700  right-0"
                 >
-                    <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                    <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown">
                         <li>
-                            <Link to="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                            <a href='#' className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onClick={editPost}>
                                 Edit Post
-                            </Link>
+                            </a>
                         </li>
                         <li>
-                            <Link to="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+                            <Link to="#" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onClick={savePost}>
                                 Save Post
                             </Link>
                         </li>
@@ -87,7 +102,7 @@ function PostDetail({ show }) {
 
             <div className="flex flex-col lg:flex-row md:flex-row md:gap-20 lg:gap-24">
                 <div className="m-3 relative image-container">
-                    <div className="img-overlay">
+                    <div className={imgOverlayClassName}>
                         <button
                             type="button"
                             className="open_search glass-button absolute top-0 right-0"
@@ -102,7 +117,7 @@ function PostDetail({ show }) {
 
                 <div className="post-options mt-5 flex flex-col gap-6">
 
-                    <div class="flex flex-col lg:flex-row lg:gap-8">
+                    <div className="flex flex-col lg:flex-row lg:gap-8">
                         <label htmlFor="content" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                             <strong>Qualitative categorization:</strong>
                         </label>
@@ -114,7 +129,7 @@ function PostDetail({ show }) {
                         </select>
                     </div>
 
-                    <div class="flex flex-col lg:flex-row lg:gap-8">
+                    <div className="flex flex-col lg:flex-row lg:gap-8">
                         <label htmlFor="brand" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                             <strong>Targeted for:</strong>
                         </label>
@@ -126,7 +141,7 @@ function PostDetail({ show }) {
                         </select>
                     </div>
 
-                    <div class="flex flex-col lg:flex-row lg:gap-8">
+                    <div className="flex flex-col lg:flex-row lg:gap-8">
                         <label htmlFor="channel" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                             <strong>Designed for:</strong>
                         </label>
@@ -138,7 +153,7 @@ function PostDetail({ show }) {
                         </select>
                     </div>
 
-                    <div class="flex flex-col lg:flex-row lg:gap-8">
+                    <div className="flex flex-col lg:flex-row lg:gap-8">
                         <label htmlFor="countries" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                             <strong>Targeted category:</strong>
                         </label>

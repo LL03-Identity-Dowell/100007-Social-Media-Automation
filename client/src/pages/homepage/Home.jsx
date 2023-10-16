@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
 
-import useDowellLogin from "../../hooks/useDowellLogin";
+// import useDowellLogin from "../../hooks/useDowellLogin";
 
 const Home = ({ close }) => {
   const navigate = useNavigate();
@@ -33,25 +33,39 @@ const Home = ({ close }) => {
     }
   };
 
-  const fetchData = (session_id) => {
+
+  const fetchData = async (session_id) => {
     // Define the API URL
     const apiUrl = "http://127.0.0.1:8000/api/v1/main/";
 
+    const res = await axios({
+      method: "post",
+      url: "https://100014.pythonanywhere.com/api/userinfo/",
+      data: { session_id },
+    });
+
+    console.log(res.data);
+    sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+
     // Make a GET request to the API endpoint with the session_id
-    axios
-      .get(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${session_id}`, // Include session_id in the headers
-        },
-      })
-      .then((response) => {
-        setData(response.data); // Store the response data in the component state
-        console.log("Data from API:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+    // axios
+    //   .get(apiUrl, {
+    //     headers: {
+    //       Authorization: `Bearer ${session_id}`, // Include session_id in the headers
+    //     },
+    //   })
+    //   .then((response) => {
+    //     setData(response.data); // Store the response data in the component state
+    //     console.log("Data from API:", response.data);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error fetching data:", error);
+    //   });
   };
+
+
+  // useDowellLogin();
+
   return (
     <div className="w-[100vw] h-[90vh]">
       <div className="flex flex-col justify-between md:flex-row">
