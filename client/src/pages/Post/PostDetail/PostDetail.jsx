@@ -183,7 +183,6 @@ function PostDetail({ show }) {
                 <UnstyledButton text={"Next"} className="text-base font-semibold bg-customBlue w-[128px] hover:bg-blue-800" />
             </div>
 
-
         </div>
 
 

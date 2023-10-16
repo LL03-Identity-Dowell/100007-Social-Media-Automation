@@ -1,29 +1,37 @@
 import React, { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios"
 import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
+
+import useDowellLogin from "../../hooks/useDowellLogin";
 
 const Home = ({ close }) => {
   const navigate = useNavigate()
 
-  useEffect(()=>{
-    // window.location.replace("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/");
-    verifyUser() 
-  }, [])
+  // useEffect(() => {
+  //   // window.location.replace("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/");
+  //   verifyUser()
+  // }, [])
 
   useEffect(() => {
     close()
   }, [])
 
-  const verifyUser = async () =>{
-   const res = await axios.get("http://127.0.0.1:8000/api/v1/main/?session_id=oc2a817tuvexjw45sbzcf1xkj6uu57pc")
-    try {
-      console.log(res);
-      
-    } catch (error) {
-      console.log(error);
-    }
-  }
+
+  useDowellLogin();
+
+
+
+
+  // const verifyUser = async () => {
+  //   const res = await axios.get("http://127.0.0.1:8000/api/v1/main/?session_id=oc2a817tuvexjw45sbzcf1xkj6uu57pc")
+  //   try {
+  //     console.log(res);
+
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   return (
     <div className="w-[100vw] h-[90vh]">
