@@ -115,7 +115,7 @@
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-plan' %}">My Plan</a></li>
                   <li><a class="dropdown-item" href="{% url 'generate_article:save_hash_mention' %}">Hash Tags and
                       Mentions</a></li>
-                  {% if request.session.operations_right == 'Admin' %}
+                  {% if request.session.can_approve_social_media == True %}
                       <li><a class="dropdown-item" href="{% url 'generate_article:admin_approve_social_media' %}">Approve
                           Social Media Request</a></li>
                   {% endif %}

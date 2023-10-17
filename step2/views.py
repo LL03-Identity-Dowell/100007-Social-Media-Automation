@@ -34,7 +34,7 @@ from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
 
-from config_master import UPLOAD_IMAGE_ENDPOINT
+from config_master import UPLOAD_IMAGE_ENDPOINT, SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from create_article import settings
 from credits.constants import STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
@@ -365,7 +365,8 @@ def main(request):
         # Map the username with the userID
         username = user_map.get(request.session['user_id'], None)
         print(user_map)
-
+        if request.session.get('username') == SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+            request.session['can_approve_social_media'] = True
         # Adding session id to the session
         request.session['session_id'] = session_id
         if username:
