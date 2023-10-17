@@ -9,7 +9,7 @@ import urllib.parse
 from datetime import datetime, date
 # image resizing
 from io import BytesIO
-
+# from website.views import get_client_approval
 import openai
 import pytz
 import requests
@@ -38,6 +38,7 @@ from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
+from django_q.tasks import async_task
 
 # helper functions
 
@@ -1141,6 +1142,52 @@ def user_team(request):
 @xframe_options_exempt
 def user_usage(request):
     return render(request, 'user_usage.html')
+
+
+
+
+# get user aproval
+def get_client_approval(user):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "user_info",
+        "document": "user_info",
+        "team_member_ID": "1071",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id":user},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+
+    print(response)
+    response_data_json = json.loads(response.json())
+    print(response_data_json)
+
+    try:
+        for value in response_data_json['data']:
+            aproval={
+                'topic':value['topic'],
+                'post':value['post'],
+                'article':value['article'],
+                'schedule':value['schedule']
+            }
+        return(aproval)
+    except:
+        aproval={'topic':'False'}
+    return(aproval)
+
+
+
 
 
 @csrf_exempt
@@ -2272,7 +2319,8 @@ def generate_article(request):
             duration = 4   # Total duration in seconds
             interval = 0.9  # Interval between generating articles in seconds
             start_time = time.time()
-
+            user_id = request.session['user_id']
+            approval=get_client_approval(user_id)
             def generate_and_save_article():
                 nonlocal start_time
 
@@ -2359,7 +2407,9 @@ def generate_article(request):
 
             # credit_handler = CreditHandler()
             # credit_handler.consume_step_2_credit(request)
-
+            if approval['post'] == 'True':
+                user_id = request.session['user_id']
+                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
             return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -2374,6 +2424,8 @@ def generate_article_wiki(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("main-view"))
         else:
+            user_id = request.session['user_id']
+            approval=get_client_approval(user_id)
             title = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2478,6 +2530,9 @@ def generate_article_wiki(request):
 
                     # credit_handler = CreditHandler()
                     # credit_handler.consume_step_2_credit(request)
+                    if approval['post'] == 'True':
+                        user_id = request.session['user_id']
+                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
                     if 'article_sub_verb' in locals():
                         # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
                         # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
@@ -2525,6 +2580,9 @@ def generate_article_wiki(request):
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_2_credit(request)
+                if approval['post'] == 'True':
+                        user_id = request.session['user_id']
+                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
     else:
         return render(request, 'error.html')
@@ -2546,6 +2604,10 @@ def write_yourself(request):
             verb = request.POST.get("verb")
             target_industry = request.POST.get("target_industry")
             print("target_industry in write: ", target_industry)
+            user_id = request.session['user_id']
+            approval=get_client_approval(user_id)
+            if approval['post'] == 'True':
+                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
         return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
     else:
         return render(request, 'error.html')
@@ -3065,10 +3127,10 @@ def Save_Post(request):
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
             combined_article = "\n\n".join(paragraphs_list)
-            print('combined_article', combined_article[0:230])
+            # print('combined_article', combined_article[0:230])
             paragraph_without_commas = combined_article.replace(
                 '.', '. ').replace(',.', '.')
-            print('paragraph_without_commas:', paragraph_without_commas)
+            # print('paragraph_without_commas:', paragraph_without_commas)
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -3395,14 +3457,14 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
-        credit_handler = CreditHandler()
-        credit_response = credit_handler.check_if_user_has_enough_credits(
-            sub_service_id=STEP_4_SUB_SERVICE_ID,
-            request=request,
-        )
+        # credit_handler = CreditHandler()
+        # credit_response = credit_handler.check_if_user_has_enough_credits(
+        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+        #     request=request,
+        # )
 
-        if not credit_response.get('success'):
-            return JsonResponse('credit_error', safe=False)
+        # if not credit_response.get('success'):
+        #     return JsonResponse('credit_error', safe=False)
         start_datetime = datetime.now()
         data = json.loads(request.body.decode("utf-8"))
         title = data['title']
