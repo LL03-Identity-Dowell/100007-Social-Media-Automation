@@ -1,12 +1,11 @@
 from django.urls import path
 
 from . import views
-# react endpoints
 from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     PostListView, TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
                     HashMentionView, HashMentionUpdateView, UnScheduledView, UnScheduledJsonView,
-                    ScheduledJsonView, IndexView,MostRecentJSON)
+                    ScheduledJsonView, IndexView, MostRecentJSON)
 
 
 app_name = 'generate_article'
@@ -99,9 +98,9 @@ urlpatterns = [
          ScheduledJsonView.as_view(), name='scheduled-json'),
     path('api/v1/article/generate/', IndexView.as_view(),
          name='index'),  # Create Article(step-2)
-    #step-4
+    # step-4
     path('api/v1/recent_posts/', MostRecentJSON.as_view(),
-         name='recent_post'), 
+         name='recent_post'),
 
 
 

@@ -31,6 +31,7 @@ from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import permissions
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
@@ -291,18 +292,6 @@ def has_access(portfolio_info):
     return True
 
 
-# def dowell_login(request):
-#     try:
-#         session_id = request.GET.get('session_id', None)
-#         request.session["session_id"] = session_id
-#         print("Here", session_id)
-#         redirect_url = "http://localhost:5173/"
-
-#         return redirect(redirect_url)
-#     except Exception as e:
-#         print(f"Error setting session ID: {str(e)}")
-#         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
-
 def dowell_login(request):
     try:
         session_id = request.GET.get('session_id', None)
@@ -315,17 +304,12 @@ def dowell_login(request):
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-        # authorization_header = request.META.get('HTTP_AUTHORIZATION')
-        # session_id = authorization_header.replace('Bearer ', '')
-        # if session_id:
         if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
             session_id = request.session["session_id"]
-            print("session_id", session_id)
             response_1 = requests.post(url_1, data={"session_id": session_id})
-
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
@@ -370,8 +354,8 @@ class MainAPIView(APIView):
 
             request.session['session_id'] = session_id
 
-            if not has_access(request.session['portfolio_info']):
-                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+            # if not has_access(request.session['portfolio_info']):
+            #     return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
             # credit_handler = CreditHandler()
             # credit_handler.login(request)
 
@@ -390,6 +374,7 @@ class MainAPIView(APIView):
 
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+            # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 def forget_password(request):
@@ -3184,14 +3169,14 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
-        credit_handler = CreditHandler()
-        credit_response = credit_handler.check_if_user_has_enough_credits(
-            sub_service_id=STEP_4_SUB_SERVICE_ID,
-            request=request,
-        )
+        # credit_handler = CreditHandler()
+        # credit_response = credit_handler.check_if_user_has_enough_credits(
+        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+        #     request=request,
+        # )
 
-        if not credit_response.get('success'):
-            return JsonResponse('credit_error', safe=False)
+        # if not credit_response.get('success'):
+        #     return JsonResponse('credit_error', safe=False)
         start_datetime = datetime.now()
         data = json.loads(request.body.decode("utf-8"))
         title = data['title']
