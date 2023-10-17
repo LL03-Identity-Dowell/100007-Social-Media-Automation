@@ -1,9 +1,6 @@
 from django.urls import path
 
 from . import views
-# react endpoints
-from .views import MainAPIView, UserApprovalView, GenerateArticleView, PostListView,GetCSRFToken
-=======
 from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     PostListView, TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
