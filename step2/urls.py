@@ -5,7 +5,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     PostListView, TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
                     HashMentionView, HashMentionUpdateView, UnScheduledView, UnScheduledJsonView,
-                    ScheduledJsonView, IndexView,MostRecentJSON)
+                    ScheduledJsonView, IndexView, MostRecentJSON)
 
 
 app_name = 'generate_article'
@@ -81,7 +81,6 @@ urlpatterns = [
          name='user_approval_api'),
     path('api/v1/article/AI/', GenerateArticleView.as_view(), name='submit-title'),
     path('api/v1/article_list/', PostListView.as_view(), name='submit-title'),
-    path('api/v1/csrf_cookie/', GetCSRFToken.as_view(), name='csrftoken'),
     path('api/v1/targeted_cities/', TargetedCitiesListView.as_view(),
          name='targeted-cities-list'),
     path('api/v1/targeted_cities/create/', TargetedCitiesCreateView.as_view(),
@@ -99,9 +98,9 @@ urlpatterns = [
          ScheduledJsonView.as_view(), name='scheduled-json'),
     path('api/v1/article/generate/', IndexView.as_view(),
          name='index'),  # Create Article(step-2)
-    #step-4
+    # step-4
     path('api/v1/recent_posts/', MostRecentJSON.as_view(),
-         name='recent_post'), 
+         name='recent_post'),
 
 
 
