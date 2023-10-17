@@ -43,7 +43,7 @@ from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
-from .serializers import ProfileSerializer
+from .serializers import ProfileSerializer, CitySerializer
 
 # helper functions
 
@@ -291,29 +291,38 @@ def has_access(portfolio_info):
     return True
 
 
+# def dowell_login(request):
+#     try:
+#         session_id = request.GET.get('session_id', None)
+#         request.session["session_id"] = session_id
+#         print("Here", session_id)
+#         redirect_url = "http://localhost:5173/"
+
+#         return redirect(redirect_url)
+#     except Exception as e:
+#         print(f"Error setting session ID: {str(e)}")
+#         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
+
 def dowell_login(request):
     try:
         session_id = request.GET.get('session_id', None)
         request.session["session_id"] = session_id
-        print("Here", session_id)
-        redirect_url = "http://localhost:5173/"
-
-        return redirect(redirect_url)
-    except Exception as e:
-        print(f"Error setting session ID: {str(e)}")
-        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
+        return redirect("http://127.0.0.1:8000/api/v1/main")
+    except:
+        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-        authorization_header = request.META.get('HTTP_AUTHORIZATION')
-        session_id = authorization_header.replace('Bearer ', '')
-        if session_id:
+        # authorization_header = request.META.get('HTTP_AUTHORIZATION')
+        # session_id = authorization_header.replace('Bearer ', '')
+        # if session_id:
+        if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-
+            session_id = request.session["session_id"]
             print("session_id", session_id)
             response_1 = requests.post(url_1, data={"session_id": session_id})
 
@@ -362,7 +371,7 @@ class MainAPIView(APIView):
             request.session['session_id'] = session_id
 
             if not has_access(request.session['portfolio_info']):
-                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
+                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
             # credit_handler = CreditHandler()
             # credit_handler.login(request)
 
@@ -380,7 +389,7 @@ class MainAPIView(APIView):
             return Response(serializer.data)
 
         else:
-            return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
+            return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
 
 def forget_password(request):
@@ -1135,9 +1144,9 @@ def user_plan(request):
     return render(request, 'user_plan.html')
 
 
-def targeted_cities(request):
-    if 'session_id' in request.session and 'username' in request.session:
-        if request.method == "GET":
+class TargetedCitiesListView(APIView):
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
             url = 'http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/'
 
             cities = []
@@ -1146,6 +1155,7 @@ def targeted_cities(request):
                 cities = response.json()
             except Exception as e:
                 print('An error occurred:', str(e))
+
             user_data = fetch_user_info(request)
             if len(user_data['data']) == 0:
                 status = 'insert'
@@ -1153,128 +1163,123 @@ def targeted_cities(request):
                 status = 'update'
 
             context_dict = {'cities': cities, 'status': status}
-            return render(request, 'dowell/target_cities.html', context_dict)
-    return render(request, 'error.html')
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def save_targeted_cities(request):
-    session_id = request.GET.get("session_id", None)
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:target_cities"))
-    else:
-        # Receive selected cities from the form
-        # target_city = request.POST.get("target_cities") #for sigle cities
-        # print(target_city)
-        # for multiple cities, can also work for one
-        target_cities = request.POST.getlist('target_cities[]')
-        time = localtime()
-        test_date = str(localdate())
-        date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-        date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-        event_id = create_event()['event_id']
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "insert",
-            "field": {
-                "user_id": request.session['user_id'],
-                "session_id": session_id,
-                "eventId": event_id,
-                'client_admin_id': request.session['userinfo']['client_admin_id'],
-                "date": date,
-                "time": str(time),
-                "target_city": target_cities,
-            },
-            "update_field": {
-                "target_city": target_cities,
-            },
-            "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        user_data = fetch_user_info(request)
-        print(user_data)
-        messages.success(
-            request, "target_cities details inserted successfully.")
-
-        return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def update_saved_targeted_cities(request):
-    session_id = request.GET.get("session_id", None)
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:target_cities"))
-    else:
-        # Receive selected cities from the form
-        # target_city = request.POST.get("target_cities") #for sigle cities
-        # print(target_city)
-        # for multiple cities, can also work for one
-        target_cities = request.POST.getlist('target_cities[]')
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
-            "field": {
-                "user_id": request.session['user_id'],
-            },
-            "update_field": {
-                "target_city": target_cities,
-            },
-            "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        user_data = fetch_user_info(request)
-        print(user_data)
-        messages.success(
-            request, "target_cities details updated successfully.")
-
-        return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def hash_mention(request):
-    session_id = request.GET.get("session_id", None)
-    if 'session_id' and 'username' in request.session:
-        if request.method == "GET":
-            user_data = fetch_user_info(request)
-            if len(user_data['data']) == 0:
-                status = 'insert'
-            else:
-                status = 'update'
-            return render(request, 'hash_mention.html', {'status': status})
-        elif request.method == "POST":
+class TargetedCitiesCreateView(APIView):
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "POST":
+            return Response({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Receive selected cities from the form
+            target_cities = request.data.getlist('target_cities[]')
 
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
-            hashtag_list = request.POST.get('hashtags_list').split(',')
-            mentions_list = request.POST.get('mentions_list').split(',')
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "insert",
+                "field": {
+                    "user_id": request.session['user_id'],
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    "date": date,
+                    "time": str(time),
+                    "target_city": target_cities,
+                },
+                "update_field": {
+                    "target_city": target_cities,
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.post(url, headers=headers, data=payload)
+
+            user_data = fetch_user_info(request)
+            messages.success(
+                request, "target_cities details inserted successfully.")
+            return Response({'detail': 'Targeted cities created successfully'}, status=status.HTTP_201_CREATED)
+
+
+class TargetedCitiesUpdateView(APIView):
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "PUT":
+            return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Receive selected cities from the form
+            target_cities = request.data.getlist('target_cities[]')
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "target_city": target_cities,
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.put(url, headers=headers, data=payload)
+
+            user_data = fetch_user_info(request)
+            messages.success(
+                request, "target_cities details updated successfully.")
+            return Response({'detail': 'Targeted cities updated successfully'}, status=status.HTTP_200_OK)
+
+
+class HashMentionView(APIView):
+    def get(self, request):
+        session_id = request.GET.get("session_id", None)
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            print(user_data)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            return Response({'status': status})
+
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "POST":
+            return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            hashtag_list = request.data.get('hashtags_list').split(',')
+            mentions_list = request.data.get('mentions_list').split(',')
 
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
@@ -1296,7 +1301,6 @@ def hash_mention(request):
                     "time": str(time),
                     "mentions_list": mentions_list,
                     "hashtag_list": hashtag_list,
-
                 },
                 "update_field": {
                     "mentions_list": mentions_list,
@@ -1306,56 +1310,46 @@ def hash_mention(request):
             }
 
             data = json.dumps(payload)
-            response = requests.request(
-                "POST", url, headers=headers, data=data)
-            print(response)
+            response = requests.post(url, headers=headers, data=data)
 
-            return HttpResponseRedirect(reverse("generate_article:main-view"))
-    else:
-        return render(request, 'error.html')
+            return Response({'detail': 'Hashtags and Mentions created successfully'}, status=status.HTTP_201_CREATED)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def update_hash_mention(request):
-    session_id = request.GET.get("session_id", None)
-    if 'session_id' and 'username' in request.session:
-        if request.method != "POST":
-            return HttpResponseRedirect(reverse("generate_article:client"))
-        else:
-            hashtag_list = request.POST.get('hashtags_list').split(',')
-            mentions_list = request.POST.get('mentions_list').split(',')
+class HashMentionUpdateView(APIView):
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        if 'session_id' in request.session and 'username' in request.session:
+            if request.method != "PUT":
+                return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                hashtag_list = request.data.get('hashtags_list').split(',')
+                mentions_list = request.data.get('mentions_list').split(',')
 
-            url = "http://uxlivinglab.pythonanywhere.com/"
-            headers = {'content-type': 'application/json'}
+                url = "http://uxlivinglab.pythonanywhere.com/"
+                headers = {'content-type': 'application/json'}
 
-            payload = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {
-                    "user_id": request.session['user_id'],
-                },
-                "update_field": {
-                    "mentions_list": mentions_list,
-                    "hashtag_list": hashtag_list,
-                },
-                "platform": "bangalore"
-            }
+                payload = {
+                    "cluster": "socialmedia",
+                    "database": "socialmedia",
+                    "collection": "user_info",
+                    "document": "user_info",
+                    "team_member_ID": "1071",
+                    "function_ID": "ABCDE",
+                    "command": "update",
+                    "field": {
+                        "user_id": request.session['user_id'],
+                    },
+                    "update_field": {
+                        "mentions_list": mentions_list,
+                        "hashtag_list": hashtag_list,
+                    },
+                    "platform": "bangalore"
+                }
 
-            data = json.dumps(payload)
-            response = requests.request(
-                "POST", url, headers=headers, data=data)
-            print(response)
-            messages.success(
-                request, "Hastags and Mentions updated successfully.")
-            return HttpResponseRedirect(reverse("generate_article:main-view"))
-    else:
-        return render(request, 'error.html')
+                data = json.dumps(payload)
+                response = requests.put(url, headers=headers, data=data)
+
+                return Response({'detail': 'Hashtags and Mentions updated successfully'}, status=status.HTTP_200_OK)
 
 
 @csrf_exempt
@@ -1703,84 +1697,80 @@ def update_aryshare(username, userid):
     return (socials)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def unscheduled(request):
-    if 'session_id' and 'username' in request.session:
-        profile = request.session['operations_right']
-        username = request.session['username']
-        userid = request.session['user_id']
-        update_aryshare(username, userid)
-        return render(request, 'unscheduled.html', {'profile': profile})
-    else:
-        return render(request, 'error.html')
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class UnScheduledView(APIView):
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            profile = request.session['operations_right']
+            username = request.session['username']
+            userid = request.session['user_id']
+            update_aryshare(username, userid)
+            return Response({'profile': profile})
+        else:
+            return Response({'detail': 'Unauthorized'}, status=401)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def unscheduled_json(request):
-    if 'session_id' and 'username' in request.session:
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class UnScheduledJsonView(APIView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
 
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "step4_data",
-            "document": "step4_data",
-            "team_member_ID": "1163",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-        profile = request.session['operations_right']
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "step4_data",
+                "document": "step4_data",
+                "team_member_ID": "1163",
+                "function_ID": "ABCDE",
+                "command": "fetch",
+                "field": {"user_id": request.session['user_id']},
+                "update_field": {
+                    "order_nos": 21
+                },
+                "platform": "bangalore"
+            }
+            data = json.dumps(payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
 
-        post = json.loads(response.json())
-        # takes in user_id
-        user = str(request.session['user_id'])
+            profile = request.session['operations_right']
 
-        # takes in the json data
-        datas = post
+            post = json.loads(response.json())
+            # takes in user_id
+            user = str(request.session['user_id'])
 
-        posts = post['data']
+            # takes in the JSON data
+            datas = post
 
-        post = []
-        try:
-            for row in posts:
-                if row['status'] == '':
-                    data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': row["date"],
-                            'image': row['image'], 'source': row['source'], 'PK': row['_id'], 'time': row['time']}
-                    post.append(data)
-                    post = list(reversed(post))
-                    respond = json.dumps(post)
+            posts = post['data']
 
-        except:
-            pass
-        # post = list(reversed(post))  # Reverse the order of the posts list
+            post_data = []
+            try:
+                for row in posts:
+                    if row['status'] == '':
+                        data = {
+                            'title': row['title'],
+                            'paragraph': row['paragraph'],
+                            'Date': row["date"],
+                            'image': row['image'],
+                            'source': row['source'],
+                            'PK': row['_id'],
+                            'time': row['time']
+                        }
+                        post_data.append(data)
 
-        # number_of_items_per_page = 5
-        # page = request.GET.get('page', 1)
+                # Reverse the order of the posts list
+                post_data = list(reversed(post_data))
+            except:
+                pass
 
-        # paginator = Paginator(post, number_of_items_per_page)
-        # try:
-        #     page_post = paginator.page(page)
-        # except PageNotAnInteger:
-        #     page_post = paginator.page(1)
-        # except EmptyPage:
-        #     page_post = paginator.page(paginator.num_pages)
-
-        # messages.info(
-        #     request, 'post/schedule articles.')
-        return JsonResponse({'response': respond})
-        # return render(request, 'unscheduled.html', {'post': post, 'profile': profile, 'page_post': page_post})
-    else:
-        return render(request, 'error.html')
+            return Response({'response': post_data})
+        else:
+            return Response({'response': []})
 
 
 @csrf_exempt
@@ -1825,377 +1815,173 @@ def scheduled(request):
         return render(request, 'error.html')
 
 
-@csrf_exempt
-@xframe_options_exempt
-def scheduled_json(request):
-    if 'session_id' and 'username' in request.session:
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class ScheduledJsonView(APIView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
 
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "step4_data",
-            "document": "step4_data",
-            "team_member_ID": "1163",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-        posts = json.loads(response.json())
-        user_id = str(request.session['user_id'])
-        status = 'scheduled'
-        post = []
-        try:
-            for row in posts['data']:
-                if user_id == str(row['user_id']):
-                    try:
-                        if status == row['status']:
-                            data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
-                                    'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(), 'time': row['time']}
-                            post.append(data)
-                            post = list(reversed(post))
-
-                    except:
-                        pass
-        except:
-            pass
-        return JsonResponse({'response': post})
-    else:
-        return render(request, 'error.html')
-
-
-@xframe_options_exempt
-def index(request):
-    if 'session_id' and 'username' in request.session:
-        # credit_handler = CreditHandler()
-        # credit_response = credit_handler.check_if_user_has_enough_credits(
-        #     sub_service_id=STEP_2_SUB_SERVICE_ID,
-        #     request=request,
-        # )
-
-        # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
-
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
-
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "socialmedia",
-            "document": "socialmedia",
-            "team_member_ID": "345678977",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"username": request.session['username']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-        results = json.loads(response.json())
-        # getting the operation right of a user
-        try:
-            profile = str(request.session['operations_right'])
-        except:
-            profile = 'member'
-
-        # drops the first 10 on the json file
-
-        try:
-            # Get the user org ids from the portfolio objects of the user
-            user_org_id_list = [portfolio_info.get(
-                'org_id') for portfolio_info in request.session['portfolio_info'] if portfolio_info.get('org_id', None)]
-
-            datas = results['data']
-
-            array = []
-            # Loops through all the data rows
-            for row in datas:
-                # print('this is the row')
-                # print(row)
-
-                try:
-                    # Get the org_id from the question data
-                    org_id = row.get('org_id')
-                    # Filter the question data with the org_ids from the user's portfolio
-                    if org_id in user_org_id_list and row.get('username'):
-
-                        array.append(row)
-                except Exception as e:
-                    traceback.print_exc()
-
-            topics = []
-
-            # Retrieving the page number from the url
-            number_of_items_per_page = 10
-            page = request.GET.get('page', 1)
-            # if isinstance(page,str) and page.isnumeric():
-            #     page=int(page)
-            # end_number=(number_of_items_per_page*page)
-            # start_number=end_number-number_of_items_per_page
-
-            array.reverse()
-
-            for counter, data in enumerate(array):
-
-                for key in data.keys():
-                    if key.startswith("sentence_rank_") and data[key]['sentence_rank'] is not None:
-                        topic = {"ranks": data[key]['sentence_rank'], "sentence": data[key]
-                                 ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
-                        topics.append(topic)
-
-            # Getting the results for a certain page
-            paginator = Paginator(topics, number_of_items_per_page)
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "step4_data",
+                "document": "step4_data",
+                "team_member_ID": "1163",
+                "function_ID": "ABCDE",
+                "command": "fetch",
+                "field": {"user_id": request.session['user_id']},
+                "update_field": {
+                    "order_nos": 21
+                },
+                "platform": "bangalore"
+            }
+            data = json.dumps(payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
+            posts = json.loads(response.json())
+            user_id = str(request.session['user_id'])
+            status = 'scheduled'
+            post_data = []
             try:
-                topics = paginator.page(page)
-            except PageNotAnInteger:
-                topics = paginator.page(1)
-            except EmptyPage:
-                topics = paginator.page(paginator.num_pages)
-            # if len(topics):
-            #     total_pages=math.ceil(len(topics)/number_of_items_per_page)
-            # total_pages=0
-            # topics=topics[start_number:end_number]
-        except Exception as e:
-            print('this is the error that has occured')
-            traceback.print_exc()
-            print('================================')
-            topics = []
+                for row in posts['data']:
+                    if user_id == str(row['user_id']):
+                        try:
+                            if status == row['status']:
+                                data = {
+                                    'title': row['title'],
+                                    'paragraph': row['paragraph'],
+                                    'image': row['image'],
+                                    'pk': row['_id'],
+                                    'source': row['source'],
+                                    'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                                    'time': row['time']
+                                }
+                                post_data.append(data)
 
-        return render(request, 'article/main.html', {'topics': topics, 'profile': profile, 'page': page})
-    else:
-        return render(request, 'error.html')
+                        except:
+                            pass
+                post_data = list(reversed(post_data))
+            except:
+                pass
 
-
-@csrf_exempt
-@xframe_options_exempt
-def generate_article_automatically(request):
-    session_id = request.GET.get('session_id', None)
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("main-view"))
-    else:
-        title = request.POST.get("title")
-        subject = request.POST.get("subject")
-        verb = request.POST.get("verb")
-        target_industry = request.POST.get("target_industry")
-        qualitative_categorization = request.POST.get(
-            "qualitative_categorization")
-        targeted_for = request.POST.get("targeted_for")
-        designed_for = request.POST.get("designed_for")
-        targeted_category = request.POST.get("targeted_category")
-        image = request.POST.get("image")
-        dowellclock = get_dowellclock()
-    SERVER = "https://panel.ai-writer.com/"
-    API_KEY = "B91ACB505A7392D27356C26747EDD70D"
-
-    # try to catch the max_entries error
-    try:
-        # first, we create a new research request for the keyword title
-        research_request_obj = requests.post(SERVER + '/aiw/apiendpoint2/put_research_request/'+requests.utils.quote(
-            title), params={"api_key": API_KEY, "identifier": "test_identifier"}).json()
-
-        # show output
-        pretty_print("NEW REQUEST", research_request_obj)
-
-        # now get the research result, we will wait for a while and keep asking the server about it
-        for _ in range(30):
-
-            # request the result of the query
-            research_result = requests.get(SERVER + '/aiw/apiendpoint2/get_research_result/' +
-                                           research_request_obj["id"], params={"api_key": API_KEY}).json()
-
-            # if the result is here, we will break the waiting loop
-            if "result" in research_result and research_result["result"] is not None:
-                break
-
-            # the sleep makes sure we do not bomb the API endpoints
-            time.sleep(30)
-    except requests.exceptions.ConnectionError:
-        r.status_code = "Connection refused"
-
-    para = ''
-    src = ''
-    # go through all rewritten paragraphs and print them
-    for p in research_result["result"]["article"]:
-        print(p["paragraph_text"])
-        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                               "session_id": session_id,
-                                               "eventId": create_event()['event_id'],
-                                               # organization id,
-                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                               "title": title,
-                                               "target_industry": target_industry,
-                                               "qualitative_categorization": qualitative_categorization,
-                                               "targeted_for": targeted_for,
-                                               "designed_for": designed_for,
-                                               "targeted_category": targeted_category,
-                                               "image": image,
-                                               "paragraph": p["paragraph_text"],
-                                               "citation_and_url": p["paragraph_sources"],
-                                               'subject': subject,
-                                               'dowelltime': dowellclock
-                                               }, '34567897799')
-        para = para + p["paragraph_text"] + '\n'
-    # print all cited sources
-    for src_url in research_result["result"]["cited_sources"]:
-        print("Source:", src_url)
-        src = src + src_url + '\n'
-
-    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                           "session_id": session_id,
-                                           "eventId": create_event()['event_id'],
-                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                           "title": title, "target_industry": target_industry,
-                                           "paragraph": para,
-                                           "source": src,
-                                           'subject': subject,
-                                           'dowelltime': dowellclock
-                                           }, "9992828281")
-
-    # generating article through wikipedia
-    wiki_language = wikipediaapi.Wikipedia(
-        language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
-    page = wiki_language.page(title)
-    page_exists = page.exists()
-    if page_exists == False:
-        print("For Title: "+title+" Page does not exist.")
-        print("Using subject: " + subject + " and verb: " +
-              verb + " to create an article.")
-        title_sub_verb = subject+" "+verb
-        page = wiki_language.page(title_sub_verb)
-        print("Page - Exists: %s" % page.exists())
-        source_verb = ''
-        if page.exists() == True:
-            article_sub_verb = page.text
-            article_sub_verb = article_sub_verb.split("See also")
-            save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                   "session_id": session_id,
-                                                   "eventId": create_event()['event_id'],
-                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                   "title": title_sub_verb,
-                                                   "target_industry": target_industry,
-                                                   "paragraph": article_sub_verb[0],
-                                                   "source": page.fullurl,
-                                                   'subject': subject,
-                                                   'dowelltime': dowellclock
-                                                   }, "9992828281")
-            para_list = article_sub_verb[0].split("\n\n")
-            source_verb = page.fullurl
-            for i in range(len(para_list)):
-                if para_list[i] != '':
-                    save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                           "eventId": create_event()['event_id'],
-                                                           "title": title,
-                                                           "target_industry": target_industry,
-                                                           "qualitative_categorization": qualitative_categorization,
-                                                           "targeted_for": targeted_for,
-                                                           "designed_for": designed_for,
-                                                           "targeted_category": targeted_category,
-                                                           "image": image,
-                                                           "paragraph": para_list[i],
-                                                           "citation_and_url": page.fullurl,
-                                                           'subject': subject,
-                                                           'dowelltime': dowellclock
-                                                           }, '34567897799')
-        print("Using subject: " + subject + " to create an article.")
-        page = wiki_language.page(subject)
-        if page.exists() == False:
-            print("Page - Exists: %s" % page.exists())
-            message = "Article for Title " + title_sub_verb + \
-                " and Title "+subject+" does not exist."
-            return render(request, 'article/article.html', {'message': message, 'title': title})
+            return Response({'response': post_data})
         else:
-            article_subject = page.text
-            print(article_subject)
-            article_subject = article_subject.split("See also")
-            save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                   "session_id": session_id,
-                                                   "eventId": create_event()['event_id'],
-                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                   "title": subject,
-                                                   "target_industry": target_industry,
-                                                   "paragraph": article_subject[0],
-                                                   "source": page.fullurl,
-                                                   'subject': subject,
-                                                   'dowelltime': dowellclock
-                                                   }, "9992828281")
-            para_list = article_subject[0].split("\n\n")
-            for i in range(len(para_list)):
-                if para_list[i] != '':
-                    print(para_list[i])
-                    save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                           "title": title,
-                                                           "target_industry": target_industry,
-                                                           "qualitative_categorization": qualitative_categorization,
-                                                           "targeted_for": targeted_for,
-                                                           "designed_for": designed_for,
-                                                           "targeted_category": targeted_category,
-                                                           "image": image,
-                                                           "paragraph": para_list[i],
-                                                           "citation_and_url": page.fullurl,
-                                                           'subject': subject,
-                                                           'dowelltime': dowellclock
-                                                           }, '34567897799')
-                    print("\n")
-            if 'article_sub_verb' in locals():
-                # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
-                # 'article_subject': article_subject[0], 'source_subject': page.fullurl, 'article_AI': para, 'AI_src': src})
-                return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-            else:
-                # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article_subject': article_subject[0], 'source_subject': page.fullurl
-                # , 'article_AI': para, 'AI_src': src})
-                return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-    else:
-        print("For Title: "+title+" Page exists.")
-        article = page.text
-        article = article.split("See also")
-        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                               "session_id": session_id,
-                                               "eventId": create_event()['event_id'],
-                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                               "title": title,
-                                               "target_industry": target_industry,
-                                               "paragraph": article[0],
-                                               "source": page.fullurl,
-                                               'subject': subject,
-                                               'dowelltime': dowellclock
-                                               }, "9992828281")
-        para_list = article[0].split("\n\n")
-        for i in range(len(para_list)):
-            if para_list[i] != '':
-                save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                       "session_id": session_id,
-                                                       "eventId": create_event()['event_id'],
-                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                       "title": title,
-                                                       "target_industry": target_industry,
-                                                       "qualitative_categorization": qualitative_categorization,
-                                                       "targeted_for": targeted_for,
-                                                       "designed_for": designed_for,
-                                                       "targeted_category": targeted_category,
-                                                       "image": image,
-                                                       "paragraph": para_list[i],
-                                                       "citation_and_url": page.fullurl,
-                                                       'subject': subject,
-                                                       'dowelltime': dowellclock
-                                                       }, '34567897799')
-        # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl, 'subject': subject, 'article_AI': para, 'AI_src': src})
-        return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
+            return Response({'response': []})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class IndexView(APIView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            # credit_handler = CreditHandler()
+            # credit_response = credit_handler.check_if_user_has_enough_credits(
+            #     sub_service_id=STEP_2_SUB_SERVICE_ID,
+            #     request=request,
+            # )
+
+            # if not credit_response.get('success'):
+            #     return redirect(reverse('credit_error_view'))
+
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "socialmedia",
+                "document": "socialmedia",
+                "team_member_ID": "345678977",
+                "function_ID": "ABCDE",
+                "command": "fetch",
+                "field": {"username": request.session['username']},
+                "update_field": {
+                    "order_nos": 21
+                },
+                "platform": "bangalore"
+            }
+            data = json.dumps(payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
+            results = json.loads(response.json())
+            # getting the operation right of a user
+            try:
+                profile = str(request.session['operations_right'])
+            except:
+                profile = 'member'
+
+            # drops the first 10 on the json file
+
+            try:
+                # Get the user org ids from the portfolio objects of the user
+                user_org_id_list = [portfolio_info.get(
+                    'org_id') for portfolio_info in request.session['portfolio_info'] if portfolio_info.get('org_id', None)]
+
+                datas = results['data']
+
+                array = []
+                # Loops through all the data rows
+                for row in datas:
+                    # print('this is the row')
+                    # print(row)
+
+                    try:
+                        # Get the org_id from the question data
+                        org_id = row.get('org_id')
+                        # Filter the question data with the org_ids from the user's portfolio
+                        if org_id in user_org_id_list and row.get('username'):
+
+                            array.append(row)
+                    except Exception as e:
+                        traceback.print_exc()
+
+                topics = []
+
+                # Retrieving the page number from the url
+                number_of_items_per_page = 10
+                page = request.GET.get('page', 1)
+                # if isinstance(page,str) and page.isnumeric():
+                #     page=int(page)
+                # end_number=(number_of_items_per_page*page)
+                # start_number=end_number-number_of_items_per_page
+
+                array.reverse()
+
+                for counter, data in enumerate(array):
+
+                    for key in data.keys():
+                        if key.startswith("sentence_rank_") and data[key]['sentence_rank'] is not None:
+                            topic = {"ranks": data[key]['sentence_rank'], "sentence": data[key]
+                                     ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
+                            topics.append(topic)
+
+                # Getting the results for a certain page
+                paginator = Paginator(topics, number_of_items_per_page)
+                try:
+                    topics = paginator.page(page)
+                except PageNotAnInteger:
+                    topics = paginator.page(1)
+                except EmptyPage:
+                    topics = paginator.page(paginator.num_pages)
+                # if len(topics):
+                #     total_pages=math.ceil(len(topics)/number_of_items_per_page)
+                # total_pages=0
+                # topics=topics[start_number:end_number]
+            except Exception as e:
+                print('this is the error that has occured')
+                traceback.print_exc()
+                print('================================')
+                topics = []
+
+            # Extract the data to be serialized
+            topics_data = [{'ranks': topic['ranks'], 'sentence': topic['sentence'],
+                           'key': topic['key'], 'created_by': topic.get('created_by', 'NA')} for topic in topics]
+
+            return Response({'topics': topics_data, 'profile': profile, 'page': page})
+        else:
+            return Response({'topics': [], 'profile': 'member', 'page': 2})
 
 
 class GenerateArticleView(APIView):
@@ -3168,51 +2954,57 @@ def most_recent(request):
         return render(request, 'error.html')
 
 
-@csrf_exempt
-def most_recent_json(request):
-    if 'session_id' and 'username' in request.session:
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
+@method_decorator(csrf_exempt, name='dispatch')
+class MostRecentJSON(APIView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
 
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "step4_data",
-            "document": "step4_data",
-            "team_member_ID": "1163",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-        posts = json.loads(response.json())
-        user_id = str(request.session['user_id'])
-        status = 'posted'
-        post = []
-        try:
-            for row in posts['data']:
-                if user_id == str(row['user_id']):
-                    try:
-                        if status == row['status']:
-                            data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
-                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source'], 'time': row['time']}
-                            post.append(data)
-                            post = list(reversed(post))
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "step4_data",
+                "document": "step4_data",
+                "team_member_ID": "1163",
+                "function_ID": "ABCDE",
+                "command": "fetch",
+                "field": {"user_id": request.session['user_id']},
+                "update_field": {
+                    "order_nos": 21
+                },
+                "platform": "bangalore"
+            }
+            data = json.dumps(payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
+            posts = json.loads(response.json())
+            user_id = str(request.session['user_id'])
+            status = 'posted'
+            post = []
+            try:
+                for row in posts['data']:
+                    if user_id == str(row['user_id']):
+                        try:
+                            if status == row['status']:
+                                data = {
+                                    'title': row['title'],
+                                    'paragraph': row['paragraph'],
+                                    'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                                    'image': row['image'],
+                                    'source': row['source'],
+                                    'time': row['time']
+                                }
+                                post.append(data)
+                                post = list(reversed(post))
+                        except:
+                            pass
+            except:
+                print('no post')
 
-                    except:
-                        pass
-        except:
-            print('no post')
-        # post = list(reversed(post))  # Reverse the order of the posts list
-
-        return JsonResponse({'response': post})
-    else:
-        return render(request, 'error.html')
+            return Response({'response': post})
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 def can_post_on_social_media(request):
