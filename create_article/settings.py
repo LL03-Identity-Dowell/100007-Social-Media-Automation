@@ -201,6 +201,22 @@ Q_CLUSTER = {
     'bulk': 10,
     'orm': 'default'}
 
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'Authorization',
+    'Content-Type',
+]
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',  # Replace with your frontend origin
+]
 CORS_ALLOW_ALL_ORIGINS = True
 
 # # 'logs' directory

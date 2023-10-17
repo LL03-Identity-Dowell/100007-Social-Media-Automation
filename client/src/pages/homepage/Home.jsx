@@ -30,20 +30,19 @@ const Home = ({ close }) => {
       window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/`;
     }
   };
-
-  const fetchData = (session_id) => {
+  const fetchData = () => {
     // Define the API URL
     const apiUrl = "http://127.0.0.1:8000/api/v1/main/";
 
-    // Make a GET request to the API endpoint with the session_id
+    // Enable sending cookies with the request
+    axios.defaults.withCredentials = true;
+
+    // Make a GET request to the API endpoint
     axios
-      .get(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${session_id}`, // Include session_id in the headers
-        },
-      })
+      .get(apiUrl)
       .then((response) => {
-        setData(response.data); // Store the response data in the component state
+        // Store the response data in the component state
+        setData(response.data);
         console.log("Data from API:", response.data);
       })
       .catch((error) => {
