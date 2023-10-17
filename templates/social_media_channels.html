@@ -38,7 +38,7 @@
   </a>
 
 </div>
-    {% if can_connect %}
+    {% if can_connect or user_has_social_media_profile %}
 <a
   class="mt-5 px-5 btn btn-dark-blue connect-button"
   onclick="newUserStatus ? showPopup.showLinkAcc() : showPopup.showActivate()"
