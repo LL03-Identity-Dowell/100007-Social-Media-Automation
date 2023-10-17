@@ -21,3 +21,8 @@ class PostSerializer(serializers.Serializer):
 class SessionSerializer(serializers.Serializer):
     session_id = serializers.CharField()
     
+class CitySerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+
+    
