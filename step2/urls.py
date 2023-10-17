@@ -1,7 +1,6 @@
 from django.urls import path
 
 from . import views
-# react endpoints
 from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     PostListView, TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
@@ -82,6 +81,7 @@ urlpatterns = [
          name='user_approval_api'),
     path('api/v1/article/AI/', GenerateArticleView.as_view(), name='submit-title'),
     path('api/v1/article_list/', PostListView.as_view(), name='submit-title'),
+    path('api/v1/csrf_cookie/', GetCSRFToken.as_view(), name='csrftoken'),
     path('api/v1/targeted_cities/', TargetedCitiesListView.as_view(),
          name='targeted-cities-list'),
     path('api/v1/targeted_cities/create/', TargetedCitiesCreateView.as_view(),
