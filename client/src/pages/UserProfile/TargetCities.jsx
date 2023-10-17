@@ -478,12 +478,14 @@ const cityListArr = [
 
 const TargetCities = () => {
   const [cityList, setCityList] = useState(cityListArr);
+  const [inputValue, setInputValue] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
   };
 
   const onChange = (e) => {
+    setInputValue(e.target.value);
     const filteredCities = cityListArr.filter((each) =>
       each.value.toLowerCase().startsWith(e.target.value.toLowerCase())
     );
@@ -506,11 +508,16 @@ const TargetCities = () => {
             onChange={onChange}
             className='w-9/12 h-full border border-[1px solid bg-customBlue] outline-none rounded-[30px] text-xl font-bold bg-transparent px-10 placeholder:font-normal text-[#333] placeholder:text-2xl'
             placeholder='List of the Cities'
+            value={inputValue}
           />
           <button
             id='cancel-button'
             type='reset'
             className='search-container-btns'
+            onClick={() => {
+              setInputValue("");
+              setCityList(cityListArr);
+            }}
           >
             <div className='icons8-cancel'></div>
           </button>

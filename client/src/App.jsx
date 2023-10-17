@@ -17,6 +17,8 @@ import Address from "./pages/Address/Address";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
+import SpecificArticle from "./pages/Article/SpecificArticle";
+import SpecificPost from "./pages/Post/PostList/SpecificPost";
 import ClientProfile from "./pages/UserProfile/ClientProfile";
 import TargetCities from "./pages/UserProfile/TargetCities";
 
@@ -44,6 +46,14 @@ function App() {
           <Route
             path='/post-list'
             element={<PostList show={handleOpenSideBar} />}
+          />
+          <Route
+            path='/SpecificArticle'
+            element={<SpecificArticle show={handleOpenSideBar} />}
+          />
+          <Route
+            path='/SpecificPost'
+            element={<SpecificPost show={handleOpenSideBar} />}
           />
           <Route
             path='/scheduled'
