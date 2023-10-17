@@ -297,8 +297,7 @@ def dowell_login(request):
         request.session["session_id"] = session_id
         print("Here", session_id)
         redirect_url = "http://localhost:5173/"
-        if session_id:
-            redirect_url += f"?session_id={session_id}"
+
         return redirect(redirect_url)
     except Exception as e:
         print(f"Error setting session ID: {str(e)}")
@@ -308,12 +307,8 @@ def dowell_login(request):
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-        # session_id = "1fkxso7olruuft1e7kv7i5cerv9sbwox"
-        # if session_id:
-
         authorization_header = request.META.get('HTTP_AUTHORIZATION')
         session_id = authorization_header.replace('Bearer ', '')
-
         if session_id:
             user_map = {}
             redirect_to_living_lab = True
