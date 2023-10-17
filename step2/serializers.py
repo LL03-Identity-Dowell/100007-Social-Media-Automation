@@ -9,3 +9,15 @@ class ProfileSerializer(serializers.Serializer):
     operations_right = serializers.CharField()
     org_id = serializers.CharField()
     
+class UserApprovalSerializer(serializers.Serializer):
+    session_id = serializers.CharField(required=True)
+    user_id = serializers.IntegerField(required=True)
+    
+class PostSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    paragraph = serializers.CharField()
+    source = serializers.CharField()
+    
+class SessionSerializer(serializers.Serializer):
+    session_id = serializers.CharField()
+    
