@@ -1,9 +1,9 @@
-import { configureStore } from '@reduxjs/toolkit'
-import { getUserInfo } from './features/userInfo'
+import { configureStore } from '@reduxjs/toolkit';
+import userInfoSlice from "./features/userInfo"
 
 export const store = configureStore({
   reducer: {
-    [getUserInfo.reducerPath] : getUserInfo.reducer
+    data: userInfoSlice
   },
-  middleware: (getDefaultMiddleware)=> getDefaultMiddleware().concat(getUserInfo.middleware)
-})
+});
+

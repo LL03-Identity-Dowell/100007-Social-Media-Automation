@@ -36,7 +36,7 @@ function App() {
       <Layout side={showSidebar} show={handleOpenSideBar}>
         <Routes>
           Schedule
-          <Route path='/' element={<Home close={handleCloseSideBar} />} />
+          <Route exact  path='/' element={<Home close={handleCloseSideBar} />} />
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
           <Route
             path='/article'

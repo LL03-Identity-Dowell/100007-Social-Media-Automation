@@ -1,15 +1,16 @@
-// import {createSlice} from "@reduxjs/toolkit";
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createSlice } from '@reduxjs/toolkit';
 
-export const getUserInfo = createApi({
-    reducerPath: "userInfo",
-    baseQuery: fetchBaseQuery({
-        baseUrl: ""
-    }),
-    endpoints: ( builder) => ({
-        getSummary: builder.query({
-            query: (params) => 'test'
-        })
-    })
-    
-})
+const userInfoSlice = createSlice({
+  name: 'sessionId', // Name of the slice
+  initialState: {
+    data: [], // Initial data
+  },
+  reducers: {
+    setData: (state, action) => {
+      state.data = action.payload;
+    },
+  },
+});
+
+export const { setData } = userInfoSlice.actions;
+export default userInfoSlice.reducer
