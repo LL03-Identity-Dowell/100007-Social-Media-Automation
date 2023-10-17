@@ -27,13 +27,21 @@ class User(models.Model):
 
 
 class Category(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name='categories')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='categories')
     name = models.CharField(max_length=1000, blank=False, null=False)
+    is_default = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
 
 
 class UserTopic(BaseModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name='user_topic')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='user_topic')
     name = models.CharField(max_length=1000, blank=False, null=False)
+    is_default = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
 
 
 class IndustryData(BaseModel):
@@ -55,7 +63,8 @@ class IndustryData(BaseModel):
     )
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     # target_industry = models.CharField(max_length=100, blank=False)
-    target_industry = models.CharField(max_length=100, blank=False, choices=CHOICES)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True, blank=True,
+                                 related_name='industry_data')
     target_product = models.CharField(max_length=100, blank=False)
 
     def __str__(self):
@@ -98,7 +107,9 @@ class Sentences(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     subject_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS,
                                            default=DETERMINANTS[0][0])
-    subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
+    # subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
+    topic = models.ForeignKey(UserTopic, on_delete=models.PROTECT, null=True, blank=True,
+                              related_name='sentence')
     subject_number = models.CharField(max_length=100, blank=False)
     object_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS, default=DETERMINANTS[0][0])
     object = models.CharField(max_length=100, blank=False)
@@ -196,13 +207,10 @@ class WebsiteManager:
         """
         with transaction.atomic():
             category_list = data.get('category_list')
-            user = User.objects.filter(email=data.get('email'))
-            if user:
-                user = user.first()
-            else:
-                user = User.objects.create(user)
+            user = self.get_or_create_user(data)
+
             for name in category_list:
-                if name is '':
+                if name == '':
                     continue
                 Category.objects.create(
                     user=user,
@@ -216,13 +224,10 @@ class WebsiteManager:
         """
         with transaction.atomic():
             topic_list = data.get('topic_list')
-            user = User.objects.filter(email=data.get('email'))
-            if user:
-                user = user.first()
-            else:
-                user = User.objects.create(user)
+            user = self.get_or_create_user(data)
+
             for name in topic_list:
-                if name is '':
+                if name == '':
                     continue
                 UserTopic.objects.create(
                     user=user,
@@ -241,3 +246,12 @@ class WebsiteManager:
         This method returns topics created by a user
         """
         return UserTopic.objects.filter(user__email=data.get('email'))
+
+    def get_or_create_user(self, data):
+        """
+        This method returns or creates a user
+        """
+        user = User.objects.filter(email=data.get('email'))
+        if user:
+            return user.last()
+        return User.objects.create(email=data.get('email'))
