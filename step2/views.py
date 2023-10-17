@@ -1,4 +1,5 @@
 import concurrent.futures
+import concurrent.futures
 import datetime
 import json
 import random
@@ -33,19 +34,16 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
+from rest_framework import status
+from rest_framework.response import Response
+# rest(React endpoints)
+from rest_framework.views import APIView
 
 from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
-
-
-# rest(React endpoints)
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 from .serializers import ProfileSerializer
-
 
 # helper functions
 
@@ -297,19 +295,26 @@ def dowell_login(request):
     try:
         session_id = request.GET.get('session_id', None)
         request.session["session_id"] = session_id
-        return redirect("http://127.0.0.1:8000/api/v1/main/")
-    except:
-        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
-        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+        print("Here", session_id)
+        redirect_url = "http://localhost:5173/"
+
+        return redirect(redirect_url)
+    except Exception as e:
+        print(f"Error setting session ID: {str(e)}")
+        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-        if request.session.get("session_id"):
+        authorization_header = request.META.get('HTTP_AUTHORIZATION')
+        session_id = authorization_header.replace('Bearer ', '')
+        if session_id:
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-            session_id = request.session["session_id"]
+
+            print("session_id", session_id)
             response_1 = requests.post(url_1, data={"session_id": session_id})
 
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
@@ -357,7 +362,7 @@ class MainAPIView(APIView):
             request.session['session_id'] = session_id
 
             if not has_access(request.session['portfolio_info']):
-                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
             # credit_handler = CreditHandler()
             # credit_handler.login(request)
 
@@ -375,7 +380,7 @@ class MainAPIView(APIView):
             return Response(serializer.data)
 
         else:
-            return redirect("https://100014.pythonanywhere.com/?redirect_url=http:127.0.0.1:8000/")
+            return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
 
 
 def forget_password(request):
@@ -427,163 +432,146 @@ def register(request):
     return render(request, 'signup.html')
 
 
-@csrf_exempt
-@xframe_options_exempt
-def user_approval(request):
+class UserApprovalView(APIView):
+    def get(self, request):
+        session_id = request.GET.get("session_id", None)
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
 
-    session_id = request.GET.get("session_id", None)
-    url = "http://uxlivinglab.pythonanywhere.com/"
-    headers = {'content-type': 'application/json'}
-
-    payload = {
-        "cluster": "socialmedia",
-        "database": "socialmedia",
-        "collection": "user_info",
-        "document": "user_info",
-        "team_member_ID": "1071",
-        "function_ID": "ABCDE",
-        "command": "fetch",
-        "field": {"user_id": request.session['user_id']},
-        "update_field": {
-            "order_nos": 21
-        },
-        "platform": "bangalore"
-    }
-
-    data = json.dumps(payload)
-    response = requests.request("POST", url, headers=headers, data=data)
-
-    print(response)
-    response_data_json = json.loads(response.json())
-    print("Here we have data from this page", response_data_json)
-    # get user_id of user
-    user_id = str(request.session['user_id'])
-    if len(response_data_json['data']) == 0:
-        status = 'insert'
-    else:
-        # get the data in file
-        status = 'update'
-
-    return render(request, 'user_approval.html', {'status': status})
-    # return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def user_approval_form(request):
-    session_id = request.GET.get("session_id", None)
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:client"))
-    else:
-        topic = request.POST.get("topic")
-        article = request.POST.get("article")
-        post = request.POST.get("post")
-        schedule = request.POST.get("schedule")
-        time = localtime()
-        test_date = str(localdate())
-        date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-        date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-        event_id = create_event()['event_id']
-
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = json.dumps({
+        payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
             "collection": "user_info",
             "document": "user_info",
             "team_member_ID": "1071",
             "function_ID": "ABCDE",
-            "eventId": event_id,
-            "command": "insert",
-
-            "field": {
-                "user_id": request.session['user_id'],
-                "topic": topic,
-                "post": post,
-                "article": article,
-                "schedule": schedule,
-                "session_id": session_id,
-                "eventId": event_id,
-                'client_admin_id': request.session['userinfo']['client_admin_id'],
-                "date": date,
-                "time": str(time),
-
-            },
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
             "update_field": {
-                "approvals": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+
+        print(response)
+        response_data_json = json.loads(response.json())
+        print("Here we have data from this page", response_data_json)
+        user_id = str(request.session['user_id'])
+        if len(response_data_json['data']) == 0:
+            status = 'insert'
+        else:
+            status = 'update'
+
+        return Response({'status': status})
+
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            topic = request.POST.get("topic")
+            article = request.POST.get("article")
+            post = request.POST.get("post")
+            schedule = request.POST.get("schedule")
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "eventId": event_id,
+                "command": "insert",
+
+                "field": {
+                    "user_id": request.session['user_id'],
                     "topic": topic,
                     "post": post,
                     "article": article,
                     "schedule": schedule,
-
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    "date": date,
+                    "time": str(time),
                 },
-            },
-            "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
+                "update_field": {
+                    "approvals": {
+                        "topic": topic,
+                        "post": post,
+                        "article": article,
+                        "schedule": schedule,
+                    },
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
-        messages.success(request, "Details updated successfully.")
+            response = requests.post(url, headers=headers, data=payload)
+            print(response.text)
+            messages.success(request, "Details updated successfully.")
 
-        return HttpResponseRedirect(reverse("generate_article:client"))
+            return Response(status=status.HTTP_200_OK)
 
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "PUT":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            topic = request.POST.get("topic")
+            article = request.POST.get("article")
+            post = request.POST.get("post")
+            schedule = request.POST.get("schedule")
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            user_id = '62e7aea0eda55a0cd5e839fc'
 
-@csrf_exempt
-@xframe_options_exempt
-def user_approval_form_update(request):
-    session_id = request.GET.get("session_id", None)
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:client"))
-    else:
-        topic = request.POST.get("topic")
-        article = request.POST.get("article")
-        post = request.POST.get("post")
-        schedule = request.POST.get("schedule")
-        time = localtime()
-        test_date = str(localdate())
-        date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-        date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-        event_id = create_event()['event_id']
+            url = "http://uxlivinglab.pythonanywhere.com"
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
 
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
+                "field": {
+                    'user_id': request.session['user_id']
+                },
+                "update_field": {
+                    "topic": topic,
+                    "post": post,
+                    "article": article,
+                    "schedule": schedule,
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
 
-            "field": {
-                'user_id': request.session['user_id']
-
-
-            },
-            "update_field": {
-
-                "topic": topic,
-                "post": post,
-                "article": article,
-                "schedule": schedule,
-
-
-            },
-            "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
-        messages.success(request, "Approvals updated successfully.")
-    return HttpResponseRedirect(reverse("generate_article:client"))
+            response = requests.put(url, headers=headers, data=payload)
+            print(response.text)
+            messages.success(request, "Approvals updated successfully.")
+            return Response(status=status.HTTP_200_OK)
 
 
 def check_if_user_has_social_media_profile_in_aryshare(username):
@@ -2210,158 +2198,157 @@ def generate_article_automatically(request):
         return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
 
-@csrf_exempt
-@xframe_options_exempt
-def generate_article(request):
-    start_datetime = datetime.now()
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' in request.session and 'username' in request.session:
-        if request.method != "POST":
-            return HttpResponseRedirect(reverse("generate_article:main-view"))
-        else:
-            RESEARCH_QUERY = request.POST.get("title")
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
-            qualitative_categorization = request.POST.get(
-                "qualitative_categorization")
-            targeted_for = request.POST.get("targeted_for")
-            designed_for = request.POST.get("designed_for")
-            targeted_category = request.POST.get("targeted_category")
-            image = request.POST.get("image")
+class GenerateArticleView(APIView):
 
-            user_selected_cities = []
-            hashtags = []
-            user_tags_mentions = []
-            user_data = fetch_user_info(request)
-            for item in user_data["data"]:
-                if "target_city" in item:
-                    user_selected_cities.extend(item["target_city"])
+    def post(self, request):
+        start_datetime = datetime.now()
+        session_id = request.GET.get('session_id', None)
 
-                if "hashtag_list" in item:
-                    hashtags.extend(item["hashtag_list"])
+        if 'session_id' in request.session and 'username' in request.session:
+            if request.method != "POST":
+                return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                RESEARCH_QUERY = request.data.get("title")
+                subject = request.data.get("subject")
+                verb = request.data.get("verb")
+                target_industry = request.data.get("target_industry")
+                qualitative_categorization = request.data.get(
+                    "qualitative_categorization")
+                targeted_for = request.data.get("targeted_for")
+                designed_for = request.data.get("designed_for")
+                targeted_category = request.data.get("targeted_category")
+                image = request.data.get("image")
 
-                if "mentions_list" in item:
-                    user_tags_mentions.extend(item["mentions_list"])
+                user_selected_cities = []
+                hashtags = []
+                user_tags_mentions = []
+                user_data = fetch_user_info(request)
 
-            formatted_hashtags = " ".join(hashtags) if hashtags else ""
-            formatted_mentions = " ".join(
-                f"@{mention}" for mention in user_tags_mentions) if user_tags_mentions else ""
-            formatted_cities = " ".join(
-                f"#{city}" for city in user_selected_cities) if user_selected_cities else ""
+                for item in user_data["data"]:
+                    if "target_city" in item:
+                        user_selected_cities.extend(item["target_city"])
 
-            # Set your OpenAI API key here
-            openai.api_key = settings.OPENAI_KEY
+                    if "hashtag_list" in item:
+                        hashtags.extend(item["hashtag_list"])
 
-            # Build prompt
-            prompt_limit = 280
+                    if "mentions_list" in item:
+                        user_tags_mentions.extend(item["mentions_list"])
 
-            # Modify the prompt to include the formatted user data
-            prompt = (
-                f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
-                f" Generate only 2 paragraphs."
-                f" Include the following at the end of the article {formatted_hashtags}."
-                f" Also, append {formatted_cities} to the end of the article ."
-                [:prompt_limit]
-                + "..."
-            )
+                formatted_hashtags = " ".join(hashtags) if hashtags else ""
+                formatted_mentions = " ".join(
+                    f"@{mention}" for mention in user_tags_mentions) if user_tags_mentions else ""
+                formatted_cities = " ".join(
+                    f"#{city}" for city in user_selected_cities) if user_selected_cities else ""
 
-            # Variables for loop control
-            duration = 4   # Total duration in seconds
-            interval = 0.9  # Interval between generating articles in seconds
-            start_time = time.time()
+                # Set your OpenAI API key here
+                openai.api_key = settings.OPENAI_KEY
 
-            def generate_and_save_article():
-                nonlocal start_time
+                # Build prompt
+                prompt_limit = 280
 
-                # Generate article using OpenAI's GPT-3
-                response = openai.Completion.create(
-                    engine="text-davinci-003",
-                    prompt=prompt,
-                    temperature=0.5,
-                    max_tokens=1024,
-                    n=1,
-                    stop=None,
-                    timeout=60,
+                # Modify the prompt to include the formatted user data
+                prompt = (
+                    f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
+                    f" Generate only 2 paragraphs."
+                    f" Include the following at the end of the article {formatted_hashtags}."
+                    f" Also, append {formatted_cities} to the end of the article ."
+                    [:prompt_limit]
+                    + "..."
                 )
-                article = response.choices[0].text
-                paragraphs = article.split("\n\n")
-                article_str = "\n\n".join(paragraphs)
 
-                sources = urllib.parse.unquote("")
-
-                try:
-                    with transaction.atomic():
-                        event_id = create_event()['event_id']
-                        user_id = request.session['user_id']
-                        client_admin_id = request.session['userinfo']['client_admin_id']
-
-                        # Save data for step 3
-                        step3_data = {
-                            "user_id": user_id,
-                            "session_id": session_id,
-                            "eventId": event_id,
-                            'client_admin_id': client_admin_id,
-                            "title": RESEARCH_QUERY,
-                            "target_industry": target_industry,
-                            "qualitative_categorization": qualitative_categorization,
-                            "targeted_for": targeted_for,
-                            "designed_for": designed_for,
-                            "targeted_category": targeted_category,
-                            "source": sources,
-                            "image": image,
-                            "paragraph": article_str,
-                            "citation_and_url": sources,
-                            "subject": subject,
-                        }
-                        save_data('step3_data', 'step3_data',
-                                  step3_data, '34567897799')
-                        # Save data for step 2
-                        step2_data = {
-                            "user_id": user_id,
-                            "session_id": session_id,
-                            "eventId": event_id,
-                            'client_admin_id': client_admin_id,
-                            "title": RESEARCH_QUERY,
-                            "target_industry": target_industry,
-                            "paragraph": article_str,
-                            "source": sources,
-                            "subject": subject,
-                            "citation_and_url": sources,
-                        }
-                        save_data('step2_data', 'step2_data',
-                                  step2_data, '9992828281')
-
-                except:
-                    return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
-
-                # Update start_time for the next iteration
+                # Variables for loop control
+                duration = 4   # Total duration in seconds
+                interval = 0.9  # Interval between generating articles in seconds
                 start_time = time.time()
 
-            # Create ThreadPoolExecutor
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                while True:
-                    if time.time() - start_time >= duration:
-                        break
+                def generate_and_save_article():
+                    nonlocal start_time
 
-                    executor.submit(generate_and_save_article)
+                    # Generate article using OpenAI's GPT-3
+                    response = openai.Completion.create(
+                        engine="text-davinci-003",
+                        prompt=prompt,
+                        temperature=0.5,
+                        max_tokens=1024,
+                        n=1,
+                        stop=None,
+                        timeout=60,
+                    )
+                    article = response.choices[0].text
+                    paragraphs = article.split("\n\n")
+                    article_str = "\n\n".join(paragraphs)
 
-                    # Wait before generating the next article
-                    time.sleep(interval)
+                    sources = urllib.parse.unquote("")
 
-            end_datetime = datetime.now()
-            time_taken = end_datetime - start_datetime
-            print(f"Task started at: {start_datetime}")
-            print(f"Task completed at: {end_datetime}")
-            print(f"Total time taken: {time_taken}")
+                    try:
+                        with transaction.atomic():
+                            event_id = create_event()['event_id']
+                            user_id = request.session['user_id']
+                            client_admin_id = request.session['userinfo']['client_admin_id']
 
-            # credit_handler = CreditHandler()
-            # credit_handler.consume_step_2_credit(request)
+                            # Save data for step 3
+                            step3_data = {
+                                "user_id": user_id,
+                                "session_id": session_id,
+                                "eventId": event_id,
+                                'client_admin_id': client_admin_id,
+                                "title": RESEARCH_QUERY,
+                                "target_industry": target_industry,
+                                "qualitative_categorization": qualitative_categorization,
+                                "targeted_for": targeted_for,
+                                "designed_for": designed_for,
+                                "targeted_category": targeted_category,
+                                "source": sources,
+                                "image": image,
+                                "paragraph": article_str,
+                                "citation_and_url": sources,
+                                "subject": subject,
+                            }
+                            save_data('step3_data', 'step3_data',
+                                      step3_data, '34567897799')
+                            # Save data for step 2
+                            step2_data = {
+                                "user_id": user_id,
+                                "session_id": session_id,
+                                "eventId": event_id,
+                                'client_admin_id': client_admin_id,
+                                "title": RESEARCH_QUERY,
+                                "target_industry": target_industry,
+                                "paragraph": article_str,
+                                "source": sources,
+                                "subject": subject,
+                                "citation_and_url": sources,
+                            }
+                            save_data('step2_data', 'step2_data',
+                                      step2_data, '9992828281')
 
-            return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
+                    except:
+                        return Response({"message": "Article did not save successfully"}, status=status.HTTP_400_BAD_REQUEST)
 
-    else:
-        return render(request, 'error.html')
+                    # Update start_time for the next iteration
+                    start_time = time.time()
+
+                # Create ThreadPoolExecutor
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    while True:
+                        if time.time() - start_time >= duration:
+                            break
+
+                        executor.submit(generate_and_save_article)
+
+                        # Wait before generating the next article
+                        time.sleep(interval)
+
+                end_datetime = datetime.now()
+                time_taken = end_datetime - start_datetime
+                print(f"Task started at: {start_datetime}")
+                print(f"Task completed at: {end_datetime}")
+                print(f"Total time taken: {time_taken}")
+
+                return Response({"message": "Article saved successfully"}, status=status.HTTP_200_OK)
+
+        else:
+            return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @csrf_exempt
@@ -2662,77 +2649,89 @@ def verify_article(request):
         return render(request, 'error.html')
 
 
-@xframe_options_exempt
-def post_list(request):
-    # return HttpResponse(request.session.get('user_name'))
-    if 'session_id' and 'username' in request.session:
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
+class PostListView(APIView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
 
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "step3_data",
-            "document": "step3_data",
-            "team_member_ID": "34567897799",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "step3_data",
+                "document": "step3_data",
+                "team_member_ID": "34567897799",
+                "function_ID": "ABCDE",
+                "command": "fetch",
+                "field": {"user_id": request.session['user_id']},
+                "update_field": {
+                    "order_nos": 21
+                },
+                "platform": "bangalore"
+            }
 
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
+            data = json.dumps(payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
 
-        print(response)
+            print(response)
 
-        user = str(request.session['user_id'])
-        response_data_json = json.loads(response.json())
+            user = str(request.session['user_id'])
+            response_data_json = json.loads(response.json())
 
-        # takes in user_id
-        user_id = str(request.session['user_id'])
-        article_detail_list = response_data_json.get('data', [])
+            # takes in user_id
+            user_id = str(request.session['user_id'])
+            article_detail_list = response_data_json.get('data', [])
 
-        # takes in the json data
-        datas = article_detail_list
+            # takes in the json data
+            datas = article_detail_list
 
-        posts = []
-        # iterates through the json file
+            posts = []
+            # iterates through the json file
 
-        for article in article_detail_list:
+            for article in article_detail_list:
 
-            if article.get('user_id') == user_id:
-                articles = {
-                    'title': article.get('title'),
-                    'paragraph': article.get('paragraph'),
-                    'source': article.get('source'),
+                if article.get('user_id') == user_id:
+                    articles = {
+                        'title': article.get('title'),
+                        'paragraph': article.get('paragraph'),
+                        'source': article.get('source'),
+                    }
+                    # appends articles to posts
+                    posts.append(articles)
+            # Reverse the order of the posts list
+            posts = list(reversed(posts))
+
+            number_of_items_per_page = 5
+            page = request.GET.get('page', 1)
+
+            paginator = Paginator(posts, number_of_items_per_page)
+            try:
+                page_post = paginator.page(page)
+            except PageNotAnInteger:
+                page_post = paginator.page(1)
+            except EmptyPage:
+                page_post = paginator.page(paginator.num_pages)
+
+            # Serialize page_post to JSON-serializable format
+            page_post_data = list(page_post)
+            serialized_page_post = [
+                {
+                    'title': post['title'],
+                    'paragraph': post['paragraph'],
+                    'source': post['source']
                 }
-                # appends articles to posts
-                posts.append(articles)
-        posts = list(reversed(posts))  # Reverse the order of the posts list
+                for post in page_post_data
+            ]
 
-        number_of_items_per_page = 5
-        page = request.GET.get('page', 1)
+            data = {
+                'posts': serialized_page_post,
+            }
 
-        paginator = Paginator(posts, number_of_items_per_page)
-        try:
-            page_post = paginator.page(page)
-        except PageNotAnInteger:
-            page_post = paginator.page(1)
-        except EmptyPage:
-            page_post = paginator.page(paginator.num_pages)
+            return Response(data)
 
-        context = {
-            'posts': posts,
-            'page_post': page_post,
-        }
-
-        return render(request, 'post_list.html', context)
-    else:
-        return render(request, 'error.html')
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 @xframe_options_exempt
