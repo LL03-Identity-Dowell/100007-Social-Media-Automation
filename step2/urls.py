@@ -1,19 +1,21 @@
 from django.urls import path
 
 from . import views
+# react endpoints
+from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
+                    PostListView, TargetedCitiesUpdateView,
+                    TargetedCitiesCreateView, TargetedCitiesListView,
+                    HashMentionView, HashMentionUpdateView, UnScheduledView, UnScheduledJsonView,
+                    ScheduledJsonView, IndexView,MostRecentJSON)
+
 
 app_name = 'generate_article'
 
 urlpatterns = [
     # path('', views.under_maintenance, name='home'),
     path('', views.dowell_login, name="dowelllogin"),
-    path('main', views.main, name='main-view'),
     path('scheduled/', views.scheduled, name='scheduled-posts'),
-    path('scheduled_json/', views.scheduled_json, name='scheduled-jsonposts'),
-    path('schedule/', views.unscheduled, name='unscheduled-posts'),
-    path('jsonpost/', views.unscheduled_json, name='unscheduled-jsonpost'),
     path('scheduler/', views.post_scheduler, name='post-scheduler'),
-    path('article_list/', views.post_list, name='article-list'),
     path('article_list/articles/', views.list_article_view,
          name='article-list-articles'),
     path('article_list/<str:filter>/', views.filtered_list_article,
@@ -27,11 +29,6 @@ urlpatterns = [
     path('confirm/reset/password/', views.confirm_reset_password,
          name='confirm-reset-password'),
     path('forget_password/', views.forget_password, name='forget_password'),
-    path('user/approval/', views.user_approval, name='user-approval'),
-    path('user/approval/form/', views.user_approval_form,
-         name='user-approval-form'),
-    path('user/approval/form_update/',
-         views.user_approval_form_update, name='user-approval-update'),
     path('social_media_channels/', views.social_media_channels,
          name='social_media_channels'),
     path('link/linkusers/', views.aryshare_profile, name='aryshare'),
@@ -61,10 +58,6 @@ urlpatterns = [
     path('emoji/comments/', views.comments_emojis, name='comment-emoji'),
     path('topics/', views.topics, name='topics'),
     path('signup/', views.register, name='register'),
-    path('article/generate/', views.index, name='index-view'),
-    path('article/automate/', views.generate_article_automatically,
-         name='automatic-view'),
-    path('article/AI/', views.generate_article, name='submit-title'),
     path('article/Wiki/', views.generate_article_wiki, name='submit-title-wiki'),
     path('write/article/', views.write_yourself, name='write-yourself'),
     path('verify/article/', views.verify_article, name='verify-article'),
@@ -73,20 +66,47 @@ urlpatterns = [
     path('address/', views.address, name='address'),
     path('recent/', views.most_recent, name='recent-post'),
     path('save_post/', views.Save_Post, name='save-post'),
-    path('recent_json/', views.most_recent_json, name='recent_json'),
     path('media_post/', views.Media_Post, name='media-post'),
     path('media_schedule/', views.Media_schedule, name='media-schedule'),
     path('proxy-api/', views.frontend_api_request, name='proxy-api'),
     path('exit/', views.exit_view, name='exit'),
-    path('target-cities/', views.targeted_cities, name='target_cities'),
-    path('saved-target-cities/', views.save_targeted_cities,
-         name='save_target_cities'),
-    path('update-saved-target-cities/', views.update_saved_targeted_cities,
-         name='update_saved_target_cities'),
-    path('hash-tags-and-mensions/', views.hash_mention, name='save_hash_mention'),
-    path('update-hash-tags-and-mensions/',
-         views.update_hash_mention, name='update_hash_mention'),
     path('linked-account/', views.linked_account_json, name='linked-account'),
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
+
+
+
+    # React endpoints start here
+    path('api/v1/main/', MainAPIView.as_view(), name='main-api'),
+    path('api/v1/user-approval/', UserApprovalView.as_view(),
+         name='user_approval_api'),
+    path('api/v1/article/AI/', GenerateArticleView.as_view(), name='submit-title'),
+    path('api/v1/article_list/', PostListView.as_view(), name='submit-title'),
+    path('api/v1/targeted_cities/', TargetedCitiesListView.as_view(),
+         name='targeted-cities-list'),
+    path('api/v1/targeted_cities/create/', TargetedCitiesCreateView.as_view(),
+         name='targeted-cities-create'),
+    path('api/v1/targeted_cities/update/', TargetedCitiesUpdateView.as_view(),
+         name='targeted-cities-update'),
+    path('api/v1/hash-tags-and-mentions/', HashMentionView.as_view(),
+         name='save_hash_mentions'),
+    path('api/v1/update-hash-tags-and-mentions/ ', HashMentionUpdateView.as_view(),
+         name='update_hash_mentions'),
+    path('api/v1/unscheduled/', UnScheduledView.as_view(), name='unscheduled'),
+    path('api/v1/unscheduled-json/',
+         UnScheduledJsonView.as_view(), name='unscheduled-json'),
+    path('api/v1/scheduled-json/',
+         ScheduledJsonView.as_view(), name='scheduled-json'),
+    path('api/v1/article/generate/', IndexView.as_view(),
+         name='index'),  # Create Article(step-2)
+    #step-4
+    path('api/v1/recent_posts/', MostRecentJSON.as_view(),
+         name='recent_post'), 
+
+
+
+
+
+
+
 ]

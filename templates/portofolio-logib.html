@@ -2,6 +2,18 @@
 {% load static %}
 
 {% block script %}
+<script>
+// Retrieve the session_id from the context passed by Django
+var session_id = "{{ session_id|default:'' }}";
+var session_id = "{{ session_id|default:'' }}";
+console.log(session_id);
+var portfolioInfo = {{ request.session.portfolio_info|safe }};
+console.log('Portfolio Info:', portfolioInfo);
+// Check if session_id is not empty and store it in sessionStorage
+if (session_id) {
+    sessionStorage.setItem('session_id', session_id);
+}
+</script>
   <script src="{% static 'main.js' %}"></script>
 {% endblock script %}
 {% block content %}
@@ -17,7 +29,7 @@
               <img src="https://media.discordapp.net/attachments/1078589105207787581/1113098637795393567/Social_media_automation.png?width=431&height=431" alt="Social Media">
           </div>
           <div class="col-md-6" style="margin-top: 9rem!important;">
-              <p class="fs-3"> <span class="text-danger" style="font-weight: 700;">Opps!</span> You Don't Have A Portofolio</p>
+              <p class="fs-3"> <span class="text-danger" style="font-weight: 700;">Oops!</span> You Don't Have A Portofolio</p>
               <a class="btn btn-warning btn-lg" href="https://100093.pythonanywhere.com/">Create One Here</a>
           </div>
 

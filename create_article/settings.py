@@ -10,9 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-from pathlib import Path
 import mimetypes
 import os
+from pathlib import Path
 
 from decouple import config
 
@@ -196,7 +196,7 @@ Q_CLUSTER = {
     'timeout': 300,
     'retry': 350,
     'queue_limit': 50,
-    'ack_failures':True,
+    'ack_failures': True,
     'attempt_count': 1,
     'bulk': 10,
     'orm': 'default'}
@@ -204,34 +204,34 @@ Q_CLUSTER = {
 CORS_ALLOW_ALL_ORIGINS = True
 
 # # 'logs' directory
-LOGGING_DIR = os.path.join(BASE_DIR, 'LOGS')
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(LOGGING_DIR, 'error.log'),
-            'formatter': 'verbose',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING_DIR = os.path.join(BASE_DIR, 'LOGS')
+#
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format': '{levelname} {asctime} {module} {message}',
+#             'style': '{',
+#         },
+#         'simple': {
+#             'format': '{levelname} {message}',
+#             'style': '{',
+#         },
+#     },
+#     'handlers': {
+#         'file': {
+#             'level': 'ERROR',
+#             'class': 'logging.FileHandler',
+#             'filename': os.path.join(LOGGING_DIR, 'error.log'),
+#             'formatter': 'verbose',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'ERROR',
+#             'propagate': True,
+#         },
+#     },
+# }
