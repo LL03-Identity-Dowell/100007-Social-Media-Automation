@@ -33,7 +33,8 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt,ensure_csrf_cookie,csrf_protect
+from rest_framework import permissions
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
@@ -389,6 +390,14 @@ class MainAPIView(APIView):
 
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
+        
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFToken(APIView):
+    permission_classes=(permissions.AllowAny,)
+    def get(self,request,formart=None):
+        return Response({'success':'CRSF cookie set'})
 
 
 def forget_password(request):
@@ -3400,14 +3409,14 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 def Media_Post(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
-        credit_handler = CreditHandler()
-        credit_response = credit_handler.check_if_user_has_enough_credits(
-            sub_service_id=STEP_4_SUB_SERVICE_ID,
-            request=request,
-        )
+        # credit_handler = CreditHandler()
+        # credit_response = credit_handler.check_if_user_has_enough_credits(
+        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+        #     request=request,
+        # )
 
-        if not credit_response.get('success'):
-            return JsonResponse('credit_error', safe=False)
+        # if not credit_response.get('success'):
+        #     return JsonResponse('credit_error', safe=False)
         start_datetime = datetime.now()
         data = json.loads(request.body.decode("utf-8"))
         title = data['title']
