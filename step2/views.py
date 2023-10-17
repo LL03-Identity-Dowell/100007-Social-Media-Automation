@@ -30,7 +30,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.decorators.csrf import csrf_exempt,ensure_csrf_cookie,csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import permissions
 from mega import Mega
 from pexels_api import API
@@ -392,15 +392,6 @@ class MainAPIView(APIView):
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/")
         
-
-
-@method_decorator(ensure_csrf_cookie, name='dispatch')
-class GetCSRFToken(APIView):
-    permission_classes=(permissions.AllowAny,)
-    def get(self,request,formart=None):
-        return Response({'success':'CRSF cookie set'})
-
-
 
 def forget_password(request):
     return render(request, 'main.html')
