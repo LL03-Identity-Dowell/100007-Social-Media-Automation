@@ -661,8 +661,12 @@ def social_media_channels(request):
             'org_id': org_id,
         }
         social_media_request = step_2_manager.get_approved_user_social_media_request(data)
-        if social_media_request:
+        if user_has_social_media_profile:
             context_data['can_connect'] = True
+        elif social_media_request:
+            context_data['can_connect'] = True
+        else:
+            context_data['can_connect'] = False
 
         return render(request, 'social_media_channels.html', context_data)
 
