@@ -37,6 +37,7 @@ function App() {
     <>
       <Layout side={showSidebar} show={handleOpenSideBar}>
         <Routes>
+
           <Route exact  path='/' element={<Home close={handleCloseSideBar} />} />
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
           <Route
