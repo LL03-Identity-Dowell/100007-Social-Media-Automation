@@ -6,9 +6,7 @@ import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
 // import useDowellLogin from "../../hooks/useDowellLogin";
 
 const Home = ({ close }) => {
-  const navigate = useNavigate();
   const [data, setData] = useState(null);
-  const [session_id, setSessionId] = useState("");
 
   useEffect(() => {
     close();
@@ -26,45 +24,35 @@ const Home = ({ close }) => {
       console.log(session_id)
 
       // Proceed to fetch data or handle authenticated user logic
-      fetchData(session_id);
+      fetchData();
     } else {
       // If no session_id, redirect to the login page with session_id as a query parameter
       window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/`;
     }
   };
 
-
-  const fetchData = async (session_id) => {
+  const fetchData = (session_id) => {
     // Define the API URL
     const apiUrl = "http://127.0.0.1:8000/api/v1/main/";
 
-    const res = await axios({
-      method: "post",
-      url: "https://100014.pythonanywhere.com/api/userinfo/",
-      data: { session_id },
-    });
+    // Enable sending cookies with the request
+    axios.defaults.withCredentials = true;
 
-    console.log(res.data);
-    sessionStorage.setItem("userInfo", JSON.stringify(res.data));
-
-    // Make a GET request to the API endpoint with the session_id
-    // axios
-    //   .get(apiUrl, {
-    //     headers: {
-    //       Authorization: `Bearer ${session_id}`, // Include session_id in the headers
-    //     },
-    //   })
-    //   .then((response) => {
-    //     setData(response.data); // Store the response data in the component state
-    //     console.log("Data from API:", response.data);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error fetching data:", error);
-    //   });
+    // Make a GET request to the API endpoint
+    axios
+      .get(apiUrl,)
+      .then((response) => {
+        // Store the response data in the component state
+        let data = response.data
+        localStorage.setItem("userInfo", data);
+        setData(data);
+        console.log("Data from API:", data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
   };
 
-
-  // useDowellLogin();
 
   return (
     <div className="w-[100vw] h-[90vh]">
@@ -79,9 +67,11 @@ const Home = ({ close }) => {
           </div>
 
           <div className="flex justify-between xl:gap-10">
+
             <Link to="/topic">
               <img src={step1} alt="Topic" className="" title='Topic' />
             </Link>
+
             <Link to="/article">
               <img src={step2} alt="article" className="" title='Articles' />
             </Link>

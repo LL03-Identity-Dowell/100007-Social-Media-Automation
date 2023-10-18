@@ -17,8 +17,11 @@ import Address from "./pages/Address/Address";
 import UserProfile from "./pages/UserProfile/UserProfile";
 import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
+import SpecificArticle from "./pages/Article/SpecificArticle";
+import SpecificPost from "./pages/Post/PostList/SpecificPost";
 import PostDetail from "./pages/Post/PostDetail/PostDetail";
 import ClientProfile from "./pages/UserProfile/ClientProfile";
+import TargetCities from "./pages/UserProfile/TargetCities";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -29,12 +32,13 @@ function App() {
   const handleCloseSideBar = () => {
     setShowSidebar(false);
   };
+
   return (
     <>
       <Layout side={showSidebar} show={handleOpenSideBar}>
         <Routes>
-          Schedule
-          <Route path='/' element={<Home close={handleCloseSideBar} />} />
+          <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
+
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
           <Route
             path='/article'
@@ -45,26 +49,28 @@ function App() {
             element={<PostList show={handleOpenSideBar} />}
           />
           <Route
+            path='/SpecificArticle'
+            element={<SpecificArticle show={handleOpenSideBar} />}
+          />
+          <Route
+            path='/SpecificPost'
+            element={<SpecificPost show={handleOpenSideBar} />}
+          />
+          <Route
             path='/post-detail'
             element={<PostDetail show={handleOpenSideBar} />}
           />
           <Route
             path='/scheduled'
-            element={
-              <ScheduleSection show={handleOpenSideBar} />
-            }
+            element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
             path='/unscheduled'
-            element={
-              <ScheduleSection show={handleOpenSideBar} />
-            }
+            element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
             path='/recent'
-            element={
-              <ScheduleSection show={handleOpenSideBar} />
-            }
+            element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
             path='/comment'
@@ -111,7 +117,10 @@ function App() {
             path='/settings/categoriesandtopic'
             element={<CategoriesTopic close={handleCloseSideBar} />}
           />
-
+          <Route
+            path='/target-cities'
+            element={<TargetCities close={handleCloseSideBar} />}
+          />
         </Routes>
       </Layout>
     </>
