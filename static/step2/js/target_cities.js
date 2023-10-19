@@ -29,7 +29,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     noCityFound.style.display = noMatch ? "block" : "none";
     form.style.display = noMatch ? "none" : "block";
   }
+
+  let citiess = [];
   inputsEl.forEach(function (checkbox) {
+    const name = checkbox.getAttribute("name");
+    const id = checkbox.getAttribute("id");
+    const value = checkbox.getAttribute("value");
+    citiess.push({ name, id, value });
+
     checkbox.addEventListener("click", function (e) {
       const parentDiv = checkbox.closest(".city");
       const labelEl = parentDiv.querySelector("label");
@@ -45,6 +52,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
   });
+
+  console.log(citiess);
 
   searchInput.addEventListener("input", handleInput);
 
