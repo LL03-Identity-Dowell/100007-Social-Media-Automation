@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
-import { useSelector } from 'react-redux';
 
 function Topic({ show }) {
-  const { data, loading, error } = useSelector((state) => state.data);
   const [inputs, setInputs] = useState({
     category: "",
     product: "",
@@ -21,7 +19,6 @@ function Topic({ show }) {
 
   useEffect(() => {
     show();
-    console.log(data);
   }, []);
 
   const handelChange = (e) => {

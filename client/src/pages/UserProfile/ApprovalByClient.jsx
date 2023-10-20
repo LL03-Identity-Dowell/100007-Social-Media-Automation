@@ -1,11 +1,14 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
+import Loading from "../../components/Loading";
 // import CSRFToken from "../../components/CSRFToken";
 
 const ApprovalByClient = () => {
-  const [success, setSuccess] = useState()
-  const [error, setError] = useState()
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState();
+  const [error, setError] = useState();
+  const [isChecked, setIsChecked] = useState();
   const [getStatus, setGetStatus] = useState();
   const [approvals, setApprovals] = useState({
     topic: false,
@@ -15,22 +18,29 @@ const ApprovalByClient = () => {
   });
 
   useEffect(() => {
+    let savedState = JSON.parse(localStorage.getItem("approvalData"));
+    setApprovals({
+      topic: !savedState.topic ? false : true,
+      article: !savedState.article ? false : true,
+      post: !savedState.post ? false : true,
+      schedule: !savedState.schedule ? false : true,
+    });
+
     fetch();
   }, []);
 
   const fetch = () => {
     // Make a GET request to the API endpoint with the session_id
     axios
-      .get("http://127.0.0.1:8000/api/v1/user-approval/", {
-        withCredentials: true,
-      })
-      .then((response) => {
+    .get("http://127.0.0.1:8000/api/v1/user-approval/", {
+      withCredentials: true,
+    })
+    .then((response) => {
         let data = response.data.status;
-        console.log(data);
         setGetStatus(data);
       })
       .catch((error) => {
-        setError("Error making request, Please try again later")
+        setError("Server error, Please try again later");
         console.error("Error fetching user-approval:", error);
       });
   };
@@ -38,7 +48,8 @@ const ApprovalByClient = () => {
   const handelChange = (e) => {
     let checkedName = e.target.name;
     let checked = e.target.checked;
-    // console.log(checkedName, checked);
+    
+    setIsChecked(checkedName);
     setApprovals({
       ...approvals,
       [checkedName]: checked,
@@ -55,39 +66,48 @@ const ApprovalByClient = () => {
     };
 
     if (getStatus === "update") {
+      setLoading(true)
       axios
         .put("http://127.0.0.1:8000/api/v1/user-approval/", data, {
           withCredentials: true,
         })
         .then((response) => {
-          setSuccess("Approved...!")
+          setLoading(false)
+          if (approvals.topic || approvals.article || approvals.post || approvals.schedule) {
+            
+            setSuccess(`${isChecked} is Approved...!`);
+          }
           let data = response.data;
-          console.log(data);
-          
+          // console.log(data);
+          let resData = JSON.stringify(data);
+          localStorage.setItem("approvalData", resData);
         })
         .catch((error) => {
-          setError("Error making request, Please try again later")
+          setError("Error making request, Please try again later");
           console.error("Error fetching user-approval:", error);
         });
-      } else if (getStatus === "insert") {
-        axios
-        .post("http://127.0.0.1:8000/api/v1/user-approval/", checkedData, {
+    } else if (getStatus === "insert") {
+      setLoading(true)
+      axios
+        .post("http://127.0.0.1:8000/api/v1/user-approval/", data, {
           withCredentials: true,
         })
         .then((response) => {
-          setSuccess("Approved...!")
+          setLoading(false)
+          setSuccess(`${isChecked} Approved...!`);
           let data = response.data.status;
           console.log(data);
         })
         .catch((error) => {
-          setError("Error making request, Please try again later")
+          setError("Error making request, Please try again later");
           console.error("Error fetching user-approval:", error);
         });
     }
   };
 
   return (
-    <div className="bg-pens bg-cover bg-center h-[90vh]">
+    <div className="bg-pens bg-cover bg-center h-[95vh]">
+      {loading && <Loading/>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="bg-overlay w-full lg:max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400 ">
