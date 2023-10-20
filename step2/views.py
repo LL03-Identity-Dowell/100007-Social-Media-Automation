@@ -518,7 +518,12 @@ class UserApprovalView(APIView):
             print(response.text)
             messages.success(request, "Details updated successfully.")
 
-            return Response(status=status.HTTP_200_OK)
+            return Response({
+                'topic': topic,
+                'article': article,
+                'post': post,
+                'schedule': schedule
+            }, status=status.HTTP_200_OK)
 
     def put(self, request):
         session_id = request.GET.get("session_id", None)
@@ -565,7 +570,12 @@ class UserApprovalView(APIView):
             response = requests.put(url, headers=headers, data=payload)
             print(response.text)
             messages.success(request, "Approvals updated successfully.")
-            return Response(status=status.HTTP_200_OK)
+            return Response({
+                'topic': topic,
+                'article': article,
+                'post': post,
+                'schedule': schedule
+            }, status=status.HTTP_200_OK)
 
 
 def check_if_user_has_social_media_profile_in_aryshare(username):
@@ -871,6 +881,7 @@ class XFormAPI(APIView):
         else:
             return Response({'error': 'Failed to update X details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class LinkedInFormAPI(APIView):
     def post(self, request):
         if request.method != "POST":
@@ -965,6 +976,7 @@ class YoutubeFormView(APIView):
             else:
                 return Response({'error': 'Failed to update Youtube details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class PinterestFormView(APIView):
     def post(self, request):
         if request.method != "POST":
@@ -1002,14 +1014,17 @@ class PinterestFormView(APIView):
                 'Content-Type': 'application/json'
             }
 
-            response = requests.request("POST", url, headers=headers, data=payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
             print(response.text)
-            messages.success(request, "Pinterest details updated successfully.")
+            messages.success(
+                request, "Pinterest details updated successfully.")
             print(page_id, page_link, page_password, posts_no)
             if response.status_code == 200:
                 return Response({'message': 'Pinterest details updated successfully'})
             else:
                 return Response({'error': 'Failed to update Pinterest details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class ClientProfileFormView(APIView):
     def post(self, request):
@@ -1047,12 +1062,15 @@ class ClientProfileFormView(APIView):
                 'Content-Type': 'application/json'
             }
 
-            response = requests.request("POST", url, headers=headers, data=payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
             print(address, business, product)
             if response.status_code == 200:
                 return Response({'message': 'Client details updated successfully'})
             else:
                 return Response({'error': 'Failed to update Client details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class TargetedCitiesListView(APIView):
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
