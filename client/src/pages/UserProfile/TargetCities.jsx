@@ -13,7 +13,7 @@ const TargetCities = () => {
         withCredentials: true,
       })
       .then((response) => {
-        console.log(response);
+        //console.log(response);
         setCityList(response.data.cities);
       });
   };
@@ -25,7 +25,9 @@ const TargetCities = () => {
     e.preventDefault();
   };
 
-  console.log("from data", data);
+  const onSelect = (e)=>{
+    console.log(e.target.name)
+  }
 
   return (
     <UserWrapper>
@@ -86,6 +88,7 @@ const TargetCities = () => {
                       className="hidden"
                       type="checkbox"
                       name={city.name}
+                      onClick={onSelect}
                     />
                   </label>
                 ))}
