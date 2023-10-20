@@ -285,13 +285,25 @@ def has_access(portfolio_info):
     return True
 
 
+# def dowell_login(request):
+#     try:
+#         session_id = request.GET.get('session_id', None)
+#         print("Before setting session_id:", request.session.get("session_id"))
+#         request.session["session_id"] = session_id
+#         request.session.save()
+#         print("After setting session_id:", request.session.get("session_id"))
+#         return redirect("http://127.0.0.1:8000/main")
+#     except:
+#         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
+#         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+
 def dowell_login(request):
-    try:
-        session_id = request.GET.get('session_id', None)
+    session_id = request.GET.get('session_id', None)
+    print("here we have", session_id)
+    if session_id:
         request.session["session_id"] = session_id
-        return redirect("http://127.0.0.1:8000/main")
-    except:
-        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
+        return HttpResponseRedirect('main')
+    else:
         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
 
@@ -3517,21 +3529,21 @@ def Media_schedule(request):
 
         user_id = request.session['user_id']
         key = get_key(user_id)
-        if len(splited)==0:
-            arguments =(
-                (postes,platforms,key,image,request,post_id,formart),
-        )
+        if len(splited) == 0:
+            arguments = (
+                (postes, platforms, key, image, request, post_id, formart),
+            )
         if len(platforms) == 0:
 
-            arguments =(
-                (twitter_post,splited,key,image,request,post_id,formart),
-        )
+            arguments = (
+                (twitter_post, splited, key, image, request, post_id, formart),
+            )
             print(arguments)
         else:
-            arguments =(
-                (postes,platforms,key,image,request,post_id,formart),
-                (twitter_post,splited,key,image,request,post_id,formart)
-        )
+            arguments = (
+                (postes, platforms, key, image, request, post_id, formart),
+                (twitter_post, splited, key, image, request, post_id, formart)
+            )
         "posting to Various social media"
         with concurrent.futures.ThreadPoolExecutor() as executor:
             # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
