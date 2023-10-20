@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import UserWrapper from "./UserWrapper";
 import axios from "axios";
+import Loading from "../../components/Loading";
 
 const TargetCities = () => {
   const [cityList, setCityList] = useState([]);
@@ -25,9 +26,9 @@ const TargetCities = () => {
     e.preventDefault();
   };
 
-  const onSelect = (e)=>{
-    console.log(e.target.name)
-  }
+  const onSelect = (e) => {
+    console.log(e.target.name);
+  };
 
   return (
     <UserWrapper>
@@ -61,9 +62,10 @@ const TargetCities = () => {
 
         {inputValue === null ? (
           <div className="w-full h-[400px] flex justify-center ">
-            <h1 className="text-2xl font-bold text-[#333] self-center">
+            {/* <h1 className="text-2xl font-bold text-[#333] self-center">
               No matching city found.
-            </h1>
+            </h1> */}
+            <Loading />
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col">
