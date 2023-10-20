@@ -18,7 +18,10 @@ import UserProfile from "./pages/UserProfile/UserProfile";
 import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
 import PostDetail from "./pages/Post/PostDetail/PostDetail";
+import SpecificArticle from "./pages/Article/SpecificArticle";
+import SpecificPost from "./pages/Post/PostList/SpecificPost";
 import ClientProfile from "./pages/UserProfile/ClientProfile";
+import TargetCities from "./pages/UserProfile/TargetCities";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -29,6 +32,7 @@ function App() {
   const handleCloseSideBar = () => {
     setShowSidebar(false);
   };
+
   return (
     <>
       <Layout side={showSidebar} show={handleOpenSideBar}>
@@ -47,24 +51,27 @@ function App() {
           <Route
             path='/post-detail'
             element={<PostDetail show={handleOpenSideBar} />}
+            path='/SpecificArticle'
+            element={<SpecificArticle show={handleOpenSideBar} />}
+          />
+          <Route
+            path='/SpecificPost'
+            element={<SpecificPost show={handleOpenSideBar} />}
           />
           <Route
             path='/scheduled'
-            element={
-              <ScheduleSection show={handleOpenSideBar} />
-            }
+            element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
             path='/unscheduled'
-            element={
-              <ScheduleSection show={handleOpenSideBar} />
-            }
+            element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
             path='/recent'
             element={
               <ScheduleSection show={handleOpenSideBar} />
             }
+            element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
             path='/comment'
@@ -111,7 +118,10 @@ function App() {
             path='/settings/categoriesandtopic'
             element={<CategoriesTopic close={handleCloseSideBar} />}
           />
-
+          <Route
+            path='/target-cities'
+            element={<TargetCities close={handleCloseSideBar} />}
+          />
         </Routes>
       </Layout>
     </>

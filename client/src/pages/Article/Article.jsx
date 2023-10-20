@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
+
 import { Button } from "../../components/button";
 import ExtraSmallBtn from "../../components/ExtraSmallBtn/ExtraSmallBtn";
 
@@ -46,7 +48,9 @@ const Article = (props) => {
                   </p>
 
                   <div className="lg:w-[350px] lg:pt-2">
-                    <ExtraSmallBtn title={"View Post"} />
+                    <Link to="/SpecificArticle">
+                      <ExtraSmallBtn title={"View Article"} />
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -68,7 +72,9 @@ const Article = (props) => {
                   </p>
 
                   <div className="lg:w-[350px] lg:pt-2">
-                    <ExtraSmallBtn title={"View Post"} />
+                    <Link to="/SpecificArticle">
+                      <ExtraSmallBtn title={"View Article"} />
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -90,7 +96,9 @@ const Article = (props) => {
                   </p>
 
                   <div className="lg:w-[350px] lg:pt-2">
-                    <ExtraSmallBtn title={"View Post"} />
+                    <Link to="/SpecificArticle">
+                      <ExtraSmallBtn title={"View Article"} />
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -79,9 +79,11 @@ const Home = ({ close }) => {
           </div>
 
           <div className="flex justify-between xl:gap-10">
+
             <Link to="/topic">
               <img src={step1} alt="Topic" className="" title='Topic' />
             </Link>
+
             <Link to="/article">
               <img src={step2} alt="article" className="" title='Articles' />
             </Link>
