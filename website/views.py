@@ -7,12 +7,14 @@ from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django_q.tasks import async_task
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.views import APIView
 
 from create_article import settings
 from step2.views import create_event
@@ -21,6 +23,7 @@ from website.models import Sentences, SentenceResults, SentenceRank, WebsiteMana
 from website.models import User
 from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer
+
 
 def under_maintenance(request):
     context = {
@@ -710,3 +713,14 @@ def category_topic(request):
             return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class UnScheduledJsonView(APIView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+
+            return Response({'response': post_data})
+        else:
+            return Response({"message": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
