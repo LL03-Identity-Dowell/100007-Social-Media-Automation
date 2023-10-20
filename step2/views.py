@@ -44,11 +44,7 @@ from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
-<<<<<<< HEAD
-from django_q.tasks import async_task
-=======
 from .serializers import ProfileSerializer, CitySerializer
->>>>>>> 9eb940ae45472b7d23359adcaab06f2159292907
 
 # helper functions
 
@@ -1962,16 +1958,6 @@ class IndexView(APIView):
                     # print('this is the row')
                     # print(row)
 
-<<<<<<< HEAD
-            # Variables for loop control
-            duration = 4   # Total duration in seconds
-            interval = 0.9  # Interval between generating articles in seconds
-            start_time = time.time()
-            user_id = request.session['user_id']
-            approval=get_client_approval(user_id)
-            def generate_and_save_article():
-                nonlocal start_time
-=======
                     try:
                         # Get the org_id from the question data
                         org_id = row.get('org_id')
@@ -1981,7 +1967,6 @@ class IndexView(APIView):
                             array.append(row)
                     except Exception as e:
                         traceback.print_exc()
->>>>>>> 9eb940ae45472b7d23359adcaab06f2159292907
 
                 topics = []
 
@@ -2118,14 +2103,6 @@ class GenerateArticleView(APIView):
                             user_id = request.session['user_id']
                             client_admin_id = request.session['userinfo']['client_admin_id']
 
-<<<<<<< HEAD
-            # credit_handler = CreditHandler()
-            # credit_handler.consume_step_2_credit(request)
-            if approval['post'] == 'True':
-                user_id = request.session['user_id']
-                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
-            return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-=======
                             # Save data for step 3
                             step3_data = {
                                 "user_id": user_id,
@@ -2164,7 +2141,6 @@ class GenerateArticleView(APIView):
 
                     except:
                         return Response({"message": "Article did not save successfully"}, status=status.HTTP_400_BAD_REQUEST)
->>>>>>> 9eb940ae45472b7d23359adcaab06f2159292907
 
                     # Update start_time for the next iteration
                     start_time = time.time()
