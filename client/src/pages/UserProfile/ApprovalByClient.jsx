@@ -73,10 +73,8 @@ const ApprovalByClient = () => {
         })
         .then((response) => {
           setLoading(false)
-          if (approvals.topic || approvals.article || approvals.post || approvals.schedule) {
-            
             setSuccess(`${isChecked} is Approved...!`);
-          }
+          
           let data = response.data;
           // console.log(data);
           let resData = JSON.stringify(data);
