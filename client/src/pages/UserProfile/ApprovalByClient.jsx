@@ -1,8 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import { ErrorMessages, SuccessMessages } from "../../components/Messages";
+// import CSRFToken from "../../components/CSRFToken";
 
 const ApprovalByClient = () => {
+  const [success, setSuccess] = useState()
+  const [error, setError] = useState()
   const [getStatus, setGetStatus] = useState();
   const [approvals, setApprovals] = useState({
     topic: false,
@@ -27,6 +30,7 @@ const ApprovalByClient = () => {
         setGetStatus(data);
       })
       .catch((error) => {
+        setError("Error making request, Please try again later")
         console.error("Error fetching user-approval:", error);
       });
   };
@@ -34,7 +38,7 @@ const ApprovalByClient = () => {
   const handelChange = (e) => {
     let checkedName = e.target.name;
     let checked = e.target.checked;
-    console.log(checkedName, checked);
+    // console.log(checkedName, checked);
     setApprovals({
       ...approvals,
       [checkedName]: checked,
@@ -50,29 +54,33 @@ const ApprovalByClient = () => {
       schedule: approvals.schedule,
     };
 
-    console.log(data);
     if (getStatus === "update") {
       axios
         .put("http://127.0.0.1:8000/api/v1/user-approval/", data, {
           withCredentials: true,
         })
         .then((response) => {
+          setSuccess("Approved...!")
           let data = response.data;
           console.log(data);
+          
         })
         .catch((error) => {
+          setError("Error making request, Please try again later")
           console.error("Error fetching user-approval:", error);
         });
-    } else if (getStatus === "insert") {
-      axios
+      } else if (getStatus === "insert") {
+        axios
         .post("http://127.0.0.1:8000/api/v1/user-approval/", checkedData, {
           withCredentials: true,
         })
         .then((response) => {
+          setSuccess("Approved...!")
           let data = response.data.status;
           console.log(data);
         })
         .catch((error) => {
+          setError("Error making request, Please try again later")
           console.error("Error fetching user-approval:", error);
         });
     }
@@ -80,6 +88,8 @@ const ApprovalByClient = () => {
 
   return (
     <div className="bg-pens bg-cover bg-center h-[90vh]">
+      {success && <SuccessMessages>{success}</SuccessMessages>}
+      {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="bg-overlay w-full lg:max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400 ">
         <div className="flex justify-center items-center flex-col h-full w-full">
           <div className="pt-20 md:pt-20">
@@ -95,6 +105,7 @@ const ApprovalByClient = () => {
                   Do you want to approve Topic?
                 </h2>
                 <div className="flex flex-col items-end w-20">
+                  {/* <CSRFToken/> */}
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       onChange={handelChange}
