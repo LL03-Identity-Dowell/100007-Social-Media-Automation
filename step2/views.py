@@ -1149,7 +1149,7 @@ class TargetedCitiesUpdateView(APIView):
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if request.method != "PUT":
-            return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Receive selected cities from the form
             target_cities = request.data.getlist('target_cities[]')
@@ -1175,7 +1175,7 @@ class TargetedCitiesUpdateView(APIView):
                 'Content-Type': 'application/json'
             }
 
-            response = requests.put(url, headers=headers, data=payload)
+            response = requests.post(url, headers=headers, data=payload)
 
             user_data = fetch_user_info(request)
             messages.success(
