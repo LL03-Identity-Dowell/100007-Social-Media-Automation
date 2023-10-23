@@ -12,7 +12,7 @@
 
 // ========================
 
-//  <select name="subject" class="form-select" id="id_subject">
+//  <select name="topic" class="form-select" id="id_topic">
 //   <option value="Livinglab">Livinglab</option>
 
 //   <option value="Innovation">Innovation</option>
@@ -211,15 +211,36 @@ function validateForm() {
     i,
     valid = true;
   x = document.getElementsByClassName("tab");
-  y = x[currentTab].getElementsByTagName("input");
+  y = x[currentTab].querySelectorAll("input, select");
+  // console.log(y);
+
   // A loop that checks every input field in the current tab:
   for (i = 0; i < y.length; i++) {
+
     // If a field is empty...
-    if (y[i].value == "") {
+    if (y[i].tagName == "INPUT" && y[i].value == "") {
       // add an "invalid" class to the field:
       y[i].className += " invalid";
       // and set the current valid status to false
       valid = false;
+      displayNotification("Required field(s) are still empty")
+
+    } else if (y[i].id == "id_category" && y[i].value == "") {
+
+      // add an "invalid" class to the field:
+      y[i].className += " invalid";
+      // and set the current valid status to false
+      valid = false;
+      displayNotification("Required field(s) are still empty")
+
+    } else if (y[i].id == "id_topic" && y[i].value == "") {
+
+      // add an "invalid" class to the field:
+      y[i].className += " invalid";
+      // and set the current valid status to false
+      valid = false;
+      displayNotification("Required field(s) are still empty")
+
     }
   }
   // If the valid status is true, mark the step as finished and valid:
@@ -239,6 +260,7 @@ function fixStepIndicator(n) {
   //... and adds the "active" class on the current step:
   x[n].className += " active";
 }
+
 const AmagiLoader = {
   __loader: null,
   __progressText: null,
