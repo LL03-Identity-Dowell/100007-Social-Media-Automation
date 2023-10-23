@@ -1,24 +1,31 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
 import { FaTimes } from "react-icons/fa";
-
+import axios from "axios";
+import Loading from "../../components/Loading";
+import { SuccessMessages } from "../../components/Messages";
+import { ErrorMessages } from "../../components/Messages";
+// eslint-disable-next-line react/prop-types
 const HashtagsMentions = ({ close }) => {
   const [inputHashtagText, setinputHashtagText] = useState("");
   const [inputHashtagList, setinputHashtagList] = useState([]);
   const [checkedHashtagList, setcheckedHashtagList] = useState([]);
-
   const [inputMentionsText, setinputMentionsText] = useState("");
   const [inputMentionsList, setinputMentionsList] = useState([]);
   const [checkedMentionsList, setcheckedMentionsList] = useState([]);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-
+  const [checkedHashtags, setCheckedHashtags] = useState([]);
+  const [checkedMentions, setCheckedMentions] = useState([]);
+  const [getStatus, setGetStatus] = useState();
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState();
+  const [error, setError] = useState();
   const handleHashtagInputChange = (e) => {
     setinputHashtagText(e.target.value);
   };
   const handleMentionsInputChange = (e) => {
     setinputMentionsText(e.target.value);
   };
-
   const handleAddHashtagInput = (e) => {
     e.preventDefault();
 
@@ -28,7 +35,6 @@ const HashtagsMentions = ({ close }) => {
       setcheckedHashtagList([...checkedHashtagList, false]);
     }
   };
-
   const handleAddMentionsInput = (e) => {
     e.preventDefault();
 
@@ -38,12 +44,10 @@ const HashtagsMentions = ({ close }) => {
       setcheckedMentionsList([...checkedMentionsList, false]);
     }
   };
-
   const handleAddInput = (e) => {
     handleAddHashtagInput(e);
     handleAddMentionsInput(e);
   };
-
   const handleRemoveHashtagInput = (index) => {
     setinputHashtagList((prevList) => prevList.filter((_, i) => i !== index));
     setcheckedHashtagList((prevChecked) => {
@@ -52,9 +56,7 @@ const HashtagsMentions = ({ close }) => {
       updateSaveButtonState(updatedChecked, checkedMentionsList);
       return updatedChecked;
     });
-
   };
-
   const handleRemoveMentionsInput = (index) => {
     setinputMentionsList((prevList) => prevList.filter((_, i) => i !== index));
     setcheckedMentionsList((prevChecked) => {
@@ -63,58 +65,107 @@ const HashtagsMentions = ({ close }) => {
       updateSaveButtonState(checkedHashtagList, updatedChecked);
       return updatedChecked;
     });
-
-
   };
-
   const handleCheckboxHashtagChange = (index) => {
     const updatedChecked = [...checkedHashtagList];
     updatedChecked[index] = !updatedChecked[index];
     setcheckedHashtagList(updatedChecked);
-
+    setCheckedHashtags(inputHashtagList.filter((_, i) => updatedChecked[i]));
     updateSaveButtonState(updatedChecked, checkedMentionsList);
   };
-
   const handleCheckboxMentionsChange = (index) => {
     const updatedChecked = [...checkedMentionsList];
     updatedChecked[index] = !updatedChecked[index];
     setcheckedMentionsList(updatedChecked);
-
+    setCheckedMentions(inputMentionsList.filter((_, i) => updatedChecked[i]));
     updateSaveButtonState(checkedHashtagList, updatedChecked);
   };
-
   const updateSaveButtonState = (hashtagChecked, mentionsChecked) => {
-    const areAnyChecked = hashtagChecked.some((value) => value) || mentionsChecked.some((value) => value);
+    const areAnyChecked =
+      hashtagChecked.some((value) => value) ||
+      mentionsChecked.some((value) => value);
     setIsSaveDisabled(!areAnyChecked);
   };
+  const fetch = () => {
+    // Make a GET request to the API endpoint with the session_id
+    axios
+      .get("http://127.0.0.1:8000/api/v1/hash-tags-and-mentions/", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        let data = response.data.status;
+        setGetStatus(data);
+      })
+      .catch((error) => {
+        setError("Server error, Please try again later");
+        console.error("Error fetching user-approval:", error);
+      });
+  };
 
-  const handleGetRequest = async () => {
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/hash-tags-and-mentions/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error("can't make get request");
-      } else {
-        // request is ok
-      }
-    } catch (e) {
-      console.log(e);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (getStatus === "update") {
+      setLoading(true);
+      const payloadBody = {
+        update_field: {
+          hashtag_list: checkedHashtags.join(),
+          mentions_list: checkedMentions.join(),
+        },
+      };
+      axios
+        .put(
+          "http://127.0.0.1:8000/api/v1/update-hash-tags-and-mentions/",
+          payloadBody,
+          {
+            withCredentials: true,
+          }
+        )
+        .then(() => {
+          setLoading(false);
+          setSuccess(`hashtags and mentions are updated...!`);
+        })
+        .catch((error) => {
+          setError("Error making request, Please try again later");
+          console.error("Error fetching user-approval:", error);
+        });
+    } else if (getStatus === "insert") {
+      setLoading(true);
+      const payloadBody = {
+        field: {
+          hashtag_list: checkedHashtags.join(),
+          mentions_list: checkedMentions.join(),
+        },
+      };
+
+      axios
+        .post(
+          "http://127.0.0.1:8000/api/v1/hash-tags-and-mentions/",
+          payloadBody,
+          {
+            withCredentials: true,
+          }
+        )
+        .then(() => {
+          setLoading(false);
+          setSuccess(`hashtags and mentions are sent successfully...!`);
+        })
+        .catch((error) => {
+          setError("Error making request, Please try again later");
+          console.error("Error fetching user-approval:", error);
+        });
     }
   };
 
   useEffect(() => {
     close();
+    fetch()
   }, []);
 
   return (
     <div className="bg-pens bg-cover bg-center h-[90vh]">
+      {loading && <Loading />}
+      {success && <SuccessMessages>{success}</SuccessMessages>}
+      {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400">
         <div className="flex justify-center items-center flex-col h-full w-fill">
           <div>
@@ -126,10 +177,7 @@ const HashtagsMentions = ({ close }) => {
           <form onSubmit={handleAddInput} className="w-50 px-6">
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full">
               <div className="text-center w-full">
-                <label
-                  htmlFor="hashtags"
-                  className="text-customBlack text-lg "
-                >
+                <label htmlFor="hashtags" className="text-customBlack text-lg ">
                   Hashtags
                 </label>
                 <div className="mt-4 w-full border flex">
@@ -176,10 +224,7 @@ const HashtagsMentions = ({ close }) => {
                 </div>
               </div>
               <div className="text-center w-full">
-                <label
-                  htmlFor="mentions"
-                  className="text-customBlack text-lg "
-                >
+                <label htmlFor="mentions" className="text-customBlack text-lg ">
                   Mentions
                 </label>
                 <div className="mt-4 w-full border flex">
@@ -227,9 +272,10 @@ const HashtagsMentions = ({ close }) => {
 
             <div className="flex justify-center items-center mt-6 md:mt-16">
               <button
-                onClick={handleGetRequest}
-                className={`bg-blue-800 px-4 py-2 text-white rounded-md flex items-center gap-3 ${isSaveDisabled ? "bg-blue-300 cursor-not-allowed" : ""
-                  }`}
+                onClick={handleSubmit}
+                className={`${
+                  isSaveDisabled ? "bg-blue-300 cursor-not-allowed" : ""
+                }bg-blue-800 px-4 py-2 text-white rounded-md flex items-center gap-3 `}
                 disabled={isSaveDisabled}
               >
                 Save <FaCheck />
