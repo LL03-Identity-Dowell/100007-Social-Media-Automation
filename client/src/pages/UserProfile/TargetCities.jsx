@@ -2,16 +2,18 @@ import { useState, useEffect } from "react";
 import UserWrapper from "./UserWrapper";
 import axios from "axios";
 import Loading from "../../components/Loading";
-import { SuccessMessages } from "../../components/Messages";
-import { ErrorMessages } from "../../components/Messages";
+import { SuccessMessages, ErrorMessages } from "../../components/Messages";
 
 const TargetCities = () => {
   const [cityList, setCityList] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const [isSelected, setIsSelected] = useState({});
+  const [isSelected, setIsSelected] = useState({
+    name : []
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [status, setStatus] = useState("");
+  const [isSuccess, setIsSuccess] = useState("");
+  const [isError, setIsError] = useState("");
   const data = cityList;
 
   const fetchCities = async () => {
@@ -22,6 +24,7 @@ const TargetCities = () => {
       })
       .then((response) => {
         setCityList(response.data.cities);
+        setStatus(response.data.status);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -29,41 +32,59 @@ const TargetCities = () => {
       });
   };
   useEffect(() => {
-    //Render cities from the API endpoint when the component mounts
     fetchCities();
   }, []);
 
   //Get values of cities selected by user
   const handleSelect = (e) => {
-    let newCities = { name: e.target.name };
+    let newCities = [];
+    let checkedValues = e.target.name
+    newCities = checkedValues
+    // let checkedValues = document.querySelectorAll("input[type='checkbox']:checked");
+    // checkedValues.forEach((item) => {
+    //   newCities.push(item.name);
+    // });
     setIsSelected(newCities);
+    //console.log(isSelected);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const cities = { isSelected };
-    console.log(cities);
+    const data = isSelected;
 
-    //post user selected cities
-    await axios({
-      method: "POST",
-      url: "http://127.0.0.1:8000/api/v1/targeted_cities/create/",
-      data: cities,
-    })
-      .then((response) => {
-        console.log(response);
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        console.log(error);
-        setIsError(true);
-      });
+    if (status === "update") {
+      setIsLoading(true);
+      await axios
+        .put("http://127.0.0.1:8000/api/v1/targeted_cities/update/", data, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          setIsLoading(false);
+          setIsSuccess(response.data.detail);
+        })
+        .catch((error) => {
+          setIsError("Fail to update targeted cities please try again");
+        });
+    } else if (status === "insert") {
+      setIsLoading(true);
+      await axios
+        .post("http://127.0.0.1:8000/api/v1/targeted_cities/create/", data, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          setIsLoading(false);
+          setIsSuccess(response.data.detail);
+        })
+        .catch((error) => {
+          setIsError("Fail to save targeted cities please try again");
+        });
+    }
   };
-
-  //handle update request
 
   return (
     <UserWrapper>
+      {isSuccess && <SuccessMessages children={isSuccess} />}
+      {isError && <ErrorMessages children={isError} />}
       <div className="w-[70%] mx-auto  h-[600px] pt-14 pb-3.5">
         <div className="flex items-center justify-between h-14 mb-2.5 gap-30 w-full">
           <button
@@ -97,7 +118,6 @@ const TargetCities = () => {
             <h1 className="text-2xl font-bold text-[#333] self-center">
               No matching city found.
             </h1>
-            <Loading />
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col">
