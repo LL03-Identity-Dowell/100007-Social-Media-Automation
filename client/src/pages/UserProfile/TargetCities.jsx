@@ -35,9 +35,7 @@ const TargetCities = () => {
 
   //Get values of cities selected by user
   const handleSelect = (e) => {
-    let newCities = {
-      name: e.target.name,
-    };
+    let newCities = { name: e.target.name };
     setIsSelected(newCities);
   };
 
