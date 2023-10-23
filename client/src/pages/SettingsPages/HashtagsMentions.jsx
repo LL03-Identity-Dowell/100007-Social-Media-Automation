@@ -273,9 +273,8 @@ const HashtagsMentions = ({ close }) => {
             <div className="flex justify-center items-center mt-6 md:mt-16">
               <button
                 onClick={handleSubmit}
-                className={`${
-                  isSaveDisabled ? "bg-blue-300 cursor-not-allowed" : ""
-                }bg-blue-800 px-4 py-2 text-white rounded-md flex items-center gap-3 `}
+                className={`${isSaveDisabled ? "bg-blue-300 cursor-not-allowed" : ""
+                  }bg-blue-800 px-4 py-2 text-white rounded-md flex items-center gap-3 `}
                 disabled={isSaveDisabled}
               >
                 Save <FaCheck />

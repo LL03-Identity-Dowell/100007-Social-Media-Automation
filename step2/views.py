@@ -1211,8 +1211,10 @@ class HashMentionView(APIView):
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
-            hashtag_list = request.data.get('hashtags_list').split(',')
-            mentions_list = request.data.get('mentions_list').split(',')
+            hashtag_list = request.data.get(
+                'update_field').get('hashtag_list').split(',')
+            mentions_list = request.data.get(
+                'update_field').get('mentions_list').split(',')
 
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
@@ -1249,14 +1251,21 @@ class HashMentionView(APIView):
 
 
 class HashMentionUpdateView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if 'session_id' in request.session and 'username' in request.session:
             if request.method != "PUT":
                 return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                hashtag_list = request.data.get('hashtags_list').split(',')
-                mentions_list = request.data.get('mentions_list').split(',')
+                hashtag_list = request.data.get(
+                    'update_field').get('hashtag_list').split(',')
+                mentions_list = request.data.get(
+                    'update_field').get('mentions_list').split(',')
+
+                print("here", hashtag_list)
 
                 url = "http://uxlivinglab.pythonanywhere.com/"
                 headers = {'content-type': 'application/json'}
