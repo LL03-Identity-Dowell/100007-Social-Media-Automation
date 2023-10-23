@@ -2,33 +2,67 @@ import { useState, useEffect } from "react";
 import UserWrapper from "./UserWrapper";
 import axios from "axios";
 import Loading from "../../components/Loading";
+import { SuccessMessages } from "../../components/Messages";
+import { ErrorMessages } from "../../components/Messages";
 
 const TargetCities = () => {
   const [cityList, setCityList] = useState([]);
   const [inputValue, setInputValue] = useState("");
+  const [isSelected, setIsSelected] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isError, setIsError] = useState(false);
   const data = cityList;
 
   const fetchCities = async () => {
+    setIsLoading(true);
     await axios
       .get("http://127.0.0.1:8000/api/v1/targeted_cities/", {
         withCredentials: true,
       })
       .then((response) => {
-        //console.log(response);
         setCityList(response.data.cities);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
       });
   };
   useEffect(() => {
+    //Render cities from the API endpoint when the component mounts
     fetchCities();
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  //Get values of cities selected by user
+  const handleSelect = (e) => {
+    let newCities = {
+      name: e.target.name,
+    };
+    setIsSelected(newCities);
   };
 
-  const onSelect = (e) => {
-    console.log(e.target.name);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const cities = { isSelected };
+    console.log(cities);
+
+    //post user selected cities
+    await axios({
+      method: "POST",
+      url: "http://127.0.0.1:8000/api/v1/targeted_cities/create/",
+      data: cities,
+    })
+      .then((response) => {
+        console.log(response);
+        setIsSuccess(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsError(true);
+      });
   };
+
+  //handle update request
 
   return (
     <UserWrapper>
@@ -61,39 +95,45 @@ const TargetCities = () => {
         </div>
 
         {inputValue === null ? (
-          <div className="w-full h-[400px] flex justify-center ">
-            {/* <h1 className="text-2xl font-bold text-[#333] self-center">
+          <div className="w-full h-[400px] flex justify-center  ">
+            <h1 className="text-2xl font-bold text-[#333] self-center">
               No matching city found.
-            </h1> */}
+            </h1>
             <Loading />
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col">
             <ul className="h-[400px] w-9/12 mx-auto overflow-y-scroll flex flex-col  gap-y-0.5">
-              {data
-                .filter((city) => {
-                  return inputValue === ""
-                    ? city
-                    : city.name.toLowerCase().includes(inputValue.toLowerCase())
-                    ? city
-                    : null;
-                })
-                .map((city) => (
-                  <label
-                    key={city.id}
-                    className="city-label cursor-pointer w-full py-2.5 px-10 text-xl text-[#333] bg-transparent"
-                    htmlFor={city.id}
-                  >
-                    {city.name}
-                    <input
-                      id={city.id}
-                      className="hidden"
-                      type="checkbox"
-                      name={city.name}
-                      onClick={onSelect}
-                    />
-                  </label>
-                ))}
+              {isLoading ? (
+                <Loading />
+              ) : (
+                data
+                  .filter((city) => {
+                    return inputValue === ""
+                      ? city
+                      : city.name
+                          .toLowerCase()
+                          .includes(inputValue.toLowerCase())
+                      ? city
+                      : null;
+                  })
+                  .map((city) => (
+                    <label
+                      key={city.id}
+                      className="city-label cursor-pointer w-full py-2.5 px-10 text-xl text-[#333] bg-transparent"
+                      htmlFor={city.id}
+                    >
+                      {city.name}
+                      <input
+                        id={city.id}
+                        className="hidden"
+                        type="checkbox"
+                        name={city.name}
+                        onChange={handleSelect}
+                      />
+                    </label>
+                  ))
+              )}
             </ul>
             <button
               type="submit"
