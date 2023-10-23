@@ -1,49 +1,76 @@
-import React, { useEffect } from "react";
-import { FaMailBulk, FaMap, FaMapMarkedAlt, FaUser, FaUserCheck } from "react-icons/fa";
+import { useEffect } from "react";
+import {
+  FaMailBulk,
+  FaMap,
+  FaMapMarkedAlt,
+  FaUser,
+  FaUserCheck,
+} from "react-icons/fa";
 import { Link } from "react-router-dom";
+import UserWrapper from "./UserWrapper";
 
 const UserProfile = ({ close }) => {
   useEffect(() => {
     close();
   }, []);
   return (
-    <div className="bg-pens bg-cover bg-center h-[90vh]">
-      <div className="bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400">
-        <div className="flex justify-center items-center flex-col h-full w-full">
-          <div className="flex justify-center items-center flex-col">
-            <h2 className="text-customBlue font-bold text-2xl xl:text-4xl pb-3">
+    <UserWrapper>
+      <div className='flex flex-col items-center justify-center w-full h-full'>
+        <div className='flex flex-col items-center justify-center'>
+          <h2 className='pb-3 text-2xl font-bold text-customBlue xl:text-4xl'>
             Welcome!
-            </h2>
-            <h4 className="text-customBlue font-semibold text-2xl xl:text-3xl pb-6">
+          </h2>
+          <h4 className='pb-6 text-2xl font-semibold text-customBlue xl:text-3xl'>
             UserName
-            </h4>
-            
-          </div>
-          <div className="flex flex-wrap md:flex-row justify-center items-center mt-6 md:mt-10 gap-4 md:gap-8 xl:gap-12 ">
-            <Link to="/client-profile" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaUser className="text-6xl md:text-[100px]"/>
-                <h5 className="font-bold pt-4 text-sm md:text-lg">View Client's Profile</h5>
-            </Link>
-            <Link to="/social-media-channels" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaMailBulk className="text-6xl md:text-[100px]"/>
-                <h5 className="font-bold pt-4 text-sm md:text-lg">Social Media Channels</h5>
-            </Link>
-            <Link to="/" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaMapMarkedAlt className="text-6xl md:text-[100px]"/>
-                <h5 className="font-bold pt-4 text-sm md:text-lg">Targeted Cities</h5>
-            </Link>
-            <Link to="/user-approval" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaUserCheck className="text-6xl md:text-[100px]"/>
-                <h5 className="font-bold pt-4 text-sm md:text-lg">Approval by clients</h5>
-            </Link>
-            <Link to="/" className=" text-customBlue hover:text-customTextBlue flex items-center flex-col">
-                <FaUser className="text-6xl md:text-[100px]"/>
-                <h5 className="font-bold pt-4 text-sm md:text-lg">View Team</h5>
-            </Link>
-          </div>
+          </h4>
+        </div>
+        <div className='flex flex-wrap items-center justify-center gap-4 mt-6 md:flex-row md:mt-10 md:gap-8 xl:gap-12 '>
+          <Link
+            to='/client-profile'
+            className='flex flex-col items-center text-customBlue hover:text-customTextBlue'
+          >
+            <FaUser className='text-6xl md:text-[100px]' />
+            <h5 className='pt-4 text-sm font-bold md:text-lg'>
+              View Client&apos;s Profile
+            </h5>
+          </Link>
+          <Link
+            to='/social-media-channels'
+            className='flex flex-col items-center text-customBlue hover:text-customTextBlue'
+          >
+            <FaMailBulk className='text-6xl md:text-[100px]' />
+            <h5 className='pt-4 text-sm font-bold md:text-lg'>
+              Social Media Channels
+            </h5>
+          </Link>
+          <Link
+            to='/target-cities'
+            className='flex flex-col items-center text-customBlue hover:text-customTextBlue'
+          >
+            <FaMapMarkedAlt className='text-6xl md:text-[100px]' />
+            <h5 className='pt-4 text-sm font-bold md:text-lg'>
+              Targeted Cities
+            </h5>
+          </Link>
+          <Link
+            to='/user-approval'
+            className='flex flex-col items-center text-customBlue hover:text-customTextBlue'
+          >
+            <FaUserCheck className='text-6xl md:text-[100px]' />
+            <h5 className='pt-4 text-sm font-bold md:text-lg'>
+              Approval by clients
+            </h5>
+          </Link>
+          <Link
+            to='/'
+            className='flex flex-col items-center text-customBlue hover:text-customTextBlue'
+          >
+            <FaUser className='text-6xl md:text-[100px]' />
+            <h5 className='pt-4 text-sm font-bold md:text-lg'>View Team</h5>
+          </Link>
         </div>
       </div>
-    </div>
+    </UserWrapper>
   );
 };
 
