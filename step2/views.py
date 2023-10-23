@@ -1098,12 +1098,12 @@ class TargetedCitiesListView(APIView):
 class TargetedCitiesCreateView(APIView):
     def post(self, request):
         session_id = request.GET.get("session_id", None)
+        print("Here we have", session_id)
         if request.method != "POST":
             return Response({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Receive selected cities from the form
             target_cities = request.data.getlist('target_cities[]')
-
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -2073,7 +2073,7 @@ def generate_article_wiki(request):
             return HttpResponseRedirect(reverse("main-view"))
         else:
             user_id = request.session['user_id']
-            approval=get_client_approval(user_id)
+            approval = get_client_approval(user_id)
             title = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2180,7 +2180,8 @@ def generate_article_wiki(request):
                     # credit_handler.consume_step_2_credit(request)
                     if approval['post'] == 'True':
                         user_id = request.session['user_id']
-                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                        async_task("automate.services.post_list",
+                                   user_id, hook='automate.services.hook_now')
                     if 'article_sub_verb' in locals():
                         # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
                         # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
@@ -2229,8 +2230,9 @@ def generate_article_wiki(request):
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_2_credit(request)
                 if approval['post'] == 'True':
-                        user_id = request.session['user_id']
-                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                    user_id = request.session['user_id']
+                    async_task("automate.services.post_list",
+                               user_id, hook='automate.services.hook_now')
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
     else:
         return render(request, 'error.html')
@@ -2253,9 +2255,10 @@ def write_yourself(request):
             target_industry = request.POST.get("target_industry")
             print("target_industry in write: ", target_industry)
             user_id = request.session['user_id']
-            approval=get_client_approval(user_id)
+            approval = get_client_approval(user_id)
             if approval['post'] == 'True':
-                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                async_task("automate.services.post_list", user_id,
+                           hook='automate.services.hook_now')
         return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
     else:
         return render(request, 'error.html')
