@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
+import Loading from "../../components/Loading";
 
 const Home = ({ close }) => {
-  const [data, setData] = useState(null);
+  // const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     close();
@@ -20,8 +22,8 @@ const Home = ({ close }) => {
       localStorage.setItem("session_id", session_id);
       sessionStorage.setItem("session_id", session_id);
       console.log(session_id)
-
       // Proceed to fetch data or handle authenticated user logic
+      setLoading(true)
       fetchData();
     } else {
       // If no session_id, redirect to the login page with session_id as a query parameter
@@ -32,18 +34,20 @@ const Home = ({ close }) => {
   const fetchData = () => {
     // Define the API URL
     const apiUrl = "http://127.0.0.1:8000/api/v1/main/";
-
+    
+    setLoading(true)
     // Enable sending cookies with the request
     axios.defaults.withCredentials = true;
-
+    
     // Make a GET request to the API endpoint
     axios
-      .get(apiUrl,)
-      .then((response) => {
-        // Store the response data in the component state
-        let data = response.data
+    .get(apiUrl,)
+    .then((response) => {
+      setLoading(false)
+      // Store the response data in the component state
+      let data = response.data
         localStorage.setItem("userInfo", data);
-        setData(data);
+        // setData(data);
         console.log("Data from API:", data);
       })
       .catch((error) => {
@@ -54,6 +58,7 @@ const Home = ({ close }) => {
 
   return (
     <div className="w-[100vw] h-[90vh]">
+      {loading && <Loading/>}
       <div className="flex flex-col justify-between md:flex-row">
         <div className="w-full px-2 py-8 text-center xl:px-6">
           <h1 className="text-2xl xl:text-[30px] font-semibold text-customBlue">Automate Your Social Media with Samanta</h1>

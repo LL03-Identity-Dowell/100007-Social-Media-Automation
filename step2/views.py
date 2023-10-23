@@ -427,6 +427,9 @@ def register(request):
 
 
 class UserApprovalView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request):
         session_id = request.GET.get("session_id", None)
         url = "http://uxlivinglab.pythonanywhere.com/"
@@ -466,10 +469,11 @@ class UserApprovalView(APIView):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -478,7 +482,7 @@ class UserApprovalView(APIView):
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -509,12 +513,13 @@ class UserApprovalView(APIView):
                     },
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
 
-            response = requests.post(url, headers=headers, data=payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Details updated successfully.")
 
@@ -530,20 +535,21 @@ class UserApprovalView(APIView):
         if request.method != "PUT":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            print("I got", topic)
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
-            user_id = '62e7aea0eda55a0cd5e839fc'
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -551,7 +557,6 @@ class UserApprovalView(APIView):
                 "team_member_ID": "1071",
                 "function_ID": "ABCDE",
                 "command": "update",
-
                 "field": {
                     'user_id': request.session['user_id']
                 },
@@ -562,12 +567,13 @@ class UserApprovalView(APIView):
                     "schedule": schedule,
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
-
-            response = requests.put(url, headers=headers, data=payload)
+            print("I have", payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Approvals updated successfully.")
             return Response({
