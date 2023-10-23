@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 
-
 function Topic({ show }) {
   const [inputs, setInputs] = useState({
     category: "",

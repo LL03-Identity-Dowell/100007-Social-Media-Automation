@@ -427,6 +427,9 @@ def register(request):
 
 
 class UserApprovalView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request):
         session_id = request.GET.get("session_id", None)
         url = "http://uxlivinglab.pythonanywhere.com/"
@@ -466,10 +469,11 @@ class UserApprovalView(APIView):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -478,7 +482,7 @@ class UserApprovalView(APIView):
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -509,36 +513,43 @@ class UserApprovalView(APIView):
                     },
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
 
-            response = requests.post(url, headers=headers, data=payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Details updated successfully.")
 
-            return Response(status=status.HTTP_200_OK)
+            return Response({
+                'topic': topic,
+                'article': article,
+                'post': post,
+                'schedule': schedule
+            }, status=status.HTTP_200_OK)
 
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if request.method != "PUT":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            print("I got", topic)
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
-            user_id = '62e7aea0eda55a0cd5e839fc'
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -546,7 +557,6 @@ class UserApprovalView(APIView):
                 "team_member_ID": "1071",
                 "function_ID": "ABCDE",
                 "command": "update",
-
                 "field": {
                     'user_id': request.session['user_id']
                 },
@@ -557,15 +567,21 @@ class UserApprovalView(APIView):
                     "schedule": schedule,
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
-
-            response = requests.put(url, headers=headers, data=payload)
+            print("I have", payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Approvals updated successfully.")
-            return Response(status=status.HTTP_200_OK)
+            return Response({
+                'topic': topic,
+                'article': article,
+                'post': post,
+                'schedule': schedule
+            }, status=status.HTTP_200_OK)
 
 
 def check_if_user_has_social_media_profile_in_aryshare(username):
@@ -733,34 +749,19 @@ def link_media_channels(request):
     return redirect(link['url'])
 
 
-@csrf_exempt
-@xframe_options_exempt
-def facebook(request):
-    social = SocialPost('8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G')
-    # Post to Platforms Twitter, Facebook, and LinkedIn
-    postResult = social.post(
-        {'post': 'Nice Posting 2', 'platforms': ['facebook']})
-    context = {
-        'postResult': postResult
-    }
-    return render(request, 'facebook.html', context)
-
-
-@csrf_exempt
-@xframe_options_exempt
-def facebook_form(request):
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-    else:
-        page_id = request.POST.get("page_id")
-        page_link = request.POST.get("page_link")
-        page_password = request.POST.get("page_password")
-        posts_no = request.POST.get("posts_no")
+class FacebookFormAPI(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        page_id = request.data.get("page_id")
+        page_link = request.data.get("page_link")
+        page_password = request.data.get("page_password")
+        posts_no = request.data.get("posts_no")
         event_id = create_event()['event_id']
 
         url = "http://uxlivinglab.pythonanywhere.com"
 
-        payload = json.dumps({
+        payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
             "collection": "user_info",
@@ -781,32 +782,21 @@ def facebook_form(request):
                 },
             },
             "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
         }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
-        messages.success(request, "Facebook details updated successfully.")
-        print('page_id:', page_id, 'page_link:', page_link,
-              'page_password:', page_password, 'post_no:', posts_no)
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, headers=headers, json=payload)
 
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def insta(request):
-    return render(request, 'insta.html')
+        if response.status_code == 200:
+            return Response({'message': 'Facebook details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update Facebook details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def insta_form(request):
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-    else:
+class InstaFormAPI(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         page_id = request.POST.get("page_id")
         page_link = request.POST.get("page_link")
         page_password = request.POST.get("page_password")
@@ -835,30 +825,25 @@ def insta_form(request):
             },
             "platform": "bangalore"
         })
+
         headers = {
             'Content-Type': 'application/json'
         }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.post(url, headers=headers, data=payload)
         print(response.text)
         messages.success(request, "Instagram details updated successfully.")
         print(page_id, page_link, page_password, posts_no)
-
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def twitter(request):
-    return render(request, 'twitter.html')
+        if response.status_code == 200:
+            return Response({'message': 'Instagram details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update Instagram details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def twitter_form(request):
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-    else:
+class XFormAPI(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         page_id = request.POST.get("page_id")
         page_link = request.POST.get("page_link")
         page_password = request.POST.get("page_password")
@@ -887,31 +872,26 @@ def twitter_form(request):
             },
             "platform": "bangalore"
         })
+
         headers = {
             'Content-Type': 'application/json'
         }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.post(url, headers=headers, data=payload)
         print(response.text)
-        messages.success(request, "Twitter details updated successfully.")
+        messages.success(request, "X details updated successfully.")
         print('page_id:', page_id, 'page_link:', page_link,
               'page_password:', page_password, 'post_no:', posts_no)
-
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def linkedin(request):
-    return render(request, 'linkedin.html')
+        if response.status_code == 200:
+            return Response({'message': 'X details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update X details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def linkedin_form(request):
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-    else:
+class LinkedInFormAPI(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         page_id = request.POST.get("page_id")
         page_link = request.POST.get("page_link")
         page_password = request.POST.get("page_password")
@@ -940,193 +920,161 @@ def linkedin_form(request):
             },
             "platform": "bangalore"
         })
+
         headers = {
             'Content-Type': 'application/json'
         }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.post(url, headers=headers, data=payload)
         print(response.text)
-        messages.success(request, "Linkedin details updated successfully.")
+        messages.success(request, "LinkedIn details updated successfully.")
         print(page_id, page_link, page_password, posts_no)
-
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def youtube(request):
-    return render(request, 'youtube.html')
+        if response.status_code == 200:
+            return Response({'message': 'LinkedIn details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update LinkedIn details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def youtube_form(request):
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-    else:
-        page_id = request.POST.get("page_id")
-        page_link = request.POST.get("page_link")
-        page_password = request.POST.get("page_password")
-        posts_no = request.POST.get("posts_no")
+class YoutubeFormView(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            page_id = request.data.get("page_id")
+            page_link = request.data.get("page_link")
+            page_password = request.data.get("page_password")
+            posts_no = request.data.get("posts_no")
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+            url = "http://uxlivinglab.pythonanywhere.com"
 
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
-            "field": {
-                "user_id": request.session['user_id'],
-            },
-            "update_field": {
-                "youtube": {
-                    "page_id": page_id,
-                    "page_link": page_link,
-                    "password": page_password,
-                    "posts_per_day": posts_no,
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
                 },
-            },
-            "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
-        messages.success(request, "Youtube details updated successfully.")
-        print(page_id, page_link, page_password, posts_no)
-
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def Pinterest(request):
-    return render(request, 'pinterest.html')
-
-
-@csrf_exempt
-@xframe_options_exempt
-def pinterest_form(request):
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-    else:
-        page_id = request.POST.get("page_id")
-        page_link = request.POST.get("page_link")
-        page_password = request.POST.get("page_password")
-        posts_no = request.POST.get("posts_no")
-
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
-            "field": {
-                "user_id": request.session['user_id'],
-            },
-            "update_field": {
-                "pinterest": {
-                    "page_id": page_id,
-                    "page_link": page_link,
-                    "password": page_password,
-                    "posts_per_day": posts_no,
+                "update_field": {
+                    "youtube": {
+                        "page_id": page_id,
+                        "page_link": page_link,
+                        "password": page_password,
+                        "posts_per_day": posts_no,
+                    },
                 },
-            },
-            "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
+                "platform": "bangalore"
+            }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
-        messages.success(request, "Pinterest details updated successfully.")
-        print(page_id, page_link, page_password, posts_no)
+            headers = {
+                'Content-Type': 'application/json'
+            }
 
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def client_profile(request):
-    return render(request, 'dowell/clients_profile.html')
+            response = requests.post(url, headers=headers, json=payload)
+            print(response.text)
+            messages.success(request, "Youtube details updated successfully.")
+            print(page_id, page_link, page_password, posts_no)
+            if response.status_code == 200:
+                return Response({'message': 'Youtube details updated successfully'})
+            else:
+                return Response({'error': 'Failed to update Youtube details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def client_profile_form(request):
-    if request.method != "POST":
-        return HttpResponseRedirect(reverse("generate_article:client"))
-    else:
-        address = request.POST.get("address")
-        business = request.POST.get("business")
-        product = request.POST.get("product")
-        logo = request.FILES.get("logo")
+class PinterestFormView(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            page_id = request.POST.get("page_id")
+            page_link = request.POST.get("page_link")
+            page_password = request.POST.get("page_password")
+            posts_no = request.POST.get("posts_no")
 
-        url = "http://uxlivinglab.pythonanywhere.com"
+            url = "http://uxlivinglab.pythonanywhere.com"
 
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
-            "field": {
-                "user_id": request.session['user_id'],
-            },
-            "update_field": {
-                "profile": {
-                    "address": address,
-                    "business": business,
-                    "products": product,
-                    "logo": None
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
                 },
-            },
-            "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
+                "update_field": {
+                    "pinterest": {
+                        "page_id": page_id,
+                        "page_link": page_link,
+                        "password": page_password,
+                        "posts_per_day": posts_no,
+                    },
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
 
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(address, business, product)
-        return HttpResponseRedirect(reverse("generate_article:client"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def client(request):
-    return render(request, 'dowell/main.html')
-
-
-@csrf_exempt
-@xframe_options_exempt
-def user_team(request):
-    return render(request, 'my_team.html')
-
-
-@csrf_exempt
-@xframe_options_exempt
-def user_usage(request):
-    return render(request, 'user_usage.html')
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
+            print(response.text)
+            messages.success(
+                request, "Pinterest details updated successfully.")
+            print(page_id, page_link, page_password, posts_no)
+            if response.status_code == 200:
+                return Response({'message': 'Pinterest details updated successfully'})
+            else:
+                return Response({'error': 'Failed to update Pinterest details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def user_plan(request):
-    return render(request, 'user_plan.html')
+class ClientProfileFormView(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            address = request.POST.get("address")
+            business = request.POST.get("business")
+            product = request.POST.get("product")
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "profile": {
+                        "address": address,
+                        "business": business,
+                        "products": product,
+                        "logo": None
+                    },
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
+            print(address, business, product)
+            if response.status_code == 200:
+                return Response({'message': 'Client details updated successfully'})
+            else:
+                return Response({'error': 'Failed to update Client details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class TargetedCitiesListView(APIView):

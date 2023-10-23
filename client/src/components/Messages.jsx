@@ -3,8 +3,9 @@ import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 export const SuccessMessages = ({ children }) => {
+  
     useEffect(()=>{
-        toast.success(children, {
+        toast.info(children, {
           position: "top-center",
           autoClose: 5000,
           hideProgressBar: false,
