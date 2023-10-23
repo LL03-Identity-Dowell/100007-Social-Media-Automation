@@ -21,6 +21,12 @@ import SpecificArticle from "./pages/Article/SpecificArticle";
 import SpecificPost from "./pages/Post/PostList/SpecificPost";
 import ClientProfile from "./pages/UserProfile/ClientProfile";
 import TargetCities from "./pages/UserProfile/TargetCities";
+import Fackbook from "./pages/UserProfile/_components/facebook";
+import Instagram from "./pages/UserProfile/_components/instagram";
+import Twitter from "./pages/UserProfile/_components/twitter";
+import Youtube from "./pages/UserProfile/_components/youtube";
+import Pinterest from "./pages/UserProfile/_components/pinterest";
+import Linkedin from "./pages/UserProfile/_components/linkedin";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -36,7 +42,7 @@ function App() {
     <>
       <Layout side={showSidebar} show={handleOpenSideBar}>
         <Routes>
-          <Route exact  path='/' element={<Home close={handleCloseSideBar} />} />
+          <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
 
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
           <Route
@@ -87,6 +93,31 @@ function App() {
             path='/social-media-channels'
             element={<SocialMediaChannels close={handleCloseSideBar} />}
           />
+          <Route
+            path='/social-media-channels/facebook'
+            element={<Fackbook close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/instagram'
+            element={<Instagram close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/twitter'
+            element={<Twitter close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/linkedin'
+            element={<Linkedin close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/youtube'
+            element={<Youtube close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/pinterest'
+            element={<Pinterest close={handleCloseSideBar} />}
+          />
+
           <Route
             path='/user-approval'
             element={<ApprovalByClient close={handleCloseSideBar} />}
