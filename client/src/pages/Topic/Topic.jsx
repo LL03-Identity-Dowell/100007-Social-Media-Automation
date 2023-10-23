@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
-import { useSelector } from 'react-redux';
+
 
 function Topic({ show }) {
-  const { data, loading, error } = useSelector((state) => state.data);
   const [inputs, setInputs] = useState({
     category: "",
     product: "",
@@ -21,7 +20,6 @@ function Topic({ show }) {
 
   useEffect(() => {
     show();
-    console.log(data);
   }, []);
 
   const handelChange = (e) => {
@@ -54,7 +52,7 @@ function Topic({ show }) {
     });
     console.log(data);
 
-    setTimeout(()=>{
+    setTimeout(() => {
       setInputs({
         category: "",
         product: "",
@@ -72,7 +70,7 @@ function Topic({ show }) {
 
   return (
     <div>
-      {inputs.loading && <Loading/>}
+      {inputs.loading && <Loading />}
       {inputs.success && <SuccessMessages>{inputs.success}</SuccessMessages>}
       {inputs.success && <ErrorMessages>{inputs.error}</ErrorMessages>}
       <div className="flex flex-col justify-center items-center pb-10">

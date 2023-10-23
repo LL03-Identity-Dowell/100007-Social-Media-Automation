@@ -10,7 +10,6 @@ function PostDetail({ show }) {
     }, [])
 
     const [editing, setEditing] = useState(false);
-    const [dropdownClass, setDropdownClass] = useState("hidden");
 
     const editPost = () => {
         setEditing(true);
@@ -21,7 +20,6 @@ function PostDetail({ show }) {
     };
 
     const imgOverlayClassName = `img-overlay ${editing ? 'show-overlay' : ''}`;
-
 
     return (
 
@@ -67,6 +65,8 @@ function PostDetail({ show }) {
                         </li>
                     </ul>
                 </div>
+
+
             </div>
 
             <div id="post-title" className="text-lg font-bold mb-2 md:mb-0">
