@@ -18,7 +18,7 @@ import UserProfile from "./pages/UserProfile/UserProfile";
 import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
 import SpecificArticle from "./pages/Article/SpecificArticle";
-import SpecificPost from "./pages/Post/PostList/SpecificPost";
+// import SpecificPost from "./pages/Post/PostList/SpecificPost";
 import PostDetail from "./pages/Post/PostDetail/PostDetail";
 import ClientProfile from "./pages/UserProfile/ClientProfile";
 import TargetCities from "./pages/UserProfile/TargetCities";
@@ -52,10 +52,10 @@ function App() {
             path='/SpecificArticle'
             element={<SpecificArticle show={handleOpenSideBar} />}
           />
-          <Route
+          {/* <Route
             path='/SpecificPost'
             element={<SpecificPost show={handleOpenSideBar} />}
-          />
+          /> */}
           <Route
             path='/post-detail'
             element={<PostDetail show={handleOpenSideBar} />}
