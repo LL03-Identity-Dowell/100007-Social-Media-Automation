@@ -48,6 +48,17 @@ class SentenceSerializer(serializers.ModelSerializer):
         )
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name')
+
+
+class UserTopicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name')
+
 class CombinedSentenceIndustrySerializer(IndustrySerializer):
     NUMBERS = (
         ('singular', 'singular'),

@@ -22,7 +22,7 @@ from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
 from website.permissions import HasBeenAuthenticated
-from website.serializers import SentenceSerializer, IndustrySerializer
+from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer
 
 
 def under_maintenance(request):
@@ -431,6 +431,42 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
             'sentences': sentence_results,
         }
         return Response(request.session['data_dictionary'])
+
+
+class UserCategoriesAPIView(generics.ListCreateAPIView):
+    """
+
+    """
+    permission_classes = (HasBeenAuthenticated,)
+    serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        request = self.request
+        email = request.session['userinfo']['email']
+        return WebsiteManager().get_user_categories_by_email({'email': email})
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = CategorySerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class UserTopicAPIView(generics.ListCreateAPIView):
+    """
+
+    """
+    permission_classes = (HasBeenAuthenticated,)
+    serializer_class = UserTopicSerializer
+
+    def get_queryset(self):
+        request = self.request
+        email = request.session['userinfo']['email']
+        return WebsiteManager().get_user_topics_by_email({'email': email})
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = UserTopicSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 @csrf_exempt
