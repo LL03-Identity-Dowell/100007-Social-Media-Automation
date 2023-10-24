@@ -81,3 +81,95 @@
 .glass-button:hover {
   background-color: rgba(255, 255, 255, 0.5);
 }
+
+
+/* images modal styling */
+
+.modal-content {
+  width: 1078px;
+  width: 1078px;
+  /* height: 93vh; */
+  border: none;
+}
+
+.modal-body {
+  padding: 0;
+}
+
+.modal {
+  text-align: center;
+}
+
+.modal:before {
+  display: inline-block;
+  vertical-align: middle;
+  content: " ";
+  height: 100%;
+}
+
+.modal-dialog {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.col-md-4>img {
+  cursor: pointer;
+}
+
+.borderToggle {
+  border: 3px solid blue;
+}
+
+
+
+.main-carousel {
+  background: #fff;
+  height: 260px;
+  margin-top: 25px;
+  padding: 0 10px;
+}
+
+.carousel-cell {
+  width: 350px;
+  height: 100%;
+  margin-right: 10px;
+  /* background: #8C8; */
+  border-radius: 5px;
+  counter-increment: carousel-cell;
+}
+
+/* cell number */
+.carousel-cell:before {
+  display: block;
+  text-align: center;
+  /* content: counter(carousel-cell); */
+  line-height: 200px;
+  /* font-size: 80px; */
+  /* color: white; */
+}
+
+.carousel-cell-image {
+  display: block;
+  height: 100%;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 100%;
+  cursor: pointer;
+  /* opacity: 0; */
+  /* -webkit-transition: opacity 0.4s; */
+  /* transition: opacity 0.4s; */
+}
+
+.image_paragraph {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.flickity-viewport {
+  height: 100% !important;
+}
+
+.flickity-button-icon {
+  fill: var(--dark-blue);
+}
