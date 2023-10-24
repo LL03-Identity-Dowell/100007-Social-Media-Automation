@@ -1,15 +1,61 @@
 import React, { useEffect } from "react";
 import { profile } from "../../assets";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import { Button } from "../../components/button";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 const ClientProfile = ({ close }) => {
   useEffect(() => {
     close();
   }, []);
 
+  const [formData, setFormData] = React.useState({
+    address: "",
+    business: "",
+    product: "",
+    logo: "logo",
+  });
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+
+    setFormData((prev) => {
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    const url = "http://127.0.0.1:8000/api/v1/client-form/";
+
+    if (formData) {
+      axios
+        .post(url, formData, formData, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log("Response data:", response);
+          toast.success(response?.data?.message);
+          setFormData({ address: "", business: "", product: "", logo: "logo" });
+        })
+        .catch((error) => {
+          toast.error("Oops! An error occurred");
+          console.error("Error:", error);
+        });
+    }
+    console.log(JSON.stringify(formData));
+  }
+
   return (
     <div className="bg-pens bg-cover bg-center h-[90vh] ">
+      <ToastContainer />
       <div className="bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400">
         <div className="flex justify-center items-center flex-col h-full w-full">
           <div className="flex flex-col justify-center items-center">
@@ -30,6 +76,9 @@ const ClientProfile = ({ close }) => {
                   type="text"
                   className="mt-2 w-full border border-gray-300 rounded bg-white "
                   placeholder="Enter YourAddress.."
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
                 />
               </div>
               <div className="flex flex-col w-full ">
@@ -38,6 +87,9 @@ const ClientProfile = ({ close }) => {
                   type="text"
                   className="mt-2 w-full border border-gray-300 rounded bg-white "
                   placeholder="Enter YourAddress.."
+                  name="business"
+                  value={formData.business}
+                  onChange={handleChange}
                 />
               </div>
               <div className="flex flex-col w-full ">
@@ -46,15 +98,26 @@ const ClientProfile = ({ close }) => {
                   type="text"
                   className="mt-2 w-full border border-gray-300 rounded bg-white "
                   placeholder="Enter YourAddress.."
+                  name="product"
+                  value={formData.product}
+                  onChange={handleChange}
                 />
               </div>
             </div>
-              <div className="mt-4">
-                <button className="text-md text-white bg-customTextBlue py-2 px-6 rounded"> Upload Logo</button>
-              </div>
-              <div className="flex justify-center mt-6 pb-10">
-                <button className="text-md text-white bg-customTextBlue py-2 px-6 rounded"> Submit</button>
-              </div>
+            <div className="mt-4">
+              <button className="text-md text-white bg-customTextBlue py-2 px-6 rounded">
+                {" "}
+                Upload Logo
+              </button>
+            </div>
+            <div className="flex justify-center mt-6 pb-10">
+              <button
+                className="text-md text-white bg-customTextBlue py-2 px-6 rounded"
+                onClick={handleSubmit}
+              >
+                Submit
+              </button>
+            </div>
           </form>
         </div>
       </div>
