@@ -5,7 +5,7 @@ import axios from "axios";
 import Loading from "../../components/Loading";
 import { SuccessMessages } from "../../components/Messages";
 import { ErrorMessages } from "../../components/Messages";
-// eslint-disable-next-line react/prop-types
+
 const HashtagsMentions = ({ close }) => {
   const [inputHashtagText, setinputHashtagText] = useState("");
   const [inputHashtagList, setinputHashtagList] = useState([]);
@@ -18,8 +18,9 @@ const HashtagsMentions = ({ close }) => {
   const [checkedMentions, setCheckedMentions] = useState([]);
   const [getStatus, setGetStatus] = useState();
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState();
+  const [success, setSuccess] = useState("");
   const [error, setError] = useState();
+
   const handleHashtagInputChange = (e) => {
     setinputHashtagText(e.target.value);
   };
@@ -39,7 +40,7 @@ const HashtagsMentions = ({ close }) => {
     e.preventDefault();
 
     if (inputMentionsText) {
-      setinputMentionsList([...inputMentionsList, "#" + inputMentionsText]);
+      setinputMentionsList([...inputMentionsList, "@" + inputMentionsText]);
       setinputMentionsText("");
       setcheckedMentionsList([...checkedMentionsList, false]);
     }
@@ -104,6 +105,7 @@ const HashtagsMentions = ({ close }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (getStatus === "update") {
       setLoading(true);
       const payloadBody = {
@@ -122,10 +124,14 @@ const HashtagsMentions = ({ close }) => {
         )
         .then(() => {
           setLoading(false);
-          setSuccess(`hashtags and mentions are updated...!`);
+          setSuccess(null);
+          setTimeout(() => {
+            setSuccess("Hashtags and mentions are updated...!");
+          }, 1);
         })
         .catch((error) => {
-          setError("Error making request, Please try again later");
+          setLoading(false);
+          setError("Error making the request. Please try again later.");
           console.error("Error fetching user-approval:", error);
         });
     } else if (getStatus === "insert") {
@@ -147,10 +153,13 @@ const HashtagsMentions = ({ close }) => {
         )
         .then(() => {
           setLoading(false);
-          setSuccess(`hashtags and mentions are sent successfully...!`);
+          if (!success) {
+            setSuccess("Hashtags and mentions are sent successfully...!");
+          }
         })
         .catch((error) => {
-          setError("Error making request, Please try again later");
+          setLoading(false);
+          setError("Error making the request. Please try again later.");
           console.error("Error fetching user-approval:", error);
         });
     }
@@ -158,47 +167,62 @@ const HashtagsMentions = ({ close }) => {
 
   useEffect(() => {
     close();
-    fetch()
+    fetch();
   }, []);
 
   return (
-    <div className="bg-pens bg-cover bg-center h-[90vh]">
+    <div
+      className="bg-pens bg-cover bg-center "
+      style={{
+        backgroundPosition: "center calc(50% + 135px)",
+        overflow: "hidden",
+      }}
+    >
       {loading && <Loading />}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {error && <ErrorMessages>{error}</ErrorMessages>}
-      <div className="bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400">
-        <div className="flex justify-center items-center flex-col h-full w-fill">
+
+      <div className="bg-overlay mx-auto my-6 h-[576px] shadow-lg shadow-gray-400 max-w-[900px]  ">
+        <div className="flex justify-center items-center flex-col h-full w-fill mt-[-6px] ">
           <div>
-            <h2 className="text-customBlue text-2xl xl:text-3xl pb-12">
-              Hashtags and Mentions
-            </h2>
+            <div className="text-customBlue text-2xl   ">
+              <>Add Hashtags and Mentions</>
+            </div>
           </div>
 
           <form onSubmit={handleAddInput} className="w-50 px-6">
-            <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full pt-10">
               <div className="text-center w-full">
-                <label htmlFor="hashtags" className="text-customBlack text-lg ">
-                  Hashtags
-                </label>
-                <div className="mt-4 w-full border flex">
-                  <span className="bg-gray-400 p-2 text-lg text-gray-600 rounded-l-md">
+                <div className="mb-3">
+                  <label
+                    htmlFor="hashtags"
+                    className="text-customBlack text-sm  "
+                  >
+                    Hashtags
+                  </label>
+                </div>
+
+                <div className="mt-2 w-full border flex max-h-8">
+                  <span className="bg-gray-400 px-1 text-lg text-gray-600 rounded-l-sm ">
                     #
                   </span>
+
                   <input
                     type="text"
                     id="hashtags"
                     value={inputHashtagText}
                     onChange={handleHashtagInputChange}
                     placeholder="Enter Hashtags.."
-                    className="border-none bg-white w-full outline-2 outline-blue-400 "
+                    className="border-none bg-white w-full outline-2 outline-blue-400 p-1"
                   />
                   <button
                     onClick={handleAddHashtagInput}
-                    className="bg-blue-800 text-white rounded-r-2xl px-2"
+                    className="bg-blue-800 bg-customBlue text-white rounded-r-2xl px-3"
                   >
                     Add
                   </button>
                 </div>
+
                 <div>
                   <ul className="flex flex-wrap">
                     {inputHashtagList.map((name, index) => (
@@ -224,11 +248,16 @@ const HashtagsMentions = ({ close }) => {
                 </div>
               </div>
               <div className="text-center w-full">
-                <label htmlFor="mentions" className="text-customBlack text-lg ">
-                  Mentions
-                </label>
-                <div className="mt-4 w-full border flex">
-                  <span className="bg-gray-400 p-2 text-lg text-gray-600 rounded-l-md">
+                <div className="mb-3">
+                  <label
+                    htmlFor="mentions"
+                    className="text-customBlack text-sm "
+                  >
+                    Mentions
+                  </label>
+                </div>
+                <div className="mt-2 w-full border flex max-h-8">
+                  <span className="bg-gray-400 px-1 text-lg text-gray-600 rounded-l-sm ">
                     @
                   </span>
                   <input
@@ -237,11 +266,11 @@ const HashtagsMentions = ({ close }) => {
                     value={inputMentionsText}
                     onChange={handleMentionsInputChange}
                     placeholder="Enter Mentions.."
-                    className="border-none bg-white w-full"
+                    className="border-none bg-white w-full outline-2 outline-blue-400 p-1"
                   />
                   <button
                     onClick={handleAddMentionsInput}
-                    className="bg-blue-800 text-white rounded-r-2xl px-2"
+                    className="bg-blue-800 bg-customBlue text-white rounded-r-2xl px-3"
                   >
                     Add
                   </button>
@@ -273,11 +302,12 @@ const HashtagsMentions = ({ close }) => {
             <div className="flex justify-center items-center mt-6 md:mt-16">
               <button
                 onClick={handleSubmit}
-                className={`${isSaveDisabled ? "bg-blue-300 cursor-not-allowed" : ""
-                  }bg-blue-800 px-4 py-2 text-white rounded-md flex items-center gap-3 `}
+                className={`${
+                  isSaveDisabled ? "bg-blue-300 cursor-not-allowed" : ""
+                }bg-blue-800 px-10 py-1 text-white rounded-3xl flex items-center gap-3   `}
                 disabled={isSaveDisabled}
               >
-                Save <FaCheck />
+                Save
               </button>
             </div>
           </form>
