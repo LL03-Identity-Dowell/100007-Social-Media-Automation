@@ -8,7 +8,7 @@ const TargetCities = () => {
   const [cityList, setCityList] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isSelected, setIsSelected] = useState({
-    name : []
+    name: []
   });
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState("");
@@ -54,8 +54,11 @@ const TargetCities = () => {
 
     if (status === "update") {
       setIsLoading(true);
+      console.log("Sending data to the backend:", data);
       await axios
-        .put("http://127.0.0.1:8000/api/v1/targeted_cities/update/", data, {
+        .put("http://127.0.0.1:8000/api/v1/targeted_cities/update/", {
+          target_cities: [data],
+        }, {
           withCredentials: true,
         })
         .then((response) => {
@@ -65,10 +68,13 @@ const TargetCities = () => {
         .catch((error) => {
           setIsError("Fail to update targeted cities please try again");
         });
-    } else if (status === "insert") {
+    }
+    else if (status === "insert") {
       setIsLoading(true);
       await axios
-        .post("http://127.0.0.1:8000/api/v1/targeted_cities/create/", data, {
+        .post("http://127.0.0.1:8000/api/v1/targeted_cities/create/", {
+          target_cities: [data],
+        }, {
           withCredentials: true,
         })
         .then((response) => {
@@ -130,10 +136,10 @@ const TargetCities = () => {
                     return inputValue === ""
                       ? city
                       : city.name
-                          .toLowerCase()
-                          .includes(inputValue.toLowerCase())
-                      ? city
-                      : null;
+                        .toLowerCase()
+                        .includes(inputValue.toLowerCase())
+                        ? city
+                        : null;
                   })
                   .map((city) => (
                     <label

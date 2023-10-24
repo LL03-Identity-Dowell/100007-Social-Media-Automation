@@ -1152,13 +1152,19 @@ class TargetedCitiesCreateView(APIView):
 
 
 class TargetedCitiesUpdateView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if request.method != "PUT":
             return Response({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Receive selected cities from the form
-            target_cities = request.data.getlist('target_cities[]')
+            target_cities = request.data.get('target_cities', [])
+            if not isinstance(target_cities, list):
+                target_cities = [target_cities]
+            print("Here", target_cities)
             url = "http://uxlivinglab.pythonanywhere.com"
 
             payload = json.dumps({
@@ -1184,6 +1190,7 @@ class TargetedCitiesUpdateView(APIView):
             response = requests.post(url, headers=headers, data=payload)
 
             user_data = fetch_user_info(request)
+            print(user_data)
             messages.success(
                 request, "target_cities details updated successfully.")
             return Response({'detail': 'Targeted cities updated successfully'}, status=status.HTTP_200_OK)
