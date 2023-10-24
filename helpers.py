@@ -1,22 +1,15 @@
-import concurrent.futures
+import datetime
 import datetime
 import json
+
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
-import concurrent.futures
-import datetime
-import json
-from django.http import  JsonResponse
-from django.shortcuts import render
-from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.decorators.csrf import csrf_exempt
 
 from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
-
 
 PRODUCT_NAME = 'Social Media Automation'
 
@@ -149,7 +142,7 @@ def get_dowellclock():
 def create_event():
 
     url = "https://uxlivinglab.pythonanywhere.com/create_event"
-    dd = datetime.now()
+    dd = datetime.datetime.now()
     time = dd.strftime("%d:%m:%Y,%H:%M:%S")
 
     data = {

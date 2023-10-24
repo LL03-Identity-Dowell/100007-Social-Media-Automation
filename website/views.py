@@ -279,14 +279,22 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
     permission_classes = (HasBeenAuthenticated,)
     serializer_class = SentenceSerializer
 
-    def post(self, request):
+    def get_serializer(self):
+        request = self.request
+        email = request.session['userinfo']['email']
+        return SentenceSerializer(email=email)
+
+    def post(self, request, *args, **kwargs):
 
         session_id = request.GET.get('session_id', None)
         # has_permission=can_view_page(request)
         # if not has_permission:
         #     return Response({'message':'You are not allowed to view this page'},status=HTTP_400_BAD_REQUEST)
-        industry_serializer = IndustrySerializer(data=request.data)
-        sentence_serializer = SentenceSerializer(data=request.data)
+
+        email = request.session['userinfo']['email']
+        industry_serializer = IndustrySerializer(email=email, data=request.data)
+        sentence_serializer = SentenceSerializer(email=email, data=request.data)
+
         if not industry_serializer.is_valid():
             return Response(industry_serializer.errors, status=HTTP_400_BAD_REQUEST)
         if not sentence_serializer.is_valid():
@@ -304,7 +312,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         industry.save()
 
         object = sentence_serializer.data['object'].lower()
-        subject = sentence_serializer.data['subject']
+        subject = sentence_serializer.validated_data['topic'].name
         verb = sentence_serializer.data['verb']
         objdet = sentence_serializer.data['object_determinant']
         adjective = sentence_serializer.data['adjective']
@@ -377,7 +385,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         sentence_grammar = Sentences.objects.create(
             user=user,
             object=object,
-            subject=subject,
+            topic=sentence_serializer.validated_data['topic'],
             verb=verb,
             adjective=adjective,
         )
