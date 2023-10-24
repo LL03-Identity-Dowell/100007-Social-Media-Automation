@@ -2138,8 +2138,23 @@ def comments_emojis(request):
 
 
 class FacebookFormAPI(APIView):
-    def post(self, request):
-        if request.method != "POST":
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            context_dict = {'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def put(self, request):
+        if request.method != "PUT":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         page_id = request.data.get("page_id")
         page_link = request.data.get("page_link")
@@ -2180,15 +2195,117 @@ class FacebookFormAPI(APIView):
         else:
             return Response({'error': 'Failed to update Facebook details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-class InstaFormAPI(APIView):
     def post(self, request):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        page_id = request.POST.get("page_id")
-        page_link = request.POST.get("page_link")
-        page_password = request.POST.get("page_password")
-        posts_no = request.POST.get("posts_no")
+        page_id = request.data.get("page_id")
+        page_link = request.data.get("page_link")
+        page_password = request.data.get("page_password")
+        posts_no = request.data.get("posts_no")
+        event_id = create_event()['event_id']
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "insert",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "facebook": {
+                    "page_id": page_id,
+                    "page_link": page_link,
+                    "password": page_password,
+                    "posts_per_day": posts_no,
+                    "event_id": event_id,
+                },
+            },
+            "platform": "bangalore"
+        }
+
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, headers=headers, json=payload)
+
+        if response.status_code == 200:
+            return Response({'message': 'Facebook details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update Facebook details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstaFormAPI(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            context_dict = {'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        page_id = request.data.get("page_id")
+        page_link = request.data.get("page_link")
+        page_password = request.data.get("page_password")
+        posts_no = request.data.get("posts_no")
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "insert",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "instagram": {
+                    "page_id": page_id,
+                    "page_link": page_link,
+                    "password": page_password,
+                    "posts_per_day": posts_no,
+                },
+            },
+            "platform": "bangalore"
+        })
+
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.post(url, headers=headers, data=payload)
+        print(response.text)
+        messages.success(request, "Instagram details updated successfully.")
+        print(page_id, page_link, page_password, posts_no)
+        if response.status_code == 200:
+            return Response({'message': 'Instagram details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update Instagram details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request):
+        if request.method != "PUT":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        page_id = request.data.get("page_id")
+        page_link = request.data.get("page_link")
+        page_password = request.data.get("page_password")
+        posts_no = request.data.get("posts_no")
 
         url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -2229,6 +2346,21 @@ class InstaFormAPI(APIView):
 
 
 class XFormAPI(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            context_dict = {'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
     def post(self, request):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -2236,6 +2368,52 @@ class XFormAPI(APIView):
         page_link = request.POST.get("page_link")
         page_password = request.POST.get("page_password")
         posts_no = request.POST.get("posts_no")
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "insert",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "twitter": {
+                    "page_id": page_id,
+                    "page_link": page_link,
+                    "password": page_password,
+                    "posts_per_day": posts_no,
+                },
+            },
+            "platform": "bangalore"
+        })
+
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.post(url, headers=headers, data=payload)
+        print(response.text)
+        messages.success(request, "X details updated successfully.")
+        print('page_id:', page_id, 'page_link:', page_link,
+              'page_password:', page_password, 'post_no:', posts_no)
+        if response.status_code == 200:
+            return Response({'message': 'X details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update X details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request):
+        if request.method != "PUT":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        page_id = request.data.get("page_id")
+        page_link = request.data.get("page_link")
+        page_password = request.data.get("page_password")
+        posts_no = request.data.get("posts_no")
 
         url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -2277,13 +2455,73 @@ class XFormAPI(APIView):
 
 
 class LinkedInFormAPI(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            context_dict = {'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
     def post(self, request):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        page_id = request.POST.get("page_id")
-        page_link = request.POST.get("page_link")
-        page_password = request.POST.get("page_password")
-        posts_no = request.POST.get("posts_no")
+        page_id = request.data.get("page_id")
+        page_link = request.data.get("page_link")
+        page_password = request.data.get("page_password")
+        posts_no = request.data.get("posts_no")
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "insert",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "linkedin": {
+                    "page_id": page_id,
+                    "page_link": page_link,
+                    "password": page_password,
+                    "posts_per_day": posts_no,
+                },
+            },
+            "platform": "bangalore"
+        })
+
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.post(url, headers=headers, data=payload)
+        print(response.text)
+        messages.success(request, "LinkedIn details updated successfully.")
+        print(page_id, page_link, page_password, posts_no)
+        if response.status_code == 200:
+            return Response({'message': 'LinkedIn details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update LinkedIn details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request):
+        if request.method != "PUT":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        page_id = request.data.get("page_id")
+        page_link = request.data.get("page_link")
+        page_password = request.data.get("page_password")
+        posts_no = request.data.get("posts_no")
 
         url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -2324,8 +2562,69 @@ class LinkedInFormAPI(APIView):
 
 
 class YoutubeFormView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            context_dict = {'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
     def post(self, request):
         if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            page_id = request.data.get("page_id")
+            page_link = request.data.get("page_link")
+            page_password = request.data.get("page_password")
+            posts_no = request.data.get("posts_no")
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "insert",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "youtube": {
+                        "page_id": page_id,
+                        "page_link": page_link,
+                        "password": page_password,
+                        "posts_per_day": posts_no,
+                    },
+                },
+                "platform": "bangalore"
+            }
+
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.post(url, headers=headers, json=payload)
+            print(response.text)
+            messages.success(request, "Youtube details updated successfully.")
+            print(page_id, page_link, page_password, posts_no)
+            if response.status_code == 200:
+                return Response({'message': 'Youtube details updated successfully'})
+            else:
+                return Response({'error': 'Failed to update Youtube details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request):
+        if request.method != "PUT":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             page_id = request.data.get("page_id")
@@ -2372,14 +2671,76 @@ class YoutubeFormView(APIView):
 
 
 class PinterestFormView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            context_dict = {'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
     def post(self, request):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            page_id = request.POST.get("page_id")
-            page_link = request.POST.get("page_link")
-            page_password = request.POST.get("page_password")
-            posts_no = request.POST.get("posts_no")
+            page_id = request.data.get("page_id")
+            page_link = request.data.get("page_link")
+            page_password = request.data.get("page_password")
+            posts_no = request.data.get("posts_no")
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "insert",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "pinterest": {
+                        "page_id": page_id,
+                        "page_link": page_link,
+                        "password": page_password,
+                        "posts_per_day": posts_no,
+                    },
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
+            print(response.text)
+            messages.success(
+                request, "Pinterest details updated successfully.")
+            print(page_id, page_link, page_password, posts_no)
+            if response.status_code == 200:
+                return Response({'message': 'Pinterest details updated successfully'})
+            else:
+                return Response({'error': 'Failed to update Pinterest details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request):
+        if request.method != "PUT":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            page_id = request.data.get("page_id")
+            page_link = request.data.get("page_link")
+            page_password = request.data.get("page_password")
+            posts_no = request.data.get("posts_no")
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -2421,14 +2782,72 @@ class PinterestFormView(APIView):
 
 
 class ClientProfileFormView(APIView):
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            context_dict = {'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
     def post(self, request):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            address = request.POST.get("address")
-            business = request.POST.get("business")
-            product = request.POST.get("product")
+            data = request.data
+            address = data.get("address")
+            business = data.get("business")
+            product = data.get("product")
+            logo = data.get("logo")
+            url = "http://uxlivinglab.pythonanywhere.com"
 
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "insert",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "profile": {
+                        "address": address,
+                        "business": business,
+                        "products": product,
+                        "logo": logo
+                    },
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
+            print(address, business, product)
+            if response.status_code == 200:
+                return Response({'message': 'Client details updated successfully'})
+            else:
+                return Response({'error': 'Failed to update Client details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "PUT":
+            return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = request.data
+            address = data.get("address")
+            business = data.get("business")
+            product = data.get("product")
+            logo = data.get("logo")
             url = "http://uxlivinglab.pythonanywhere.com"
 
             payload = json.dumps({
@@ -2447,7 +2866,7 @@ class ClientProfileFormView(APIView):
                         "address": address,
                         "business": business,
                         "products": product,
-                        "logo": None
+                        "logo": logo
                     },
                 },
                 "platform": "bangalore"
