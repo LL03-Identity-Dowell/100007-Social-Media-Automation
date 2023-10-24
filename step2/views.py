@@ -904,32 +904,25 @@ class PostListView(APIView):
             response = requests.request(
                 "POST", url, headers=headers, data=data)
 
-            print(response)
-
             user = str(request.session['user_id'])
             response_data_json = json.loads(response.json())
-
-            # takes in user_id
             user_id = str(request.session['user_id'])
             article_detail_list = response_data_json.get('data', [])
 
-            # takes in the json data
             datas = article_detail_list
 
             posts = []
-            # iterates through the json file
 
             for article in article_detail_list:
 
                 if article.get('user_id') == user_id:
                     articles = {
+                        'post_id': article.get('_id'),
                         'title': article.get('title'),
                         'paragraph': article.get('paragraph'),
                         'source': article.get('source'),
                     }
-                    # appends articles to posts
                     posts.append(articles)
-            # Reverse the order of the posts list
             posts = list(reversed(posts))
 
             number_of_items_per_page = 5
@@ -947,6 +940,7 @@ class PostListView(APIView):
             page_post_data = list(page_post)
             serialized_page_post = [
                 {
+                    'post_id': post['post_id'],
                     'title': post['title'],
                     'paragraph': post['paragraph'],
                     'source': post['source']
@@ -1010,14 +1004,17 @@ class PostDetailView(APIView):
             if request.method != "POST":
                 return Response({'error': 'Bad request'}, status=400)
             else:
-                title = request.POST.get("title")
-                paragraph = request.POST.get("paragraph")
+                data = request.data
+                post_id = data.get('post_id')
+                title = data.get("title")
+                paragraph = data.get("paragraph")
                 paragraph = paragraph.split('\r\n')
-                source = request.POST.get("source")
+                source = data.get("source")
                 if "\r\n" in source:
                     source = source.split('\r\n')
 
                 post = {
+                    "_id": post_id,
                     "title": title,
                     "paragraph": paragraph,
                     "source": source
