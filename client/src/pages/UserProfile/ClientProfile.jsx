@@ -16,7 +16,7 @@ const ClientProfile = ({ close }) => {
     address: "",
     business: "",
     product: "",
-    logo: "logo",
+    logo: "",
   });
 
   function handleChange(event) {
@@ -43,15 +43,40 @@ const ClientProfile = ({ close }) => {
         .then((response) => {
           console.log("Response data:", response);
           toast.success(response?.data?.message);
-          setFormData({ address: "", business: "", product: "", logo: "logo" });
+          setFormData({ address: "", business: "", product: "", logo: "" });
         })
         .catch((error) => {
           toast.error("Oops! An error occurred");
           console.error("Error:", error);
         });
     }
+    
     console.log(JSON.stringify(formData));
   }
+
+  function convertToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  }
+  const onUpload = async (e) => {
+    const base64 = await convertToBase64(e.target.files[0]);
+    setFormData((prev) => {
+      return {
+        ...prev,
+        logo: base64,
+      };
+    });
+  };
 
   return (
     <div className="bg-pens bg-cover bg-center h-[90vh] ">
@@ -105,10 +130,17 @@ const ClientProfile = ({ close }) => {
               </div>
             </div>
             <div className="mt-4">
-              <button className="text-md text-white bg-customTextBlue py-2 px-6 rounded">
+              <input
+                onChange={onUpload}
+                type="file"
+                id="profile"
+                name="logo"
+                className="text-md text-customTextBlue py-2 px-6 rounded"
+              />
+              {/* <button className="text-md text-white bg-customTextBlue py-2 px-6 rounded">
                 {" "}
                 Upload Logo
-              </button>
+              </button> */}
             </div>
             <div className="flex justify-center mt-6 pb-10">
               <button
