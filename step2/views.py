@@ -266,15 +266,28 @@ class ListArticleView(APIView):
             for article in article_detail_list:
                 if article.get('user_id') == user_id:
                     articles = {
+                        'article_id': article.get('_id'),
                         'title': article.get('title'),
                         'paragraph': article.get('paragraph'),
                         'source': article.get('source'),
                     }
                     user_articles.append(articles)
-
             user_articles = list(reversed(user_articles))
+
+            number_of_items_per_page = 5
+            page = request.GET.get('page', 1)
+
+            paginator = Paginator(user_articles, number_of_items_per_page)
+            try:
+                page_article = paginator.page(page)
+            except PageNotAnInteger:
+                page_article = paginator.page(1)
+            except EmptyPage:
+                page_article = paginator.page(paginator.num_pages)
+
+            user_articles = list(reversed(page_article))
             serialized_data = ListArticleSerializer(user_articles, many=True)
-            return Response({'posts': serialized_data.data})
+            return Response({'Articles': serialized_data.data})
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -287,14 +300,17 @@ class ArticleDetailView(APIView):
             if request.method != "POST":
                 return Response({'error': 'Bad request'}, status=400)
             else:
-                title = request.POST.get("title")
-                paragraph = request.POST.get("paragraph")
+                data = request.data
+                article_id = data.get("article_id")
+                title = data.get("title")
+                paragraph = data.get("paragraph")
                 paragraph = paragraph.split('\r\n')
-                source = request.POST.get("source")
+                source = data.get("source")
                 if "\r\n" in source:
                     source = source.split('\r\n')
 
                 post = {
+                    "post_id": article_id,
                     "title": title,
                     "paragraph": paragraph,
                     "source": source
