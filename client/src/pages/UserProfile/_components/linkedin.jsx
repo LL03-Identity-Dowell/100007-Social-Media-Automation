@@ -7,8 +7,7 @@ const Linkedin = () => {
     <UserWrapper>
       <div className='flex flex-col items-center w-full h-full justify-evenly '>
         <FaLinkedin className='text-3xl text-blue-800 md:text-5xl' />
-
-        <Form />
+        <Form name='linkedIn' />
       </div>
     </UserWrapper>
   );

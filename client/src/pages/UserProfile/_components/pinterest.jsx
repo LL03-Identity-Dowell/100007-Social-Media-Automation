@@ -8,7 +8,7 @@ const Pinterest = () => {
       <div className='flex flex-col items-center w-full h-full justify-evenly '>
         <FaPinterest className='text-3xl text-red-600 md:text-5xl' />
 
-        <Form />
+        <Form name='pinterest' />
       </div>
     </UserWrapper>
   );

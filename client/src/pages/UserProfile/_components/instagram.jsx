@@ -7,7 +7,7 @@ const Instagram = () => {
     <UserWrapper>
       <div className='flex flex-col items-center w-full h-full justify-evenly '>
         <FaInstagram className='text-3xl text-pink-600 md:text-5xl' />
-        <Form />
+        <Form name='instagram' />
       </div>
     </UserWrapper>
   );
