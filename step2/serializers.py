@@ -12,7 +12,7 @@ class ProfileSerializer(serializers.Serializer):
 
 
 class ListArticleSerializer(serializers.Serializer):
-    post_id = serializers.CharField()
+    article_id = serializers.CharField()
     title = serializers.CharField()
     paragraph = serializers.CharField()
     source = serializers.CharField()
@@ -51,4 +51,3 @@ class RankedTopicListSerializer(serializers.Serializer):
     sentence = serializers.CharField()
     key = serializers.CharField()
     created_by = serializers.CharField()
-    

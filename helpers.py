@@ -9,7 +9,8 @@ from mega import Mega
 import concurrent.futures
 import datetime
 import json
-from django.http import  JsonResponse
+from datetime import datetime
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
@@ -218,7 +219,6 @@ def fetch_user_info(request):
     return "Error Handling your request"
 
 
-
 def check_if_user_has_social_media_profile_in_aryshare(username):
     """
     This function checks if a user has a profile account in aryshare
@@ -296,6 +296,7 @@ def update_aryshare(username, userid):
             pass
 
     return (socials)
+
 
 def get_key(user_id):
     url = "http://uxlivinglab.pythonanywhere.com/"
