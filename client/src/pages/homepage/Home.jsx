@@ -46,11 +46,12 @@ const Home = ({ close }) => {
       setLoading(false)
       // Store the response data in the component state
       let data = response.data
-        localStorage.setItem("userInfo", data);
-        // setData(data);
-        console.log("Data from API:", data);
-      })
-      .catch((error) => {
+      localStorage.setItem("userInfo", data);
+      // setData(data);
+      console.log("Data from API:", data);
+    })
+    .catch((error) => {
+        setLoading(false)
         console.error("Error fetching data:", error);
       });
   };
