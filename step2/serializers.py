@@ -12,6 +12,7 @@ class ProfileSerializer(serializers.Serializer):
 
 
 class ListArticleSerializer(serializers.Serializer):
+    post_id = serializers.CharField()
     title = serializers.CharField()
     paragraph = serializers.CharField()
     source = serializers.CharField()
