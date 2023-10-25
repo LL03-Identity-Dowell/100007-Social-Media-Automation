@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
+import ReactPaginate from "react-paginate";
 import { Button } from "../../components/button";
 import ExtraSmallBtn from "../../components/ExtraSmallBtn/ExtraSmallBtn";
 import axios from "axios";
@@ -15,32 +15,41 @@ const Article = ({ show }) => {
   const [error, setError] = useState(false);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
+  const [perPage] = useState(5);
+  const [pageCount, setPageCount] = useState(0);
 
   useEffect(() => {
     show();
 
     fetch();
-  }, []);
+  }, [page]);
 
   const fetch = () => {
     setLoading(true);
     // Make a GET request to the API endpoint with the session_id
     axios
-      .get(`http://127.0.0.1:8000/api/v1/list-articles/?page=${page}`, {
+      .get(`http://127.0.0.1:8000/api/v1/list-articles/?page=${page + 1}&order=newest`, {
         withCredentials: true,
       })
       .then((response) => {
+        setError(null);
         setLoading(false);
-        let data = response.data.Articles;
-        setCount(data.length);
-        setArticleData(data);
+        let data = response.data;
         console.log(data);
+        setArticleData(data.Articles);
+        setCount(data.total_items);
+        setPageCount(Math.ceil(data.total_items / perPage));
+        window.scrollTo(0, 0);
       })
       .catch((error) => {
         setLoading(false);
         setError("Server error, Please try again later");
         console.error("Error fetching article:", error);
       });
+  };
+
+  const handlePageClick = (data) => {
+    setPage(data.selected);
   };
 
   return (
@@ -90,72 +99,20 @@ const Article = ({ show }) => {
           </div>
         </div>
 
-        <div className="flex justify-center mb-5 lg:mt-3">
-          <nav aria-label="Page navigation example">
-            <ul className="inline-flex -space-x-px font-normal">
-              <li>
-                <a
-                  onClick={() => setPage(page - 1)}
-                  disabled={page === 1}
-                  href="#"
-                  className="flex items-center justify-center px-3 h-8 ml-0 leading-tight text-gray-800 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  Previous
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="flex items-center justify-center px-3 h-8 leading-tight  text-gray-800 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  1
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="flex items-center justify-center px-3 h-8 leading-tight  text-gray-800 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  2
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  aria-current="page"
-                  className="flex items-center justify-center px-3 h-8 text-white border border-gray-300 bg-customBlue hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                >
-                  3
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="flex items-center justify-center px-3 h-8 leading-tight text-gray-800 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  4
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="flex items-center justify-center px-3 h-8 leading-tight  text-gray-800 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  5
-                </a>
-              </li>
-              <li>
-                <a
-                  onClick={() => setPage(page + 1)}
-                  href="#"
-                  className="flex items-center justify-center px-3 h-8 leading-tight  text-gray-800 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  Next
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
+      <ReactPaginate
+        pageCount={pageCount}
+        pageRangeDisplayed={5}
+        marginPagesDisplayed={2}
+        onPageChange={handlePageClick}
+        previousLabel={<span className="text-black">Previous</span>}
+        nextLabel={<span className="text-black">Next</span>}
+        containerClassName="flex justify-center items-center my-4 space-x-2"
+        pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
+        previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+        nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+        breakClassName="p-2"
+        activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
+      />
       </div>
     </div>
   );
