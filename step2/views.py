@@ -285,9 +285,17 @@ class ListArticleView(APIView):
             except EmptyPage:
                 page_article = paginator.page(paginator.num_pages)
 
-            user_articles = list(reversed(page_article))
-            serialized_data = ListArticleSerializer(user_articles, many=True)
-            return Response({'Articles': serialized_data.data})
+            # Include pagination metadata in the response
+            serialized_data = ListArticleSerializer(page_article, many=True)
+
+            response_data = {
+                'Articles': serialized_data.data,
+                'page': page_article.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
+            }
+
+            return Response(response_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -939,6 +947,7 @@ class PostListView(APIView):
                     posts.append(articles)
             posts = list(reversed(posts))
 
+            # Pagination
             number_of_items_per_page = 5
             page = request.GET.get('page', 1)
 
@@ -962,11 +971,14 @@ class PostListView(APIView):
                 for post in page_post_data
             ]
 
-            data = {
+            response_data = {
                 'posts': serialized_page_post,
+                'page': page_post.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
             }
 
-            return Response(data)
+            return Response(response_data)
 
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
