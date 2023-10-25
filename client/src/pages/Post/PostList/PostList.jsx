@@ -1,125 +1,71 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import ExtraSmallBtn from '../../../components/ExtraSmallBtn/ExtraSmallBtn';
+import ExtraSmallBtn from "../../../components/ExtraSmallBtn/ExtraSmallBtn";
+import axios from "axios";
 
 function PostList({ show }) {
+  const [apiData, setApiData] = useState([]);
+
   useEffect(() => {
-    show()
-  }, [])
+    show();
+
+    const apiUrl = "http://127.0.0.1:8000/api/v1/post_list/"; // Replace with your actual API URL
+
+    // Make the API call using Axios
+    axios
+      .get(apiUrl, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        // Assuming your API response is in JSON format
+        setApiData(response.data.posts);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
+
+  const elements = apiData?.map((item) => (
+    <div className=" dark:bg-gray-800 flex flex-col lg:flex-row justify-between gap-4 lg:gap-8">
+      <div>
+        <h1 className=" lg:px-6 px-2 py-2 text-md lg:text-xl text-customTextBlue  dark:text-white font-bold">
+          {item?.title}
+        </h1>
+
+        <p className=" lg:px-6 lg:py-4 px-2 text-md lg:text-lg">
+          {item?.paragraph}
+        </p>
+      </div>
+      <div className="lg:w-[300px] lg:pt-2 pl-2">
+        <Link to="/post-detail">
+          <ExtraSmallBtn title={"View Post"} />
+        </Link>
+      </div>
+    </div>
+  ));
+
+  console.log(apiData);
 
   return (
     <div className="relative max-w-7xl mx-auto lg:h-auto lg:overflow-y-auto">
-
       <div className="text-center text-customTextBlue font-semibold py-2 lg:py-6">
         <h1 className="text-3xl md:text-4xl">Posts List</h1>
       </div>
 
-      <p className="px-6 py-3 italic">Total posts count: 24</p>
-
+      <p className="px-6 py-3 italic">Total posts count: {apiData?.length} </p>
 
       <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
-
         <div className=" lg:overflow-y-auto lg:h-auto grid gap-6 lg:gap-10 pb-10">
-
           <div className=" dark:bg-gray-800 flex flex-col lg:flex-row justify-between gap-4 lg:gap-8">
-            <div>
-              <h1 className=" lg:px-6 px-2 py-2 text-md lg:text-xl text-customTextBlue  dark:text-white font-bold">
-                The Behavioral economics was Thing Pexels API enables
-                programmatic access to the full Pexels content library,
-                including photos, vid the The Pexels API enables programmatic
-                access to the full Pexels content library
-              </h1>
-
-
-              <p className=" lg:px-6 lg:py-4 px-2 text-md lg:text-lg">
-                Behavioral Economics and the Pexels API Behavioral economics
-                is a field of study that examines the intersection of
-                psychology and economics. It seeks to understand why people
-                make certain decisions, and how those decisions can be
-                influenced by external factors.
-              </p>
-            </div>
-
             <div className="lg:w-[300px] lg:pt-2 pl-2">
               <Link to="/post-detail">
                 <ExtraSmallBtn title={"View Post"} />
               </Link>
             </div>
           </div>
-
-          <div className=" dark:bg-gray-800 flex flex-col lg:flex-row justify-between gap-4 lg:gap-8">
-            <div>
-              <h1 className=" lg:px-6 px-2 py-2 text-md lg:text-xl text-customTextBlue  dark:text-white font-bold">
-                The Behavioral economics was Thing Pexels API enables
-                programmatic access to the full Pexels content library,
-                including photos, vid the The Pexels API enables programmatic
-                access to the full Pexels content library
-              </h1>
-              <p className=" lg:px-6 lg:py-4 px-2 text-md lg:text-lg">
-                Behavioral Economics and the Pexels API Behavioral economics
-                is a field of study that examines the intersection of
-                psychology and economics. It seeks to understand why people
-                make certain decisions, and how those decisions can be
-                influenced by external factors.
-              </p>
-            </div>
-            <div className="lg:w-[300px] lg:pt-2 pl-2">
-              <Link to="/post-detail">
-                <ExtraSmallBtn title={"View Post"} />
-              </Link>
-            </div>
-          </div>
-
-          <div className=" dark:bg-gray-800 flex flex-col lg:flex-row justify-between gap-4 lg:gap-8">
-            <div>
-              <h1 className=" lg:px-6 px-2 py-2 text-md lg:text-xl text-customTextBlue  dark:text-white font-bold">
-                The Behavioral economics was Thing Pexels API enables
-                programmatic access to the full Pexels content library,
-                including photos, vid the The Pexels API enables programmatic
-                access to the full Pexels content library
-              </h1>
-              <p className=" lg:px-6 lg:py-4 px-2 text-md lg:text-lg">
-                Behavioral Economics and the Pexels API Behavioral economics
-                is a field of study that examines the intersection of
-                psychology and economics. It seeks to understand why people
-                make certain decisions, and how those decisions can be
-                influenced by external factors.
-              </p>
-            </div>
-            <div className="lg:w-[300px] lg:pt-2 pl-2">
-              <Link to="/post-detail">
-                <ExtraSmallBtn title={"View Post"} />
-              </Link>
-            </div>
-          </div>
-
-          <div className=" dark:bg-gray-800 flex flex-col lg:flex-row justify-between gap-4 lg:gap-8">
-            <div>
-              <h1 className=" lg:px-6 px-2 py-2 text-md lg:text-xl text-customTextBlue  dark:text-white font-bold">
-                The Behavioral economics was Thing Pexels API enables
-                programmatic access to the full Pexels content library,
-                including photos, vid the The Pexels API enables programmatic
-                access to the full Pexels content library
-              </h1>
-              <p className=" lg:px-6 lg:py-4 px-2 text-md lg:text-lg">
-                Behavioral Economics and the Pexels API Behavioral economics
-                is a field of study that examines the intersection of
-                psychology and economics. It seeks to understand why people
-                make certain decisions, and how those decisions can be
-                influenced by external factors.
-              </p>
-            </div>
-            <div className="lg:w-[300px] lg:pt-2 pl-2">
-              <Link to="/post-detail">
-                <ExtraSmallBtn title={"View Post"} />
-              </Link>
-            </div>
-          </div>
-
-
+          {elements}
         </div>
-
 
         {/* Pagination */}
         <div className="flex justify-center pb-6 lg:mt-3">
@@ -185,11 +131,9 @@ function PostList({ show }) {
             </ul>
           </nav>
         </div>
-
-
       </div>
     </div>
   );
 }
 
-export default PostList
+export default PostList;

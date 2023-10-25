@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { profile } from "../../assets";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -10,8 +10,10 @@ import { toast } from "react-toastify";
 const ClientProfile = ({ close }) => {
   useEffect(() => {
     close();
+    fetch();
   }, []);
 
+  const [getStatus, setGetStatus] = useState();
   const [formData, setFormData] = React.useState({
     address: "",
     business: "",
@@ -35,9 +37,23 @@ const ClientProfile = ({ close }) => {
 
     const url = "http://127.0.0.1:8000/api/v1/client-form/";
 
-    if (formData) {
+    if (formData && getStatus === "update") {
       axios
-        .post(url, formData, formData, {
+        .put(url, formData, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log("Response data:", response);
+          toast.success(response?.data?.message);
+          setFormData({ address: "", business: "", product: "", logo: "" });
+        })
+        .catch((error) => {
+          toast.error("Oops! An error occurred");
+          console.error("Error:", error);
+        });
+    } else if (getStatus === "insert") {
+      axios
+        .post(url, formData, {
           withCredentials: true,
         })
         .then((response) => {
@@ -50,8 +66,6 @@ const ClientProfile = ({ close }) => {
           console.error("Error:", error);
         });
     }
-    
-    console.log(JSON.stringify(formData));
   }
 
   function convertToBase64(file) {
@@ -76,6 +90,22 @@ const ClientProfile = ({ close }) => {
         logo: base64,
       };
     });
+  };
+
+  const fetch = () => {
+    // Make a GET request to the API endpoint with the session_id
+    axios
+      .get("http://127.0.0.1:8000/api/v1/client-form/", {
+        withCredentials: true,
+      })
+      .then((response) => {
+        let data = response.data.status;
+        setGetStatus(data);
+      })
+      .catch((error) => {
+        setError("Server error, Please try again later");
+        console.error("Error fetching user-approval:", error);
+      });
   };
 
   return (
