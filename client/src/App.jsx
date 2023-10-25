@@ -22,6 +22,7 @@ import SpecificArticle from "./pages/Article/SpecificArticle";
 import PostDetail from "./pages/Post/PostDetail/PostDetail";
 import ClientProfile from "./pages/UserProfile/ClientProfile";
 import TargetCities from "./pages/UserProfile/TargetCities";
+import CreateArticle from "./pages/Article/CreateArticle";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -37,19 +38,23 @@ function App() {
     <>
       <Layout side={showSidebar} show={handleOpenSideBar}>
         <Routes>
-          <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
+          <Route exact path="/" element={<Home close={handleCloseSideBar} />} />
 
-          <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
+          <Route path="/topic" element={<Topic show={handleOpenSideBar} />} />
           <Route
-            path='/article'
+            path="/article"
             element={<Article show={handleOpenSideBar} />}
           />
           <Route
-            path='/post-list'
+            path="/createArticle"
+            element={<CreateArticle show={handleOpenSideBar} />}
+          />
+          <Route
+            path="/post-list"
             element={<PostList show={handleOpenSideBar} />}
           />
           <Route
-            path='/SpecificArticle'
+            path="/SpecificArticle"
             element={<SpecificArticle show={handleOpenSideBar} />}
           />
           {/* <Route
@@ -57,68 +62,68 @@ function App() {
             element={<SpecificPost show={handleOpenSideBar} />}
           /> */}
           <Route
-            path='/post-detail'
+            path="/post-detail"
             element={<PostDetail show={handleOpenSideBar} />}
           />
           <Route
-            path='/scheduled'
+            path="/scheduled"
             element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
-            path='/unscheduled'
+            path="/unscheduled"
             element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
-            path='/recent'
+            path="/recent"
             element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
-            path='/comment'
+            path="/comment"
             element={<Comment show={handleOpenSideBar} />}
           />
           <Route
-            path='/address'
+            path="/address"
             element={<Address close={handleCloseSideBar} />}
           />
           <Route
-            path='/user-profile'
+            path="/user-profile"
             element={<UserProfile close={handleCloseSideBar} />}
           />
           <Route
-            path='/client-profile'
+            path="/client-profile"
             element={<ClientProfile close={handleCloseSideBar} />}
           />
           <Route
-            path='/social-media-channels'
+            path="/social-media-channels"
             element={<SocialMediaChannels close={handleCloseSideBar} />}
           />
           <Route
-            path='/user-approval'
+            path="/user-approval"
             element={<ApprovalByClient close={handleCloseSideBar} />}
           />
-          <Route path='*' element={<NotFound close={handleCloseSideBar} />} />
+          <Route path="*" element={<NotFound close={handleCloseSideBar} />} />
           <Route
-            path='/statistics/my-plan'
+            path="/statistics/my-plan"
             element={<MyPlan close={handleCloseSideBar} />}
           />
           <Route
-            path='/statistics/my-team'
+            path="/statistics/my-team"
             element={<MyTeam close={handleCloseSideBar} />}
           />
           <Route
-            path='/statistics/my-usage'
+            path="/statistics/my-usage"
             element={<MyUsage close={handleCloseSideBar} />}
           />
           <Route
-            path='/settings/hastagsandmentions'
+            path="/settings/hastagsandmentions"
             element={<HashtagsMentions close={handleCloseSideBar} />}
           />
           <Route
-            path='/settings/categoriesandtopic'
+            path="/settings/categoriesandtopic"
             element={<CategoriesTopic close={handleCloseSideBar} />}
           />
           <Route
-            path='/target-cities'
+            path="/target-cities"
             element={<TargetCities close={handleCloseSideBar} />}
           />
         </Routes>
