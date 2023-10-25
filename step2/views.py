@@ -2782,6 +2782,9 @@ class PinterestFormView(APIView):
 
 
 class ClientProfileFormView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
             user_data = fetch_user_info(request)
