@@ -5,181 +5,24 @@
 
 {% block style %}
   {{ block.super }}
-  <style>
-    .post-source {
-      display: block;
-    }
-    #edit-button {
-        background:#6c757d;
-    }
-    #post-post {
-       background: #1B3474;
-    }
-
-    .btn-dark-blue {
-	    color: white;
-	    background-color: var(--dark-blue);
-	    border-color: var(--dark-blue);
-	  }
-	  .btn-dark-blue {
-	    color: white;
-	    background-color: rgb(20, 38, 85);
-	  }
-  </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'step2/css/post_detail.css' %}">
 {% endblock %}
 
 {% block script %}
   {{ block.super }}
-  <script>
-function showAdminMessage() {
-  alert("You are not an admin!");
-}
-
-  window.onload = function downdis() {
-      console.log("Hellow On Load")
-
-
-  }
-
-
-document.querySelector('#edit-post').onclick = editPost;
-document.querySelector('#save-post').onclick = savePost;
-document.querySelector('#delete-post').onclick = deletePost;
-  document.getElementById("edit-button").addEventListener("click", function() {
-    alert("Page is under construction");
-  });
-var postti = document.getElementById('post-title')
-var postpar = document.getElementById('post-paragraph')
-var postsor = document.getElementById('post-sources')
-
-function deletePost() {
-
-
-
-
-var fields = document.getElementsByTagName('input'),
-    length = fields.length;
-while (length--) {
-    if (fields[length].type === 'text') { fields[length].value = ''; }
-}
-
-
-$("input[type=text]").val('');
-
-
-    console.log("lets Delete")
-
-}
-
-
-
-function editPost() {
-    // Add an input element to edit the title
-    let titleInput = document.createElement('input');
-    titleInput.setAttribute('class', 'form-control');
-    titleInput.setAttribute('id', 'title-input');
-    titleInput.value = document.querySelector('#post-title').innerHTML;
-    document.querySelector('#post-title').replaceWith(titleInput);
-
-
-
-    // Add a textarea element to edit post content
-    let postText = Array(...document.querySelectorAll('.post-paragraph'))
-      .map(element => element.innerHTML)
-      .join('\n\n');
-    let paragraphsInput = document.createElement('textarea');
-    paragraphsInput.setAttribute('class', 'form-control');
-    paragraphsInput.setAttribute('id', 'paragraphs-input');
-    paragraphsInput.setAttribute('rows', '7');
-    paragraphsInput.value = postText;
-    document.querySelector('#post-paragraphs').replaceWith(paragraphsInput);
-
-    // Add a textarea element to edit post sources
-    let postSources = Array(...document.querySelectorAll('.post-source'))
-      .map(element => element.innerHTML)
-      .join('\n\n');
-    let sourcesInput = document.createElement('textarea');
-    sourcesInput.setAttribute('class', 'form-control');
-    sourcesInput.setAttribute('id', 'sources-input');
-    sourcesInput.setAttribute('rows', '4');
-    sourcesInput.value = postSources;
-    document.querySelector('#post-sources').replaceWith(sourcesInput);
-
-
-
-}
-
-
-
-
-
-function savePost() {
-
-    console.log("Remember to save to database...");
-
-    // Save the new title to the DOM
-    let postTitle = document.createElement('div');
-    postTitle.setAttribute('id', 'post-title');
-    postTitle.innerHTML = document.querySelector('#title-input').value;
-    document.querySelector('#title-input').replaceWith(postTitle);
-
-    // Save each new paragraph to the DOM
-    let postParagraphs = document.querySelector('#paragraphs-input').value.split('\n\n');
-    postParagraphs = postParagraphs.map(paragraph => {
-      let p = document.createElement('p');
-      p.innerHTML = paragraph;
-      p.setAttribute('class', 'post-paragraph');
-      return p;
-    })
-    var div = document.createElement('div');
-    div.setAttribute('id', 'post-paragraphs');
-    div.append(...postParagraphs);
-    document.querySelector('#paragraphs-input').replaceWith(div);
-
-    // Save each new source to the DOM
-    let postSources = document.querySelector('#sources-input').value.split('\n');
-    postSources = postSources.filter(source => source.length);
-    postSources = postSources.map(source => {
-      let a = document.createElement('a');
-      a.href = source;
-      a.innerHTML = source;
-      a.setAttribute('class', 'post-source');
-      return a;
-    });
-    if (!postSources.length) {
-      let p = document.createElement('p');
-      p.innerHTML = 'No sources.';
-      postSources.push(p);
-    }
-    var div = document.createElement('div');
-    div.setAttribute('id', 'post-sources');
-    div.append(...postSources);
-    document.querySelector('#sources-input').replaceWith(div);
-
-
-
-
-}
-
-
-
-
-
-
-
-  </script>
+    <script type="text/javascript" src="{% static 'step2/js/post_detail.js' %}"></script>
 {% endblock %}
 
 
 {% block content %}
+
 <div class="m-4">
 
-
-
-
-        <div class="dropdown-right text-end">
-    <button class="btn rounded-circle p-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+    <div class="dropdown-right text-end">
+        <button style="background: #F5F5F5;" class="btn rounded-circle p-2" type="button" id="dot-btn"
+                data-bs-toggle="dropdown" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="#1B3474"
+                 class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
         <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
       </svg>
     </button>
@@ -191,230 +34,532 @@ function savePost() {
     </ul>
   </div>
 
-   <form action="{% url 'generate_article:save-post' %}" method="post">
+    <form action="{% url 'generate_article:save-post' %}" method="post" id="post-forn">
         {% csrf_token %}
+        <div id="post-title">{{ post.title }}</div>
+        <input id="title" type="hidden" name="title" value="{{ post.title }}">
 
+        <hr>
 
-
-  <div id="post-title" >{{ post.title }}</div>
-  <input id="title" type= "hidden" name="title" value="{{ post.title }}">
-  <hr>
-
-
-
-  <div id="post-paragraphs">
-    {% for p in post.paragraph %}
+        <div id="post-paragraphs">
+            {% for p in post.paragraph %}
+                {% if p.strip != '' %}
       <div class="post-paragraph">{{ p }}</div>
-      <input type = "hidden" name="text" value="{{ p }}">
-    {% endfor %}
-  </div>
-  <hr>
+                    <input class="text" type="hidden" name="paragraphs[]" value="{{ p|safe }}">
+                {% endif %}
+            {% endfor %}
+        </div>
 
+        <hr>
 
-<div id="post-sources">
-  {% if post.source == "None" or not post.source %}
-    <p>No sources.</p>
-  {% elif post.source|is_string %}
-    <a href="{{ post.source }}" class="post-source">Generated by OpenAI. Learn more at: {{ post.source }}</a>
-    <input type="hidden" name="source" value="{{ post.source }}">
-  {% else %}
-    {% for s in post.source %}
+        <div id="post-sources">
+            {% if post.source == "None" or not post.source %}
+                <p>No sources.</p>
+            {% elif post.source|is_string %}
+                <a href="{{ post.source }}" class="post-source"> {{ post.source }}</a>
+                <input class="source" type="hidden" name="source" value="{{ post.source }}">
+            {% else %}
+                {% for s in post.source %}
       <a href="{{ s }}" class="post-source">Generated by OpenAI. Learn more at: {{ s }}</a>
-      <input type="hidden" name="source" value="{{ s }}">
-    {% endfor %}
-  {% endif %}
-</div>
-
-
-  <hr>
-
-  <div class="d-flex flex-row align-items-center">
-    <div class="w-50 m-3">
-      <img src ={{images}} alt="Random meme..." class="img-fluid"><input type= "hidden" name="images" value="{{images}}">
-    </div>
-
-    <div>
-         <label for="content" class="mb-4"><strong>Qualitative categorization:</strong></label>
-
-             <select  name="qualitative_categorization">
-                {% for categories in categories %}
-                <option value="{{categories}}">{{categories}}</option>
+                    <input class="source" type="hidden" name="source" value="{{ s }}">
                 {% endfor %}
+            {% endif %}
+        </div>
 
-             </select>
+        <hr>
+
+        <div class="d-flex flex-row align-items-center">
+
+            <div class="w-50 m-3 image-container">
+                <div class="img-overlay">
+                    <button type="button" class="open_search glass-button pull-right" data-bs-toggle="modal"
+                            data-bs-target="#largeModal">
+                        <a style="color: inherit; text-decoration: none">Edit Photo</a>
+                    </button>
+                </div>
+                <img src={{ images }} alt="Random meme..." class="img-fluid post-img">
+                <input id="images" type="hidden" name="images" value="{{ images }}">
+            </div>
+
+            <div class="post-options">
+                <label for="content" class="mb-4"><strong>Qualitative categorization:</strong></label>
+                <select name="qualitative_categorization">
+                    {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+
         <br><br>
 
+                <label for="brand" class="mb-4"><strong>Targeted for:</strong> </label>
+                <select id="brand" name="targeted_for">
+                    <option value="Apple-Technology">Apple-Technology</option>
+                    <option value="Google-Technology">Google-Technology</option>
+                    <option value="Microsoft-Technology">Microsoft-Technology</option>
+                    <option value="Amazon-Technology">Amazon-Technology</option>
+                    <option value="Facebook-Technology">Facebook-Technology</option>
+                    <option value="Coca-Cola-Beverages">Coca-Cola-Beverages</option>
+                    <option value="Disney-Leisure">Disney-Leisure</option>
+                    <option value="Samsung-Technology">Samsung-Technology</option>
+                    <option value="Louis Vuitton-Luxury">Louis Vuitton-Luxury</option>
+                    <option value="McDonald's-Restaurants">McDonald's-Restaurants</option>
+                    <option value="Toyota-Automotive">Toyota-Automotive</option>
+                    <option value="Intel-Technology">Intel-Technology</option>
+                    <option value="NIKE-Apparel">NIKE-Apparel</option>
+                    <option value="AT&T-Telecom">AT&T-Telecom</option>
+                    <option value="Cisco-Technology">Cisco-Technology</option>
+                    <option value="Oracle-Technology">Oracle-Technology</option>
+                    <option value="Verizon-Telecom">Verizon-Telecom</option>
+                    <option value="Visa-Financial Services">Visa-Financial Services</option>
+                    <option value="Walmart-Retail">Walmart-Retail</option>
+                    <option value="GE-Diversified">GE-Diversified</option>
+                    <option value="Budweiser-Alcohol">Budweiser-Alcohol</option>
+                    <option value="SAP-Technology">SAP-Technology</option>
+                    <option value="Mercedes-Benz-Automotive">Mercedes-Benz-Automotive</option>
+                    <option value="IBM-Technology">IBM-Technology</option>
+                    <option value="Marlboro-Tobacco">Marlboro-Tobacco</option>
+                    <option value="Netflix-Technology">Netflix-Technology</option>
+                    <option value="BMW-Automotive">BMW-Automotive</option>
+                    <option value="American Express-Financial Services">American Express-Financial Services</option>
+                    <option value="Honda-Automotive">Honda-Automotive</option>
+                    <option value="LOreal-Consumer Packaged Goods">LOreal-Consumer Packaged Goods</option>
+                    <option value="Gucci-Luxury">Gucci-Luxury</option>
+                    <option value="Hermes-Luxury">Hermes-Luxury</option>
+                    <option value="Nescafe-Beverages">Nescafe-Beverages</option>
+                    <option value="Home Depot-Retail">Home Depot-Retail</option>
+                    <option value="Accenture-Business Services">Accenture-Business Services</option>
+                    <option value="Pepsi-Beverages">Pepsi-Beverages</option>
+                    <option value="Starbucks-Restaurants">Starbucks-Restaurants</option>
+                    <option value="Mastercard-Financial Services">Mastercard-Financial Services</option>
+                    <option value="Frito-Lay-Consummer Packaged Goods">Frito-Lay-Consummer Packaged Goods</option>
+                    <option value="IKEA-Retail">IKEA-Retail</option>
+                    <option value="Zara-Retail">Zara-Retail</option>
+                    <option value="Gillette-Consumer Packaged Goods">Gillette-Consumer Packaged Goods</option>
+                    <option value="HSBC-Financial Services">HSBC-Financial Services</option>
+                    <option value="Audi-Automotive">Audi-Automotive</option>
+                    <option value="J.P.Morgan-Financial Services">J.P.Morgan-Financial Services</option>
+                    <option value="Deloitte-Business Services">Deloitte-Business Services</option>
+                    <option value="Sony-Technology">Sony-Technology</option>
+                    <option value="UPS-Transportation">UPS-Transportation</option>
+                    <option value="Bank of America-Financial Services">Bank of America-Financial Services</option>
+                    <option value="Chase-Financial Services">Chase-Financial Services</option>
+                    <option value="Adidas-Apparel">Adidas-Apparel</option>
+                    <option value="Channel-Luxuey">Channel-Luxuey</option>
+                    <option value="Siemens-Diversified">Siemens-Diversified</option>
+                    <option value="Nestle-Consumer Packaged Goods">Nestle-Consumer Packaged Goods</option>
+                    <option value="CVS-Retail">CVS-Retail</option>
+                    <option value="Cartier-Luxury">Cartier-Luxury</option>
+                    <option value="Porsche-Automotive">Porsche-Automotive</option>
+                    <option value="ESPN-Media">ESPN-Media</option>
+                    <option value="Citi-Financial Services">Citi-Financial Services</option>
+                    <option value="Wells Fargo -Financial Servies">Wells Fargo -Financial Servies</option>
+                    <option value="Adobe-Technology">Adobe-Technology</option>
+                    <option value="Pampers-Consumer Packaged Goods">Pampers-Consumer Packaged Goods</option>
+                    <option value="Corona-Alchol">Corona-Alchol</option>
+                    <option value="T-Mobile-Telecom">T-Mobile-Telecom</option>
+                    <option value="Ebay-Technology">Ebay-Technology</option>
+                    <option value="Chevrolet-Automotive">Chevrolet-Automotive</option>
+                    <option value="PayPal-Financial Services">PayPal-Financial Services</option>
+                    <option value="Ford-Automotive">Ford-Automotive</option>
+                    <option value="Red Bull-Beveragese">Red Bull-Beverages</option>
+                    <option value="PwC-Business Services">PwC-Business Services</option>
+                    <option value="HP-Technology">HP-Technology</option>
+                    <option value="Colgate-Consumer Packaged Goods">Colgate-Consumer Packaged Goods</option>
+                    <option value="Fox-Media">Fox-Media</option>
+                    <option value="Lowe's-Retail">Lowe's-Retail</option>
+                    <option value="Lancome-Consumer Packaged Goods">Lancome-Consumer Packaged Goods</option>
+                    <option value="H&M-Retail">H&M-Retail</option>
+                    <option value="Lexus-Automotive">Lexus-Automotive</option>
+                    <option value="Santander-Financial Services">Santander-Financial Services</option>
+                    <option value="Cosotco-Retail">Cosotco-Retail</option>
+                    <option value="Hyundai-Automotive">Hyundai-Automotive</option>
+                    <option value="Danone-Consumer Packaged Goods">Danone-Consumer Packaged Goods</option>
+                    <option value="Heinenken-Alcohol">Heineken-Alcohol</option>
+                    <option value="Uniqlo-Apparel">Uniqlo-Apparel</option>
+                    <option value="Goldman Sachs-Financial Services">Goldman Sachs-Financial Services</option>
+                    <option value="Hennessy-Alcohol">Hennessy-Alcohol</option>
+                    <option value="Nintendo-Technology">Nintendo-Technology</option>
+                    <option value="AXA-Financial Services">AXA-Financial Services</option>
+                    <option value="Allianz-Financial Services">Allianz-Financial Services</option>
+                    <option value="Dell-Technology">Dell-Technology</option>
+                    <option value="Caterpillar-Heavy Equipment">Caterpillar-Heavy Equipment</option>
+                    <option value="LEGO-Leisure">LEGO-Leisure</option>
+                    <option value="Huawai-Technology">Huawai-Technology</option>
+                    <option value="John Deere-Heavy Equipment">John Deere-Heavy Equipment</option>
+                    <option value="UBS-Financial Services">UBS-Financial Services</option>
+                    <option value="KFC-Restaurants">KFC-Restaurants</option>
+                    <option value="Burger King-Restaurants">Burger King-Restaurants</option>
+                    <option value="EY-Business Services">EY-Business Services</option>
+                    <option value="FedEx-Transportation">FedEx-Transportation</option>
+                    <option value="Volkswagen-Automotive">Volkswagen-Automotive</option>
+                </select>
 
+                <br>
 
-  <label for="brand" class="mb-4"><strong>Targeted for:</strong> </label>
+                <label for="channel" class="mb-4"><strong>Designed for:</strong></label>
+                <select id="channel" name="designed_for">
+                    <option value="Twitter-uxlivinglab">Twitter-uxlivinglab</option>
+                    <option value="Linkdin-uxliving">Linkdin-uxliving</option>
+                    <option value="Facebook-Customer stories">Facebook-Customer stories</option>
+                    <option value="Instagram-Livinglabstories">Instagram-Livinglabstories</option>
+                    <option value="Youtube-Dowell True Moments UX Living Lab">Youtube-Dowell True Moments UX Living
+                        Lab
+                    </option>
+                    <option value="Tiktok">Tiktok</option>
+                    <option value="Vimeo-(Brand)">Vimeo-(Brand)</option>
+                    <option value="Spotify podcast">Spotify podcast</option>
+                    <option value="Second life">Second life</option>
+                    <option value="Twitter-dowellresearch">Twitter-dowellresearch</option>
+                    <option value="Linkdin-dowellresearch">Linkedin-dowellresearch</option>
+                    <option value="Linkdin-Company page-Germany">Linkedin-Company page-Germany</option>
+                    <option value="Linkdin-Company page-Singapore">Linkedin-Company page-Singapore</option>
+                    <option value="Linkedin-Company page-UK">Linkedin-Company page-UK</option>
+                    <option value="Linkedin-Company page-Scandinavia">Linkedin-Company page-Scandinavia</option>
+                    <option value="Facebook-DoWell Research">Facebook-DoWell Research</option>
+                    <option value="Youtube-Dowell Research">Youtube-Dowell Research</option>
+                    <option value="Twitter-seeuser">Twitter-seeuser</option>
+                    <option value="Linkedin-Intership">Linkedin-Intership</option>
+                    <option value="Facebook-uxlivinglab team">Facebook-uxlivinglab team</option>
+                    <option value="Instagram-uxlivinglab team">Instagram-uxlivinglab team</option>
+                    <option value="Youtube-Team playlist">Youtube-Team playlist</option>
+                    <option value="Twitter-unpacandwin">Twitter-unpacandwin</option>
+                    <option value="Linkedin-unpacandwin">Linkedin-unpacandwin</option>
+                    <option value="Facebook-unpacandwin">Facebook-unpacandwin</option>
+                    <option value="Instagram-unpacandwin">Instagram-unpacandwin</option>
+                    <option value="Youtube-unpacandwin">Youtube-unpacandwin</option>
+                </select>
 
-    <select  id="brand" name="targeted_for" >
+                <br>
 
-    <option value="Apple-Technology">Apple-Technology</option>
-    <option value="Google-Technology">Google-Technology</option>
-    <option value="Microsoft-Technology">Microsoft-Technology</option>
-    <option value="Amazon-Technology">Amazon-Technology</option>
-    <option value="Facebook-Technology">Facebook-Technology</option>
-    <option value="Coca-Cola-Beverages">Coca-Cola-Beverages</option>
-    <option value="Disney-Leisure">Disney-Leisure</option>
-    <option value="Samsung-Technology">Samsung-Technology</option>
-    <option value="Louis Vuitton-Luxury">Louis Vuitton-Luxury</option>
-    <option value="McDonald's-Restaurants">McDonald's-Restaurants</option>
-    <option value="Toyota-Automotive">Toyota-Automotive</option>
-    <option value="Intel-Technology">Intel-Technology</option>
-    <option value="NIKE-Apparel">NIKE-Apparel</option>
-    <option value="AT&T-Telecom">AT&T-Telecom</option>
-    <option value="Cisco-Technology">Cisco-Technology</option>
-    <option value="Oracle-Technology">Oracle-Technology</option>
-    <option value="Verizon-Telecom">Verizon-Telecom</option>
-    <option value="Visa-Financial Services">Visa-Financial Services</option>
-    <option value="Walmart-Retail">Walmart-Retail</option>
-    <option value="GE-Diversified">GE-Diversified</option>
-    <option value="Budweiser-Alcohol">Budweiser-Alcohol</option>
-    <option value="SAP-Technology">SAP-Technology</option>
-    <option value="Mercedes-Benz-Automotive">Mercedes-Benz-Automotive</option>
-    <option value="IBM-Technology">IBM-Technology</option>
-    <option value="Marlboro-Tobacco">Marlboro-Tobacco</option>
-    <option value="Netflix-Technology">Netflix-Technology</option>
-    <option value="BMW-Automotive">BMW-Automotive</option>
-    <option value="American Express-Financial Services">American Express-Financial Services</option>
-    <option value="Honda-Automotive">Honda-Automotive</option>
-    <option value="LOreal-Consumer Packaged Goods">LOreal-Consumer Packaged Goods</option>
-    <option value="Gucci-Luxury">Gucci-Luxury</option>
-    <option value="Hermes-Luxury">Hermes-Luxury</option>
-    <option value="Nescafe-Beverages">Nescafe-Beverages</option>
-    <option value="Home Depot-Retail">Home Depot-Retail</option>
-    <option value="Accenture-Business Services">Accenture-Business Services</option>
-    <option value="Pepsi-Beverages">Pepsi-Beverages</option>
-    <option value="Starbucks-Restaurants">Starbucks-Restaurants</option>
-    <option value="Mastercard-Financial Services">Mastercard-Financial Services</option>
-    <option value="Frito-Lay-Consummer Packaged Goods">Frito-Lay-Consummer Packaged Goods</option>
-    <option value="IKEA-Retail">IKEA-Retail</option>
-    <option value="Zara-Retail">Zara-Retail</option>
-    <option value="Gillette-Consumer Packaged Goods">Gillette-Consumer Packaged Goods</option>
-    <option value="HSBC-Financial Services">HSBC-Financial Services</option>
-    <option value="Audi-Automotive">Audi-Automotive</option>
-    <option value="J.P.Morgan-Financial Services">J.P.Morgan-Financial Services</option>
-    <option value="Deloitte-Business Services">Deloitte-Business Services</option>
-    <option value="Sony-Technology">Sony-Technology</option>
-    <option value="UPS-Transportation">UPS-Transportation</option>
-    <option value="Bank of America-Financial Services">Bank of America-Financial Services</option>
-    <option value="Chase-Financial Services">Chase-Financial Services</option>
-    <option value="Adidas-Apparel">Adidas-Apparel</option>
-    <option value="Channel-Luxuey">Channel-Luxuey</option>
-    <option value="Siemens-Diversified">Siemens-Diversified</option>
-    <option value="Nestle-Consumer Packaged Goods">Nestle-Consumer Packaged Goods</option>
-    <option value="CVS-Retail">CVS-Retail</option>
-    <option value="Cartier-Luxury">Cartier-Luxury</option>
-    <option value="Porsche-Automotive">Porsche-Automotive</option>
-    <option value="ESPN-Media">ESPN-Media</option>
-    <option value="Citi-Financial Services">Citi-Financial Services</option>
-    <option value="Wells Fargo -Financial Servies">Wells Fargo -Financial Servies</option>
-    <option value="Adobe-Technology">Adobe-Technology</option>
-    <option value="Pampers-Consumer Packaged Goods">Pampers-Consumer Packaged Goods</option>
-    <option value="Corona-Alchol">Corona-Alchol</option>
-    <option value="T-Mobile-Telecom">T-Mobile-Telecom</option>
-    <option value="Ebay-Technology">Ebay-Technology</option>
-    <option value="Chevrolet-Automotive">Chevrolet-Automotive</option>
-    <option value="PayPal-Financial Services">PayPal-Financial Services</option>
-    <option value="Ford-Automotive">Ford-Automotive</option>
-    <option value="Red Bull-Beveragese">Red Bull-Beverages</option>
-    <option value="PwC-Business Services">PwC-Business Services</option>
-    <option value="HP-Technology">HP-Technology</option>
-    <option value="Colgate-Consumer Packaged Goods">Colgate-Consumer Packaged Goods</option>
-    <option value="Fox-Media">Fox-Media</option>
-    <option value="Lowe's-Retail">Lowe's-Retail</option>
-    <option value="Lancome-Consumer Packaged Goods">Lancome-Consumer Packaged Goods</option>
-    <option value="H&M-Retail">H&M-Retail</option>
-    <option value="Lexus-Automotive">Lexus-Automotive</option>
-    <option value="Santander-Financial Services">Santander-Financial Services</option>
-    <option value="Cosotco-Retail">Cosotco-Retail</option>
-    <option value="Hyundai-Automotive">Hyundai-Automotive</option>
-    <option value="Danone-Consumer Packaged Goods">Danone-Consumer Packaged Goods</option>
-    <option value="Heinenken-Alcohol">Heineken-Alcohol</option>
-    <option value="Uniqlo-Apparel">Uniqlo-Apparel</option>
-    <option value="Goldman Sachs-Financial Services">Goldman Sachs-Financial Services</option>
-    <option value="Hennessy-Alcohol">Hennessy-Alcohol</option>
-    <option value="Nintendo-Technology">Nintendo-Technology</option>
-    <option value="AXA-Financial Services">AXA-Financial Services</option>
-    <option value="Allianz-Financial Services">Allianz-Financial Services</option>
-    <option value="Dell-Technology">Dell-Technology</option>
-    <option value="Caterpillar-Heavy Equipment">Caterpillar-Heavy Equipment</option>
-    <option value="LEGO-Leisure">LEGO-Leisure</option>
-    <option value="Huawai-Technology">Huawai-Technology</option>
-    <option value="John Deere-Heavy Equipment">John Deere-Heavy Equipment</option>
-    <option value="UBS-Financial Services">UBS-Financial Services</option>
-    <option value="KFC-Restaurants">KFC-Restaurants</option>
-    <option value="Burger King-Restaurants">Burger King-Restaurants</option>
-    <option value="EY-Business Services">EY-Business Services</option>
-    <option value="FedEx-Transportation">FedEx-Transportation</option>
-    <option value="Volkswagen-Automotive">Volkswagen-Automotive</option>
-  </select><br>
-
-   <label for="channel" class="mb-4"><strong>Designed for:</strong></label>
-
-    <select id="channel"  name="designed_for">
-
-    <option value="Twitter-uxlivinglab">Twitter-uxlivinglab</option>
-    <option value="Linkdin-uxliving">Linkdin-uxliving</option>
-    <option value="Facebook-Customer stories">Facebook-Customer stories</option>
-    <option value="Instagram-Livinglabstories">Instagram-Livinglabstories</option>
-    <option value="Youtube-Dowell True Moments UX Living Lab">Youtube-Dowell True Moments UX Living Lab</option>
-    <option value="Tiktok">Tiktok</option>
-    <option value="Vimeo-(Brand)">Vimeo-(Brand)</option>
-    <option value="Spotify podcast">Spotify podcast</option>
-    <option value="Second life">Second life</option>
-    <option value="Twitter-dowellresearch">Twitter-dowellresearch</option>
-    <option value="Linkdin-dowellresearch">Linkedin-dowellresearch</option>
-    <option value="Linkdin-Company page-Germany">Linkedin-Company page-Germany</option>
-    <option value="Linkdin-Company page-Singapore">Linkedin-Company page-Singapore</option>
-    <option value="Linkedin-Company page-UK">Linkedin-Company page-UK</option>
-    <option value="Linkedin-Company page-Scandinavia">Linkedin-Company page-Scandinavia</option>
-    <option value="Facebook-DoWell Research">Facebook-DoWell Research</option>
-    <option value="Youtube-Dowell Research">Youtube-Dowell Research</option>
-    <option value="Twitter-seeuser">Twitter-seeuser</option>
-    <option value="Linkedin-Intership">Linkedin-Intership</option>
-    <option value="Facebook-uxlivinglab team">Facebook-uxlivinglab team</option>
-    <option value="Instagram-uxlivinglab team">Instagram-uxlivinglab team</option>
-    <option value="Youtube-Team playlist">Youtube-Team playlist</option>
-    <option value="Twitter-unpacandwin">Twitter-unpacandwin</option>
-    <option value="Linkedin-unpacandwin">Linkedin-unpacandwin</option>
-    <option value="Facebook-unpacandwin">Facebook-unpacandwin</option>
-    <option value="Instagram-unpacandwin">Instagram-unpacandwin</option>
-    <option value="Youtube-unpacandwin">Youtube-unpacandwin</option>
-  </select><br>
-
-    <label for="channelbrand" class="mb-4"><strong>Targeted category:</strong> </label>
-
-
-    <select id="channelbrand"  name="targeted_category" >
+                <label for="channelbrand" class="mb-4"><strong>Targeted category:</strong> </label>
+                <select id="channelbrand" name="targeted_category">
           <option value="Brand">Brand</option>
           <option value="Corporate">Corporate</option>
           <option value="Team building">Team building</option>
           <option value="Consumer contest">Consumer contest</option>
-    </select>
-  <br>
-    </div>
-  </div>
-{% if profile == 'Admin' or 'Add/Edit'%}
-  <div class="text-center">
-    <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button>
-    <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;">Next</button>
-  </div>
-{% else %}
-  <div class="text-center">
-    <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button>
-    <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post" style="color: white;"
-      onclick="showAdminMessage()">Next</button>
-  </div>
-    </form>
-     {% endif %}
+                </select>
+
+                <br>
+            </div>
+
+        </div>
+
+        <div id="hr" style="border-bottom: 2px solid #495057; width: 90%"></div>
+
+        <div class="container mb-3" id="word-charac-count" style="width: 800px !important;">
+            <div class="row">
+                <div class="col" id="word-count">
+                    {% comment %} 0 Word(s) {% endcomment %}
+                </div>
+                <div class="col" id="charac-count">
+                    {% comment %} 0 Character(s) {% endcomment %}
+                </div>
+                <div class="col" id="hashtag-count">
+                    {% comment %} 0 Hashtag(s) {% endcomment %}
+                </div>
+            </div>
+        </div>
+
+        {% if profile == 'Admin' or 'Add/Edit' %}
+            <div class="text-center" style="margin-right: 148px;">
+                <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/"
+                   class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post"
+                   style="color: white; margin-right: 2.5rem !important;">Back</a>
+                {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
+                <button type="submit" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post"
+                        style="color: white;">Next
+                </button>
+            </div>
+        {% else %}
+            <div class="text-center" style="margin-right: 148px;">
+                <a href="https://www.socialmediaautomation.uxlivinglab.online/article_list/"
+                   class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post"
+                   style="color: white; margin-right: 2.5rem !important;;">Back</a>
+                {% comment %} <button class="mx-2 btn btn-secondary fw-bold px-4 py-2" id="edit-button">Edit</button> {% endcomment %}
+                <button type="button" class="mx-2 btn btn-dark-blue fw-bold px-4 py-2" id="post-post"
+                        style="color: white;" onclick="showAdminMessage()">Next
+                </button>
+            </div>
+
+            </form>
+        {% endif %}
+
+    {% comment %} <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 1">
+          <img src="https://images.pexels.com/photos/18287651/pexels-photo-18287651/free-photo-of-reading-newspaper.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 2">
+          <img src="https://images.pexels.com/photos/17831000/pexels-photo-17831000/free-photo-of-couple-looking-at-smartphone.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 3">
+          <img src="https://images.pexels.com/photos/17891239/pexels-photo-17891239/free-photo-of-machine-pouring-coffee-to-cup.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 4"> {% endcomment %}
 
 
-
-
+    {% comment %} <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 1">
+          <img src="https://images.pexels.com/photos/18287651/pexels-photo-18287651/free-photo-of-reading-newspaper.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 2">
+          <img src="https://images.pexels.com/photos/17831000/pexels-photo-17831000/free-photo-of-couple-looking-at-smartphone.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 3">
+          <img src="https://images.pexels.com/photos/17891239/pexels-photo-17891239/free-photo-of-machine-pouring-coffee-to-cup.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 4"> {% endcomment %}
 
 
 </div>
+
+    {% comment %} <div class="container mt-5">
+        <h1 class="text-center">Custom Image Carousel</h1>
+        <div id="custom-carousel" class="owl-carousel">
+            <div class="item"><img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 1"></div>
+            <div class="item"><img src="https://images.pexels.com/photos/18287651/pexels-photo-18287651/free-photo-of-reading-newspaper.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 2"></div>
+            <div class="item"><img src="https://images.pexels.com/photos/17831000/pexels-photo-17831000/free-photo-of-couple-looking-at-smartphone.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 3"></div>
+            <div class="item"><img src="https://images.pexels.com/photos/17891239/pexels-photo-17891239/free-photo-of-machine-pouring-coffee-to-cup.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 4"></div>
+        </div>
+    </div> {% endcomment %}
+
+
+
+
+    {% comment %} <div class="container mt-5">
+        <h1 class="text-center">Custom Image Carousel</h1>
+        <div id="custom-carousel" class="owl-carousel">
+            <div class="item"><img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 1"></div>
+            <div class="item"><img src="https://images.pexels.com/photos/18287651/pexels-photo-18287651/free-photo-of-reading-newspaper.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 2"></div>
+            <div class="item"><img src="https://images.pexels.com/photos/17831000/pexels-photo-17831000/free-photo-of-couple-looking-at-smartphone.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 3"></div>
+            <div class="item"><img src="https://images.pexels.com/photos/17891239/pexels-photo-17891239/free-photo-of-machine-pouring-coffee-to-cup.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="Image 4"></div>
+        </div>
+    </div> {% endcomment %}
+
+
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="largeModal" tabindex="-1" aria-labelledby="basicModal" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+    <div class="modal-header" onclick="removeSelect();">
+
+        <div class="input-group d-flex align-items-center justify-content-center ">
+            <h4 class="me-5">Select Image</h4>
+            <h4 class="me-5">Select Image</h4>
+            <div class="form-outline">
+                <input type="text" id="search_input" class="form-control" placeholder="Search images"/>
+            </div>
+            <button id="search_btn" class="btn btn-primary" style="height: 38px; background-color: #36519e;">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                onclick="removeSelect();"></button>
+
+    </div>
+
+    <div class="modal-body">
+
+
+        <div class="container" id="carousalContainer">
+            <div id="myflickity" class="main-carousel pexels-image-row" data-flickity>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="1"
+                         src="https://images.pexels.com/photos/2818118/pexels-photo-2818118.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Photo of Hand Holding a Black Smartphone">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="2"
+                         src="https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Close-up Photography of Smartphone Icons">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="3"
+                         src="https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Person Wearing White Silicone Strap Black Smartwatch">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="4"
+                         src="https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Happy ethnic woman sitting at table with laptop">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="5"
+                         src="https://images.pexels.com/photos/3184424/pexels-photo-3184424.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Photo Of People Near Wooden Table">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="6"
+                         src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="People Discuss About Graphs and Rates">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="7"
+                         src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Group of People Gathered Around Wooden Table">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="8"
+                         src="https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg"
+                         alt="Silver Imac Displaying Collage Photos">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="9"
+                         src="https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Photo of Audi Parked near Trees">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="10"
+                         src="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Football Game">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="11"
+                         src="https://images.pexels.com/photos/6749745/pexels-photo-6749745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Patient in front of an Autorefractor">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="12"
+                         src="https://images.pexels.com/photos/6132751/pexels-photo-6132751.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Woman in Formal Wear using ATM">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="13"
+                         src="https://images.pexels.com/photos/326259/pexels-photo-326259.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Car With Red Interior">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="14"
+                         src="https://images.pexels.com/photos/262438/pexels-photo-262438.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Red and White Dart on Darts Board">
+                </div>
+                <div class="carousel-cell">
+                    <img class="carousel-cell-image pexels-img" id="15"
+                         src="https://images.pexels.com/photos/4560142/pexels-photo-4560142.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                         alt="Excited African American male student celebrating successful results of exams">
+                    {% comment %} <div class="container text-center my-3">
+              <div class="row mx-auto my-auto" id="pexels-image-row">   
+
+              </div>
+          </div> {% endcomment %}
+                    <div class="container" id="carousalContainer">
+                        <div id="myflickity" class="main-carousel pexels-image-row" data-flickity>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="1"
+                                     src="https://images.pexels.com/photos/2818118/pexels-photo-2818118.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Photo of Hand Holding a Black Smartphone">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="2"
+                                     src="https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Close-up Photography of Smartphone Icons">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="3"
+                                     src="https://images.pexels.com/photos/267394/pexels-photo-267394.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Person Wearing White Silicone Strap Black Smartwatch">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="4"
+                                     src="https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Happy ethnic woman sitting at table with laptop">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="5"
+                                     src="https://images.pexels.com/photos/3184424/pexels-photo-3184424.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Photo Of People Near Wooden Table">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="6"
+                                     src="https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="People Discuss About Graphs and Rates">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="7"
+                                     src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Group of People Gathered Around Wooden Table">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="8"
+                                     src="https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg"
+                                     alt="Silver Imac Displaying Collage Photos">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="9"
+                                     src="https://images.pexels.com/photos/1402787/pexels-photo-1402787.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Photo of Audi Parked near Trees">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="10"
+                                     src="https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Football Game">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="11"
+                                     src="https://images.pexels.com/photos/6749745/pexels-photo-6749745.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Patient in front of an Autorefractor">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="12"
+                                     src="https://images.pexels.com/photos/6132751/pexels-photo-6132751.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Woman in Formal Wear using ATM">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="13"
+                                     src="https://images.pexels.com/photos/326259/pexels-photo-326259.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Car With Red Interior">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="14"
+                                     src="https://images.pexels.com/photos/262438/pexels-photo-262438.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Red and White Dart on Darts Board">
+                            </div>
+                            <div class="carousel-cell">
+                                <img class="carousel-cell-image pexels-img" id="15"
+                                     src="https://images.pexels.com/photos/4560142/pexels-photo-4560142.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                     alt="Excited African American male student celebrating successful results of exams">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="image_details mt-3 mb-4 text-center" onclick="removeSelect();">
+                        <p class="image_paragraph mx-3">The Dowell UX Livinglab is an innovative research and
+                            development laboratory that focuses on the use of technology to improve the quality of
+                            life.</p>
+                        <p id="imageURL" class="image_paragraph mx-3"><strong>URL: </strong>Pexels.com</p>
+                        <p id="imageAuthor" class="image_paragraph mx-3"><strong>Author: </strong>Pexels</p>
+                        <p id="authorURL" class="image_paragraph mx-3 "><strong>Author URL: </strong>Pexels.com</p>
+                    </div>
+
+                </div>
+
+
+                <button type="button" class="mb-3 mx-auto btn btn-primary btn-dark-blue" data-bs-dismiss="modal"
+                        onclick="updateImage();" style="font-size: medium; width: 195px;">Update Post
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    {% comment %} <!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        <div class="gallery js-flickity"
+          data-flickity-options='{ "imagesLoaded": true, "percentPosition": false }'>
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="orange tree" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="submerged" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="look-out" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="One World Trade" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="drizzle" />
+          <img src="https://images.pexels.com/photos/18100939/pexels-photo-18100939/free-photo-of-portrait-of-smiling-woman.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="cat nose" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>  {% endcomment %}
+
 {% endblock %}
 

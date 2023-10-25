@@ -1,6 +1,8 @@
 from django import forms
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-from website.models import User, IndustryData, Sentences
+
+from website.models import User, IndustryData, Sentences, Category, UserTopic
 
 
 class UserEmailForm(forms.ModelForm):
@@ -15,15 +17,25 @@ class UserEmailForm(forms.ModelForm):
 class IndustryForm(forms.ModelForm):
     class Meta:
         model = IndustryData
-        fields = ('target_industry', 'target_product')
+        fields = ('category', 'target_product')
         labels = {
-            'target_industry':_('Category'),
+            'category': _('Category'),
             'target_product':_('Product/Services'),
         }
         widgets = {
-            'target_industry': forms.Select(attrs={'class': 'form-select'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
+            # 'target_industry': forms.TextInput(attrs={'class': 'form-select'}),
             'target_product': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        email = kwargs.pop('email')
+        super(IndustryForm, self).__init__(*args, **kwargs)
+        q_filter = Q(user__email=email) | Q(is_default=True)
+        self.fields['category'].queryset = Category.objects.filter(q_filter).order_by('-created_datetime')
+
+
+
 
 
 
@@ -39,13 +51,13 @@ class SentencesForm(forms.ModelForm):
     class Meta:
         model = Sentences
         fields = (
-            'subject_determinant', 'subject', 'subject_number', 'object_determinant', 'object', 'object_number',
+            'subject_determinant', 'topic', 'subject_number', 'object_determinant', 'object', 'object_number',
             'verb', 'adjective',
         )
         labels = {
             'subject_determinant': _('Specify Topic'),
             'object': _('Purpose of Article'),
-            'subject': _('Your topic'),
+            'topic': _('Your topic'),
             'object_determinant': _('Specify Purpose'),
             'verb': _('Activities'),
             'adjective': _('Can you specify activity'),
@@ -53,20 +65,28 @@ class SentencesForm(forms.ModelForm):
 
         }
         help_texts = {
-            'verb': _('(verbs eg.optimise, inform)'),
-            'adjective': _('(adjectives eg. Automate, Efficient)'),
+            'verb': _('(verbs eg. test)'),
+            'adjective': _(''),
             'object': _('(e.g digital documentation)')
             # 'subject': _('(subject of a sentence is the person, place, thing, or idea that is performing the action)'),
         }
 
         widgets = {
             'subject_determinant': forms.Select(attrs={'class': 'form-select'}),
-            'subject': forms.Select(attrs={'class': 'form-select'}),
+            'topic': forms.Select(attrs={'class': 'form-select'}),
             'object_determinant': forms.Select(attrs={'class': 'form-select'}),
             'object': forms.TextInput(attrs={'class': 'form-control'}),
             'verb': forms.TextInput(attrs={'class': 'form-control'}),
             'adjective': forms.TextInput(attrs={'class': 'form-control'})
         }
+
+    def __init__(self, *args, **kwargs):
+        email = kwargs.pop('email')
+        super(SentencesForm, self).__init__(*args, **kwargs)
+        q_filter = Q(user__email=email) | Q(is_default=True)
+        self.fields['topic'].queryset = UserTopic.objects.filter(q_filter).order_by('-created_datetime')
+
+
 
     def clean(self):
         cleaned_data = super().clean()

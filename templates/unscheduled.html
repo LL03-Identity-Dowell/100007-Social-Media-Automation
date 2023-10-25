@@ -1,616 +1,133 @@
 <!DOCTYPE html>
-{% extends "article/base_steps.html" %}
-{% load static %}
-{% load appname_tags %}
-
-{% block content %}
+{% extends "article/base_steps.html" %} {% load static %} {% load appname_tags
+%} {% block content %}
 <head>
     <!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
-<script src="{% static 'jquery-3.5.0.min.js' %}"></script>
-<script src="{% static 'jquery-3.2.1.min.js' %}"></script>
-<!-- Bootstrap 4 -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+    <script src="{% static 'jquery-3.5.0.min.js' %}"></script>
+    <script src="{% static 'jquery-3.2.1.min.js' %}"></script>
+    <!-- Bootstrap 4 -->
+    <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+            integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+            crossorigin="anonymous"
+    ></script>
 
-<!-- Font Awesome -->
-<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <!-- Font Awesome -->
+    <link
+            href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+            rel="stylesheet"
+            integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+            crossorigin="anonymous"
+    />
 
-<!-- Moment.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js" integrity="sha256-VBLiveTKyUZMEzJd6z2mhfxIqz3ZATCuVMawPZGzIfA=" crossorigin="anonymous"></script>
+    <!-- Moment.js -->
+    <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js"
+            integrity="sha256-VBLiveTKyUZMEzJd6z2mhfxIqz3ZATCuVMawPZGzIfA="
+            crossorigin="anonymous"
+    ></script>
 
-<!-- Timepicker -->
-<script src="{% static 'jquery.timepicker.min.js' %}"></script>
-<script src="{% static 'jquery.timepicker.js' %}"></script>
+    <!-- Timepicker -->
+    <script src="{% static 'jquery.timepicker.min.js' %}"></script>
+    <script src="{% static 'jquery.timepicker.js' %}"></script>
 
-<!-- Datepicker -->
-<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css">
-
-
-
-
-
-
+    <!-- Datepicker -->
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
+    <link
+            rel="stylesheet"
+            href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css"
+    />
 </head>
 
-
-
-
-
-
-
-<style type="text/css">
-
-
-    .s-alert {
-    background:#ffdc9d;
-    padding: 20px 40px;
-    min-width:420px;
-    position:absolute;
-    right:0px;
-    top:75px;
-    border-radius:4px;
-    border-left: 7px solid #ffa502;
-}
-    .s-alert.show{
-        animation: show_slide 1s ease forwards;
-    }
-    @keyframes show_slide {
-        0%{
-            transform: translateX(100%);
-        }
-        40%{
-            transform: translateX(-10%);
-        }
-        80%{
-            transform: translateX(0%);
-        }
-        100%{
-            transform: translateX(-10%);
-        }
-    }
-
-.s-alert.hide{
-        display:none;
-    }
-
-
-
-
-    #heder-h4 {
-        font-family: 'Amazon Ember', sans-serif;
-        font-size: 30px;
-        font-weight: bold;
-        padding: 30px;
-    }
-
-     #heder-h5 {
-        font-family: 'Amazon Ember', sans-serif;
-        font-size: 30px;
-        font-weight: bold;
-        padding: 10px;
-        color:#1b3476;
-
-    }
-
-
-
-
-    #img-d {
-        width:170px;
-        height:170px;
-        border-radius: 5%;
-        margin-top:50px;
-    }
-
-    #sched-b {
-        background-color: #1b3476;
-        color:white;
-        border-radius: 10px;
-        width: 100px;
-        height: 40px;
-
-    }
-    #werit-b {
-        background-color: #969cb9;
-        color:white;
-}
-
-    #close-sched {
-        background-color: #1b3476;
-        color:white;
-        width:250px;
-        text-align:center;
-    }
-
-
-    .link-src {
-        font-family: 'Amazon Ember', sans-serif;
-        font-size: 16px;
-        font-weight: regular;
-        color: #0000007c;
-    }
-
-    .head-text {
-        font-size:25px;
-        font-weight: bold;
-        margin-top:-25px;
-    }
-
-
-
-    .calenderk {
-     display:none;
-        width:60%;
-        height:65%;
-        position:fixed;
-        margin-top:30px;
-        background-color: #edeeeefb;
-        box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-        border-radius:25px;
-        flex-direction:row;
-        padding:40px;
-        margin-left:50px;
-        transition: all 0.3s ease-out;
-
-    }
-
-input[type="datetime-local"] {
-  padding: 15px;
-  border-radius: 5px;
-  font-size: 14px;
-  width: 60%;
-}
-
-input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
-  display: flex;
-  justify-content: space-between;
-}
-
-input[type="datetime-local"]::-webkit-datetime-edit-text {
-  color: #333;
-}
-
-input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
-  margin-left: 5px;
-}
-
-input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
-  margin-left: 5px;
-}
-
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  background-color: #eee;
-  padding: 5px;
-  border-radius: 5px;
-}
-
-input[type="datetime-local"]::-webkit-datetime-edit-hour-field:focus,
-input[type="datetime-local"]::-webkit-datetime-edit-minute-field:focus,
-input[type="datetime-local"]::-webkit-datetime-edit-ampm-field:focus {
-  background-color: #f7f7f7;
-  outline: none;
-}
-
-    .calenderT{
-       display:flex;
-       justify-content: center;
-       margin-top:26px
-    }
-    /*@media only screen and (min-width:768px) and (max-width:1024px){*/
-    /*    .calenderT{*/
-    /*   display:block;*/
-    /*}*/
-    /*}*/
-
-
-
-    .main-alert {
-        display:none;
-        width:60%;
-        height:50%;
-        position:fixed;
-        margin-top:100px;
-        background-color: #edeeeefb;
-        box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-        border-radius:25px;
-        flex-direction:row;
-        padding:40px;
-        margin-left:50px;
-    }
-    .fa {
-         padding: 20px;
-        font-size: 50px;
-         width: 80px;
-         height:130;
-        text-align: center;
-         text-decoration: none;
-         margin: 5px 2px;
-         border-radius:25px;
-
-    }
-
-    .fa:hover {
-    opacity: 0.7;
-}
-
-
-
-.fa-facebook {
-  background: #3B5998;
-  color: white;
-}
-.fa-twitter {
-  background: #55ACEE;
-  color: white;
-}
-.fa-instagram {
-  background: #125688;
-  color: white;
-
-.fa-linkedin {
-  background: blue;
-  color: white;
-}
-
-.fa-youtube {
-  background: #660505;
-  color: white;
-}
-
-
-
-
-.allsocial {
-    align-items: center;
-
-}
-
-#b-don {
-   color:white;
-   font-size: 20px;
-   font-weight: 700;
-
-}
-
-
-
-
-
-
-
-</style>
-
-
-
+    <link
+            rel="stylesheet"
+            type="text/css"
+            href="{% static 'step2/css/unscheduled.css' %}"
+    />
+    <script
+            type="text/javascript"
+            src="{% static 'step2/js/unscheduled.js' %}"
+    ></script>
 
 <body>
-<script type="text/javascript">
+    <div style="width: 100%">
+        <div class="container mt-5 mb-5 pt-3 pb-3">
+            <!--<div class="s-alert hide">-->
+            <!--    <span class="fas fa-exclamation-circle"></span>-->
+            <!--    <span class="msg">Your Post has been updated</span>-->
+            <!--</div>-->
 
-function showAdminMessage() {
-  alert("You are not an admin!");
-}
-
-  $(function() {
-    $('#datetimepicker1').timepicker({
-      timeFormat: 'HH:mm', // display time in 24-hour format
-      interval: 60, // show minutes in intervals of 60
-      dynamic: false,
-      dropdown: true,
-      scrollbar: true
-    });
-  });
-
-
-$(document).ready(function()
-{
-     $('.main-alert').hide();
-     $('.calenderk').hide();
-
-    function handle_button_click() {
-         $('.main-alert').show();
-    }
-
-    function showCalender() {
-        $('.calenderk').show();
-    }
-
-
-
-
-    const buttons = document.querySelectorAll('#sched-b');
-        for (const button of buttons) {
-        button.addEventListener('click', handle_button_click, false);
-    }
-
-
-     const cars = document.querySelectorAll('#werit-b');
-        for (const car of cars) {
-        car.addEventListener('click', showCalender, false);
-    }
-
-
-
-	$('#fin-d').click(function(){
-			$('.main-alert').hide();
-			$('.calenderk').hide();
-			$('.s-alert').removeClass("hide");
-			$('.s-alert').addClass("show");
-			setTimeout(function(){
-			    $('.s-alert').removeClass("show");
-			    $('.s-alert').addClass("hide");
-			},3000);
-	});
-
-		$('.closep').click(function(){
-			$('.main-alert').hide();
-	});
-
-
-
-
-    $('.close-sched').on('click', function() {
-    $('.calenderk').hide();
-    });
-
-     $('.remove-sched').on('click', function() {
-    $('.calenderk').hide();
-    });
-
-});
-
-
-
-  $('#datepicker').Zebra_DatePicker({
-
-});
-</script>
-
-<form style="width:100%" action="{% url 'generate_article:media-post' %}" href="#" method="post">
-     {% csrf_token %}
-
-<div class="container mt-5 mb-5 pt-3 pb-3">
-
-<!-- 
-    <div class="s-alert hide">
-        <span class="fas fa-exclamation-circle"></span>
-        <span class="msg">Your Post has been updated</span>
-    </div> -->
-
-
-
-    <div class="main-alert">
-
-            <table class="table table-borderless">
-            <tr>
-                <th colspan="4" style="align-items: center; text-align: center; padding-right:50px;" ><div  style="margin-left:80px"><h4 id="heder-h5">Where you want to post?</h4></div></th>
-                <th style="text-align:right">
+            <dialog class="modal-dialog-element" id="modal">
+                <div class="modal-options">
+                    <h1 class="modal-heading">Where do you want to post?</h1>
+                    <button class="close-btn fa fa-close" id="close"></button>
+                </div>
+                <form id="form" method="dialog">
                     <div>
-                        <a class="closep"><i class="fa fa-close" style="font-size:24px"></i></a>
+                        <label>
+                            <input type="checkbox" value="facebook"/>
+                            <span class="fa fa-facebook"></span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="twitter"/>
+                            <span class="fa fa-twitter"></span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="instagram"/>
+                            <span class="fa fa-instagram"></span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="linkedin"/>
+                            <span class="fa fa-linkedin"></span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="youtube"/>
+                            <span class="fa fa-youtube"></span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="pinterest"/>
+                            <span class="fa fa-pinterest"></span>
+                        </label>
                     </div>
+                    <div id="schedule-btns">
+                        <div id="date-time">
+                            <label class="date-time-label">
+                                <input type="datetime-local"/>
+                            </label>
+                            <button class="remove-btn">Remove</button>
+                        </div>
+                        <button class="submit" id="done">Done</button>
+                    </div>
+                </form>
+            </dialog>
 
-                </th>
-            </tr>
-            <tr>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-facebook"></a>
-                        <input type="checkbox" name="facebook" value="facebook" style="position:fixed; margin-left:-100px; margin-top:11px;" >
-                </div></td>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-twitter"></a>
-                        <input type="checkbox" name="twitter" value="twitter" style="position:fixed; margin-left:-100px; margin-top:11px;">
-                        </div></td>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-instagram"></a>
-                        <input type="checkbox" name='instagram' value="instagram" style="position:fixed; margin-left:-100px; margin-top:11px;">
-                    </div></td>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-linkedin"></a>
-                            <input type="checkbox" name="linkedin" value="linkedin" style="position:fixed; margin-left:-100px; margin-top:11px;">
-                            </div></td>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-youtube"></a>
-                            <input type="checkbox" name="youtube" value="youtube" style="position:fixed; margin-left:-100px; margin-top:11px;">
-                            </div></td>
-            </tr>
-            <tr>
-                <td style="align-items: center; text-align: center;" colspan="5"><button type="submit"  class="btn" id="fin-d"
-                style="background-color: #1b3476;  width:130px; height:35px; border-radius:15px; color:white;
-                font-size: 20px; font-weight: 700;" ><p style="margin-top:-5px;" >Done</p></button></td>
-            </tr>
-        </table>
-    </div>
-
-
-<div class="calenderk" >
-<table class="table table-borderless">
-            <tr>
-                <th colspan="4" style="align-items: center; text-align: center; padding-right:50px;" ><div  style="margin-left:80px"><h4 id="heder-h5">Set Date and Time</h4></div></th>
-                <th style="text-align:right">
+            <div class="list-group list-group-flush">
+                <div class="justify-content-center d-flex" style="color: #1434a4">
                     <div>
-                        <a class="close-sched"><i class="fa fa-close" style="font-size:24px"></i></a>
-                    </div>
-
-                </th>
-            </tr>
-            <tr>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-facebook"></a>
-                        <input type="checkbox" name="facebook" value="facebook" style="position:fixed; margin-left:-100px; margin-top:11px;" >
-                </div></td>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-twitter"></a>
-                        <input type="checkbox" name="twitter" value="twitter" style="position:fixed; margin-left:-100px; margin-top:11px;">
-                        </div></td>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-instagram"></a>
-                        <input type="checkbox" name='instagram' value="instagram" style="position:fixed; margin-left:-100px; margin-top:11px;">
-                    </div></td>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-linkedin"></a>
-                            <input type="checkbox" name="linkedin" value="linkedin" style="position:fixed; margin-left:-100px; margin-top:11px;">
-                            </div></td>
-                <td style="align-items: center; text-align: center;" >
-                    <div class="facebok">
-                        <a href="#" class="fa fa-youtube"></a>
-                            <input type="checkbox" name="youtube" value="youtube" style="position:fixed; margin-left:-100px; margin-top:11px;">
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-
-
-                </td>
-                <td>
-
-                </td>
-            </tr>
-        </table>
-                    <div class="calenderT" style="">
-                <!--<input type="date" name="daterange" style="font-size: 16px; border: none; outline:none;"/>-->
-                <input type="datetime-local" id="datetime" name="datetime" style="font-size: 16px; border: none; outline:none;">
-         <!--                   <div class="search_item" id="hire-days" style="margin-left:30px">-->
-									<!--	<div>Pick a Time</div>-->
-									<!--	<select style="padding: 10px; font-size: 16px; border: none; width:50%; max-width:300px; outline:none;">-->
-									<!--		<option value="00:00">00:00</option>-->
-									<!--		<option value="01:00">01:00</option>-->
-									<!--		<option value="02:00">02:00</option>-->
-									<!--		<option value="03:00">03:00</option>-->
-									<!--		<option value="04:00">04:00</option>-->
-									<!--		<option value="05:00">05:00</option>-->
-									<!--		<option value="05:00">06:00</option>-->
-									<!--		<option value="07:00">07:00</option>-->
-									<!--		<option value="08:00">08:00</option>-->
-									<!--		<option value="09:00">09:00</option>-->
-									<!--		<option value="10:00">10:00</option>-->
-									<!--		<option value="11:00">11:00</option>-->
-									<!--		<option value="12:00">12:00</option>-->
-									<!--		<option value="13:00">13:00</option>-->
-									<!--		<option value="14:00">14:00</option>-->
-									<!--		<option value="15:00">15:00</option>-->
-									<!--		<option value="16:00">16:00</option>-->
-									<!--		<option value="17:00">17:00</option>-->
-									<!--		<option value="18:00">18:00</option>-->
-									<!--		<option value="19:00">19:00</option>-->
-									<!--		<option value="20:00">20:00</option>-->
-									<!--		<option value="21:00">21:00</option>-->
-									<!--		<option value="22:00">22:00</option>-->
-									<!--		<option value="23:00">23:00</option>-->
-
-									<!--	</select>-->
-									<!--</div>-->
-
-
-
-            <span style="display:flex; margin-top:10px; margin-left:30px;">
-                <button class="remove-sched" style="background-color: #D3D3D3;  width:110px; height:40px; border:none; border-radius:10px; color:white;">Remove</button>
-                <button class="btn" type="submit" id="fin-d" style="background-color: #1b3476;  width:110px; height:40px;  border-radius:10px; color:white; margin-left:10px">Done</button>
-            </span>
-    </div>
-    </div>
-
-    <div class="list-group list-group-flush">
-    <div class="justify-content-center d-flex" style="color: #1434A4;">
-         <div>
             <a a href="{% url 'generate_article:recent-post' %}">
                 <h4 id="heder-h4">Most Recent</h4>
             </a>
-        </div>
-        <div>
+                    </div>
+                    <div>
             <h4 id="heder-h4">Unscheduled Posts</h4>
-        </div>
-        <div>
-            <a  href="{% url 'generate_article:scheduled-posts' %}">
-                <h4 id="heder-h4">Scheduled Posts</h4>
+                    </div>
+                    <div>
+                        <a href="{% url 'generate_article:scheduled-posts' %}">
+                            <h4 id="heder-h4">Scheduled Posts</h4>
             </a>
+                    </div>
+                </div>
+
+                <p id="total-number-posts"></p>
+                <table class="table table-borderless">
+                    <tbody id="article-list"></tbody>
+                </table>
+
+                <div id="paginationContainer"></div>
+            </div>
         </div>
     </div>
-
-    <p>Total posts count: {{ post|length }}</p>
-    <table class="table table-borderless">
-      <tbody>
-          {% for post in page_post %}
-            <tr>
-                    {% csrf_token %}
-                <input type="hidden" name="post_id" value="">
-                    <!--mongo id goes in the value section-->
-            <tr>
-                <td><p class="link-src" >{{post.source}}</p></td>
-                <input id="paragraph" type= "hidden" name="title" value="{{ post.source }}">
-                <td scope="col">{{post.channel}}</td>
-                <td scope="col" rowspan="4"><img src="{{post.image}}" alt="Image" id="img-d"></td>
-                <input id="image" type= "hidden" name="image" value="{{ post.image }}">
-
-            </tr>
-            <tr>
-                <td><h3 class="head-text">{{post.title}}</h3></td>
-                <input id="title" type= "hidden" name="title" value="{{ post.title }}">
-            </tr>
-
-            <tr>
-                <td scope="col" colspan="2">{{post.paragraph}}</td>
-                <input id="paragraph" type= "hidden" name="paragraph" value="{{ post.paragraph }}">
-            </tr>
-
-            <tr>
-                <input id="paragraph" type= "hidden" name="post_id" value="{{ post.PK }}">
-            </tr>
-          {% if profile == 'Admin' or 'Add/Edit' %}
-           <tr>
-            <td style="text-align:right"><a href="#" class="btn" id="sched-b">Post Now</a></td>
-            <td style="text-align:right; width:10%"><a href="#" class="btn" id="werit-b">Schedule</a></td>
-          </tr>
-        {% else %}
-              <tr>
-                  <td style="text-align:right"><a href="#" class="btn" onclick="showAdminMessage()">Post Now</a></td>
-                  <td style="text-align:right; width:10%"><a href="#" class="btn"
-                                                             onclick="showAdminMessage()">Schedule</a></td>
-              </tr>
-              </tr>
-          {% endif %}
-          {% endfor %}
-      </tbody>
-    </table>
-    </div>
-
-    <center>
-        <div class="pagination">
-            {% if page_post.has_previous %}
-                <a href="?page={{ page_post.previous_page_number }}">Previous</a>
-            {% endif %}
-            {% if page_post.number|add:'-2' > 1 %}
-                <a href="?page={{ page_post.number|add:'-3' }}">&laquo;</a>
-            {% endif %}
-            {% for page_number in page_post.paginator.page_range %}
-                {% if page_post.number == page_number %}
-                    <a href="#" class="active">{{ page_number }}</a>
-                {% elif page_number > page_post.number|add:'-3' and page_number < page_post.number|add:'6' %}
-                    <a href="?page={{ page_number }}">{{ page_number }}</a>
-                {% endif %}
-            {% endfor %}
-            {% if page_post.number|add:'5' > 1 %}
-                <a href="?page={{ page_post.number|add:'6' }}">&raquo;</a>
-            {% endif %}
-            {% if page_post.has_next %}
-                <a href="?page={{ page_post.next_page_number }}">Next</a>
-            {% endif %}
-
-        </div>
-
-    </center>
-
-</div>
-</form>
 
 {% endblock content %}
 <!-- Timepicker -->
@@ -619,8 +136,10 @@ $(document).ready(function()
 
 <!-- Datepicker -->
 <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css">
-
+<link
+        rel="stylesheet"
+        href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css"
+/>
 
 <script src="{% static 'jquery.timepicker.min.js' %}"></script>
 <script src="{% static 'jquery.timepicker.js' %}"></script>

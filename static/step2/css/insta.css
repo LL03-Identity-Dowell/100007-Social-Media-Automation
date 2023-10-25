@@ -1,0 +1,19 @@
+form {
+    width: 400px;
+    max-width: 90%;
+}
+
+.btn-dark-blue {
+    color: white;
+    background-color: var(--dark-blue);
+    border-color: var(--dark-blue);
+}
+
+.btn-dark-blue:hover {
+    color: white;
+    background-color: rgb(20, 38, 85);
+}
+
+.fa-instagram {
+    color: #da05f6;
+}

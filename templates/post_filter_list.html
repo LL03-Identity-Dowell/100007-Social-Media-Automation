@@ -23,7 +23,7 @@
 
         {% for posts in posts %}
         <tr>
-        <form class="" action="{% url 'generate_article:article-detail' %}" method="post">
+            <form class="" action="{% url 'generate_article:post-detail' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="title" value="{{ posts.title }}">
                 <input type="hidden" name="paragraph" value="{{ posts.paragraph }}">

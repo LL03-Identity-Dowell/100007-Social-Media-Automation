@@ -3,43 +3,12 @@
 {% load appname_tags %}
 
 {% block style %}
-  {{ block.super }}
-  <style>
-    .blue-text {
-      color: var(--dark-blue);
-    }
-
-    form {
-      width: 70%;
-    }
-
-    .btn-dark-blue {
-        width: 40%;
-      color: white;
-      background-color: var(--dark-blue);
-      border-color: var(--dark-blue);
-    }
-
-    .btn-dark-blue:hover {
-      color: white;
-      background-color: rgb(20, 38, 85);
-    }
-    .products{
-        font-weight: 500;
-        font-size: 20px;
-        color: grey;
-        margin-bottom: 14px;
-    }
-    .form-select{
-        outline: none;
-
-        background-color:#DCD6D0;
-        color: grey;
-    }
-  </style>
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'step2/css/comments.css' %}">
 {% endblock %}
 
 {% block content %}
+
   <div class="d-flex flex-column justify-content-center align-items-center flex-grow-1">
     <h2 class="m-3 text-center grey-text">Comment</h2>
 
@@ -122,49 +91,5 @@
 
 {% block script %}
   {{ block.super }}
-  <script>
-    $(document).ready(function() {
-        // Save all selects' id in an array
-        // to determine which select's option and value would be changed
-        // after you select an option in another select.
-        var selectors = ['Dowellhandlerselect', 'ProductsSelect','TopicSelect','HashtagSelect']
-        $('select').on('change', function() {
-          var index = selectors.indexOf(this.id)
-          if (index == 1) {
-            var value = this.value
-            var next = $('#' + selectors[index + 1])
-            // Show all the options in next select
-            $(next).find('option').show()
-            if (value != "") {
-              // if this select's value is not empty
-              // hide some of the options
-              $(next).find('option[data-value!=' + value + ']').hide()
-            }
-          // set next select's value to be the first option's value
-          // and trigger change()
-          $(next).val($(next).find("option:first").val()).change()
-          }
-        })
-      });
-        // var value = this.value
-        // // check if is the last one or not
-        // if (index < selectors.length - 1) {
-        //   var next = $('#' + selectors[index + 1])
-
-        //   // Show all the options in next select
-        //   $(next).find('option').show()
-        //   if (value != "") {
-        //     // if this select's value is not empty
-        //     // hide some of the options
-        //     $(next).find('option[data-value!=' + value + ']').hide()
-        //   }
-
-        //   // set next select's value to be the first option's value
-        //   // and trigger change()
-        //   $(next).val($(next).find("option:first").val()).change()
-        // }
-        // })
-        // });
-
-  </script>
+    <script src="{% static 'static/step2/js/comments.js' %}"></script>
 {% endblock %}

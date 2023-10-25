@@ -1,0 +1,20 @@
+.btn-dark-blue {
+    color: white;
+    background-color: var(--dark-blue);
+    border-color: var(--dark-blue);
+}
+
+.btn-dark-blue:hover {
+    color: white;
+    background-color: rgb(20, 38, 85);
+}
+
+.form-switch .form-check-input {
+    height: 30px;
+    width: 70px;
+}
+
+.form-switch .form-check-input:focus + .form-check-label {
+    outline: none;
+    box-shadow: none;
+}

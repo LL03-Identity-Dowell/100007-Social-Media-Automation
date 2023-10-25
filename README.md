@@ -1,8 +1,6 @@
 # 100007-Social-Media-Automation
 
-> **Notebook Icon:**
-> 
-> ![Notebook Icon](notebook-icon.png)
+
 >
 > All this steps assumes that you have python installed in your pc/macOS
 > Also you should have your favorite IDE installed. 
@@ -72,23 +70,18 @@ install the required packages using the following command:
 pip install -r requirements.txt
 
 ```
-
-> **Notebook Icon:**
 > 
-> ![Notebook Icon](notebook-icon.png)
 >
 > For this crucial step to work you have to be in the directory where the file `requirements.txt` resides. 
 
 ## Create and Switch to a Branch
-> **Notebook Icon:**
-> 
-> ![Notebook Icon](notebook-icon.png)
+
 >
 > In our case the `branchnames` will be your name, check the repo for the way your names have been added to avoid confusion. 
 
 
 1. In the terminal or command prompt, use the following command to create a branch
-> **Notebook Icon:**
+
 > (your name, according to the branches created from the main branch):
 
 ```
@@ -109,9 +102,7 @@ Replace `<branchname>` with the name of the branch you created in the previous s
 Example: `git checkout feature-xyz`
 
 You are now on the new branch and can start making changes to the code.
-> **Notebook Icon:**
-> 
-> ![Notebook Icon](notebook-icon.png)
+
 >
 > This steps are important. Make sure to follow it carefully.
 
@@ -123,13 +114,95 @@ Now you have cloned the code repository, set up a virtual environment, and creat
 1. In the terminal or command prompt, use the following command to run the application:
 
 ```
+python3 manage.py makemigrations
+
+```
+
+2. In the terminal or command prompt, use the following command to run the application:
+
+```
+python3 manage.py migrate
+
+```
+
+3. In the terminal or command prompt, use the following command to run the application:
+
+```
 python3 manage.py runserver
 
 ```
 
 ## errors
 
-In case you run into any errors at this point check back with your team lead for further assistance. 
+you are bound to run into one error with this file depending on your
+OS ```..\100007-Social-Media-Automation\venv\Lib\site-packages\tenacity\_asyncio.py```
+
+if you do, replace the contents of the file with:
+
+```
+# -*- coding: utf-8 -*-
+# Copyright 2016 Étienne Bersac
+# Copyright 2016 Julien Danjou
+# Copyright 2016 Joshua Harlow
+# Copyright 2013-2014 Ray Holder
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+try:
+    import asyncio
+except ImportError:
+    asyncio = None
+
+import sys
+
+from tenacity import BaseRetrying
+from tenacity import DoAttempt
+from tenacity import DoSleep
+from tenacity import RetryCallState
+
+
+if asyncio:
+    class AsyncRetrying(BaseRetrying):
+
+        def __init__(self,
+                     sleep=asyncio.sleep,
+                     **kwargs):
+            super(AsyncRetrying, self).__init__(**kwargs)
+            self.sleep = sleep
+
+    
+        async def call(self, fn, *args, **kwargs):
+            self.begin(fn)
+
+            retry_state = RetryCallState(
+                retry_object=self, fn=fn, args=args, kwargs=kwargs)
+            while True:
+                do = self.iter(retry_state=retry_state)
+                if isinstance(do, DoAttempt):
+                    try:
+                        result = await fn(*args, **kwargs)
+                    except BaseException:
+                        retry_state.set_exception(sys.exc_info())
+                    else:
+                        retry_state.set_result(result)
+                elif isinstance(do, DoSleep):
+                    retry_state.prepare_for_next_attempt()
+                    await self.sleep(do)
+                else:
+                    return do
+```
+
+In case you run into any other errors at this point check back with your team lead for further assistance.
 
 ### Happy Coding 😊
 

@@ -1,38 +1,52 @@
 {% extends "article/base_background.html" %}
 {% load static %}
 
-{% block stuff %}
-  <h1 class="blue-text mb-5">Choose Your Plan</h1>
-
-  <div class="d-flex flex-wrap justify-content-center">
-
-    <a href="#" class="mx-3">
-      <div>
-        <i class="fa-solid fa-cart-shopping fa-6x"></i>
-        <div class="text-center fw-bold">Startup</div>
-      </div>
-    </a>
-
-    <a href="#" class="mx-3">
-      <div>
-        <i class="fa-solid fa-cart-shopping fa-6x"></i>
-        <div class="text-center fw-bold">Basic</div>
-      </div>
-    </a>
-
-    <a href="#" class="mx-3">
-      <div>
-        <i class="fa-solid fa-cart-shopping fa-6x"></i>
-        <div class="text-center fw-bold">Premium</div>
-      </div>
-    </a>
-
-    <a href="#" class="mx-3">
-      <div>
-        <i class="fa-solid fa-cart-shopping fa-6x"></i>
-        <div class="text-center fw-bold">Custom</div>
-      </div>
-    </a>
-
-  </div>
+{% block style %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'step2/css/user_plan.css' %}">
 {% endblock %}
+
+{% block stuff %}
+
+    <div class="pricing-container">
+        <h1 class="blue-text mb-5">Choose Your Plan</h1>
+
+        <div class="d-flex flex-wrap justify-content-center">
+
+            {% comment %} <a href="#" class="mx-3">
+        <div>
+          <i class="fa-solid fa-cart-shopping fa-6x"></i>
+          <div class="text-center fw-bold">Startup</div>
+        </div>
+      </a>
+
+      <a href="#" class="mx-3">
+        <div>
+          <i class="fa-solid fa-cart-shopping fa-6x"></i>
+          <div class="text-center fw-bold">Basic</div>
+        </div>
+      </a>
+
+      <a href="#" class="mx-3">
+        <div>
+          <i class="fa-solid fa-cart-shopping fa-6x"></i>
+          <div class="text-center fw-bold">Premium</div>
+        </div>
+      </a>
+
+      <a href="#" class="mx-3">
+        <div>
+          <i class="fa-solid fa-cart-shopping fa-6x"></i>
+          <div class="text-center fw-bold">Custom</div>
+        </div>
+      </a> {% endcomment %}
+
+            <button class="pricing-btn" role="button">
+                <a href="https://ll05-ai-dowell.github.io/100105-DowellApiKeySystem/#" style="text-decoration:none">
+                    See Pricing
+                </a>
+            </button>
+
+        </div>
+    </div>
+{% endblock %} 

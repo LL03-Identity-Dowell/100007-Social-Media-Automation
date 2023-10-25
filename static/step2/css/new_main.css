@@ -1,0 +1,54 @@
+.grid-container {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: 75fr 25fr;
+    grid-template-rows: 5vh 95vh;
+}
+
+.item1 {
+    background-color: blue;
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
+
+.item2 {
+    grid-column-start: 1;
+    grid-column-end: 2;
+}
+
+.item {
+    display: grid;
+    text-align: center;
+    grid-template-columns: repeat(5, 20fr);
+}
+
+.item3 {
+    grid-column-start: 2;
+    grid-column-end: 3;
+}
+
+svg {
+    transform: rotate(90deg);
+    border-radius: 10px;
+}
+
+.myHeadings {
+    text-align: center;
+}
+
+#whiteStorm {
+    font-family: cursive;
+    font-style: italic;
+    color: #6b2722;
+}
+
+.txtpadding {
+    padding: 2.5%;
+}
+
+.mylist {
+    display: flex;
+    list-style: none;
+    padding: 5px;
+    color: white;
+}
