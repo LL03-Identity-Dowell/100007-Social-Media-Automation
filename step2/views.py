@@ -2,7 +2,7 @@ from helpers import (download_and_upload_image,
                      save_data, create_event, has_access,
                      fetch_user_info, get_dowellclock,
                      get_image, pretty_print, save_comments, tag_visible,
-                     check_connected_accounts, check_if_user_has_social_media_profile_in_aryshare,
+                     check_connected_accounts, check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key)
 import concurrent.futures
 import datetime
@@ -1117,9 +1117,17 @@ class ListArticleView(APIView):
             except EmptyPage:
                 page_article = paginator.page(paginator.num_pages)
 
-            user_articles = list(reversed(page_article))
-            serialized_data = ListArticleSerializer(user_articles, many=True)
-            return Response({'Articles': serialized_data.data})
+            # Include pagination metadata in the response
+            serialized_data = ListArticleSerializer(page_article, many=True)
+
+            response_data = {
+                'Articles': serialized_data.data,
+                'page': page_article.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
+            }
+
+            return Response(response_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -1420,302 +1428,300 @@ class GenerateArticleView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def generate_article_wiki(request):
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
-        if request.method != "POST":
-            return HttpResponseRedirect(reverse("main-view"))
-        else:
-            title = request.POST.get("title")
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
-            qualitative_categorization = request.POST.get(
-                "qualitative_categorization")
-            targeted_for = request.POST.get("targeted_for")
-            designed_for = request.POST.get("designed_for")
-            targeted_category = request.POST.get("targeted_category")
-            image = request.POST.get("image")
-            # dowellclock = get_dowellclock()
-            wiki_language = wikipediaapi.Wikipedia(
-                language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
-            page = wiki_language.page(title)
-            page_exists = page.exists()
-            if page_exists == False:
-                print("For Title: "+title+" Page does not exist.")
-                print("Using subject: " + subject + " and verb: " +
-                      verb + " to create an article.")
-                title_sub_verb = subject+" "+verb
-                page = wiki_language.page(title_sub_verb)
-                print("Page - Exists: %s" % page.exists())
-                source_verb = ''
-                if page.exists() == True:
-                    article_sub_verb = page.text
-                    article_sub_verb = article_sub_verb.split("See also")
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                           "title": title_sub_verb,
-                                                           "target_industry": target_industry,
-                                                           "paragraph": article_sub_verb[0],
-                                                           "source": page.fullurl,
-                                                           'subject': subject,
-                                                           # 'dowelltime': dowellclock
-                                                           }, "9992828281")
-                    para_list = article_sub_verb[0].split("\n\n")
-                    source_verb = page.fullurl
-                    for i in range(len(para_list)):
-                        if para_list[i] != '':
-                            save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                                   "session_id": session_id,
-                                                                   "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                                   "title": title,
-                                                                   "target_industry": target_industry,
-                                                                   "qualitative_categorization": qualitative_categorization,
-                                                                   "targeted_for": targeted_for,
-                                                                   "designed_for": designed_for,
-                                                                   "targeted_category": targeted_category,
-                                                                   "image": image,
-                                                                   "paragraph": para_list[i],
-                                                                   "citation_and_url": page.fullurl,
-                                                                   'subject': subject,
-                                                                   # 'dowelltime': dowellclock
-                                                                   }, '34567897799')
-                print("Using subject: " + subject + " to create an article.")
-                page = wiki_language.page(title_sub_verb)
-                if page.exists() == False:
-                    print("Page - Exists: %s" % page.exists())
-                    # message = "Article for Title " + title_sub_verb + \
-                    #     " and Title "+subject+" does not exist."
-                    message = f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"
-                    return render(request, 'article/article.html', {'message': message})
-                else:
-                    article_subject = page.text
-                    print(article_subject)
-                    article_subject = article_subject.split("See also")
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                           "title": subject,
-                                                           "target_industry": target_industry,
-                                                           "paragraph": article_subject[0],
-                                                           "source": page.fullurl,
-                                                           'subject': subject,
-                                                           # 'dowelltime': dowellclock
-                                                           }, "9992828281")
-                    para_list = article_subject[0].split("\n\n")
-                    for i in range(len(para_list)):
-                        if para_list[i] != '':
-                            print(para_list[i])
-                            save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                                   "session_id": session_id,
-                                                                   "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                                   "title": title,
-                                                                   "target_industry": target_industry,
-                                                                   "qualitative_categorization": qualitative_categorization,
-                                                                   "targeted_for": targeted_for,
-                                                                   "designed_for": designed_for,
-                                                                   "targeted_category": targeted_category,
-                                                                   "image": image,
-                                                                   "paragraph": para_list[i],
-                                                                   "citation_and_url": page.fullurl,
-                                                                   'subject': subject,
-                                                                   # 'dowelltime': dowellclock
-                                                                   }, '34567897799')
-                            print("\n")
-
-                    # credit_handler = CreditHandler()
-                    # credit_handler.consume_step_2_credit(request)
-                    if 'article_sub_verb' in locals():
-                        # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
-                        # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
-                        return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-
-                    else:
-                        # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article_subject[0], 'source': page.fullurl,  'title': title})
-
-                        return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-
+class GenerateArticleWikiView(APIView):
+    def post(self, request):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' in request.session and 'username' in request.session:
+            if request.method != "POST":
+                return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                print("For Title: "+title+" Page exists.")
-                article = page.text
-                article = article.split("See also")
-                save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                       "session_id": session_id,
-                                                       "eventId": create_event()['event_id'],
-                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                       "title": title,
-                                                       "target_industry": target_industry,
-                                                       "paragraph": article[0],
-                                                       "source": page.fullurl,
-                                                       'subject': subject,
-                                                       # 'dowelltime': dowellclock
-                                                       }, "9992828281")
-                para_list = article[0].split("\n\n")
-                for i in range(len(para_list)):
-                    if para_list[i] != '':
-                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                title = request.data.get("title")
+                subject = request.data.get("subject")
+                verb = request.data.get("verb")
+                target_industry = request.data.get("target_industry")
+                qualitative_categorization = request.data.get(
+                    "qualitative_categorization")
+                targeted_for = request.data.get("targeted_for")
+                designed_for = request.data.get("designed_for")
+                targeted_category = request.data.get("targeted_category")
+                image = request.data.get("image")
+
+                wiki_language = wikipediaapi.Wikipedia(
+                    language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
+                page = wiki_language.page(title)
+                page_exists = page.exists()
+
+                if page_exists is False:
+                    title_sub_verb = subject + " " + verb
+                    page = wiki_language.page(title_sub_verb)
+                    source_verb = ''
+                    if page.exists() == True:
+                        article_sub_verb = page.text
+                        article_sub_verb = article_sub_verb.split("See also")
+                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                                "session_id": session_id,
                                                                "eventId": create_event()['event_id'],
                                                                'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                               "title": title,
+                                                               "title": title_sub_verb,
                                                                "target_industry": target_industry,
-                                                               "qualitative_categorization": qualitative_categorization,
-                                                               "targeted_for": targeted_for,
-                                                               "designed_for": designed_for,
-                                                               "targeted_category": targeted_category,
-                                                               "image": image,
-                                                               "paragraph": para_list[i],
-                                                               "citation_and_url": page.fullurl,
+                                                               "paragraph": article_sub_verb[0],
+                                                               "source": page.fullurl,
                                                                'subject': subject,
                                                                # 'dowelltime': dowellclock
-                                                               }, '34567897799')
-                # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
-                # credit_handler = CreditHandler()
-                # credit_handler.consume_step_2_credit(request)
-                return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-    else:
-        return render(request, 'error.html')
+                                                               }, "9992828281")
+                        para_list = article_sub_verb[0].split("\n\n")
+                        source_verb = page.fullurl
+                        for i in range(len(para_list)):
+                            if para_list[i] != '':
+                                save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                                       "session_id": session_id,
+                                                                       "eventId": create_event()['event_id'],
+                                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                       "title": title,
+                                                                       "target_industry": target_industry,
+                                                                       "qualitative_categorization": qualitative_categorization,
+                                                                       "targeted_for": targeted_for,
+                                                                       "designed_for": designed_for,
+                                                                       "targeted_category": targeted_category,
+                                                                       "image": image,
+                                                                       "paragraph": para_list[i],
+                                                                       "citation_and_url": page.fullurl,
+                                                                       'subject': subject,
+                                                                       # 'dowelltime': dowellclock
+                                                                       }, '34567897799')
+                    print("Using subject: " + subject +
+                          " to create an article.")
+                    page = wiki_language.page(title_sub_verb)
+                    if page.exists() == False:
+                        return Response({'message': f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"}, status=status.HTTP_404_NOT_FOUND)
+                    else:
+                        article_subject = page.text
+                        print(article_subject)
+                        article_subject = article_subject.split("See also")
+                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                               "title": subject,
+                                                               "target_industry": target_industry,
+                                                               "paragraph": article_subject[0],
+                                                               "source": page.fullurl,
+                                                               'subject': subject,
+                                                               # 'dowelltime': dowellclock
+                                                               }, "9992828281")
+                        para_list = article_subject[0].split("\n\n")
+                        for i in range(len(para_list)):
+                            if para_list[i] != '':
+                                print(para_list[i])
+                                save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                                       "session_id": session_id,
+                                                                       "eventId": create_event()['event_id'],
+                                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                       "title": title,
+                                                                       "target_industry": target_industry,
+                                                                       "qualitative_categorization": qualitative_categorization,
+                                                                       "targeted_for": targeted_for,
+                                                                       "designed_for": designed_for,
+                                                                       "targeted_category": targeted_category,
+                                                                       "image": image,
+                                                                       "paragraph": para_list[i],
+                                                                       "citation_and_url": page.fullurl,
+                                                                       'subject': subject,
+                                                                       # 'dowelltime': dowellclock
+                                                                       }, '34567897799')
+                                print("\n")
 
+                        # credit_handler = CreditHandler()
+                        # credit_handler.consume_step_2_credit(request)
+                        if 'article_sub_verb' in locals():
+                            return Response({'message': 'Article using verb and subject saved Successfully'}, status=status.HTTP_201_CREATED)
+                        else:
+                            return Response({'message': 'Article saved Successfully'}, status=status.HTTP_201_CREATED)
 
-@csrf_exempt
-@xframe_options_exempt
-def write_yourself(request):
-    if 'session_id' and 'username' in request.session:
-        if request.method != "POST":
-            messages.error(
-                request, 'You have to choose a sentence first to write its article!')
-            return HttpResponseRedirect(reverse("generate_article:index-view"))
-        else:
-            form = VerifyArticleForm()
-            title = request.POST.get("title")
-            print("title in write view: ", title)
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
-            print("target_industry in write: ", target_industry)
-        return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
-    else:
-        return render(request, 'error.html')
-
-
-@csrf_exempt
-@xframe_options_exempt
-def verify_article(request):
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
-        if request.method != "POST":
-            return HttpResponseRedirect(reverse("generate_article:main-view"))
-        else:
-            print('this is running')
-            title = request.POST.get("title")
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
-            print("target_industry in verify: ", target_industry)
-            qualitative_categorization = request.POST.get(
-                "qualitative_categorization")
-            targeted_for = request.POST.get("targeted_for")
-            designed_for = request.POST.get("designed_for")
-            targeted_category = request.POST.get("targeted_category")
-            image = request.POST.get("image")
-            # dowellclock = get_dowellclock()
-            article = request.POST.get("articletextarea")
-            source = request.POST.get("url")
-            form = VerifyArticleForm(request.POST)
-
-            if not form.is_valid():
-                messages.success(request, 'Please fix the errors below')
-                return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
-            headers = {
-                'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
-            try:
-                response = requests.get(source, headers=headers)
-            except Exception as e:
-                print(str(e))
-                messages.error(
-                    request, 'The url of the article has not been authorized!')
-                return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
-
-            if response.status_code == 403:
-                message = "Error code 403 Forbidden: Website does not allow to verify the article."
-                return render(request, 'article/article.html', {'message': message, 'article': article, 'source': source, 'title': title})
-            else:
-                text_from_page_space = text_from_html(response.text)
-                text_from_page = text_from_page_space.replace(" ", "")
-                text_from_page = text_from_page.replace("\xa0", "")
-                print(article)
-                paragraph = article.split("\r\n")
-
-                message = "Article Verified, "
-                for i in range(len(paragraph)):
-
-                    # check for empty paragraph
-                    if paragraph[i] == "":
-                        continue
-                    # saving paragraphs in article
-                    save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                else:
+                    print("For Title: "+title+" Page exists.")
+                    article = page.text
+                    article = article.split("See also")
+                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo'][
-                                                               'client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                            "title": title,
                                                            "target_industry": target_industry,
-                                                           "qualitative_categorization": qualitative_categorization,
-                                                           "targeted_for": targeted_for,
-                                                           "designed_for": designed_for,
-                                                           "targeted_category": targeted_category,
-                                                           "image": image,
-                                                           "paragraph": paragraph[i],
-                                                           "source": source,
+                                                           "paragraph": article[0],
+                                                           "source": page.fullurl,
                                                            'subject': subject,
                                                            # 'dowelltime': dowellclock
-                                                           }, '34567897799')
-                    save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                                                           }, "9992828281")
+                    para_list = article[0].split("\n\n")
+                    for i in range(len(para_list)):
+                        if para_list[i] != '':
+                            save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                                   "session_id": session_id,
+                                                                   "eventId": create_event()['event_id'],
+                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                   "title": title,
+                                                                   "target_industry": target_industry,
+                                                                   "qualitative_categorization": qualitative_categorization,
+                                                                   "targeted_for": targeted_for,
+                                                                   "designed_for": designed_for,
+                                                                   "targeted_category": targeted_category,
+                                                                   "image": image,
+                                                                   "paragraph": para_list[i],
+                                                                   "citation_and_url": page.fullurl,
+                                                                   'subject': subject,
+                                                                   # 'dowelltime': dowellclock
+                                                                   }, '34567897799')
+                    # credit_handler = CreditHandler()
+                    # credit_handler.consume_step_2_credit(request)
+                    return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class WriteYourselfView(APIView):
+    def post(self, request):
+        if 'session_id' and 'username' in request.session:
+            if request.method != "POST":
+                return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
+            form = VerifyArticleForm()
+            title = request.POST.get("title")
+            subject = request.POST.get("subject")
+            verb = request.POST.get("verb")
+            target_industry = request.POST.get("target_industry")
+
+            response_data = {
+                'title': title,
+                'subject': subject,
+                'verb': verb,
+                'target_industry': target_industry,
+                'form': form
+            }
+
+            return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class VerifyArticle(APIView):
+    def pot(self, request):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' and 'username' in request.session:
+            if request.method != "POST":
+                return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                title = request.data.get("title")
+                subject = request.data.get("subject")
+                verb = request.data.get("verb")
+                target_industry = request.data.get("target_industry")
+                qualitative_categorization = request.data.get(
+                    "qualitative_categorization")
+                targeted_for = request.data.get("targeted_for")
+                designed_for = request.data.get("designed_for")
+                targeted_category = request.data.get("targeted_category")
+                image = request.data.get("image")
+                # dowellclock = get_dowellclock()
+                article = request.data.get("articletextarea")
+                source = request.data.get("url")
+                form = VerifyArticleForm(request.data)
+
+                if not form.is_valid():
+                    response_data = {
+                        'title': title,
+                        'subject': subject,
+                        'verb': verb,
+                        'target_industry': target_industry,
+                        'form': form
+                    }
+                    return Response({'error': 'Please fix the errors below', 'data': response_data}, status=status.HTTP_400_BAD_REQUEST)
+                headers = {
+                    'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
+                try:
+                    response = requests.get(source, headers=headers)
+                except Exception as e:
+                    print(str(e))
+                    response_data = {
+                        'title': title,
+                        'subject': subject,
+                        'verb': verb,
+                        'target_industry': target_industry,
+                        'form': form
+                    }
+                    return Response({'error': 'The url of the article has not been authorized!', 'data': response_data}, status=status.HTTP_400_BAD_REQUEST)
+
+                if response.status_code == 403:
+                    message = "Error code 403 Forbidden: Website does not allow to verify the article."
+                    response_data = {
+                        'title': title,
+                        'source': source,
+                        'article': article,
+                    }
+                    return Response({'error': 'Error code 403 Forbidden: Website does not allow to verify the article.', 'data': response_data}, status=status.HTTP_403_FORBIDDEN)
+
+                else:
+                    text_from_page_space = text_from_html(response.text)
+                    text_from_page = text_from_page_space.replace(" ", "")
+                    text_from_page = text_from_page.replace("\xa0", "")
+                    print(article)
+                    paragraph = article.split("\r\n")
+
+                    message = "Article Verified, "
+                    for i in range(len(paragraph)):
+                        if paragraph[i] == "":
+                            continue
+                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                            'client_admin_id'],
+                            "title": title,
+                            "target_industry": target_industry,
+                            "qualitative_categorization": qualitative_categorization,
+                            "targeted_for": targeted_for,
+                            "designed_for": designed_for,
+                            "targeted_category": targeted_category,
+                            "image": image,
+                            "paragraph": paragraph[i],
+                            "source": source,
+                            'subject': subject,
+                            # 'dowelltime': dowellclock
+                        }, '34567897799')
+                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                            'client_admin_id'],
+                            "title": title,
+                            "qualitative_categorization": qualitative_categorization,
+                            "targeted_for": targeted_for,
+                            "designed_for": designed_for,
+                            "targeted_category": targeted_category,
+                            "image": image,
+                            "paragraph": paragraph,
+                            "source": source,
+                            "date": str(date),
+                            "time": str(time),
+                        }, '34567897799')
+
+                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo'][
-                                                               'client_admin_id'],
-                                                           "title": title,
-                                                           "qualitative_categorization": qualitative_categorization,
-                                                           "targeted_for": targeted_for,
-                                                           "designed_for": designed_for,
-                                                           "targeted_category": targeted_category,
-                                                           "image": image,
-                                                           "paragraph": paragraph,
-                                                           "source": source,
-                                                           "date": str(date),
-                                                           "time": str(time),
-                                                           }, '34567897799')
+                        'client_admin_id'],
+                        "title": title,
+                        "target_industry": target_industry,
+                        "paragraph": article,
+                        "source": source,
+                        'subject': subject,
+                        # 'dowelltime': dowellclock
+                    }, "9992828281")
 
-                # saving article
-                save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                       "session_id": session_id,
-                                                       "eventId": create_event()['event_id'],
-                                                       'client_admin_id': request.session['userinfo'][
-                                                           'client_admin_id'],
-                                                       "title": title,
-                                                       "target_industry": target_industry,
-                                                       "paragraph": article,
-                                                       "source": source,
-                                                       'subject': subject,
-                                                       # 'dowelltime': dowellclock
-                                                       }, "9992828281")
-                print("Article saved successfully")
-                message = message + "Article saved successfully"
+                    # credit_handler = CreditHandler()
+                    # credit_handler.consume_step_2_credit(request)
+                    return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
 
-                # credit_handler = CreditHandler()
-                # credit_handler.consume_step_2_credit(request)
-                return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-
-    else:
-        return render(request, 'error.html')
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 '''
@@ -1773,6 +1779,7 @@ class PostListView(APIView):
                     posts.append(articles)
             posts = list(reversed(posts))
 
+            # Pagination
             number_of_items_per_page = 5
             page = request.GET.get('page', 1)
 
@@ -1796,11 +1803,14 @@ class PostListView(APIView):
                 for post in page_post_data
             ]
 
-            data = {
+            response_data = {
                 'posts': serialized_page_post,
+                'page': page_post.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
             }
 
-            return Response(data)
+            return Response(response_data)
 
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)

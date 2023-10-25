@@ -8,7 +8,8 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     ScheduledJsonView, IndexView, MostRecentJSON, FacebookFormAPI,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
                     ClientProfileFormView, ListArticleView,
-                    ArticleDetailView, PostListView, PostDetailView, SavePostView)
+                    ArticleDetailView, PostListView, PostDetailView, SavePostView,
+                    GenerateArticleWikiView, WriteYourselfView, VerifyArticle)
 
 
 app_name = 'generate_article'
@@ -35,9 +36,6 @@ urlpatterns = [
     path('emoji/comments/', views.comments_emojis, name='comment-emoji'),
     path('topics/', views.topics, name='topics'),
     path('signup/', views.register, name='register'),
-    path('article/Wiki/', views.generate_article_wiki, name='submit-title-wiki'),
-    path('write/article/', views.write_yourself, name='write-yourself'),
-    path('verify/article/', views.verify_article, name='verify-article'),
     path('user/info/', views.User_Info_ListView, name='user-info'),
     path('user/detail/<str:id>/', views.User_DetailView, name='user-detail'),
     path('address/', views.address, name='address'),
@@ -90,8 +88,6 @@ urlpatterns = [
     #     '''all step-1 goes here''',
 
     # *************** '''End step1''' *********************
-
-    # *************** '''Start step- 2''' *********************
     path('api/v1/list-articles/', ListArticleView.as_view(), name='list-articles'),
     path('api/v1/article-detail/',
          ArticleDetailView.as_view(), name='article-detail'),
@@ -99,11 +95,12 @@ urlpatterns = [
          name='index'),  # (step-2)ranked page
     path('api/v1/article/AI/', GenerateArticleView.as_view(),
          name='submit-title'),  # Ai writer
-    #     '''wikipedia''',
-    #     '''Write yourself''',
-    #     '''verify''',
-
-    # *************** '''End step-2''' *********************
+    path('api/v1/article/wiki/', GenerateArticleWikiView.as_view(),
+         name='submit-title-wiki'),
+    path('api/v1/article/write_yourself/',
+         WriteYourselfView.as_view(), name='write_yourself'),
+    path('api/v1/verify/article/',
+         VerifyArticle.as_view(), name='verify-article'),
 
     # *************** '''Start step-3''' *********************
     path('api/v1/post_list/', PostListView.as_view(), name='submit-title'),
