@@ -7,14 +7,13 @@ import { SuccessMessages, ErrorMessages } from "../../components/Messages";
 const TargetCities = () => {
   const [cityList, setCityList] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const [isSelected, setIsSelected] = useState({
-    name : []
-  });
+  const [isSelected, setIsSelected] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [isSuccess, setIsSuccess] = useState("");
   const [isError, setIsError] = useState("");
-  const data = cityList;
+  //const data = cityList;
+  //const [searchResult, setSearchResult] = useState("")
 
   const fetchCities = async () => {
     setIsLoading(true);
@@ -38,14 +37,16 @@ const TargetCities = () => {
   //Get values of cities selected by user
   const handleSelect = (e) => {
     let newCities = [];
-    let checkedValues = e.target.name
-    newCities = checkedValues
-    // let checkedValues = document.querySelectorAll("input[type='checkbox']:checked");
-    // checkedValues.forEach((item) => {
-    //   newCities.push(item.name);
-    // });
+    // let checkedValues = e.target.name
+    // newCities = checkedValues
+    let checkedValues = document.querySelectorAll(
+      "input[type='checkbox']:checked"
+    );
+    checkedValues.forEach((item) => {
+      newCities.push(item.name);
+    });
     setIsSelected(newCities);
-    //console.log(isSelected);
+    console.log(newCities);
   };
 
   const handleSubmit = async (e) => {
@@ -125,7 +126,7 @@ const TargetCities = () => {
               {isLoading ? (
                 <Loading />
               ) : (
-                data
+                cityList
                   .filter((city) => {
                     return inputValue === ""
                       ? city
