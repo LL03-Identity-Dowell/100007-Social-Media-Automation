@@ -63,9 +63,11 @@ const Article = ({ show }) => {
       <div className="count-article flex justify-between pt-0 pb-2 items-center">
         <p className="px-6 py-3 italic">Total posts count: {count}</p>
 
-        <div className="lg:w-[140px] lg:pt-2">
-          <ExtraSmallBtn title={"Create Article"} />
-        </div>
+        <Link to="/createarticle">
+          <div className="lg:w-[140px] lg:pt-2">
+            <ExtraSmallBtn title={"Create Article"} />
+          </div>
+        </Link>
       </div>
 
       <div>
