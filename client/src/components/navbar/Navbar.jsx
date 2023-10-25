@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Searchbar from "../Searchbar/Searchbar";
 import { FaUser } from "react-icons/fa"
 
-  
+
 function Navbar() {
     return (
         <nav className="sticky top-0 z-20 text-white border-b border-gray-200 bg-customBlue dark:bg-gray-900 dark:border-gray-600 w-full">
@@ -12,7 +12,7 @@ function Navbar() {
                     <span className="self-center text-2xl font-bold whitespace-nowrap dark:text-white" title='Vist Home'>Samanta</span>
                 </Link>
                 <div className="flex gap-4 md:order-2 md:pr-4">
-                    
+
                     <button type="button" data-collapse-toggle="navbar-search" aria-controls="navbar-search" aria-expanded="false" className="md:hidden text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 mr-1">
                         <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
@@ -22,45 +22,45 @@ function Navbar() {
 
                     <div className="relative hidden md:block">
                         <Searchbar />
-                        
+
                     </div>
-                    
+
                     <div className="hidden md:block">
-                    <button data-tooltip-target="user-tooltip1" data-tooltip-placement="left" type="button" className="relative flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 " id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown1" data-dropdown-placement="right">
-                                <span className="sr-only">Open user menu</span>
-                                <FaUser className="w-8 h-8 p-1 rounded-full text-customBlue" />
-                                <svg className="w-2.5 h-2.5 ml-2.5 absolute -right-4 top-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
-                                </svg>
-                            </button>
+                        <button data-tooltip-target="user-tooltip1" data-tooltip-placement="right" type="button" className="relative flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 " id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown1" data-dropdown-placement="right">
+                            <span className="sr-only">Open user menu</span>
+                            <FaUser className="w-8 h-8 p-1 rounded-full text-customBlue" />
+                            <svg className="w-2.5 h-2.5 ml-2.5 absolute -right-4 top-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
+                            </svg>
+                        </button>
 
-                            <div id="user-tooltip1" role="tooltip" className="absolute z-50 invisible inline-block px-3 py-2 font-medium bg-white rounded-lg shadow-sm opacity-0 text-tooltipsm text-customBlue tooltip dark:bg-gray-700">
-                                User profile
-                                <div className="tooltip-arrow" data-popper-arrow></div>
+                        <div id="user-tooltip1" role="tooltip" className="absolute z-50 invisible inline-block px-3 py-2 font-medium bg-white rounded-lg shadow-sm opacity-0 text-tooltipsm text-customBlue tooltip dark:bg-gray-700">
+                            User profile
+                            <div className="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+
+                        {/* Dropdown menu */}
+                        <div className="z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown1">
+                            <div className="px-4 py-3">
+                                <span className="block text-sm text-customBlue hover:text-customGray">User Name</span>
+                                <span className="block text-sm text-gray-500 truncate dark:text-gray-400 hover:text-customGray">name@mail.com</span>
+                            </div>
+                            <ul className="py-2" aria-labelledby="user-menu-button">
+                                <li>
+                                    <Link to="/user-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-customGray dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">User Profile</Link>
+                                </li>
+                                <li>
+                                    <Link to="/address" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Address</Link>
+                                </li>
+                                <li>
+                                    <Link to="/reset-password" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Reset password</Link>
+                                </li>
+                            </ul>
+                            <div>
+                                <Link to="/sign-out" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</Link>
                             </div>
 
-                            {/* Dropdown menu */}
-                            <div className="z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown1">
-                                <div className="px-4 py-3">
-                                    <span className="block text-sm text-customBlue hover:text-customGray">User Name</span>
-                                    <span className="block text-sm text-gray-500 truncate dark:text-gray-400 hover:text-customGray">name@mail.com</span>
-                                </div>
-                                <ul className="py-2" aria-labelledby="user-menu-button">
-                                    <li>
-                                        <Link to="/user-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-customGray dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">User Profile</Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/address" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Address</Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/reset-password" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Reset password</Link>
-                                    </li>
-                                </ul>
-                                <div>
-                                    <Link to="/sign-out" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</Link>
-                                </div>
-
-                            </div>
+                        </div>
                     </div>
 
                     <button data-collapse-toggle="navbar-search" type="button" className="inline-flex items-center justify-center w-10 h-10 p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-search" aria-expanded="false" >
@@ -69,7 +69,7 @@ function Navbar() {
                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15" />
                         </svg>
                     </button>
-                    
+
                 </div>
                 <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-search">
                     <div className="relative mt-3 md:hidden">
