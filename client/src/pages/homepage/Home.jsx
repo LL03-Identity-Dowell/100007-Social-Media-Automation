@@ -4,6 +4,8 @@ import axios from "axios";
 import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
 import Loading from "../../components/Loading";
 
+// import useDowellLogin from "../../hooks/useDowellLogin";
+
 const Home = ({ close }) => {
   // const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -30,8 +32,8 @@ const Home = ({ close }) => {
       window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/`;
     }
   };
-  
-  const fetchData = () => {
+
+  const fetchData = (session_id) => {
     // Define the API URL
     const apiUrl = "http://127.0.0.1:8000/api/v1/main/";
     
@@ -54,7 +56,7 @@ const Home = ({ close }) => {
         console.error("Error fetching data:", error);
       });
   };
-  
+
 
   return (
     <div className="w-[100vw] h-[90vh]">

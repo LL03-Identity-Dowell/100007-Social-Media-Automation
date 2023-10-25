@@ -2,12 +2,14 @@ from django.urls import path
 
 from . import views
 from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
-                    PostListView, TargetedCitiesUpdateView,
+                    TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
                     HashMentionView, HashMentionUpdateView, UnScheduledView, UnScheduledJsonView,
                     ScheduledJsonView, IndexView, MostRecentJSON, FacebookFormAPI,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
-                    ClientProfileFormView)
+                    ClientProfileFormView, ListArticleView,
+                    ArticleDetailView, PostListView, PostDetailView, SavePostView,
+                    GenerateArticleWikiView, WriteYourselfView, VerifyArticle)
 
 
 app_name = 'generate_article'
@@ -17,12 +19,6 @@ urlpatterns = [
     path('', views.dowell_login, name="dowelllogin"),
     path('scheduled/', views.scheduled, name='scheduled-posts'),
     path('scheduler/', views.post_scheduler, name='post-scheduler'),
-    path('article_list/articles/', views.list_article_view,
-         name='article-list-articles'),
-    path('article_list/<str:filter>/', views.filtered_list_article,
-         name='filtered-article-list'),
-    path('post-detail/', views.post_detail, name='post-detail'),
-    path('article-detail/', views.article_detail, name='article-detail'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),  # socialmedia
     path('logout', views.Logout, name="logout"),  # client admin
@@ -40,14 +36,10 @@ urlpatterns = [
     path('emoji/comments/', views.comments_emojis, name='comment-emoji'),
     path('topics/', views.topics, name='topics'),
     path('signup/', views.register, name='register'),
-    path('article/Wiki/', views.generate_article_wiki, name='submit-title-wiki'),
-    path('write/article/', views.write_yourself, name='write-yourself'),
-    path('verify/article/', views.verify_article, name='verify-article'),
     path('user/info/', views.User_Info_ListView, name='user-info'),
     path('user/detail/<str:id>/', views.User_DetailView, name='user-detail'),
     path('address/', views.address, name='address'),
     path('recent/', views.most_recent, name='recent-post'),
-    path('save_post/', views.Save_Post, name='save-post'),
     path('media_post/', views.Media_Post, name='media-post'),
     path('media_schedule/', views.Media_schedule, name='media-schedule'),
     path('proxy-api/', views.frontend_api_request, name='proxy-api'),
@@ -61,7 +53,8 @@ urlpatterns = [
     # React endpoints start here
     path('api/v1/main/', MainAPIView.as_view(), name='main-api'),
 
-    # user-settings
+    # *************** '''Start user_settings''' *********************
+
     path('api/v1/user-approval/', UserApprovalView.as_view(),
          name='user_approval_api'),
     path('api/v1/targeted_cities/', TargetedCitiesListView.as_view(),
@@ -88,27 +81,43 @@ urlpatterns = [
     path('api/v1/client-form/',  ClientProfileFormView.as_view(),
          name='client-form-api'),
 
+    # *************** '''End user_settings''' ****************
 
-    # step-2
+    # *************** '''Start step1''' *********************
+
+    #     '''all step-1 goes here''',
+
+    # *************** '''End step1''' *********************
+    path('api/v1/list-articles/', ListArticleView.as_view(), name='list-articles'),
+    path('api/v1/article-detail/',
+         ArticleDetailView.as_view(), name='article-detail'),
     path('api/v1/article/generate/', IndexView.as_view(),
-         name='index'),  # Create Article(step-2)
-    path('api/v1/article/AI/', GenerateArticleView.as_view(), name='submit-title'),
-    path('api/v1/article_list/', PostListView.as_view(), name='submit-title'),
+         name='index'),  # (step-2)ranked page
+    path('api/v1/article/AI/', GenerateArticleView.as_view(),
+         name='submit-title'),  # Ai writer
+    path('api/v1/article/wiki/', GenerateArticleWikiView.as_view(),
+         name='submit-title-wiki'),
+    path('api/v1/article/write_yourself/',
+         WriteYourselfView.as_view(), name='write_yourself'),
+    path('api/v1/verify/article/',
+         VerifyArticle.as_view(), name='verify-article'),
 
-    # step-4
+    # *************** '''Start step-3''' *********************
+    path('api/v1/post_list/', PostListView.as_view(), name='submit-title'),
+    path('api/v1/post-detail/', PostDetailView.as_view(), name='post-detail'),
+    path('api/v1/save_post/', SavePostView.as_view(), name='save-post'),
+
+    # *************** '''End step-3''' *********************
+
+    # *************** '''Start step-4''' *********************
     path('api/v1/unscheduled/', UnScheduledView.as_view(), name='unscheduled'),
     path('api/v1/unscheduled-json/',
          UnScheduledJsonView.as_view(), name='unscheduled-json'),
     path('api/v1/scheduled-json/',
          ScheduledJsonView.as_view(), name='scheduled-json'),
-    path('api/v1/recent_posts/', MostRecentJSON.as_view(),
-         name='recent_post'),
+    path('api/v1/recent_posts/', MostRecentJSON.as_view(), name='recent_post'),
 
-
-
-
-
-
+    # *************** '''End step-4''' *********************
 
 
 ]
