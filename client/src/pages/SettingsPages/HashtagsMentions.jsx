@@ -172,11 +172,11 @@ const HashtagsMentions = ({ close }) => {
 
   return (
     <div
-      className="bg-pens bg-cover bg-center "
-      style={{
-        backgroundPosition: "center calc(50% + 135px)",
-        overflow: "hidden",
-      }}
+      className="bg-pens h-screen bg-cover bg-center "
+      // style={{
+      //   backgroundPosition: "center calc(50% + 135px)",
+      //   overflow: "hidden",
+      // }}
     >
       {loading && <Loading />}
       {success && <SuccessMessages>{success}</SuccessMessages>}
