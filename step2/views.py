@@ -44,7 +44,7 @@ from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
-                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer)
+                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,MostRecentJsonSerializer)
 
 
 global PEXELS_API_KEY
@@ -2254,6 +2254,14 @@ class MostRecentJSON(APIView):
             user_id = str(request.session['user_id'])
             status = 'posted'
             post = []
+
+            response_data = {  # Initialize the response_data here
+                'Most Recent Posts': [],
+                'page': 1,
+                'total_pages': 1,
+                'total_items': 0,
+            }
+
             try:
                 for row in posts['data']:
                     if user_id == str(row['user_id']):
@@ -2268,15 +2276,34 @@ class MostRecentJSON(APIView):
                                     'time': row['time']
                                 }
                                 post.append(data)
-                                post = list(reversed(post))
                         except:
                             pass
+
+                post = list(reversed(post))
+                number_of_items_per_page = 5
+                page = request.GET.get('page', 1)
+                paginator = Paginator(post, number_of_items_per_page)
+                try:
+                    page_article = paginator.page(page)
+                except PageNotAnInteger:
+                    page_article = paginator.page(1)
+                except EmptyPage:
+                    page_article = paginator.page(paginator.num_page)
+                serializer = MostRecentJsonSerializer({'response': page_article})
+
+                response_data = {
+                    'Most Recent Posts': serializer.data,
+                    'page': page_article.number,
+                    'total_pages': paginator.num_pages,
+                    'total_items': paginator.count,
+                }
             except:
                 print('no post')
 
-            return Response({'response': post})
+            return Response(response_data)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 def update_most_recent(pk):
@@ -2571,10 +2598,26 @@ class UnScheduledJsonView(APIView):
 
                 # Reverse the order of the posts list
                 post_data = list(reversed(post_data))
+                number_of_items_per_page = 5
+                page = request.GET.get('page', 1)
+                paginator = Paginator(post_data, number_of_items_per_page)
+                try:
+                    page_article = paginator.page(page)
+                except PageNotAnInteger:
+                    page_article = paginator.page(1)
+                except EmptyPage:
+                    page_article = paginator.page(paginator.num_pages)
             except:
                 pass
-            serializer = UnScheduledJsonSerializer({'response': post_data})
-            return Response(serializer.data)
+            serializer = UnScheduledJsonSerializer({'response': page_article})
+
+            response_data = {
+                'Unscheduled Posts': serializer.data,
+                'page': page_article.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
+            }
+            return Response(response_data)
         else:
             return Response({'response': []})
 
@@ -2669,10 +2712,26 @@ class ScheduledJsonView(APIView):
                         except:
                             pass
                 post_data = list(reversed(post_data))
+                number_of_items_per_page = 5
+                page = request.GET.get('page', 1)
+                paginator = Paginator(post_data, number_of_items_per_page)
+                try:
+                    page_article = paginator.page(page)
+                except PageNotAnInteger:
+                    page_article = paginator.page(1)
+                except EmptyPage:
+                    page_article = paginator.page(paginator.num_pages)
             except:
                 pass
-            serializer = ScheduledJsonSerializer({'response': post_data})
-            return Response(serializer.data)
+            serializer = ScheduledJsonSerializer({'response': page_article})
+
+            response_data = {
+                'Scheduled Posts': serializer.data,
+                'page': page_article.number,
+                'total_page': paginator.num_pages,
+                'total_items': paginator.count,
+            }
+            return Response(response_data)
         else:
             return Response({'response': []})
 
