@@ -11,7 +11,6 @@ function Navbar() {
     let user = JSON.parse(localStorage.getItem("userInfo"));
     setUserName(user.userinfo.username);
     setUserEmail(user.userinfo.email);
-    console.log(user);
   }, []);
 
   return (

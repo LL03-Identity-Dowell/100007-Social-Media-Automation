@@ -1,9 +1,6 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
-import { Button } from "../../components/button";
 import ExtraSmallBtn from "../../components/ExtraSmallBtn/ExtraSmallBtn";
 import axios from "axios";
 import Loading from "../../components/Loading";
@@ -14,9 +11,11 @@ const Article = ({ show }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [count, setCount] = useState(0);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
+  const [pagesToDisplay] = useState(7);
+  const [showMorePages, setShowMorePages] = useState(false);
 
   useEffect(() => {
     show();
@@ -35,10 +34,10 @@ const Article = ({ show }) => {
         setError(null);
         setLoading(false);
         let data = response.data;
-        console.log(data);
         setArticleData(data.Articles);
         setCount(data.total_items);
         setPageCount(Math.ceil(data.total_items / perPage));
+        setShowMorePages(pageCount > pagesToDisplay);
         window.scrollTo(0, 0);
       })
       .catch((error) => {
@@ -51,6 +50,15 @@ const Article = ({ show }) => {
   const handlePageClick = (data) => {
     setPage(data.selected);
   };
+
+  const loadMorePages = () => {
+    if (pageCount > pagesToDisplay) {
+      const nextPagesToDisplay = Math.min(pageCount - page, pagesToDisplay);
+      setShowMorePages(nextPagesToDisplay + page < pageCount);
+      setPage(page + nextPagesToDisplay);
+    }
+  };
+
 
   return (
     <div className="relative h-[90vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
@@ -103,7 +111,7 @@ const Article = ({ show }) => {
 
       <ReactPaginate
         pageCount={pageCount}
-        pageRangeDisplayed={5}
+        pageRangeDisplayed={pagesToDisplay}
         marginPagesDisplayed={2}
         onPageChange={handlePageClick}
         previousLabel={<span className="text-black">Previous</span>}
@@ -115,6 +123,14 @@ const Article = ({ show }) => {
         breakClassName="p-2"
         activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
       />
+      {showMorePages && (
+          <button
+            className="bg-customBlue text-white p-2 rounded-full cursor-pointer hover:bg-blue-600"
+            onClick={loadMorePages}
+          >
+            &gt;&gt;
+          </button>
+        )}
       </div>
     </div>
   );
