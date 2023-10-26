@@ -2,7 +2,7 @@ from helpers import (download_and_upload_image,
                      save_data, create_event, has_access,
                      fetch_user_info, get_dowellclock,
                      get_image, pretty_print, save_comments, tag_visible,
-                     check_connected_accounts, check_if_user_has_social_media_profile_in_aryshare,
+                     check_connected_accounts, check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key)
 import concurrent.futures
 import datetime
@@ -232,6 +232,838 @@ class MainAPIView(APIView):
 step-2 starts here
 '''
 
+@csrf_exempt
+@xframe_options_exempt
+def login(request):
+    return render(request, 'login.html')
+    # return HttpResponseRedirect(reverse("generate_article:main-view"))
+
+
+def Logout(request):
+    session_id = request.session.get("session_id")
+    if session_id:
+        try:
+            del request.session["session_id"]
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+        except:
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+    else:
+        return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+
+
+@csrf_exempt
+@xframe_options_exempt
+def logout(request):
+    return HttpResponseRedirect(reverse("generate_article:main-view"))
+
+
+@csrf_exempt
+@xframe_options_exempt
+def reset_password(request):
+    return render(request, 'reset_password.html')
+    # return HttpResponseRedirect(reverse("generate_article:main-view"))
+
+
+@csrf_exempt
+@xframe_options_exempt
+def confirm_reset_password(request):
+    # return render(request, 'login.html')
+    return HttpResponseRedirect(reverse("generate_article:login"))
+
+
+@csrf_exempt
+@xframe_options_exempt
+def register(request):
+    return render(request, 'signup.html')
+
+
+class UserApprovalView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request):
+        session_id = request.GET.get("session_id", None)
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+
+        print(response)
+        response_data_json = json.loads(response.json())
+        print("Here we have data from this page", response_data_json)
+        user_id = str(request.session['user_id'])
+        if len(response_data_json['data']) == 0:
+            status = 'insert'
+        else:
+            status = 'update'
+
+        return Response({'status': status})
+
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "eventId": event_id,
+                "command": "insert",
+
+                "field": {
+                    "user_id": request.session['user_id'],
+                    "topic": topic,
+                    "post": post,
+                    "article": article,
+                    "schedule": schedule,
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    "date": date,
+                    "time": str(time),
+                },
+                "update_field": {
+                    "approvals": {
+                        "topic": topic,
+                        "post": post,
+                        "article": article,
+                        "schedule": schedule,
+                    },
+                },
+                "platform": "bangalore"
+            }
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
+            print(response.text)
+            messages.success(request, "Details updated successfully.")
+
+            return Response({
+                'topic': topic,
+                'article': article,
+                'post': post,
+                'schedule': schedule
+            }, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "PUT":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            print("I got", topic)
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    'user_id': request.session['user_id']
+                },
+                "update_field": {
+                    "topic": topic,
+                    "post": post,
+                    "article": article,
+                    "schedule": schedule,
+                },
+                "platform": "bangalore"
+            }
+            headers = {
+                'Content-Type': 'application/json'
+            }
+            print("I have", payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
+            print(response.text)
+            messages.success(request, "Approvals updated successfully.")
+            return Response({
+                'topic': topic,
+                'article': article,
+                'post': post,
+                'schedule': schedule
+            }, status=status.HTTP_200_OK)
+
+
+def check_if_user_has_social_media_profile_in_aryshare(username):
+    """
+    This function checks if a user has a profile account in aryshare
+    """
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"
+    }
+    response = requests.get(
+        'https://app.ayrshare.com/api/profiles', headers=headers)
+    profiles_data = response.json()
+    if not isinstance(profiles_data.get('profiles'), list):
+        return False
+    for profile_data in profiles_data.get('profiles'):
+        if username == profile_data.get('title'):
+            return True
+    return False
+
+
+def check_connected_accounts(username):
+    headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
+    r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
+    socials = ['hello']
+    try:
+        for name in r.json()['profiles']:
+            if name['title'] == username:
+                socials = name['activeSocialAccounts']
+    except:
+        pass
+    return (socials)
+
+
+@csrf_exempt
+@xframe_options_exempt
+def social_media_channels(request):
+
+    username = request.session['username']
+    session = request.session['session_id']
+    print(session)
+    user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
+        username)
+    linked_accounts = check_connected_accounts(username)
+    context_data = {'user_has_social_media_profile': user_has_social_media_profile,
+                    'linked_accounts': linked_accounts}
+    return render(request, 'social_media_channels.html', context_data)
+
+
+def linked_account_json(request):
+    username = request.session['username']
+    linked_accounts = check_connected_accounts(username)
+
+    return JsonResponse({'response': linked_accounts})
+
+
+@csrf_exempt
+@xframe_options_exempt
+def aryshare_profile(request):
+    event_id = create_event()['event_id']
+    user = request.session['username']
+    payload = {'title': user}
+    headers = {'Content-Type': 'application/json',
+               'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
+
+    r = requests.post('https://app.ayrshare.com/api/profiles/profile',
+                      json=payload,
+                      headers=headers)
+    data = r.json()
+    print(data)
+    if data['status'] == 'error':
+        messages.error(request, data['message'])
+    else:
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+        test_date = str(localdate())
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "insert",
+            "field": {
+                "user_id": request.session['user_id'],
+                "session_id": request.session['session_id'],
+                'title': data['title'],
+                'refId': data['refId'],
+                'profileKey': data['profileKey'],
+                "eventId": event_id,
+
+            },
+            "update_field": {
+                "aryshare_details": {
+
+
+
+                }
+
+
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.text)
+        print(data)
+        messages.success(request, "Social media profile created...")
+    return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+
+
+@csrf_exempt
+@xframe_options_exempt
+def link_media_channels(request):
+    session_id = request.GET.get("session_id", None)
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "ayrshare_info",
+        "document": "ayrshare_info",
+        "team_member_ID": "100007001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": request.session['user_id']},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    # profile = request.session['operations_right']
+
+    post = json.loads(response.json())
+
+    for posts in post['data']:
+        if posts['user_id'] == request.session['user_id']:
+            key = posts['profileKey']
+            print(key)
+    with open(r'/home/100007/dowellresearch.key') as f:
+        privateKey = f.read()
+
+    payload = {'domain': 'dowellresearch',
+               'privateKey': privateKey,
+               'profileKey': key,
+               'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
+                      json=payload,
+                      headers=headers)
+    link = r.json()
+    print(link)
+    return redirect(link['url'])
+
+
+class FacebookFormAPI(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        page_id = request.data.get("page_id")
+        page_link = request.data.get("page_link")
+        page_password = request.data.get("page_password")
+        posts_no = request.data.get("posts_no")
+        event_id = create_event()['event_id']
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "facebook": {
+                    "page_id": page_id,
+                    "page_link": page_link,
+                    "password": page_password,
+                    "posts_per_day": posts_no,
+                    "event_id": event_id,
+                },
+            },
+            "platform": "bangalore"
+        }
+
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(url, headers=headers, json=payload)
+
+        if response.status_code == 200:
+            return Response({'message': 'Facebook details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update Facebook details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstaFormAPI(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        page_id = request.POST.get("page_id")
+        page_link = request.POST.get("page_link")
+        page_password = request.POST.get("page_password")
+        posts_no = request.POST.get("posts_no")
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "instagram": {
+                    "page_id": page_id,
+                    "page_link": page_link,
+                    "password": page_password,
+                    "posts_per_day": posts_no,
+                },
+            },
+            "platform": "bangalore"
+        })
+
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.post(url, headers=headers, data=payload)
+        print(response.text)
+        messages.success(request, "Instagram details updated successfully.")
+        print(page_id, page_link, page_password, posts_no)
+        if response.status_code == 200:
+            return Response({'message': 'Instagram details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update Instagram details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class XFormAPI(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        page_id = request.POST.get("page_id")
+        page_link = request.POST.get("page_link")
+        page_password = request.POST.get("page_password")
+        posts_no = request.POST.get("posts_no")
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "twitter": {
+                    "page_id": page_id,
+                    "page_link": page_link,
+                    "password": page_password,
+                    "posts_per_day": posts_no,
+                },
+            },
+            "platform": "bangalore"
+        })
+
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.post(url, headers=headers, data=payload)
+        print(response.text)
+        messages.success(request, "X details updated successfully.")
+        print('page_id:', page_id, 'page_link:', page_link,
+              'page_password:', page_password, 'post_no:', posts_no)
+        if response.status_code == 200:
+            return Response({'message': 'X details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update X details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class LinkedInFormAPI(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        page_id = request.POST.get("page_id")
+        page_link = request.POST.get("page_link")
+        page_password = request.POST.get("page_password")
+        posts_no = request.POST.get("posts_no")
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field": {
+                "user_id": request.session['user_id'],
+            },
+            "update_field": {
+                "linkedin": {
+                    "page_id": page_id,
+                    "page_link": page_link,
+                    "password": page_password,
+                    "posts_per_day": posts_no,
+                },
+            },
+            "platform": "bangalore"
+        })
+
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.post(url, headers=headers, data=payload)
+        print(response.text)
+        messages.success(request, "LinkedIn details updated successfully.")
+        print(page_id, page_link, page_password, posts_no)
+        if response.status_code == 200:
+            return Response({'message': 'LinkedIn details updated successfully'})
+        else:
+            return Response({'error': 'Failed to update LinkedIn details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class YoutubeFormView(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            page_id = request.data.get("page_id")
+            page_link = request.data.get("page_link")
+            page_password = request.data.get("page_password")
+            posts_no = request.data.get("posts_no")
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "youtube": {
+                        "page_id": page_id,
+                        "page_link": page_link,
+                        "password": page_password,
+                        "posts_per_day": posts_no,
+                    },
+                },
+                "platform": "bangalore"
+            }
+
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.post(url, headers=headers, json=payload)
+            print(response.text)
+            messages.success(request, "Youtube details updated successfully.")
+            print(page_id, page_link, page_password, posts_no)
+            if response.status_code == 200:
+                return Response({'message': 'Youtube details updated successfully'})
+            else:
+                return Response({'error': 'Failed to update Youtube details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PinterestFormView(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            page_id = request.POST.get("page_id")
+            page_link = request.POST.get("page_link")
+            page_password = request.POST.get("page_password")
+            posts_no = request.POST.get("posts_no")
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "pinterest": {
+                        "page_id": page_id,
+                        "page_link": page_link,
+                        "password": page_password,
+                        "posts_per_day": posts_no,
+                    },
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
+            print(response.text)
+            messages.success(
+                request, "Pinterest details updated successfully.")
+            print(page_id, page_link, page_password, posts_no)
+            if response.status_code == 200:
+                return Response({'message': 'Pinterest details updated successfully'})
+            else:
+                return Response({'error': 'Failed to update Pinterest details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ClientProfileFormView(APIView):
+    def post(self, request):
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            address = request.POST.get("address")
+            business = request.POST.get("business")
+            product = request.POST.get("product")
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "profile": {
+                        "address": address,
+                        "business": business,
+                        "products": product,
+                        "logo": None
+                    },
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
+            print(address, business, product)
+            if response.status_code == 200:
+                return Response({'message': 'Client details updated successfully'})
+            else:
+                return Response({'error': 'Failed to update Client details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class TargetedCitiesListView(APIView):
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            url = 'http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/'
+
+            cities = []
+            try:
+                response = requests.get(url=url)
+                cities = response.json()
+            except Exception as e:
+                print('An error occurred:', str(e))
+
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+
+            context_dict = {'cities': cities, 'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class TargetedCitiesCreateView(APIView):
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "POST":
+            return Response({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Receive selected cities from the form
+            target_cities = request.data.getlist('target_cities[]')
+
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "insert",
+                "field": {
+                    "user_id": request.session['user_id'],
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    "date": date,
+                    "time": str(time),
+                    "target_city": target_cities,
+                },
+                "update_field": {
+                    "target_city": target_cities,
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.post(url, headers=headers, data=payload)
+
+            user_data = fetch_user_info(request)
+            messages.success(
+                request, "target_cities details inserted successfully.")
+            return Response({'detail': 'Targeted cities created successfully'}, status=status.HTTP_201_CREATED)
+
+
+class TargetedCitiesUpdateView(APIView):
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "PUT":
+            return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            # Receive selected cities from the form
+            target_cities = request.data.getlist('target_cities[]')
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "target_city": target_cities,
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.put(url, headers=headers, data=payload)
+
+            user_data = fetch_user_info(request)
+            messages.success(
+                request, "target_cities details updated successfully.")
+            return Response({'detail': 'Targeted cities updated successfully'}, status=status.HTTP_200_OK)
+
+
+class HashMentionView(APIView):
+    def get(self, request):
+        session_id = request.GET.get("session_id", None)
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            print(user_data)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            return Response({'status': status})
+
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "POST":
+            return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            hashtag_list = request.data.get('hashtags_list').split(',')
+            mentions_list = request.data.get('mentions_list').split(',')
 
 class ListArticleView(APIView):
     def get(self, request, *args, **kwargs):
@@ -285,9 +1117,17 @@ class ListArticleView(APIView):
             except EmptyPage:
                 page_article = paginator.page(paginator.num_pages)
 
-            user_articles = list(reversed(page_article))
-            serialized_data = ListArticleSerializer(user_articles, many=True)
-            return Response({'Articles': serialized_data.data})
+            # Include pagination metadata in the response
+            serialized_data = ListArticleSerializer(page_article, many=True)
+
+            response_data = {
+                'Articles': serialized_data.data,
+                'page': page_article.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
+            }
+
+            return Response(response_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -588,302 +1428,300 @@ class GenerateArticleView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@csrf_exempt
-@xframe_options_exempt
-def generate_article_wiki(request):
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
-        if request.method != "POST":
-            return HttpResponseRedirect(reverse("main-view"))
-        else:
-            title = request.POST.get("title")
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
-            qualitative_categorization = request.POST.get(
-                "qualitative_categorization")
-            targeted_for = request.POST.get("targeted_for")
-            designed_for = request.POST.get("designed_for")
-            targeted_category = request.POST.get("targeted_category")
-            image = request.POST.get("image")
-            # dowellclock = get_dowellclock()
-            wiki_language = wikipediaapi.Wikipedia(
-                language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
-            page = wiki_language.page(title)
-            page_exists = page.exists()
-            if page_exists == False:
-                print("For Title: "+title+" Page does not exist.")
-                print("Using subject: " + subject + " and verb: " +
-                      verb + " to create an article.")
-                title_sub_verb = subject+" "+verb
-                page = wiki_language.page(title_sub_verb)
-                print("Page - Exists: %s" % page.exists())
-                source_verb = ''
-                if page.exists() == True:
-                    article_sub_verb = page.text
-                    article_sub_verb = article_sub_verb.split("See also")
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                           "title": title_sub_verb,
-                                                           "target_industry": target_industry,
-                                                           "paragraph": article_sub_verb[0],
-                                                           "source": page.fullurl,
-                                                           'subject': subject,
-                                                           # 'dowelltime': dowellclock
-                                                           }, "9992828281")
-                    para_list = article_sub_verb[0].split("\n\n")
-                    source_verb = page.fullurl
-                    for i in range(len(para_list)):
-                        if para_list[i] != '':
-                            save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                                   "session_id": session_id,
-                                                                   "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                                   "title": title,
-                                                                   "target_industry": target_industry,
-                                                                   "qualitative_categorization": qualitative_categorization,
-                                                                   "targeted_for": targeted_for,
-                                                                   "designed_for": designed_for,
-                                                                   "targeted_category": targeted_category,
-                                                                   "image": image,
-                                                                   "paragraph": para_list[i],
-                                                                   "citation_and_url": page.fullurl,
-                                                                   'subject': subject,
-                                                                   # 'dowelltime': dowellclock
-                                                                   }, '34567897799')
-                print("Using subject: " + subject + " to create an article.")
-                page = wiki_language.page(title_sub_verb)
-                if page.exists() == False:
-                    print("Page - Exists: %s" % page.exists())
-                    # message = "Article for Title " + title_sub_verb + \
-                    #     " and Title "+subject+" does not exist."
-                    message = f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"
-                    return render(request, 'article/article.html', {'message': message})
-                else:
-                    article_subject = page.text
-                    print(article_subject)
-                    article_subject = article_subject.split("See also")
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                           "title": subject,
-                                                           "target_industry": target_industry,
-                                                           "paragraph": article_subject[0],
-                                                           "source": page.fullurl,
-                                                           'subject': subject,
-                                                           # 'dowelltime': dowellclock
-                                                           }, "9992828281")
-                    para_list = article_subject[0].split("\n\n")
-                    for i in range(len(para_list)):
-                        if para_list[i] != '':
-                            print(para_list[i])
-                            save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                                   "session_id": session_id,
-                                                                   "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                                   "title": title,
-                                                                   "target_industry": target_industry,
-                                                                   "qualitative_categorization": qualitative_categorization,
-                                                                   "targeted_for": targeted_for,
-                                                                   "designed_for": designed_for,
-                                                                   "targeted_category": targeted_category,
-                                                                   "image": image,
-                                                                   "paragraph": para_list[i],
-                                                                   "citation_and_url": page.fullurl,
-                                                                   'subject': subject,
-                                                                   # 'dowelltime': dowellclock
-                                                                   }, '34567897799')
-                            print("\n")
-
-                    # credit_handler = CreditHandler()
-                    # credit_handler.consume_step_2_credit(request)
-                    if 'article_sub_verb' in locals():
-                        # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
-                        # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
-                        return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-
-                    else:
-                        # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article_subject[0], 'source': page.fullurl,  'title': title})
-
-                        return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-
+class GenerateArticleWikiView(APIView):
+    def post(self, request):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' in request.session and 'username' in request.session:
+            if request.method != "POST":
+                return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                print("For Title: "+title+" Page exists.")
-                article = page.text
-                article = article.split("See also")
-                save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                       "session_id": session_id,
-                                                       "eventId": create_event()['event_id'],
-                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                       "title": title,
-                                                       "target_industry": target_industry,
-                                                       "paragraph": article[0],
-                                                       "source": page.fullurl,
-                                                       'subject': subject,
-                                                       # 'dowelltime': dowellclock
-                                                       }, "9992828281")
-                para_list = article[0].split("\n\n")
-                for i in range(len(para_list)):
-                    if para_list[i] != '':
-                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                title = request.data.get("title")
+                subject = request.data.get("subject")
+                verb = request.data.get("verb")
+                target_industry = request.data.get("target_industry")
+                qualitative_categorization = request.data.get(
+                    "qualitative_categorization")
+                targeted_for = request.data.get("targeted_for")
+                designed_for = request.data.get("designed_for")
+                targeted_category = request.data.get("targeted_category")
+                image = request.data.get("image")
+
+                wiki_language = wikipediaapi.Wikipedia(
+                    language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
+                page = wiki_language.page(title)
+                page_exists = page.exists()
+
+                if page_exists is False:
+                    title_sub_verb = subject + " " + verb
+                    page = wiki_language.page(title_sub_verb)
+                    source_verb = ''
+                    if page.exists() == True:
+                        article_sub_verb = page.text
+                        article_sub_verb = article_sub_verb.split("See also")
+                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                                "session_id": session_id,
                                                                "eventId": create_event()['event_id'],
                                                                'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                               "title": title,
+                                                               "title": title_sub_verb,
                                                                "target_industry": target_industry,
-                                                               "qualitative_categorization": qualitative_categorization,
-                                                               "targeted_for": targeted_for,
-                                                               "designed_for": designed_for,
-                                                               "targeted_category": targeted_category,
-                                                               "image": image,
-                                                               "paragraph": para_list[i],
-                                                               "citation_and_url": page.fullurl,
+                                                               "paragraph": article_sub_verb[0],
+                                                               "source": page.fullurl,
                                                                'subject': subject,
                                                                # 'dowelltime': dowellclock
-                                                               }, '34567897799')
-                # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
-                # credit_handler = CreditHandler()
-                # credit_handler.consume_step_2_credit(request)
-                return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-    else:
-        return render(request, 'error.html')
+                                                               }, "9992828281")
+                        para_list = article_sub_verb[0].split("\n\n")
+                        source_verb = page.fullurl
+                        for i in range(len(para_list)):
+                            if para_list[i] != '':
+                                save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                                       "session_id": session_id,
+                                                                       "eventId": create_event()['event_id'],
+                                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                       "title": title,
+                                                                       "target_industry": target_industry,
+                                                                       "qualitative_categorization": qualitative_categorization,
+                                                                       "targeted_for": targeted_for,
+                                                                       "designed_for": designed_for,
+                                                                       "targeted_category": targeted_category,
+                                                                       "image": image,
+                                                                       "paragraph": para_list[i],
+                                                                       "citation_and_url": page.fullurl,
+                                                                       'subject': subject,
+                                                                       # 'dowelltime': dowellclock
+                                                                       }, '34567897799')
+                    print("Using subject: " + subject +
+                          " to create an article.")
+                    page = wiki_language.page(title_sub_verb)
+                    if page.exists() == False:
+                        return Response({'message': f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"}, status=status.HTTP_404_NOT_FOUND)
+                    else:
+                        article_subject = page.text
+                        print(article_subject)
+                        article_subject = article_subject.split("See also")
+                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                               "title": subject,
+                                                               "target_industry": target_industry,
+                                                               "paragraph": article_subject[0],
+                                                               "source": page.fullurl,
+                                                               'subject': subject,
+                                                               # 'dowelltime': dowellclock
+                                                               }, "9992828281")
+                        para_list = article_subject[0].split("\n\n")
+                        for i in range(len(para_list)):
+                            if para_list[i] != '':
+                                print(para_list[i])
+                                save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                                       "session_id": session_id,
+                                                                       "eventId": create_event()['event_id'],
+                                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                       "title": title,
+                                                                       "target_industry": target_industry,
+                                                                       "qualitative_categorization": qualitative_categorization,
+                                                                       "targeted_for": targeted_for,
+                                                                       "designed_for": designed_for,
+                                                                       "targeted_category": targeted_category,
+                                                                       "image": image,
+                                                                       "paragraph": para_list[i],
+                                                                       "citation_and_url": page.fullurl,
+                                                                       'subject': subject,
+                                                                       # 'dowelltime': dowellclock
+                                                                       }, '34567897799')
+                                print("\n")
 
+                        # credit_handler = CreditHandler()
+                        # credit_handler.consume_step_2_credit(request)
+                        if 'article_sub_verb' in locals():
+                            return Response({'message': 'Article using verb and subject saved Successfully'}, status=status.HTTP_201_CREATED)
+                        else:
+                            return Response({'message': 'Article saved Successfully'}, status=status.HTTP_201_CREATED)
 
-@csrf_exempt
-@xframe_options_exempt
-def write_yourself(request):
-    if 'session_id' and 'username' in request.session:
-        if request.method != "POST":
-            messages.error(
-                request, 'You have to choose a sentence first to write its article!')
-            return HttpResponseRedirect(reverse("generate_article:index-view"))
-        else:
-            form = VerifyArticleForm()
-            title = request.POST.get("title")
-            print("title in write view: ", title)
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
-            print("target_industry in write: ", target_industry)
-        return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
-    else:
-        return render(request, 'error.html')
-
-
-@csrf_exempt
-@xframe_options_exempt
-def verify_article(request):
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
-        if request.method != "POST":
-            return HttpResponseRedirect(reverse("generate_article:main-view"))
-        else:
-            print('this is running')
-            title = request.POST.get("title")
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
-            print("target_industry in verify: ", target_industry)
-            qualitative_categorization = request.POST.get(
-                "qualitative_categorization")
-            targeted_for = request.POST.get("targeted_for")
-            designed_for = request.POST.get("designed_for")
-            targeted_category = request.POST.get("targeted_category")
-            image = request.POST.get("image")
-            # dowellclock = get_dowellclock()
-            article = request.POST.get("articletextarea")
-            source = request.POST.get("url")
-            form = VerifyArticleForm(request.POST)
-
-            if not form.is_valid():
-                messages.success(request, 'Please fix the errors below')
-                return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
-            headers = {
-                'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
-            try:
-                response = requests.get(source, headers=headers)
-            except Exception as e:
-                print(str(e))
-                messages.error(
-                    request, 'The url of the article has not been authorized!')
-                return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
-
-            if response.status_code == 403:
-                message = "Error code 403 Forbidden: Website does not allow to verify the article."
-                return render(request, 'article/article.html', {'message': message, 'article': article, 'source': source, 'title': title})
-            else:
-                text_from_page_space = text_from_html(response.text)
-                text_from_page = text_from_page_space.replace(" ", "")
-                text_from_page = text_from_page.replace("\xa0", "")
-                print(article)
-                paragraph = article.split("\r\n")
-
-                message = "Article Verified, "
-                for i in range(len(paragraph)):
-
-                    # check for empty paragraph
-                    if paragraph[i] == "":
-                        continue
-                    # saving paragraphs in article
-                    save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                else:
+                    print("For Title: "+title+" Page exists.")
+                    article = page.text
+                    article = article.split("See also")
+                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo'][
-                                                               'client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                            "title": title,
                                                            "target_industry": target_industry,
-                                                           "qualitative_categorization": qualitative_categorization,
-                                                           "targeted_for": targeted_for,
-                                                           "designed_for": designed_for,
-                                                           "targeted_category": targeted_category,
-                                                           "image": image,
-                                                           "paragraph": paragraph[i],
-                                                           "source": source,
+                                                           "paragraph": article[0],
+                                                           "source": page.fullurl,
                                                            'subject': subject,
                                                            # 'dowelltime': dowellclock
-                                                           }, '34567897799')
-                    save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                                                           }, "9992828281")
+                    para_list = article[0].split("\n\n")
+                    for i in range(len(para_list)):
+                        if para_list[i] != '':
+                            save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                                   "session_id": session_id,
+                                                                   "eventId": create_event()['event_id'],
+                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                   "title": title,
+                                                                   "target_industry": target_industry,
+                                                                   "qualitative_categorization": qualitative_categorization,
+                                                                   "targeted_for": targeted_for,
+                                                                   "designed_for": designed_for,
+                                                                   "targeted_category": targeted_category,
+                                                                   "image": image,
+                                                                   "paragraph": para_list[i],
+                                                                   "citation_and_url": page.fullurl,
+                                                                   'subject': subject,
+                                                                   # 'dowelltime': dowellclock
+                                                                   }, '34567897799')
+                    # credit_handler = CreditHandler()
+                    # credit_handler.consume_step_2_credit(request)
+                    return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class WriteYourselfView(APIView):
+    def post(self, request):
+        if 'session_id' and 'username' in request.session:
+            if request.method != "POST":
+                return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
+            form = VerifyArticleForm()
+            title = request.POST.get("title")
+            subject = request.POST.get("subject")
+            verb = request.POST.get("verb")
+            target_industry = request.POST.get("target_industry")
+
+            response_data = {
+                'title': title,
+                'subject': subject,
+                'verb': verb,
+                'target_industry': target_industry,
+                'form': form
+            }
+
+            return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class VerifyArticle(APIView):
+    def pot(self, request):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' and 'username' in request.session:
+            if request.method != "POST":
+                return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                title = request.data.get("title")
+                subject = request.data.get("subject")
+                verb = request.data.get("verb")
+                target_industry = request.data.get("target_industry")
+                qualitative_categorization = request.data.get(
+                    "qualitative_categorization")
+                targeted_for = request.data.get("targeted_for")
+                designed_for = request.data.get("designed_for")
+                targeted_category = request.data.get("targeted_category")
+                image = request.data.get("image")
+                # dowellclock = get_dowellclock()
+                article = request.data.get("articletextarea")
+                source = request.data.get("url")
+                form = VerifyArticleForm(request.data)
+
+                if not form.is_valid():
+                    response_data = {
+                        'title': title,
+                        'subject': subject,
+                        'verb': verb,
+                        'target_industry': target_industry,
+                        'form': form
+                    }
+                    return Response({'error': 'Please fix the errors below', 'data': response_data}, status=status.HTTP_400_BAD_REQUEST)
+                headers = {
+                    'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
+                try:
+                    response = requests.get(source, headers=headers)
+                except Exception as e:
+                    print(str(e))
+                    response_data = {
+                        'title': title,
+                        'subject': subject,
+                        'verb': verb,
+                        'target_industry': target_industry,
+                        'form': form
+                    }
+                    return Response({'error': 'The url of the article has not been authorized!', 'data': response_data}, status=status.HTTP_400_BAD_REQUEST)
+
+                if response.status_code == 403:
+                    message = "Error code 403 Forbidden: Website does not allow to verify the article."
+                    response_data = {
+                        'title': title,
+                        'source': source,
+                        'article': article,
+                    }
+                    return Response({'error': 'Error code 403 Forbidden: Website does not allow to verify the article.', 'data': response_data}, status=status.HTTP_403_FORBIDDEN)
+
+                else:
+                    text_from_page_space = text_from_html(response.text)
+                    text_from_page = text_from_page_space.replace(" ", "")
+                    text_from_page = text_from_page.replace("\xa0", "")
+                    print(article)
+                    paragraph = article.split("\r\n")
+
+                    message = "Article Verified, "
+                    for i in range(len(paragraph)):
+                        if paragraph[i] == "":
+                            continue
+                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                            'client_admin_id'],
+                            "title": title,
+                            "target_industry": target_industry,
+                            "qualitative_categorization": qualitative_categorization,
+                            "targeted_for": targeted_for,
+                            "designed_for": designed_for,
+                            "targeted_category": targeted_category,
+                            "image": image,
+                            "paragraph": paragraph[i],
+                            "source": source,
+                            'subject': subject,
+                            # 'dowelltime': dowellclock
+                        }, '34567897799')
+                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                            'client_admin_id'],
+                            "title": title,
+                            "qualitative_categorization": qualitative_categorization,
+                            "targeted_for": targeted_for,
+                            "designed_for": designed_for,
+                            "targeted_category": targeted_category,
+                            "image": image,
+                            "paragraph": paragraph,
+                            "source": source,
+                            "date": str(date),
+                            "time": str(time),
+                        }, '34567897799')
+
+                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo'][
-                                                               'client_admin_id'],
-                                                           "title": title,
-                                                           "qualitative_categorization": qualitative_categorization,
-                                                           "targeted_for": targeted_for,
-                                                           "designed_for": designed_for,
-                                                           "targeted_category": targeted_category,
-                                                           "image": image,
-                                                           "paragraph": paragraph,
-                                                           "source": source,
-                                                           "date": str(date),
-                                                           "time": str(time),
-                                                           }, '34567897799')
+                        'client_admin_id'],
+                        "title": title,
+                        "target_industry": target_industry,
+                        "paragraph": article,
+                        "source": source,
+                        'subject': subject,
+                        # 'dowelltime': dowellclock
+                    }, "9992828281")
 
-                # saving article
-                save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                       "session_id": session_id,
-                                                       "eventId": create_event()['event_id'],
-                                                       'client_admin_id': request.session['userinfo'][
-                                                           'client_admin_id'],
-                                                       "title": title,
-                                                       "target_industry": target_industry,
-                                                       "paragraph": article,
-                                                       "source": source,
-                                                       'subject': subject,
-                                                       # 'dowelltime': dowellclock
-                                                       }, "9992828281")
-                print("Article saved successfully")
-                message = message + "Article saved successfully"
+                    # credit_handler = CreditHandler()
+                    # credit_handler.consume_step_2_credit(request)
+                    return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
 
-                # credit_handler = CreditHandler()
-                # credit_handler.consume_step_2_credit(request)
-                return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
-
-    else:
-        return render(request, 'error.html')
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 '''
@@ -941,6 +1779,7 @@ class PostListView(APIView):
                     posts.append(articles)
             posts = list(reversed(posts))
 
+            # Pagination
             number_of_items_per_page = 5
             page = request.GET.get('page', 1)
 
@@ -964,11 +1803,14 @@ class PostListView(APIView):
                 for post in page_post_data
             ]
 
-            data = {
+            response_data = {
                 'posts': serialized_page_post,
+                'page': page_post.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
             }
 
-            return Response(data)
+            return Response(response_data)
 
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -2782,6 +3624,9 @@ class PinterestFormView(APIView):
 
 
 class ClientProfileFormView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
             user_data = fetch_user_info(request)

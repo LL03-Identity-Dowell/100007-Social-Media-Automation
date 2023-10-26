@@ -69,7 +69,6 @@ const MostRecent = () => {
             </li>
           ))
         ) : null}
-        {}
       </ul>
     </div>
   );
