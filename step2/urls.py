@@ -80,14 +80,6 @@ urlpatterns = [
          name='pinterest-form-api'),
     path('api/v1/client-form/',  ClientProfileFormView.as_view(),
          name='client-form-api'),
-
-    # *************** '''End user_settings''' ****************
-
-    # *************** '''Start step1''' *********************
-
-    #     '''all step-1 goes here''',
-
-    # *************** '''End step1''' *********************
     path('api/v1/list-articles/', ListArticleView.as_view(), name='list-articles'),
     path('api/v1/article-detail/',
          ArticleDetailView.as_view(), name='article-detail'),
@@ -101,23 +93,15 @@ urlpatterns = [
          WriteYourselfView.as_view(), name='write_yourself'),
     path('api/v1/verify/article/',
          VerifyArticle.as_view(), name='verify-article'),
-
-    # *************** '''Start step-3''' *********************
     path('api/v1/post_list/', PostListView.as_view(), name='submit-title'),
     path('api/v1/post-detail/', PostDetailView.as_view(), name='post-detail'),
     path('api/v1/save_post/', SavePostView.as_view(), name='save-post'),
-
-    # *************** '''End step-3''' *********************
-
-    # *************** '''Start step-4''' *********************
     path('api/v1/unscheduled/', UnScheduledView.as_view(), name='unscheduled'),
     path('api/v1/unscheduled-json/',
          UnScheduledJsonView.as_view(), name='unscheduled-json'),
     path('api/v1/scheduled-json/',
          ScheduledJsonView.as_view(), name='scheduled-json'),
     path('api/v1/recent_posts/', MostRecentJSON.as_view(), name='recent_post'),
-
-    # *************** '''End step-4''' *********************
 
 
 ]
