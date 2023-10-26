@@ -25,8 +25,9 @@ const MostRecent = () => {
       } catch (error) {
         setError("Error fetching the articles");
         setSuccess("");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchData();
