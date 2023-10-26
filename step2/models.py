@@ -49,13 +49,11 @@ class Step2Manager:
         """
         SocialMediaRequest.objects.filter(
             username=data.get('username'),
-            org_id=data.get('org_id'),
         ).delete()
         return SocialMediaRequest.objects.create(
             username=data.get('username'),
             email=data.get('email'),
             name=data.get('name'),
-            org_id=data.get('org_id'),
         )
 
     def get_all_unapproved_social_media_request(self, data):
@@ -63,7 +61,6 @@ class Step2Manager:
 
         """
         return SocialMediaRequest.objects.filter(
-            org_id=data.get('org_id'),
             is_approved=False,
         )
 
@@ -74,7 +71,6 @@ class Step2Manager:
     def get_approved_user_social_media_request(self, data):
         social_media_request = SocialMediaRequest.objects.filter(
             username=data.get('username'),
-            org_id=data.get('org_id'),
             is_approved=True,
         )
         if social_media_request:
