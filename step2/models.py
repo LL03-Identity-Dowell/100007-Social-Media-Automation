@@ -1,5 +1,8 @@
 from djongo import models
 
+from website.models import BaseModel
+
+
 class Data(models.Model):
     title = models.CharField(max_length=130)
     paragraph = models.TextField(max_length=2000)
@@ -29,3 +32,50 @@ class stepFour(models.Model):
     designed_for = models.CharField(max_length = 130)
     targeted_category = models.CharField(max_length = 130)
     image = models.ImageField(upload_to ='article_images/')
+
+
+class SocialMediaRequest(BaseModel):
+    username = models.CharField(max_length=500, null=False, blank=False)
+    email = models.CharField(max_length=500, null=False, blank=False)
+    name = models.CharField(max_length=500, null=False, blank=False)
+    org_id = models.CharField(max_length=500, null=True, blank=True)
+    is_approved = models.BooleanField(default=False)
+
+
+class Step2Manager:
+    def create_social_media_request(self, data):
+        """
+        This method creates social media request
+        """
+        SocialMediaRequest.objects.filter(
+            username=data.get('username'),
+            org_id=data.get('org_id'),
+        ).delete()
+        return SocialMediaRequest.objects.create(
+            username=data.get('username'),
+            email=data.get('email'),
+            name=data.get('name'),
+            org_id=data.get('org_id'),
+        )
+
+    def get_all_unapproved_social_media_request(self, data):
+        """
+
+        """
+        return SocialMediaRequest.objects.filter(
+            org_id=data.get('org_id'),
+            is_approved=False,
+        )
+
+    def update_social_media_request_status(self, data):
+        return SocialMediaRequest.objects.filter(id__in=data.get('social_media_request_id')).update(
+            is_approved=data.get('is_approved'))
+
+    def get_approved_user_social_media_request(self, data):
+        social_media_request = SocialMediaRequest.objects.filter(
+            username=data.get('username'),
+            org_id=data.get('org_id'),
+            is_approved=True,
+        )
+        if social_media_request:
+            return social_media_request.last()

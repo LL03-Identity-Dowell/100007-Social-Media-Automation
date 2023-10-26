@@ -9,6 +9,7 @@ import urllib.parse
 from datetime import datetime, date
 # image resizing
 from io import BytesIO
+
 # from website.views import get_client_approval
 import openai
 import pytz
@@ -30,15 +31,16 @@ from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
+from django_q.tasks import async_task
 from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
 
-from config_master import UPLOAD_IMAGE_ENDPOINT
+from config_master import UPLOAD_IMAGE_ENDPOINT, SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
-from django_q.tasks import async_task
+from .models import Step2Manager
 
 # helper functions
 
@@ -375,7 +377,8 @@ def main(request):
         # Map the username with the userID
         username = user_map.get(request.session['user_id'], None)
         print(user_map)
-
+        if request.session.get('username') == SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+            request.session['can_approve_social_media'] = True
         # Adding session id to the session
         request.session['session_id'] = session_id
         if username:
@@ -636,16 +639,48 @@ def check_connected_accounts(username):
 @csrf_exempt
 @xframe_options_exempt
 def social_media_channels(request):
+    if request.method == "POST":
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        email = request.session['userinfo']['email']
+        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        org_id = request.session['org_id']
+        data = {
+            'username': username,
+            'email': email,
+            'name': name,
+            'org_id': org_id,
+        }
+        step_2_manager.create_social_media_request(data)
+        messages.success(request,
+                         'Social media request was saved successfully. Wait for the admin to accept the request')
+        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+    else:
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        session = request.session['session_id']
+        print(session)
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
+            username)
+        linked_accounts = check_connected_accounts(username)
+        context_data = {'user_has_social_media_profile': user_has_social_media_profile,
+                        'linked_accounts': linked_accounts}
+        username = request.session['username']
+        org_id = request.session['org_id']
 
-    username = request.session['username']
-    session = request.session['session_id']
-    print(session)
-    user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
-        username)
-    linked_accounts = check_connected_accounts(username)
-    context_data = {'user_has_social_media_profile': user_has_social_media_profile,
-                    'linked_accounts': linked_accounts}
-    return render(request, 'social_media_channels.html', context_data)
+        data = {
+            'username': username,
+            'org_id': org_id,
+        }
+        social_media_request = step_2_manager.get_approved_user_social_media_request(data)
+        if user_has_social_media_profile:
+            context_data['can_connect'] = True
+        elif social_media_request:
+            context_data['can_connect'] = True
+        else:
+            context_data['can_connect'] = False
+
+        return render(request, 'social_media_channels.html', context_data)
 
 
 def linked_account_json(request):
@@ -3616,6 +3651,46 @@ def Media_schedule(request):
         return JsonResponse('scheduled', safe=False)
     else:
         return JsonResponse('social_media_channels', safe=False)
+
+
+@csrf_exempt
+@xframe_options_exempt
+def admin_approve_social_media(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            step_2_manager = Step2Manager()
+            social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+                {
+                    'org_id': request.session.get('org_id'),
+                }
+            )
+            context_data = {
+                'social_media_requests': social_media_requests
+            }
+            return render(request, 'admin_approve.html', context_data)
+        elif request.method == "POST":
+            step_2_manager = Step2Manager()
+            data = {
+                'social_media_request_id': request.POST.getlist('social_media_request_id')
+            }
+            approve = False
+            if request.POST.get('approve') == 'Approve Selected':
+                approve = True
+            elif request.POST.get('approve') == 'Reject Selected':
+                approve = False
+            elif request.POST.get('approve') == 'Approve All':
+                approve = True
+                social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+                    {'org_id': request.session.get('org_id'), }
+                )
+                data['social_media_request_id'] = social_media_requests.values_list('id', flat=True)
+            data['is_approved'] = approve
+            step_2_manager.update_social_media_request_status(data)
+            messages.success(request, 'Status of social media has been updated successfully')
+            return HttpResponseRedirect(reverse("generate_article:admin_approve_social_media"))
+    else:
+        return render(request, 'error.html')
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)
