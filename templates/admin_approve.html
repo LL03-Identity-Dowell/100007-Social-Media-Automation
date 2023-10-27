@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block style %}
-{{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/admin_approve.css'%}">
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'step2/css/admin_approve.css' %}">
 {% endblock %}
 
 {% block navbar_heading %}
@@ -11,66 +11,44 @@
 
 {% block stuff %}
 
-  <style>
-  </style>
+    <style>
+    </style>
 
     <div class="approval-container">
         <h3>Approval Admin Page</h3>
-        <div class="request-list">
-            <div class="request-item">
+        <form method="post">
+            {% csrf_token %}
+            <div class="request-list">
+                {% for social_media_request in social_media_requests %}
+                    <div class="request-item">
                 <label>
-                    <input type="checkbox" class="request-checkbox" value="Request from user_1"> Request from user_1
+                    <input type="checkbox" name="social_media_request_id" class="request-checkbox"
+                           value="{{ social_media_request.id }}"> {{ social_media_request.name }}
                 </label>
             </div>
-            <div class="request-item">
-                <label>
-                    <input type="checkbox" class="request-checkbox" value="Request from user_2"> Request from user_2
-                </label>
+                {% empty %}
+                    <p>No social media requests</p>
+                {% endfor %}
+
+
             </div>
-            <div class="request-item">
-                <label>
-                    <input type="checkbox" class="request-checkbox" value="Request from user_3"> Request from user_3
-                </label>
-            </div>
-            <div class="request-item">
-                <label>
-                    <input type="checkbox" class="request-checkbox" value="Request from user_3"> Request from user_4
-                </label>
-            </div>
-            <div class="request-item">
-                <label>
-                    <input type="checkbox" class="request-checkbox" value="Request from user_3"> Request from user_5
-                </label>
-            </div>
-            <div class="request-item">
-                <label>
-                    <input type="checkbox" class="request-checkbox" value="Request from user_3"> Request from user_6
-                </label>
-            </div>
-            <div class="request-item">
-                <label>
-                    <input type="checkbox" class="request-checkbox" value="Request from user_3"> Request from user_7
-                </label>
-            </div>
-            <div class="request-item">
-                <label>
-                    <input type="checkbox" class="request-checkbox" value="Request from user_3"> Request from user_8
-                </label>
-            </div>
-        </div>
+            <input type="submit" name="approve" value="Approve Selected" class="btn-dark-blue">
+            <input type="submit" name="approve" value="Reject Selected" class="btn-dark-blue">
+            <input type="submit" name="approve" value="Approve All" class="btn-dark-blue">
+
+        </form>
+
         <div id="approval-status">
             <!-- The approval status will be displayed here -->
         </div>
-        <button onclick="approveSelected()" class="btn-dark-blue">Approve Selected</button>
-        <button onclick="rejectSelected()" class='btn-dark-blue'>Reject Selected</button>
-        <button onclick="approveAll()" class="btn-dark-blue">Approve All</button>
-        
+
+
     </div>
 
-    <script type="text/javascript" src="{% static 'step2/js/admin_approve.js'%}"></script>
+    <script type="text/javascript" src="{% static 'step2/js/admin_approve.js' %}"></script>
 
     <script>
-      
+
     </script>
-   
+
 {% endblock %}
