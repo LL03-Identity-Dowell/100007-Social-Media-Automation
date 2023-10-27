@@ -101,7 +101,7 @@ const PostList = ({ show }) => {
                       </p>
 
                       <div className="lg:w-[150px] lg:pt-2 flex justify-end md:mr-6 mt-2 md:mt-0">
-                        <Link to="/SpecificArticle">
+                        <Link to="/post-detail">
                           <ExtraSmallBtn title={"View Post"} />
                         </Link>
                       </div>
