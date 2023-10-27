@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Loading from "/src/components/Loading.jsx";
 import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
 
@@ -13,20 +12,27 @@ const ScheduledPage = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(
-          "http://127.0.0.1:8000/api/v1/scheduled-json",
+        const res = await fetch(
+          "http://127.0.0.1:8000/api/v1/scheduled-json/",
           {
-            withCredentials: true,
+            method: "GET",
+            credentials: "include",
           }
         );
-        setArticles(res.data.response);
-        setSuccess("Successfully fetched articles");
-        setError("");
+        console.log(res);
+        if (res.ok) {
+          const data = await res.json();
+          console.log(data);
+          setArticles(data.response);
+          setSuccess("Successfully fetched articles");
+          setError("");
+        }
       } catch (error) {
         setError("Error fetching the articles");
         setSuccess("");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchData();

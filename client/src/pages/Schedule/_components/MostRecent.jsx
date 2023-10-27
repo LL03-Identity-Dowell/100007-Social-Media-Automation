@@ -13,15 +13,15 @@ const MostRecent = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(
-          "http://127.0.0.1:8000/api/v1/recent_posts/",
-          {
-            withCredentials: true,
-          }
-        );
-        setArticles(res.data.response);
-        setSuccess("Successfully fetched articles");
-        setError("");
+        const res = await fetch("http://127.0.0.1:8000/api/v1/recent_posts/", {
+          method: "GET",
+          credentials: "include", // This is the equivalent of Axios's withCredentials: true
+        });
+        console.log(res);
+        if (res.ok) {
+          setSuccess("Successfully fetched articles");
+          setError("");
+        }
       } catch (error) {
         setError("Error fetching the articles");
         setSuccess("");
