@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
-import ExtraSmallBtn from "../../../components/ExtraSmallBtn/ExtraSmallBtn";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+
+import ExtraSmallBtn from "../../../components/ExtraSmallBtn/ExtraSmallBtn";
 import Loading from "../../../components/Loading";
 import { ErrorMessages } from "../../../components/Messages";
+
 
 const PostList = ({ show }) => {
   const [postData, setPostData] = useState();
@@ -17,11 +20,19 @@ const PostList = ({ show }) => {
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
 
+  const [buttonClicked, setButtonClicked] = useState(false);
+  const [clickedPost, setClickedPost] = useState(null);
+  const navigate = useNavigate();
+
+
   useEffect(() => {
     show();
 
     fetch();
+
   }, [page]);
+
+
 
   const fetch = () => {
     setLoading(true);
@@ -37,7 +48,6 @@ const PostList = ({ show }) => {
         let data = response.data;
         // console.log(data)
         setPostData(data.posts);
-        // console.log(postData)
         setCount(data.total_items);
         setPageCount(Math.ceil(data.total_items / perPage));
         setShowMorePages(pageCount > pagesToDisplay);
@@ -49,6 +59,29 @@ const PostList = ({ show }) => {
         console.error("Error fetching article:", error);
       });
   };
+
+
+  // handle navigation to post-detail page
+  const handlePostdetailNavigate = (post_id, title, paragraph, source) => {
+    const dataToSend = {
+      post_id: post_id,
+      title: title,
+      paragraph: paragraph,
+      source: source
+    };
+    setClickedPost(dataToSend);
+    setButtonClicked(true);
+  }
+
+  // Use the clickedPost state to determine when to navigate
+  useEffect(() => {
+    if (buttonClicked && clickedPost) {
+      navigate('/post-detail', { state: { data: clickedPost } });
+    }
+  }, [buttonClicked, clickedPost]);
+
+
+  console.log(postData)
 
   const handlePageClick = (data) => {
     setPage(data.selected);
@@ -101,9 +134,9 @@ const PostList = ({ show }) => {
                       </p>
 
                       <div className="lg:w-[150px] lg:pt-2 flex justify-end md:mr-6 mt-2 md:mt-0">
-                        <Link to="/post-detail">
-                          <ExtraSmallBtn title={"View Post"} />
-                        </Link>
+
+                        <ExtraSmallBtn title={"View Post"} onClick={() => handlePostdetailNavigate(post.post_id, post.title, post.paragraph, post.source)} />
+
                       </div>
                     </div>
                   </div>
