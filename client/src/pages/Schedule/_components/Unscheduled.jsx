@@ -14,10 +14,10 @@ import dummyData from "./data";
 
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([])
-  
+
   //Load unscheduled data from API
   const url = "http://127.0.0.1:8000/api/v1/unscheduled-json/";
-  const fetchUnschedled = async () => {
+  const fetchUnscheduled = async () => {
     await axios
       .get(url, {
         withCredentials: true,
@@ -31,7 +31,7 @@ const UnscheduledPage = () => {
       });
   };
   useEffect(() => {
-    fetchUnschedled();
+    fetchUnscheduled();
   }, []);
 
   //handle pagination
