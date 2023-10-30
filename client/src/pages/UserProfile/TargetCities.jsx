@@ -12,8 +12,6 @@ const TargetCities = () => {
   const [status, setStatus] = useState("");
   const [isSuccess, setIsSuccess] = useState("");
   const [isError, setIsError] = useState("");
-  //const data = cityList;
-  //const [searchResult, setSearchResult] = useState("")
 
   const fetchCities = async () => {
     setIsLoading(true);
@@ -37,8 +35,6 @@ const TargetCities = () => {
   //Get values of cities selected by user
   const handleSelect = (e) => {
     let newCities = [];
-    // let checkedValues = e.target.name
-    // newCities = checkedValues
     let checkedValues = document.querySelectorAll(
       "input[type='checkbox']:checked"
     );
@@ -55,13 +51,17 @@ const TargetCities = () => {
 
     if (status === "update") {
       setIsLoading(true);
-      console.log("Sending data to the backend:", data);
+      //console.log("Sending data to the backend:", data);
       await axios
-        .put("http://127.0.0.1:8000/api/v1/targeted_cities/update/", {
-          target_cities: [data],
-        }, {
-          withCredentials: true,
-        })
+        .put(
+          "http://127.0.0.1:8000/api/v1/targeted_cities/update/",
+          {
+            target_cities: [data],
+          },
+          {
+            withCredentials: true,
+          }
+        )
         .then((response) => {
           setIsLoading(false);
           setIsSuccess(response.data.detail);
@@ -69,15 +69,18 @@ const TargetCities = () => {
         .catch((error) => {
           setIsError("Fail to update targeted cities please try again");
         });
-    }
-    else if (status === "insert") {
+    } else if (status === "insert") {
       setIsLoading(true);
       await axios
-        .post("http://127.0.0.1:8000/api/v1/targeted_cities/create/", {
-          target_cities: [data],
-        }, {
-          withCredentials: true,
-        })
+        .post(
+          "http://127.0.0.1:8000/api/v1/targeted_cities/create/",
+          {
+            target_cities: [data],
+          },
+          {
+            withCredentials: true,
+          }
+        )
         .then((response) => {
           setIsLoading(false);
           setIsSuccess(response.data.detail);
@@ -137,10 +140,10 @@ const TargetCities = () => {
                     return inputValue === ""
                       ? city
                       : city.name
-                        .toLowerCase()
-                        .includes(inputValue.toLowerCase())
-                        ? city
-                        : null;
+                          .toLowerCase()
+                          .includes(inputValue.toLowerCase())
+                      ? city
+                      : null;
                   })
                   .map((city) => (
                     <label
