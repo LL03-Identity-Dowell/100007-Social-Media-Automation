@@ -13,26 +13,45 @@ import Pagination from "../../../components/Pagination";
 import dummyData from "./data";
 
 const UnscheduledPage = () => {
+  const [unscheduledPost, setUnscheduledPost] = useState([])
+  
+  //Load unscheduled data from API
+  const url = "http://127.0.0.1:8000/api/v1/unscheduled-json/";
+  const fetchUnschedled = async () => {
+    await axios
+      .get(url, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        //console.log(response.data);
+        setUnscheduledPost(response.data)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  useEffect(() => {
+    fetchUnschedled();
+  }, []);
+
+  //handle pagination
   const [currentPage, setCurrentPage] = useState(1);
   const pageCount = 5;
-
   const lastIndex = currentPage * pageCount;
   const firstIndex = lastIndex - pageCount;
   const currentPost = dummyData.slice(firstIndex, lastIndex);
   const nPage = Math.ceil(dummyData.length / pageCount);
-
   const prevPage = () => {
     if (currentPage !== 1) {
       setCurrentPage(currentPage - 1);
     }
   };
-
   const nextPage = () => {
     if (currentPage !== nPage) {
       setCurrentPage(currentPage + 1);
     }
   };
-
+  //Select page number to navigate to the page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
@@ -41,7 +60,7 @@ const UnscheduledPage = () => {
         Total posts count: {dummyData.length}
       </h3>
       <ul className="space-y-10 ">
-        {currentPost.map((item) => (
+        {currentPost.map((item) => ( 
           <li
             id={item.PK}
             key={item.PK}
