@@ -18,9 +18,17 @@ import UserProfile from "./pages/UserProfile/UserProfile";
 import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
 import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
 import SpecificArticle from "./pages/Article/SpecificArticle";
-import SpecificPost from "./pages/Post/PostList/SpecificPost";
+// import SpecificPost from "./pages/Post/PostList/SpecificPost";
+import PostDetail from "./pages/Post/PostDetail/PostDetail";
 import ClientProfile from "./pages/UserProfile/ClientProfile";
 import TargetCities from "./pages/UserProfile/TargetCities";
+import Fackbook from "./pages/UserProfile/_components/facebook";
+import Instagram from "./pages/UserProfile/_components/instagram";
+import Twitter from "./pages/UserProfile/_components/twitter";
+import Youtube from "./pages/UserProfile/_components/youtube";
+import Pinterest from "./pages/UserProfile/_components/pinterest";
+import Linkedin from "./pages/UserProfile/_components/linkedin";
+import CreateArticle from "./pages/Article/CreateArticle";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -36,12 +44,16 @@ function App() {
     <>
       <Layout side={showSidebar} show={handleOpenSideBar}>
         <Routes>
-          <Route exact  path='/' element={<Home close={handleCloseSideBar} />} />
-
+          <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
+          <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
           <Route
             path='/article'
             element={<Article show={handleOpenSideBar} />}
+          />
+          <Route
+            path='/createArticle'
+            element={<CreateArticle show={handleOpenSideBar} />}
           />
           <Route
             path='/post-list'
@@ -51,9 +63,13 @@ function App() {
             path='/SpecificArticle'
             element={<SpecificArticle show={handleOpenSideBar} />}
           />
-          <Route
+          {/* <Route
             path='/SpecificPost'
             element={<SpecificPost show={handleOpenSideBar} />}
+          /> */}
+          <Route
+            path='/post-detail'
+            element={<PostDetail show={handleOpenSideBar} />}
           />
           <Route
             path='/scheduled'
@@ -87,6 +103,31 @@ function App() {
             path='/social-media-channels'
             element={<SocialMediaChannels close={handleCloseSideBar} />}
           />
+          <Route
+            path='/social-media-channels/facebook'
+            element={<Fackbook close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/instagram'
+            element={<Instagram close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/twitter'
+            element={<Twitter close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/linkedin'
+            element={<Linkedin close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/youtube'
+            element={<Youtube close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/social-media-channels/pinterest'
+            element={<Pinterest close={handleCloseSideBar} />}
+          />
+
           <Route
             path='/user-approval'
             element={<ApprovalByClient close={handleCloseSideBar} />}
