@@ -44,7 +44,7 @@ from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
-                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,MostRecentJsonSerializer)
+                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer, MostRecentJsonSerializer)
 
 
 global PEXELS_API_KEY
@@ -231,6 +231,7 @@ class MainAPIView(APIView):
 '''
 step-2 starts here
 '''
+
 
 @csrf_exempt
 @xframe_options_exempt
@@ -1065,6 +1066,7 @@ class HashMentionView(APIView):
             hashtag_list = request.data.get('hashtags_list').split(',')
             mentions_list = request.data.get('mentions_list').split(',')
 
+
 class ListArticleView(APIView):
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
@@ -1817,6 +1819,9 @@ class PostListView(APIView):
 
 
 class PostDetailView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -2289,10 +2294,11 @@ class MostRecentJSON(APIView):
                     page_article = paginator.page(1)
                 except EmptyPage:
                     page_article = paginator.page(paginator.num_page)
-                serializer = MostRecentJsonSerializer({'response': page_article})
+                serializer = MostRecentJsonSerializer(
+                    {'response': page_article})
 
                 response_data = {
-                    'Most Recent Posts': serializer.data,
+                    'MostRecentPosts': serializer.data,
                     'page': page_article.number,
                     'total_pages': paginator.num_pages,
                     'total_items': paginator.count,
@@ -2303,7 +2309,6 @@ class MostRecentJSON(APIView):
             return Response(response_data)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
 
 
 def update_most_recent(pk):
