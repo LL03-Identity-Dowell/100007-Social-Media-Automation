@@ -110,9 +110,11 @@ def index(request):
                     "org_id": request.session['org_id'],
                     'username': request.session['username'],
                     'event_id': create_event()['event_id'],
-                    'client_admin_id': request.session['userinfo']['client_admin_id']
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    'time_zone':request.session['timezone']
                 }
-
+                userid=request.session['user_id']
+ 
                 print(topic)
                 if topic['topic'] == 'True':
                     async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
