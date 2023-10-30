@@ -1,30 +1,68 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import ReactPaginate from "react-paginate";
+import Loading from "../../../components/Loading";
+import { ErrorMessages } from "../../../components/Messages";
 
 const MostRecent = () => {
   const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState();
+  const [count, setCount] = useState(0);
+  const [page, setPage] = useState(0);
+  const [perPage] = useState(5);
+  const [pageCount, setPageCount] = useState(0);
+  const [pagesToDisplay] = useState(7);
+  const [showMorePages, setShowMorePages] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(
-          "http://127.0.0.1:8000/api/v1/recent_posts/",
-          {
-            withCredentials: true,
-          }
-        );
-        setArticles(res.data.response);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+    setLoading(true)
+    fetch();
+  }, [page]);
 
-    fetchData();
-  }, []);
+  const fetch = () => {
+    setLoading(true);
+    // Make a GET request to the API endpoint with the session_id
+    axios
+      .get(`http://127.0.0.1:8000/api/v1/recent_posts/?page=${page + 1}&order=newest`, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setError(null);
+        setLoading(false);
+        let data = response.data;
+        setArticles(data);
+        console.log(data);
+        setCount(data.total_items);
+        setPageCount(Math.ceil(data.total_items / perPage));
+        setShowMorePages(pageCount > pagesToDisplay);
+        window.scrollTo(0, 0);
+      })
+      .catch((error) => {
+        setLoading(false);
+        setError("Server error, Please try again later");
+        console.error("Error fetching article:", error);
+      });
+  };
+
+  const handlePageClick = (data) => {
+    setPage(data.selected);
+  };
+
+  const loadMorePages = () => {
+    if (pageCount > pagesToDisplay) {
+      const nextPagesToDisplay = Math.min(pageCount - page, pagesToDisplay);
+      setShowMorePages(nextPagesToDisplay + page < pageCount);
+      setPage(page + nextPagesToDisplay);
+    }
+  };
+
   return (
     <div className='px-20'>
+      {loading && <Loading />}
+      {error && <ErrorMessages>{error}</ErrorMessages>}
       <h3 className='text-[#495057] font-bold text-start'>
-        Total posts count: {articles.length}
+        Total posts count: {count}
       </h3>
       <ul className='space-y-10 '>
         {articles.length
@@ -56,6 +94,30 @@ const MostRecent = () => {
             ))
           : null}
       </ul>
+
+
+      <ReactPaginate
+        pageCount={pageCount}
+        pageRangeDisplayed={pagesToDisplay}
+        marginPagesDisplayed={2}
+        onPageChange={handlePageClick}
+        previousLabel={<span className="text-black">Previous</span>}
+        nextLabel={<span className="text-black">Next</span>}
+        containerClassName="flex justify-center items-center my-4 space-x-2"
+        pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
+        previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+        nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+        breakClassName="p-2"
+        activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
+      />
+      {showMorePages && (
+          <button
+            className="bg-customBlue text-white p-2 rounded-full cursor-pointer hover:bg-blue-600"
+            onClick={loadMorePages}
+          >
+            &gt;&gt;
+          </button>
+        )}
     </div>
   );
 };
