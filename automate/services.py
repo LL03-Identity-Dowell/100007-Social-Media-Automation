@@ -4,8 +4,8 @@ from create_article import settings
 from website.models import Sentences, SentenceResults, SentenceRank
 from django.db import transaction
 from datetime import datetime
-from step2.views import save_data
-
+from step2.views import save_data,get_key,update_schedule,api_call_schedule,check_connected_accounts
+import pytz
 from website.views import get_client_approval
 import concurrent.futures
 import openai
@@ -553,3 +553,87 @@ def save_post(articles,post):
     response = requests.request(
         "POST", url, headers=headers, data=payload)
     return("data:")
+
+def media_post(user_id,username):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    post = json.loads(response.json())
+    # takes in user_id
+    # takes in the json data
+    posts = post['data']
+
+    post = []
+    try:
+        for row in posts:
+            if row['status'] == '':
+                data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': row["date"],
+                        'image': row['image'], 'source': row['source'], 'PK': row['_id'], 'time': row['time']}
+                post.append(data)
+    except:
+        post=[]
+    article = post[-1]
+    paragraph=article['paragraph']
+    image = article['image']
+    key=get_key(user_id)
+    linked_accounts =check_connected_accounts(username)
+    timezone =article['timezone']
+    
+
+
+def time_converter(schedule,timezone):
+    formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
+    current_time = pytz.timezone(timezone)
+    localize = current_time.localize(formart)
+    utc = pytz.timezone('UTC')
+    shedulded = localize.astimezone(utc)
+    string = str(shedulded)[:-6]
+    formart = datetime.strptime(
+    string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
+    return formart
+
+
+def api_call_schedule(postes, platforms, key, image,post_id, formart):
+
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               'scheduleDate': str(formart),
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        for error in r1.json()['posts']:
+            for message in error['errors']:
+                print( message['message'][:62])
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        print('post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_schedule(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            print(warnings['message'])

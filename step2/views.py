@@ -1383,7 +1383,8 @@ class GenerateArticleView(APIView):
                                 "paragraph": article_str,
                                 "citation_and_url": sources,
                                 "subject": subject,
-                            }
+                              
+                        }
                             save_data('step3_data', 'step3_data',
                                       step3_data, '34567897799')
                             # Save data for step 2
@@ -1982,7 +1983,9 @@ class SavePostView(APIView):
                         "image": image,
                         "date": date,
                         "time": str(time),
-                        "status": ""
+                        "status": "",
+                    "timezone":request.session['timezone'],
+                    "username":request.session['username']
                     },
                     "update_field": {
                         "order_nos": 21
@@ -2381,6 +2384,91 @@ def update_schedule(pk):
     response = requests.request(
         "POST", url, headers=headers, data=payload)
     return ('scheduled')
+
+
+def get_key(user_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "ayrshare_info",
+        "document": "ayrshare_info",
+        "team_member_ID": "100007001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    post = json.loads(response.json())
+    for article in post['data']:
+        key = article['profileKey']
+    return key
+
+
+def api_call(postes, platforms, key, image, request, post_id):
+
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        messages.error(request, 'error in posting')
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_most_recent(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
+
+
+def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
+
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               'scheduleDate': str(formart),
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        for error in r1.json()['posts']:
+            for message in error['errors']:
+                messages.error(request, message['message'][:62])
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_schedule(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
 
 
 @csrf_exempt
