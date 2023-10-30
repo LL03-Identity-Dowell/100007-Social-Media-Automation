@@ -9,8 +9,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
                     ClientProfileFormView, ListArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
-                    GenerateArticleWikiView, WriteYourselfView, VerifyArticle)
-
+                    GenerateArticleWikiView, WriteYourselfView, VerifyArticle, PostCommentAPIView)
 
 app_name = 'generate_article'
 
@@ -102,6 +101,7 @@ urlpatterns = [
     path('api/v1/scheduled-json/',
          ScheduledJsonView.as_view(), name='scheduled-json'),
     path('api/v1/recent_posts/', MostRecentJSON.as_view(), name='recent_post'),
+    path('api/v1/post-comment/', PostCommentAPIView.as_view(), name='post_comment_api_view'),
 
 
 ]

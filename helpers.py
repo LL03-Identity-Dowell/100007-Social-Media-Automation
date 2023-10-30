@@ -1,29 +1,21 @@
-import concurrent.futures
 import datetime
 import json
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
-import concurrent.futures
-import datetime
-import json
-from datetime import datetime
-from django.http import JsonResponse
-from django.shortcuts import render
-from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.decorators.csrf import csrf_exempt
 
 from config_master import UPLOAD_IMAGE_ENDPOINT
 from create_article import settings
-
+from create_article.settings import ARYSHARE_KEY
 
 PRODUCT_NAME = 'Social Media Automation'
 
 
 def has_access(portfolio_info):
-
     if not portfolio_info:
         return False
     if portfolio_info[0].get('product') != PRODUCT_NAME:
@@ -148,7 +140,6 @@ def get_dowellclock():
 
 
 def create_event():
-
     url = "https://uxlivinglab.pythonanywhere.com/create_event"
     dd = datetime.now()
     time = dd.strftime("%d:%m:%Y,%H:%M:%S")
@@ -277,9 +268,7 @@ def update_aryshare(username, userid):
                         "aryshare_details": {
                             'social_platforms': name['activeSocialAccounts']
 
-
                         }
-
 
                     },
                     "platform": "bangalore"
@@ -322,3 +311,21 @@ def get_key(user_id):
     for article in post['data']:
         key = article['profileKey']
     return key
+
+
+def post_comment_to_social_media(platforms: list[str], id: str, comment: str):
+    """
+    This method posts a comment to a social media post
+    """
+    payload = {
+        'id': id,
+        'platforms': platforms,
+        'comment': comment
+    }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': f'Bearer {str(ARYSHARE_KEY)}'}
+
+    response = requests.post('https://app.ayrshare.com/api/comments',
+                             json=payload,
+                             headers=headers)
+    return response.json()

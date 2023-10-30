@@ -1,9 +1,3 @@
-from helpers import (download_and_upload_image,
-                     save_data, create_event, has_access,
-                     fetch_user_info, get_dowellclock,
-                     get_image, pretty_print, save_comments, tag_visible,
-                     check_connected_accounts, check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key)
 import concurrent.futures
 import datetime
 import json
@@ -21,7 +15,6 @@ import pytz
 import requests
 import wikipediaapi
 from PIL import Image
-from ayrshare import SocialPost
 from bson import ObjectId
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -38,14 +31,20 @@ from pexels_api import API
 from pymongo import MongoClient
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 # rest(React endpoints)
 from rest_framework.views import APIView
+
 from create_article import settings
+from helpers import (download_and_upload_image,
+                     save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
+                     check_if_user_has_social_media_profile_in_aryshare, text_from_html,
+                     update_aryshare, get_key, post_comment_to_social_media)
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
-                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,MostRecentJsonSerializer)
-
+                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
+                          MostRecentJsonSerializer, PostCommentSerializer)
 
 global PEXELS_API_KEY
 
@@ -1193,7 +1192,7 @@ def api_call(postes, platforms, key, image, request, post_id):
         messages.error(request, 'error in posting')
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
         messages.success(
-            request, 'post have been sucessfully posted')
+            request, 'post have been successfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
@@ -3361,3 +3360,26 @@ def User_DetailView(request, id):
     collection = db['user_info']
     user = collection.find_one({'_id': ObjectId(id)})
     return render(request, 'step2/user_info_detail.html', {'user': user})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PostCommentAPIView(APIView):
+
+    def post(self, request):
+        if 'session_id' and 'username' in request.session:
+            post_comment_serializer = PostCommentSerializer(data=request.data)
+            if not post_comment_serializer.is_valid():
+                return Response(post_comment_serializer.errors, status=HTTP_400_BAD_REQUEST)
+            post_data = post_comment_serializer.validated_data
+
+            response = post_comment_to_social_media(
+                id=post_data.get('id'),
+                platforms=sorted(post_data.get('platforms')),
+                comment=post_data.get('comment'),
+            )
+            status = HTTP_200_OK
+            if response.get('status') == 'error':
+                status = HTTP_400_BAD_REQUEST
+            return Response(response, status=status)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
