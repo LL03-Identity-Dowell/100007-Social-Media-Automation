@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 
-function NotFound({show}) {
+function NotFound({close}) {
     useEffect(()=>{
-        show()
+        close()
       }, [])
     return (
         <div>Page not Found</div>
