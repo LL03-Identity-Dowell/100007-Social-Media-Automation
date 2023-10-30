@@ -30,11 +30,11 @@ const MostRecent = () => {
       .then((response) => {
         setError(null);
         setLoading(false);
-        let data = response.data;
+        let data = response.data.MostRecentPosts.response;
         setArticles(data);
-        console.log(data);
-        setCount(data.total_items);
-        setPageCount(Math.ceil(data.total_items / perPage));
+        console.log(response.data);
+        setCount(response.data.total_items);
+        setPageCount(Math.ceil(response.data.total_items / perPage));
         setShowMorePages(pageCount > pagesToDisplay);
         window.scrollTo(0, 0);
       })
