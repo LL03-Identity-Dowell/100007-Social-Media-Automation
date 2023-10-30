@@ -65,7 +65,7 @@ urlpatterns = [
          name='targeted-cities-update'),
     path('api/v1/hash-tags-and-mentions/', HashMentionView.as_view(),
          name='save_hash_mentions'),
-    path('api/v1/update-hash-tags-and-mentions/ ', HashMentionUpdateView.as_view(),
+    path('api/v1/update-hash-tags-and-mentions/', HashMentionUpdateView.as_view(),
          name='update_hash_mentions'),
     path('api/v1/facebook-form/', FacebookFormAPI.as_view(),
          name='facebook-form-api'),
