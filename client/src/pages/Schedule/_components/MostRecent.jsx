@@ -1,25 +1,38 @@
 import { useEffect, useState } from "react";
 import Loading from "/src/components/Loading.jsx";
 import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
+import { Pagination } from "../../../components/Pagination";
 
 const MostRecent = () => {
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState({
+    list: [],
+    totalPage: 0,
+    totalPosts: 0,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [pageNumber, setPageNumber] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/v1/recent_posts/", {
-          method: "GET",
-          credentials: "include",
-        });
+        const res = await fetch(
+          `http://127.0.0.1:8000/api/v1/recent_posts?page=${pageNumber}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           setSuccess("Successfully fetched articles");
-          setArticles(data["Most Recent Posts"]["response"]);
+          setArticles({
+            list: data["Most Recent Posts"]["response"],
+            totalPage: data.total_pages,
+            totalPosts: data.total_items,
+          });
           setError("");
         }
       } catch (error) {
@@ -31,19 +44,20 @@ const MostRecent = () => {
     };
 
     fetchData();
-  }, []);
+  }, [pageNumber]);
+
   return (
     <div className='px-20'>
       <h3 className='text-[#495057] font-bold text-start'>
-        Total posts count: {articles.length}
+        Total posts count: {articles.totalPosts}
       </h3>
       <ul className='space-y-10 '>
         {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
         {success !== "" && <SuccessMessages>{success}</SuccessMessages>}
         {loading ? (
           <Loading />
-        ) : articles.length ? (
-          articles.map((item) => (
+        ) : articles.totalPosts ? (
+          articles.list.map((item) => (
             <li
               id={item?.PK}
               key={item?.PK}
@@ -70,6 +84,13 @@ const MostRecent = () => {
             </li>
           ))
         ) : null}
+        <div className='flex justify-center w-full pr-24'>
+          <Pagination
+            currentPage={pageNumber}
+            setPageNumber={setPageNumber}
+            totalPage={articles.totalPage}
+          />
+        </div>
       </ul>
     </div>
   );
