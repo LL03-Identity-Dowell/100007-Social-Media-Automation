@@ -39,7 +39,7 @@ from create_article import settings
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key, post_comment_to_social_media)
+                     update_aryshare, get_key, post_comment_to_social_media, get_post_comments)
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
@@ -3377,9 +3377,26 @@ class PostCommentAPIView(APIView):
                 platforms=sorted(post_data.get('platforms')),
                 comment=post_data.get('comment'),
             )
-            status = HTTP_200_OK
+            response_status = HTTP_200_OK
             if response.get('status') == 'error':
-                status = HTTP_400_BAD_REQUEST
-            return Response(response, status=status)
+                response_status = HTTP_400_BAD_REQUEST
+            return Response(response, status=response_status)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GetPostCommentsView(APIView):
+
+    def get(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+
+            response = get_post_comments(
+                post_id=post_id,
+            )
+            response_status = HTTP_200_OK
+            if response.get('status') == 'error':
+                response_status = HTTP_400_BAD_REQUEST
+            return Response(response, status=response_status)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
