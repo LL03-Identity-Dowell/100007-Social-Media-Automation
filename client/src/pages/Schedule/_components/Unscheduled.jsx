@@ -10,10 +10,8 @@ import {
 
 import Pagination from "../../../components/Pagination";
 
-import dummyData from "./data";
-
 const UnscheduledPage = () => {
-  const [unscheduledPost, setUnscheduledPost] = useState([])
+  const [unscheduledPost, setUnscheduledPost] = useState([]);
 
   //Load unscheduled data from API
   const url = "http://127.0.0.1:8000/api/v1/unscheduled-json/";
@@ -23,8 +21,8 @@ const UnscheduledPage = () => {
         withCredentials: true,
       })
       .then((response) => {
-        console.log(response.data);
-        //setUnscheduledPost(response.data)
+        let unscheduledData = response.data.Unscheduled_Posts;
+        setUnscheduledPost(unscheduledData.response);
       })
       .catch((error) => {
         console.log(error);
@@ -39,8 +37,8 @@ const UnscheduledPage = () => {
   const pageCount = 5;
   const lastIndex = currentPage * pageCount;
   const firstIndex = lastIndex - pageCount;
-  const currentPost = dummyData.slice(firstIndex, lastIndex);
-  const nPage = Math.ceil(dummyData.length / pageCount);
+  const currentPost = unscheduledPost.slice(firstIndex, lastIndex);
+  const nPage = Math.ceil(unscheduledPost.length / pageCount);
   const prevPage = () => {
     if (currentPage !== 1) {
       setCurrentPage(currentPage - 1);
@@ -57,10 +55,10 @@ const UnscheduledPage = () => {
   return (
     <div className="px-20">
       <h3 className="text-[#495057] font-bold">
-        Total posts count: {dummyData.length}
+        Total posts count: {unscheduledPost.length}
       </h3>
       <ul className="space-y-10 ">
-        {currentPost.map((item) => ( 
+        {currentPost.map((item) => (
           <li
             id={item.PK}
             key={item.PK}
@@ -72,7 +70,6 @@ const UnscheduledPage = () => {
                 {item.title}
               </h3>
               <p className="text-[#333]">{item.paragraph}</p>
-
               <div className="self-end space-x-8">
                 <Modal article={item} title="post">
                   <Dialog.Close asChild>
@@ -113,7 +110,7 @@ const UnscheduledPage = () => {
         ))}
         <Pagination
           pageCount={pageCount}
-          totalPage={dummyData.length}
+          totalPage={unscheduledPost.length}
           currentPage={currentPage}
           paginate={paginate}
           prevPage={prevPage}
