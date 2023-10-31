@@ -60,7 +60,7 @@ const Article = ({ show }) => {
       paragraph: paragraph,
       source: source
     };
-    console.log(dataToSend);
+    // console.log(dataToSend);
     setClickedPost(dataToSend);
     setButtonClicked(true);
   }

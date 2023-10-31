@@ -18,13 +18,13 @@ const ApprovalByClient = () => {
   });
 
   useEffect(() => {
-    let savedState = JSON.parse(localStorage.getItem("approvalData"));
-    setApprovals({
-      topic: !savedState.topic ? false : true,
-      article: !savedState.article ? false : true,
-      post: !savedState.post ? false : true,
-      schedule: !savedState.schedule ? false : true,
-    });
+    // let savedState = JSON.parse(localStorage.getItem("approvalData"));
+    // setApprovals({
+    //   topic: !savedState.topic ? false : true,
+    //   article: !savedState.article ? false : true,
+    //   post: !savedState.post ? false : true,
+    //   schedule: !savedState.schedule ? false : true,
+    // });
 
     fetch();
   }, []);
