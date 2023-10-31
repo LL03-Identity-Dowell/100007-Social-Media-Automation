@@ -1048,32 +1048,6 @@ class TargetedCitiesUpdateView(APIView):
             return Response({'detail': 'Targeted cities updated successfully'}, status=status.HTTP_200_OK)
 
 
-class HashMentionView(APIView):
-    def get(self, request):
-        session_id = request.GET.get("session_id", None)
-        if 'session_id' in request.session and 'username' in request.session:
-            user_data = fetch_user_info(request)
-            print(user_data)
-            if len(user_data['data']) == 0:
-                status = 'insert'
-            else:
-                status = 'update'
-            return Response({'status': status})
-
-    def post(self, request):
-        session_id = request.GET.get("session_id", None)
-        if request.method != "POST":
-            return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            time = localtime()
-            test_date = str(localdate())
-            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-            event_id = create_event()['event_id']
-            hashtag_list = request.data.get('hashtags_list').split(',')
-            mentions_list = request.data.get('mentions_list').split(',')
-
-
 class ListArticleView(APIView):
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
@@ -3974,8 +3948,9 @@ class HashMentionView(APIView):
 
 
 class HashMentionUpdateView(APIView):
-    permission_classes = ()     
+    permission_classes = ()
     authentication_classes = ()
+
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if 'session_id' in request.session and 'username' in request.session:
