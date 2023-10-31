@@ -5,7 +5,11 @@ import Loading from "../../../components/Loading";
 import { ErrorMessages } from "../../../components/Messages";
 
 const MostRecent = () => {
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState({
+    list: [],
+    totalPage: 0,
+    totalPosts: 0,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [count, setCount] = useState(0);
@@ -62,6 +66,7 @@ const MostRecent = () => {
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <h3 className='text-[#495057] font-bold text-start'>
+
         Total posts count: {count}
       </h3>
       <ul className='space-y-10 '>
@@ -93,6 +98,7 @@ const MostRecent = () => {
               </li>
             ))
           : null}
+
       </ul>
 
 
