@@ -45,6 +45,7 @@ from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer, MostRecentJsonSerializer)
+from django_q.tasks import async_task
 
 
 global PEXELS_API_KEY
@@ -231,823 +232,6 @@ class MainAPIView(APIView):
 '''
 step-2 starts here
 '''
-
-
-@csrf_exempt
-@xframe_options_exempt
-def login(request):
-    return render(request, 'login.html')
-    # return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-def Logout(request):
-    session_id = request.session.get("session_id")
-    if session_id:
-        try:
-            del request.session["session_id"]
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
-        except:
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
-    else:
-        return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
-
-
-@csrf_exempt
-@xframe_options_exempt
-def logout(request):
-    return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def reset_password(request):
-    return render(request, 'reset_password.html')
-    # return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def confirm_reset_password(request):
-    # return render(request, 'login.html')
-    return HttpResponseRedirect(reverse("generate_article:login"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def register(request):
-    return render(request, 'signup.html')
-
-
-class UserApprovalView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
-
-    def get(self, request):
-        session_id = request.GET.get("session_id", None)
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
-
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-
-        print(response)
-        response_data_json = json.loads(response.json())
-        print("Here we have data from this page", response_data_json)
-        user_id = str(request.session['user_id'])
-        if len(response_data_json['data']) == 0:
-            status = 'insert'
-        else:
-            status = 'update'
-
-        return Response({'status': status})
-
-    def post(self, request):
-        session_id = request.GET.get("session_id", None)
-        if request.method != "POST":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else:
-            data = request.data  # Use request.data to access JSON data
-            topic = data.get("topic")
-            article = data.get("article")
-            post = data.get("post")
-            schedule = data.get("schedule")
-            time = localtime()
-            test_date = str(localdate())
-            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-            event_id = create_event()['event_id']
-
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            payload = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "eventId": event_id,
-                "command": "insert",
-
-                "field": {
-                    "user_id": request.session['user_id'],
-                    "topic": topic,
-                    "post": post,
-                    "article": article,
-                    "schedule": schedule,
-                    "session_id": session_id,
-                    "eventId": event_id,
-                    'client_admin_id': request.session['userinfo']['client_admin_id'],
-                    "date": date,
-                    "time": str(time),
-                },
-                "update_field": {
-                    "approvals": {
-                        "topic": topic,
-                        "post": post,
-                        "article": article,
-                        "schedule": schedule,
-                    },
-                },
-                "platform": "bangalore"
-            }
-            headers = {
-                'Content-Type': 'application/json'
-            }
-
-            # Use the json parameter to send JSON data
-            response = requests.post(url, headers=headers, json=payload)
-            print(response.text)
-            messages.success(request, "Details updated successfully.")
-
-            return Response({
-                'topic': topic,
-                'article': article,
-                'post': post,
-                'schedule': schedule
-            }, status=status.HTTP_200_OK)
-
-    def put(self, request):
-        session_id = request.GET.get("session_id", None)
-        if request.method != "PUT":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else:
-            data = request.data  # Use request.data to access JSON data
-            topic = data.get("topic")
-            print("I got", topic)
-            article = data.get("article")
-            post = data.get("post")
-            schedule = data.get("schedule")
-            time = localtime()
-            test_date = str(localdate())
-            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-            event_id = create_event()['event_id']
-
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            payload = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {
-                    'user_id': request.session['user_id']
-                },
-                "update_field": {
-                    "topic": topic,
-                    "post": post,
-                    "article": article,
-                    "schedule": schedule,
-                },
-                "platform": "bangalore"
-            }
-            headers = {
-                'Content-Type': 'application/json'
-            }
-            print("I have", payload)
-            # Use the json parameter to send JSON data
-            response = requests.post(url, headers=headers, json=payload)
-            print(response.text)
-            messages.success(request, "Approvals updated successfully.")
-            return Response({
-                'topic': topic,
-                'article': article,
-                'post': post,
-                'schedule': schedule
-            }, status=status.HTTP_200_OK)
-
-
-def check_if_user_has_social_media_profile_in_aryshare(username):
-    """
-    This function checks if a user has a profile account in aryshare
-    """
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"
-    }
-    response = requests.get(
-        'https://app.ayrshare.com/api/profiles', headers=headers)
-    profiles_data = response.json()
-    if not isinstance(profiles_data.get('profiles'), list):
-        return False
-    for profile_data in profiles_data.get('profiles'):
-        if username == profile_data.get('title'):
-            return True
-    return False
-
-
-def check_connected_accounts(username):
-    headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
-    r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
-    socials = ['hello']
-    try:
-        for name in r.json()['profiles']:
-            if name['title'] == username:
-                socials = name['activeSocialAccounts']
-    except:
-        pass
-    return (socials)
-
-
-@csrf_exempt
-@xframe_options_exempt
-def social_media_channels(request):
-
-    username = request.session['username']
-    session = request.session['session_id']
-    print(session)
-    user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
-        username)
-    linked_accounts = check_connected_accounts(username)
-    context_data = {'user_has_social_media_profile': user_has_social_media_profile,
-                    'linked_accounts': linked_accounts}
-    return render(request, 'social_media_channels.html', context_data)
-
-
-def linked_account_json(request):
-    username = request.session['username']
-    linked_accounts = check_connected_accounts(username)
-
-    return JsonResponse({'response': linked_accounts})
-
-
-@csrf_exempt
-@xframe_options_exempt
-def aryshare_profile(request):
-    event_id = create_event()['event_id']
-    user = request.session['username']
-    payload = {'title': user}
-    headers = {'Content-Type': 'application/json',
-               'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
-
-    r = requests.post('https://app.ayrshare.com/api/profiles/profile',
-                      json=payload,
-                      headers=headers)
-    data = r.json()
-    print(data)
-    if data['status'] == 'error':
-        messages.error(request, data['message'])
-    else:
-
-        url = "http://uxlivinglab.pythonanywhere.com"
-        test_date = str(localdate())
-
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "ayrshare_info",
-            "document": "ayrshare_info",
-            "team_member_ID": "100007001",
-            "function_ID": "ABCDE",
-            "command": "insert",
-            "field": {
-                "user_id": request.session['user_id'],
-                "session_id": request.session['session_id'],
-                'title': data['title'],
-                'refId': data['refId'],
-                'profileKey': data['profileKey'],
-                "eventId": event_id,
-
-            },
-            "update_field": {
-                "aryshare_details": {
-
-
-
-                }
-
-
-            },
-            "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
-        print(data)
-        messages.success(request, "Social media profile created...")
-    return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def link_media_channels(request):
-    session_id = request.GET.get("session_id", None)
-    url = "http://uxlivinglab.pythonanywhere.com/"
-    headers = {'content-type': 'application/json'}
-
-    payload = {
-        "cluster": "socialmedia",
-        "database": "socialmedia",
-        "collection": "ayrshare_info",
-        "document": "ayrshare_info",
-        "team_member_ID": "100007001",
-        "function_ID": "ABCDE",
-        "command": "fetch",
-        "field": {"user_id": request.session['user_id']},
-        "update_field": {
-            "order_nos": 21
-        },
-        "platform": "bangalore"
-    }
-    data = json.dumps(payload)
-    response = requests.request("POST", url, headers=headers, data=data)
-    print(response.json())
-    # profile = request.session['operations_right']
-
-    post = json.loads(response.json())
-
-    for posts in post['data']:
-        if posts['user_id'] == request.session['user_id']:
-            key = posts['profileKey']
-            print(key)
-    with open(r'/home/100007/dowellresearch.key') as f:
-        privateKey = f.read()
-
-    payload = {'domain': 'dowellresearch',
-               'privateKey': privateKey,
-               'profileKey': key,
-               'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
-               }
-    headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
-                      json=payload,
-                      headers=headers)
-    link = r.json()
-    print(link)
-    return redirect(link['url'])
-
-
-class FacebookFormAPI(APIView):
-    def post(self, request):
-        if request.method != "POST":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        page_id = request.data.get("page_id")
-        page_link = request.data.get("page_link")
-        page_password = request.data.get("page_password")
-        posts_no = request.data.get("posts_no")
-        event_id = create_event()['event_id']
-
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
-            "field": {
-                "user_id": request.session['user_id'],
-            },
-            "update_field": {
-                "facebook": {
-                    "page_id": page_id,
-                    "page_link": page_link,
-                    "password": page_password,
-                    "posts_per_day": posts_no,
-                    "event_id": event_id,
-                },
-            },
-            "platform": "bangalore"
-        }
-
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, headers=headers, json=payload)
-
-        if response.status_code == 200:
-            return Response({'message': 'Facebook details updated successfully'})
-        else:
-            return Response({'error': 'Failed to update Facebook details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class InstaFormAPI(APIView):
-    def post(self, request):
-        if request.method != "POST":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        page_id = request.POST.get("page_id")
-        page_link = request.POST.get("page_link")
-        page_password = request.POST.get("page_password")
-        posts_no = request.POST.get("posts_no")
-
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
-            "field": {
-                "user_id": request.session['user_id'],
-            },
-            "update_field": {
-                "instagram": {
-                    "page_id": page_id,
-                    "page_link": page_link,
-                    "password": page_password,
-                    "posts_per_day": posts_no,
-                },
-            },
-            "platform": "bangalore"
-        })
-
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.post(url, headers=headers, data=payload)
-        print(response.text)
-        messages.success(request, "Instagram details updated successfully.")
-        print(page_id, page_link, page_password, posts_no)
-        if response.status_code == 200:
-            return Response({'message': 'Instagram details updated successfully'})
-        else:
-            return Response({'error': 'Failed to update Instagram details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class XFormAPI(APIView):
-    def post(self, request):
-        if request.method != "POST":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        page_id = request.POST.get("page_id")
-        page_link = request.POST.get("page_link")
-        page_password = request.POST.get("page_password")
-        posts_no = request.POST.get("posts_no")
-
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
-            "field": {
-                "user_id": request.session['user_id'],
-            },
-            "update_field": {
-                "twitter": {
-                    "page_id": page_id,
-                    "page_link": page_link,
-                    "password": page_password,
-                    "posts_per_day": posts_no,
-                },
-            },
-            "platform": "bangalore"
-        })
-
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.post(url, headers=headers, data=payload)
-        print(response.text)
-        messages.success(request, "X details updated successfully.")
-        print('page_id:', page_id, 'page_link:', page_link,
-              'page_password:', page_password, 'post_no:', posts_no)
-        if response.status_code == 200:
-            return Response({'message': 'X details updated successfully'})
-        else:
-            return Response({'error': 'Failed to update X details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class LinkedInFormAPI(APIView):
-    def post(self, request):
-        if request.method != "POST":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        page_id = request.POST.get("page_id")
-        page_link = request.POST.get("page_link")
-        page_password = request.POST.get("page_password")
-        posts_no = request.POST.get("posts_no")
-
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
-            "field": {
-                "user_id": request.session['user_id'],
-            },
-            "update_field": {
-                "linkedin": {
-                    "page_id": page_id,
-                    "page_link": page_link,
-                    "password": page_password,
-                    "posts_per_day": posts_no,
-                },
-            },
-            "platform": "bangalore"
-        })
-
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.post(url, headers=headers, data=payload)
-        print(response.text)
-        messages.success(request, "LinkedIn details updated successfully.")
-        print(page_id, page_link, page_password, posts_no)
-        if response.status_code == 200:
-            return Response({'message': 'LinkedIn details updated successfully'})
-        else:
-            return Response({'error': 'Failed to update LinkedIn details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class YoutubeFormView(APIView):
-    def post(self, request):
-        if request.method != "POST":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else:
-            page_id = request.data.get("page_id")
-            page_link = request.data.get("page_link")
-            page_password = request.data.get("page_password")
-            posts_no = request.data.get("posts_no")
-
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            payload = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {
-                    "user_id": request.session['user_id'],
-                },
-                "update_field": {
-                    "youtube": {
-                        "page_id": page_id,
-                        "page_link": page_link,
-                        "password": page_password,
-                        "posts_per_day": posts_no,
-                    },
-                },
-                "platform": "bangalore"
-            }
-
-            headers = {
-                'Content-Type': 'application/json'
-            }
-
-            response = requests.post(url, headers=headers, json=payload)
-            print(response.text)
-            messages.success(request, "Youtube details updated successfully.")
-            print(page_id, page_link, page_password, posts_no)
-            if response.status_code == 200:
-                return Response({'message': 'Youtube details updated successfully'})
-            else:
-                return Response({'error': 'Failed to update Youtube details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class PinterestFormView(APIView):
-    def post(self, request):
-        if request.method != "POST":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else:
-            page_id = request.POST.get("page_id")
-            page_link = request.POST.get("page_link")
-            page_password = request.POST.get("page_password")
-            posts_no = request.POST.get("posts_no")
-
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            payload = json.dumps({
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {
-                    "user_id": request.session['user_id'],
-                },
-                "update_field": {
-                    "pinterest": {
-                        "page_id": page_id,
-                        "page_link": page_link,
-                        "password": page_password,
-                        "posts_per_day": posts_no,
-                    },
-                },
-                "platform": "bangalore"
-            })
-            headers = {
-                'Content-Type': 'application/json'
-            }
-
-            response = requests.request(
-                "POST", url, headers=headers, data=payload)
-            print(response.text)
-            messages.success(
-                request, "Pinterest details updated successfully.")
-            print(page_id, page_link, page_password, posts_no)
-            if response.status_code == 200:
-                return Response({'message': 'Pinterest details updated successfully'})
-            else:
-                return Response({'error': 'Failed to update Pinterest details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class ClientProfileFormView(APIView):
-    def post(self, request):
-        if request.method != "POST":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else:
-            address = request.POST.get("address")
-            business = request.POST.get("business")
-            product = request.POST.get("product")
-
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            payload = json.dumps({
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {
-                    "user_id": request.session['user_id'],
-                },
-                "update_field": {
-                    "profile": {
-                        "address": address,
-                        "business": business,
-                        "products": product,
-                        "logo": None
-                    },
-                },
-                "platform": "bangalore"
-            })
-            headers = {
-                'Content-Type': 'application/json'
-            }
-
-            response = requests.request(
-                "POST", url, headers=headers, data=payload)
-            print(address, business, product)
-            if response.status_code == 200:
-                return Response({'message': 'Client details updated successfully'})
-            else:
-                return Response({'error': 'Failed to update Client details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class TargetedCitiesListView(APIView):
-    def get(self, request):
-        if 'session_id' in request.session and 'username' in request.session:
-            url = 'http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/'
-
-            cities = []
-            try:
-                response = requests.get(url=url)
-                cities = response.json()
-            except Exception as e:
-                print('An error occurred:', str(e))
-
-            user_data = fetch_user_info(request)
-            if len(user_data['data']) == 0:
-                status = 'insert'
-            else:
-                status = 'update'
-
-            context_dict = {'cities': cities, 'status': status}
-            return Response(context_dict)
-        else:
-            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-class TargetedCitiesCreateView(APIView):
-    def post(self, request):
-        session_id = request.GET.get("session_id", None)
-        print("Here we have", session_id)
-        if request.method != "POST":
-            return Response({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            # Receive selected cities from the form
-            target_cities = request.data.getlist('target_cities[]')
-            time = localtime()
-            test_date = str(localdate())
-            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-            event_id = create_event()['event_id']
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            payload = json.dumps({
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "insert",
-                "field": {
-                    "user_id": request.session['user_id'],
-                    "session_id": session_id,
-                    "eventId": event_id,
-                    'client_admin_id': request.session['userinfo']['client_admin_id'],
-                    "date": date,
-                    "time": str(time),
-                    "target_city": target_cities,
-                },
-                "update_field": {
-                    "target_city": target_cities,
-                },
-                "platform": "bangalore"
-            })
-            headers = {
-                'Content-Type': 'application/json'
-            }
-
-            response = requests.post(url, headers=headers, data=payload)
-
-            user_data = fetch_user_info(request)
-            messages.success(
-                request, "target_cities details inserted successfully.")
-            return Response({'detail': 'Targeted cities created successfully'}, status=status.HTTP_201_CREATED)
-
-
-class TargetedCitiesUpdateView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
-
-    def put(self, request):
-        session_id = request.GET.get("session_id", None)
-        if request.method != "PUT":
-            return Response({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            # Receive selected cities from the form
-            target_cities = request.data.get('target_cities', [])
-            if not isinstance(target_cities, list):
-                target_cities = [target_cities]
-            print("Here", target_cities)
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            payload = json.dumps({
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {
-                    "user_id": request.session['user_id'],
-                },
-                "update_field": {
-                    "target_city": target_cities,
-                },
-                "platform": "bangalore"
-            })
-            headers = {
-                'Content-Type': 'application/json'
-            }
-
-            response = requests.post(url, headers=headers, data=payload)
-
-            user_data = fetch_user_info(request)
-            print(user_data)
-            messages.success(
-                request, "target_cities details updated successfully.")
-            return Response({'detail': 'Targeted cities updated successfully'}, status=status.HTTP_200_OK)
-
-
 class ListArticleView(APIView):
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
@@ -1363,7 +547,8 @@ class GenerateArticleView(APIView):
                                 "paragraph": article_str,
                                 "citation_and_url": sources,
                                 "subject": subject,
-                            }
+                              
+                        }
                             save_data('step3_data', 'step3_data',
                                       step3_data, '34567897799')
                             # Save data for step 2
@@ -1962,7 +1147,9 @@ class SavePostView(APIView):
                         "image": image,
                         "date": date,
                         "time": str(time),
-                        "status": ""
+                        "status": "",
+                    "timezone":request.session['timezone'],
+                    "username":request.session['username']
                     },
                     "update_field": {
                         "order_nos": 21
@@ -2361,6 +1548,91 @@ def update_schedule(pk):
     response = requests.request(
         "POST", url, headers=headers, data=payload)
     return ('scheduled')
+
+
+def get_key(user_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "ayrshare_info",
+        "document": "ayrshare_info",
+        "team_member_ID": "100007001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    post = json.loads(response.json())
+    for article in post['data']:
+        key = article['profileKey']
+    return key
+
+
+def api_call(postes, platforms, key, image, request, post_id):
+
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        messages.error(request, 'error in posting')
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_most_recent(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
+
+
+def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
+
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               'scheduleDate': str(formart),
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        for error in r1.json()['posts']:
+            for message in error['errors']:
+                messages.error(request, message['message'][:62])
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_schedule(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
 
 
 @csrf_exempt
@@ -3988,6 +3260,9 @@ class HashMentionUpdateView(APIView):
 
 
 class UserApprovalView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request):
         session_id = request.GET.get("session_id", None)
         url = "http://uxlivinglab.pythonanywhere.com/"
@@ -4019,7 +3294,6 @@ class UserApprovalView(APIView):
             status = 'insert'
         else:
             status = 'update'
-        # serialized_status = UserApprovalSerializer({'status': status}).data
 
         return Response({'status': status})
 
@@ -4028,10 +3302,11 @@ class UserApprovalView(APIView):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -4040,7 +3315,7 @@ class UserApprovalView(APIView):
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -4071,12 +3346,13 @@ class UserApprovalView(APIView):
                     },
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
 
-            response = requests.post(url, headers=headers, data=payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Details updated successfully.")
 
@@ -4092,20 +3368,21 @@ class UserApprovalView(APIView):
         if request.method != "PUT":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            print("I got", topic)
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
-            user_id = '62e7aea0eda55a0cd5e839fc'
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -4113,7 +3390,6 @@ class UserApprovalView(APIView):
                 "team_member_ID": "1071",
                 "function_ID": "ABCDE",
                 "command": "update",
-
                 "field": {
                     'user_id': request.session['user_id']
                 },
@@ -4124,12 +3400,13 @@ class UserApprovalView(APIView):
                     "schedule": schedule,
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
-
-            response = requests.put(url, headers=headers, data=payload)
+            print("I have", payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Approvals updated successfully.")
             return Response({
@@ -4138,7 +3415,6 @@ class UserApprovalView(APIView):
                 'post': post,
                 'schedule': schedule
             }, status=status.HTTP_200_OK)
-
 
 '''user settings ends here'''
 
