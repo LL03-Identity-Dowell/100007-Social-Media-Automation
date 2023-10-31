@@ -73,11 +73,24 @@ function Topic({ show }) {
       {inputs.success && <SuccessMessages>{inputs.success}</SuccessMessages>}
       {inputs.success && <ErrorMessages>{inputs.error}</ErrorMessages>}
       <div className="flex flex-col justify-center items-center pb-10">
+
         <div>
           <h1 className="font-bold text-customGray text-xl md:text-3xl py-4">
             What is your Topic About?
           </h1>
         </div>
+
+        {/* Sentence preview */}
+        <div className="flex items-center p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+          <svg className="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+          </svg>
+          <span className="sr-only">Info</span>
+          <div>
+            <span className="font-medium">Sample Topic Output:</span> The Livinglab was testing workflow ai digital documentation.
+          </div>
+        </div>
+
         <form
           className="w-full mt-4 grid gap-4 md:gap-10"
           onSubmit={handleSubmit}
@@ -349,6 +362,19 @@ function Topic({ show }) {
             </div>
           </div>
 
+          {/* Sentence preview */}
+          <div class="flex items-center justify-center">
+            <div className="flex items-center p-4 mb-2 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+              <svg className="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+              </svg>
+              <span className="sr-only">Info</span>
+              <div>
+                <span className="font-medium">Your sample output:</span> --------------------------------
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px] ">
               <button className="bg-customYellow rounded py-2 px-6 md:mr-8">
@@ -357,6 +383,8 @@ function Topic({ show }) {
             </div>
           </div>
         </form>
+
+
       </div>
     </div>
   );
