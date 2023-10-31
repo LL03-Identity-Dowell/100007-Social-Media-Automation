@@ -81,7 +81,7 @@ const PostList = ({ show }) => {
   }, [buttonClicked, clickedPost]);
 
 
-  console.log(postData)
+  // console.log(postData)
 
   const handlePageClick = (data) => {
     setPage(data.selected);

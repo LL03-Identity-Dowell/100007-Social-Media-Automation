@@ -5,29 +5,34 @@ import axios from "axios";
 
 import { UnstyledButton } from "../../../components/UnstyledBtn";
 import Loading from "../../../components/Loading";
-import { ErrorMessages } from "../../../components/Messages";
+import { ErrorMessages, SuccessMessages } from "../../../components/Messages";
 
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
 }
 
 function PostDetail({ show }) {
-    // const [text, setText] = useState('');
+    const [editing, setEditing] = useState(false);
     const [wordCount, setwordCount] = useState(0);
     const [characCount, setCharacCount] = useState(0);
     const [hashCount, setHashCount] = useState(0);
     const [postDetailData, setPostDetailData] = useState();
-    const [newParagraph, setNewParagraph] = useState([]);
+    const [newParagraphs, setNewParagraphs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
+    const [success, setSuccess] = useState(false);
 
-    const [editing, setEditing] = useState(false);
-    // const [isModalOpen, setModalOpen] = useState(false);
+    const [inputs, setInputs] = useState({
+        qualitative_categorization: "Category",
+        targeted_for: "Apple-Technology",
+        designed_for: "Twitter-uxlivinglab",
+        targeted_category: "Brand",
+    });
 
     const location = useLocation();
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         show();
@@ -35,6 +40,53 @@ function PostDetail({ show }) {
         fetch();
     }, []);
 
+
+    const handelChange = (e) => {
+        const { name, value } = e.target;
+
+        setInputs({
+            ...inputs,
+            [name]: value,
+        });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        const data = {
+            qualitative_categorization: inputs.qualitative_categorization,
+            targeted_for: inputs.targeted_for,
+            designed_for: inputs.designed_for,
+            targeted_category: inputs.targeted_category,
+            title: postDetailData ? postDetailData.post.title : "",
+            paragraphs: newParagraphs ? newParagraphs : [],
+            source: postDetailData ? postDetailData.post.source : "",
+            image: postDetailData ? postDetailData.images : "",
+        };
+        console.log(data);
+        // Make a POST request to the API endpoint with the session_id
+        axios
+            .post(`http://127.0.0.1:8000/api/v1/save_post/`, data, {
+                withCredentials: true,
+            })
+            .then((response) => {
+                setError(null);
+                setLoading(false);
+                let resData = response.data;
+                console.log(resData.message);
+                setSuccess(resData.message)
+                setTimeout(() => {
+                    navigate("/unscheduled");
+                }, 2000);
+
+            })
+            .catch((error) => {
+                setLoading(false);
+                setError("Server error, Please try again later");
+                console.error("Error fetching article:", error);
+            });
+    }
 
     const handleCharacCount = () => {
         const postParagraphsDiv = document.getElementById('post-paragraphs');
@@ -57,20 +109,22 @@ function PostDetail({ show }) {
         }
     }
 
+
+
     // console.log(wordCount)
 
     const fetch = () => {
         setLoading(true);
 
-        const postDetailRecieved = location.state.data;
+        const { post_id, title, paragraph, source } = location.state.data;
 
         // console.log(postDetailRecieved);
 
         let payload = {
-            post_id: postDetailRecieved.post_id,
-            title: postDetailRecieved.title,
-            paragraph: postDetailRecieved.paragraph,
-            source: postDetailRecieved.source
+            post_id: post_id,
+            title: title,
+            paragraph: paragraph,
+            source: source
         }
 
         // Make a POST request to the API endpoint with the session_id
@@ -87,7 +141,7 @@ function PostDetail({ show }) {
                 let paragraph = data.post.paragraph[0]
                 // console.log(paragraph)
                 paragraph = paragraph.split("\n\n");
-                setNewParagraph(paragraph)
+                setNewParagraphs(paragraph)
                 handleCharacCount();
                 // console.log(paragraph)
                 window.scrollTo(0, 0);
@@ -135,6 +189,7 @@ function PostDetail({ show }) {
         <div className='m-4 lg:m-8'>
             {loading && <Loading />}
             {error && <ErrorMessages>{error}</ErrorMessages>}
+            {success && <SuccessMessages>{success}</SuccessMessages>}
             <div className='flex flex-row-reverse'>
                 {/* Dropdown menu */}
                 <Menu as='div' className='relative inline-block text-left'>
@@ -238,28 +293,12 @@ function PostDetail({ show }) {
             <hr className='my-4' />
 
             <div id='post-paragraphs' className='mt-4 md:mt-8'>
-                {postDetailData && newParagraph.map((paragraph, index) => (
-                    <div className='text-base post-paragraph' key={index}>
-                        {index > 0 && paragraph}
-                    </div>
-                ))
-
-
-                    // <div className='text-base post-paragraph'>
-                    //     The Livinglab is an innovative research and development laboratory
-                    //     that focuses on the use of technology to improve the quality of life.
-                    //     The Livinglab has recently released a new document that discusses the
-                    //     use of technology in the industry. This document, entitled “The Inform
-                    //     Documentation”, provides an in-depth look at how technology can be
-                    //     used in the industry to improve efficiency and productivity.
-                    // </div>
-                    // <div className='text-base post-paragraph'>
-                    //     The Livinglab is an innovative research and development laboratory
-                    //     that focuses on the use of technology to improve the quality of life.
-                    //     The Livinglab has recently released a new document that discusses the
-                    //     use of technology in the industry. This document, entitled “The Inform
-                    //     Documentation”.
-                    // </div>
+                {
+                    postDetailData && newParagraphs.map((paragraph, index) => (
+                        <div className='text-base post-paragraph' key={index}>
+                            {index > 0 && paragraph}
+                        </div>
+                    ))
                 }
             </div>
 
@@ -305,10 +344,12 @@ function PostDetail({ show }) {
                             <strong>Qualitative categorization:</strong>
                         </label>
                         <select
+                            value={inputs.qualitative_categorization}
                             name='qualitative_categorization'
+                            onChange={handelChange}
                             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                         >
-                            <option value='category'>category</option>
+                            <option value='Category'>Category</option>
                         </select>
                     </div>
 
@@ -320,11 +361,111 @@ function PostDetail({ show }) {
                             <strong>Targeted for:</strong>
                         </label>
                         <select
+                            value={inputs.targeted_for}
                             id='brand'
+                            onChange={handelChange}
                             name='targeted_for'
                             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                         >
                             <option value='Apple-Technology'>Apple-Technology</option>
+                            <option value="Google-Technology">Google-Technology</option>
+                            <option value="Microsoft-Technology">Microsoft-Technology</option>
+                            <option value="Amazon-Technology">Amazon-Technology</option>
+                            <option value="Facebook-Technology">Facebook-Technology</option>
+                            <option value="Coca-Cola-Beverages">Coca-Cola-Beverages</option>
+                            <option value="Disney-Leisure">Disney-Leisure</option>
+                            <option value="Samsung-Technology">Samsung-Technology</option>
+                            <option value="Louis Vuitton-Luxury">Louis Vuitton-Luxury</option>
+                            <option value="McDonald's-Restaurants">McDonald's-Restaurants</option>
+                            <option value="Toyota-Automotive">Toyota-Automotive</option>
+                            <option value="Intel-Technology">Intel-Technology</option>
+                            <option value="NIKE-Apparel">NIKE-Apparel</option>
+                            <option value="AT&T-Telecom">AT&T-Telecom</option>
+                            <option value="Cisco-Technology">Cisco-Technology</option>
+                            <option value="Oracle-Technology">Oracle-Technology</option>
+                            <option value="Verizon-Telecom">Verizon-Telecom</option>
+                            <option value="Visa-Financial Services">Visa-Financial Services</option>
+                            <option value="Walmart-Retail">Walmart-Retail</option>
+                            <option value="GE-Diversified">GE-Diversified</option>
+                            <option value="Budweiser-Alcohol">Budweiser-Alcohol</option>
+                            <option value="SAP-Technology">SAP-Technology</option>
+                            <option value="Mercedes-Benz-Automotive">Mercedes-Benz-Automotive</option>
+                            <option value="IBM-Technology">IBM-Technology</option>
+                            <option value="Marlboro-Tobacco">Marlboro-Tobacco</option>
+                            <option value="Netflix-Technology">Netflix-Technology</option>
+                            <option value="BMW-Automotive">BMW-Automotive</option>
+                            <option value="American Express-Financial Services">American Express-Financial Services</option>
+                            <option value="Honda-Automotive">Honda-Automotive</option>
+                            <option value="LOreal-Consumer Packaged Goods">LOreal-Consumer Packaged Goods</option>
+                            <option value="Gucci-Luxury">Gucci-Luxury</option>
+                            <option value="Hermes-Luxury">Hermes-Luxury</option>
+                            <option value="Nescafe-Beverages">Nescafe-Beverages</option>
+                            <option value="Home Depot-Retail">Home Depot-Retail</option>
+                            <option value="Accenture-Business Services">Accenture-Business Services</option>
+                            <option value="Pepsi-Beverages">Pepsi-Beverages</option>
+                            <option value="Starbucks-Restaurants">Starbucks-Restaurants</option>
+                            <option value="Mastercard-Financial Services">Mastercard-Financial Services</option>
+                            <option value="Frito-Lay-Consummer Packaged Goods">Frito-Lay-Consummer Packaged Goods</option>
+                            <option value="IKEA-Retail">IKEA-Retail</option>
+                            <option value="Zara-Retail">Zara-Retail</option>
+                            <option value="Gillette-Consumer Packaged Goods">Gillette-Consumer Packaged Goods</option>
+                            <option value="HSBC-Financial Services">HSBC-Financial Services</option>
+                            <option value="Audi-Automotive">Audi-Automotive</option>
+                            <option value="J.P.Morgan-Financial Services">J.P.Morgan-Financial Services</option>
+                            <option value="Deloitte-Business Services">Deloitte-Business Services</option>
+                            <option value="Sony-Technology">Sony-Technology</option>
+                            <option value="UPS-Transportation">UPS-Transportation</option>
+                            <option value="Bank of America-Financial Services">Bank of America-Financial Services</option>
+                            <option value="Chase-Financial Services">Chase-Financial Services</option>
+                            <option value="Adidas-Apparel">Adidas-Apparel</option>
+                            <option value="Channel-Luxuey">Channel-Luxuey</option>
+                            <option value="Siemens-Diversified">Siemens-Diversified</option>
+                            <option value="Nestle-Consumer Packaged Goods">Nestle-Consumer Packaged Goods</option>
+                            <option value="CVS-Retail">CVS-Retail</option>
+                            <option value="Cartier-Luxury">Cartier-Luxury</option>
+                            <option value="Porsche-Automotive">Porsche-Automotive</option>
+                            <option value="ESPN-Media">ESPN-Media</option>
+                            <option value="Citi-Financial Services">Citi-Financial Services</option>
+                            <option value="Wells Fargo -Financial Servies">Wells Fargo -Financial Servies</option>
+                            <option value="Adobe-Technology">Adobe-Technology</option>
+                            <option value="Pampers-Consumer Packaged Goods">Pampers-Consumer Packaged Goods</option>
+                            <option value="Corona-Alchol">Corona-Alchol</option>
+                            <option value="T-Mobile-Telecom">T-Mobile-Telecom</option>
+                            <option value="Ebay-Technology">Ebay-Technology</option>
+                            <option value="Chevrolet-Automotive">Chevrolet-Automotive</option>
+                            <option value="PayPal-Financial Services">PayPal-Financial Services</option>
+                            <option value="Ford-Automotive">Ford-Automotive</option>
+                            <option value="Red Bull-Beveragese">Red Bull-Beverages</option>
+                            <option value="PwC-Business Services">PwC-Business Services</option>
+                            <option value="HP-Technology">HP-Technology</option>
+                            <option value="Colgate-Consumer Packaged Goods">Colgate-Consumer Packaged Goods</option>
+                            <option value="Fox-Media">Fox-Media</option>
+                            <option value="Lowe's-Retail">Lowe's-Retail</option>
+                            <option value="Lancome-Consumer Packaged Goods">Lancome-Consumer Packaged Goods</option>
+                            <option value="H&M-Retail">H&M-Retail</option>
+                            <option value="Lexus-Automotive">Lexus-Automotive</option>
+                            <option value="Santander-Financial Services">Santander-Financial Services</option>
+                            <option value="Cosotco-Retail">Cosotco-Retail</option>
+                            <option value="Hyundai-Automotive">Hyundai-Automotive</option>
+                            <option value="Danone-Consumer Packaged Goods">Danone-Consumer Packaged Goods</option>
+                            <option value="Heinenken-Alcohol">Heineken-Alcohol</option>
+                            <option value="Uniqlo-Apparel">Uniqlo-Apparel</option>
+                            <option value="Goldman Sachs-Financial Services">Goldman Sachs-Financial Services</option>
+                            <option value="Hennessy-Alcohol">Hennessy-Alcohol</option>
+                            <option value="Nintendo-Technology">Nintendo-Technology</option>
+                            <option value="AXA-Financial Services">AXA-Financial Services</option>
+                            <option value="Allianz-Financial Services">Allianz-Financial Services</option>
+                            <option value="Dell-Technology">Dell-Technology</option>
+                            <option value="Caterpillar-Heavy Equipment">Caterpillar-Heavy Equipment</option>
+                            <option value="LEGO-Leisure">LEGO-Leisure</option>
+                            <option value="Huawai-Technology">Huawai-Technology</option>
+                            <option value="John Deere-Heavy Equipment">John Deere-Heavy Equipment</option>
+                            <option value="UBS-Financial Services">UBS-Financial Services</option>
+                            <option value="KFC-Restaurants">KFC-Restaurants</option>
+                            <option value="Burger King-Restaurants">Burger King-Restaurants</option>
+                            <option value="EY-Business Services">EY-Business Services</option>
+                            <option value="FedEx-Transportation">FedEx-Transportation</option>
+                            <option value="Volkswagen-Automotive">Volkswagen-Automotive</option>
                         </select>
                     </div>
 
@@ -336,11 +477,39 @@ function PostDetail({ show }) {
                             <strong>Designed for:</strong>
                         </label>
                         <select
+                            value={inputs.designed_for}
                             id='channel'
+                            onChange={handelChange}
                             name='designed_for'
                             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                         >
                             <option value='Twitter-uxlivinglab'>Twitter-uxlivinglab</option>
+                            <option value="Linkdin-uxliving">Linkdin-uxliving</option>
+                            <option value="Facebook-Customer stories">Facebook-Customer stories</option>
+                            <option value="Instagram-Livinglabstories">Instagram-Livinglabstories</option>
+                            <option value="Youtube-Dowell True Moments UX Living Lab">Youtube-Dowell True Moments UX Living Lab</option>
+                            <option value="Tiktok">Tiktok</option>
+                            <option value="Vimeo-(Brand)">Vimeo-(Brand)</option>
+                            <option value="Spotify podcast">Spotify podcast</option>
+                            <option value="Second life">Second life</option>
+                            <option value="Twitter-dowellresearch">Twitter-dowellresearch</option>
+                            <option value="Linkdin-dowellresearch">Linkedin-dowellresearch</option>
+                            <option value="Linkdin-Company page-Germany">Linkedin-Company page-Germany</option>
+                            <option value="Linkdin-Company page-Singapore">Linkedin-Company page-Singapore</option>
+                            <option value="Linkedin-Company page-UK">Linkedin-Company page-UK</option>
+                            <option value="Linkedin-Company page-Scandinavia">Linkedin-Company page-Scandinavia</option>
+                            <option value="Facebook-DoWell Research">Facebook-DoWell Research</option>
+                            <option value="Youtube-Dowell Research">Youtube-Dowell Research</option>
+                            <option value="Twitter-seeuser">Twitter-seeuser</option>
+                            <option value="Linkedin-Intership">Linkedin-Intership</option>
+                            <option value="Facebook-uxlivinglab team">Facebook-uxlivinglab team</option>
+                            <option value="Instagram-uxlivinglab team">Instagram-uxlivinglab team</option>
+                            <option value="Youtube-Team playlist">Youtube-Team playlist</option>
+                            <option value="Twitter-unpacandwin">Twitter-unpacandwin</option>
+                            <option value="Linkedin-unpacandwin">Linkedin-unpacandwin</option>
+                            <option value="Facebook-unpacandwin">Facebook-unpacandwin</option>
+                            <option value="Instagram-unpacandwin">Instagram-unpacandwin</option>
+                            <option value="Youtube-unpacandwin">Youtube-unpacandwin</option>
                         </select>
                     </div>
 
@@ -353,10 +522,15 @@ function PostDetail({ show }) {
                         </label>
                         <select
                             id='channelbrand'
+                            value={inputs.targeted_category}
+                            onChange={handelChange}
                             name='targeted_category'
                             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                         >
                             <option value='Brand'>Brand</option>
+                            <option value="Corporate">Corporate</option>
+                            <option value="Team building">Team building</option>
+                            <option value="Consumer contest">Consumer contest</option>
                         </select>
                     </div>
                 </div>
@@ -410,7 +584,7 @@ function PostDetail({ show }) {
                 />
                 <UnstyledButton
                     text={"Next"}
-                    className='text-base font-semibold bg-customBlue w-[128px] hover:bg-blue-800'
+                    className='text-base font-semibold bg-customBlue w-[128px] hover:bg-blue-800' onClick={handleSubmit}
                 />
             </div>
 
