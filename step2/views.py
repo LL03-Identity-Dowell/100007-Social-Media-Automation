@@ -1192,7 +1192,7 @@ def api_call(postes, platforms, key, image, request, post_id):
         messages.error(request, 'error in posting')
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
         messages.success(
-            request, 'post have been successfully posted')
+            request, 'post have been sucessfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
@@ -3360,43 +3360,3 @@ def User_DetailView(request, id):
     collection = db['user_info']
     user = collection.find_one({'_id': ObjectId(id)})
     return render(request, 'step2/user_info_detail.html', {'user': user})
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-class PostCommentAPIView(APIView):
-
-    def post(self, request):
-        if 'session_id' and 'username' in request.session:
-            post_comment_serializer = PostCommentSerializer(data=request.data)
-            if not post_comment_serializer.is_valid():
-                return Response(post_comment_serializer.errors, status=HTTP_400_BAD_REQUEST)
-            post_data = post_comment_serializer.validated_data
-
-            response = post_comment_to_social_media(
-                id=post_data.get('id'),
-                platforms=sorted(post_data.get('platforms')),
-                comment=post_data.get('comment'),
-            )
-            response_status = HTTP_200_OK
-            if response.get('status') == 'error':
-                response_status = HTTP_400_BAD_REQUEST
-            return Response(response, status=response_status)
-        else:
-            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-class GetPostCommentsView(APIView):
-
-    def get(self, request, post_id):
-        if 'session_id' and 'username' in request.session:
-
-            response = get_post_comments(
-                post_id=post_id,
-            )
-            response_status = HTTP_200_OK
-            if response.get('status') == 'error':
-                response_status = HTTP_400_BAD_REQUEST
-            return Response(response, status=response_status)
-        else:
-            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
