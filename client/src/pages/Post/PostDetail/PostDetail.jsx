@@ -41,6 +41,7 @@ function PostDetail({ show }) {
     }, []);
 
 
+    // handle input change
     const handelChange = (e) => {
         const { name, value } = e.target;
 
@@ -50,6 +51,8 @@ function PostDetail({ show }) {
         });
     };
 
+
+    //handle next button
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
