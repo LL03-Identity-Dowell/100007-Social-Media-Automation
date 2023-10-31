@@ -1,4 +1,4 @@
-// console.log({{ sentencesForm.adjective }})  
+// console.log({{ sentencesForm.adjective }})
 // <select name="subject_determinant" class="form-select" id="id_subject_determinant">
 //   <option value="-"></option>
 
@@ -8,9 +8,9 @@
 
 //   <option value="an">an</option>
 
-// </select> 
+// </select>
 
-// ======================== 
+// ========================
 
 //  <select name="subject" class="form-select" id="id_subject">
 //   <option value="Livinglab">Livinglab</option>
@@ -29,7 +29,7 @@
 
 //   <option value="Statistics" selected>Statistics</option>
 
-// </select> 
+// </select>
 
 //========================
 //<select name="object_determinant" class="form-select" id="id_object_determinant">
@@ -61,7 +61,7 @@ let specifyPurpose;
 let specifyActivity;
 let purposeOfArticle;
 
-const idValues = ["id_subject_determinant", "id_subject", "id_verb", "id_object_determinant", "id_adjective", "id_object"]
+const idValues = ["id_subject_determinant", "id_topic", "id_verb", "id_object_determinant", "id_adjective", "id_object"]
 const display = document.getElementById("sentencePreview");
 
 function capitalizeFirstLetter(word) {
@@ -78,7 +78,11 @@ function capitalizeFirstLetter(word) {
 function updateDisplay() {
   specifyTopic = document.getElementById("id_subject_determinant").value;
   let capitalizedSpecifyTopic = capitalizeFirstLetter(specifyTopic);
-  yourTopic = document.getElementById("id_subject").value;
+
+  let yourTopicElement = document.getElementById("id_topic");
+  var selectedOption = yourTopicElement.options[yourTopicElement.selectedIndex];
+  var yourTopic = selectedOption.text;
+
   //has/had
   activites = document.getElementById("id_verb").value;
   specifyPurpose = document.getElementById("id_object_determinant").value;

@@ -20,7 +20,8 @@ from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
 from website.permissions import HasBeenAuthenticated
-from website.serializers import SentenceSerializer, IndustrySerializer
+from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer
+
 
 def under_maintenance(request):
     context = {
@@ -109,9 +110,11 @@ def index(request):
                     "org_id": request.session['org_id'],
                     'username': request.session['username'],
                     'event_id': create_event()['event_id'],
-                    'client_admin_id': request.session['userinfo']['client_admin_id']
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    'time_zone':request.session['timezone']
                 }
-
+                userid=request.session['user_id']
+ 
                 print(topic)
                 if topic['topic'] == 'True':
                     async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
@@ -276,14 +279,22 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
     permission_classes = (HasBeenAuthenticated,)
     serializer_class = SentenceSerializer
 
-    def post(self, request):
+    def get_serializer(self):
+        request = self.request
+        email = request.session['userinfo']['email']
+        return SentenceSerializer(email=email)
+
+    def post(self, request, *args, **kwargs):
 
         session_id = request.GET.get('session_id', None)
         # has_permission=can_view_page(request)
         # if not has_permission:
         #     return Response({'message':'You are not allowed to view this page'},status=HTTP_400_BAD_REQUEST)
-        industry_serializer = IndustrySerializer(data=request.data)
-        sentence_serializer = SentenceSerializer(data=request.data)
+
+        email = request.session['userinfo']['email']
+        industry_serializer = IndustrySerializer(email=email, data=request.data)
+        sentence_serializer = SentenceSerializer(email=email, data=request.data)
+
         if not industry_serializer.is_valid():
             return Response(industry_serializer.errors, status=HTTP_400_BAD_REQUEST)
         if not sentence_serializer.is_valid():
@@ -301,7 +312,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         industry.save()
 
         object = sentence_serializer.data['object'].lower()
-        subject = sentence_serializer.data['subject']
+        subject = sentence_serializer.validated_data['topic'].name
         verb = sentence_serializer.data['verb']
         objdet = sentence_serializer.data['object_determinant']
         adjective = sentence_serializer.data['adjective']
@@ -374,7 +385,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         sentence_grammar = Sentences.objects.create(
             user=user,
             object=object,
-            subject=subject,
+            topic=sentence_serializer.validated_data['topic'],
             verb=verb,
             adjective=adjective,
         )
@@ -420,6 +431,44 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
             'sentences': sentence_results,
         }
         return Response(request.session['data_dictionary'])
+
+
+class UserCategoriesAPIView(generics.ListCreateAPIView):
+    """
+
+    """
+    permission_classes = (HasBeenAuthenticated,)
+    serializer_class = CategorySerializer
+
+    def get_queryset(self):
+        request = self.request
+        email = request.session['userinfo']['email']
+        return WebsiteManager().get_user_categories_by_email({'email': email})
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = CategorySerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class UserTopicAPIView(generics.ListCreateAPIView):
+    """
+
+    """
+    permission_classes = (HasBeenAuthenticated,)
+    serializer_class = UserTopicSerializer
+
+    def get_queryset(self):
+        request = self.request
+        email = request.session['userinfo']['email']
+        return WebsiteManager().get_user_topics_by_email({'email': email})
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = UserTopicSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 
 
 @csrf_exempt

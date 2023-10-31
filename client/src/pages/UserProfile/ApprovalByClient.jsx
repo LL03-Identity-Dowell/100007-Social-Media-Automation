@@ -38,6 +38,7 @@ const ApprovalByClient = () => {
     .then((response) => {
         let data = response.data.status;
         setGetStatus(data);
+        console.log(data);
       })
       .catch((error) => {
         setError("Server error, Please try again later");
@@ -76,7 +77,7 @@ const ApprovalByClient = () => {
             setSuccess(`${isChecked} is Approved...!`);
           
           let data = response.data;
-          // console.log(data);
+          console.log(data);
           let resData = JSON.stringify(data);
           localStorage.setItem("approvalData", resData);
         })

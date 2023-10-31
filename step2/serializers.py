@@ -44,6 +44,10 @@ class UnScheduledJsonSerializer(serializers.Serializer):
 
 class ScheduledJsonSerializer(serializers.Serializer):
     response = serializers.ListField(child=serializers.DictField())
+    
+
+class MostRecentJsonSerializer(serializers.Serializer):
+    response = serializers.ListField(child=serializers.DictField())
 
 
 class RankedTopicListSerializer(serializers.Serializer):
