@@ -2624,7 +2624,7 @@ class UnScheduledJsonView(APIView):
             serializer = UnScheduledJsonSerializer({'response': page_article})
 
             response_data = {
-                'Unscheduled Posts': serializer.data,
+                'Unscheduled_Posts': serializer.data,
                 'page': page_article.number,
                 'total_pages': paginator.num_pages,
                 'total_items': paginator.count,
@@ -3974,6 +3974,8 @@ class HashMentionView(APIView):
 
 
 class HashMentionUpdateView(APIView):
+    permission_classes = ()     
+    authentication_classes = ()
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if 'session_id' in request.session and 'username' in request.session:

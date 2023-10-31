@@ -23,8 +23,8 @@ const UnscheduledPage = () => {
         withCredentials: true,
       })
       .then((response) => {
-        //console.log(response.data);
-        setUnscheduledPost(response.data)
+        console.log(response.data);
+        //setUnscheduledPost(response.data)
       })
       .catch((error) => {
         console.log(error);
