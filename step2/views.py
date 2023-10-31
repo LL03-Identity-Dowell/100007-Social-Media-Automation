@@ -278,164 +278,6 @@ def register(request):
     return render(request, 'signup.html')
 
 
-class UserApprovalView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
-
-    def get(self, request):
-        session_id = request.GET.get("session_id", None)
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
-
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-
-        print(response)
-        response_data_json = json.loads(response.json())
-        print("Here we have data from this page", response_data_json)
-        user_id = str(request.session['user_id'])
-        if len(response_data_json['data']) == 0:
-            status = 'insert'
-        else:
-            status = 'update'
-
-        return Response({'status': status})
-
-    def post(self, request):
-        session_id = request.GET.get("session_id", None)
-        if request.method != "POST":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else:
-            data = request.data  # Use request.data to access JSON data
-            topic = data.get("topic")
-            article = data.get("article")
-            post = data.get("post")
-            schedule = data.get("schedule")
-            time = localtime()
-            test_date = str(localdate())
-            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-            event_id = create_event()['event_id']
-
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            payload = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "eventId": event_id,
-                "command": "insert",
-
-                "field": {
-                    "user_id": request.session['user_id'],
-                    "topic": topic,
-                    "post": post,
-                    "article": article,
-                    "schedule": schedule,
-                    "session_id": session_id,
-                    "eventId": event_id,
-                    'client_admin_id': request.session['userinfo']['client_admin_id'],
-                    "date": date,
-                    "time": str(time),
-                },
-                "update_field": {
-                    "approvals": {
-                        "topic": topic,
-                        "post": post,
-                        "article": article,
-                        "schedule": schedule,
-                    },
-                },
-                "platform": "bangalore"
-            }
-            headers = {
-                'Content-Type': 'application/json'
-            }
-
-            # Use the json parameter to send JSON data
-            response = requests.post(url, headers=headers, json=payload)
-            print(response.text)
-            messages.success(request, "Details updated successfully.")
-
-            return Response({
-                'topic': topic,
-                'article': article,
-                'post': post,
-                'schedule': schedule
-            }, status=status.HTTP_200_OK)
-
-    def put(self, request):
-        session_id = request.GET.get("session_id", None)
-        if request.method != "PUT":
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        else:
-            data = request.data  # Use request.data to access JSON data
-            topic = data.get("topic")
-            print("I got", topic)
-            article = data.get("article")
-            post = data.get("post")
-            schedule = data.get("schedule")
-            time = localtime()
-            test_date = str(localdate())
-            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-            event_id = create_event()['event_id']
-
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            payload = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "command": "update",
-                "field": {
-                    'user_id': request.session['user_id']
-                },
-                "update_field": {
-                    "topic": topic,
-                    "post": post,
-                    "article": article,
-                    "schedule": schedule,
-                },
-                "platform": "bangalore"
-            }
-            headers = {
-                'Content-Type': 'application/json'
-            }
-            print("I have", payload)
-            # Use the json parameter to send JSON data
-            response = requests.post(url, headers=headers, json=payload)
-            print(response.text)
-            messages.success(request, "Approvals updated successfully.")
-            return Response({
-                'topic': topic,
-                'article': article,
-                'post': post,
-                'schedule': schedule
-            }, status=status.HTTP_200_OK)
-
-
 def check_if_user_has_social_media_profile_in_aryshare(username):
     """
     This function checks if a user has a profile account in aryshare
@@ -4004,6 +3846,9 @@ class HashMentionUpdateView(APIView):
 
 
 class UserApprovalView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request):
         session_id = request.GET.get("session_id", None)
         url = "http://uxlivinglab.pythonanywhere.com/"
@@ -4035,7 +3880,6 @@ class UserApprovalView(APIView):
             status = 'insert'
         else:
             status = 'update'
-        # serialized_status = UserApprovalSerializer({'status': status}).data
 
         return Response({'status': status})
 
@@ -4044,10 +3888,11 @@ class UserApprovalView(APIView):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -4056,7 +3901,7 @@ class UserApprovalView(APIView):
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -4087,12 +3932,13 @@ class UserApprovalView(APIView):
                     },
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
 
-            response = requests.post(url, headers=headers, data=payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Details updated successfully.")
 
@@ -4108,20 +3954,21 @@ class UserApprovalView(APIView):
         if request.method != "PUT":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            print("I got", topic)
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
 
-
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -4129,7 +3976,6 @@ class UserApprovalView(APIView):
                 "team_member_ID": "1071",
                 "function_ID": "ABCDE",
                 "command": "update",
-
                 "field": {
                     'user_id': request.session['user_id']
                 },
@@ -4140,12 +3986,13 @@ class UserApprovalView(APIView):
                     "schedule": schedule,
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
-
-            response = requests.post(url, headers=headers, data=payload)
+            print("I have", payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Approvals updated successfully.")
             return Response({
