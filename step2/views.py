@@ -3379,6 +3379,7 @@ class UserApprovalView(APIView):
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
+            user_id = '62e7aea0eda55a0cd5e839fc'
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -3404,9 +3405,8 @@ class UserApprovalView(APIView):
             headers = {
                 'Content-Type': 'application/json'
             }
-            print("I have", payload)
-            # Use the json parameter to send JSON data
-            response = requests.post(url, headers=headers, json=payload)
+
+            response = requests.put(url, headers=headers, data=payload)
             print(response.text)
             messages.success(request, "Approvals updated successfully.")
             return Response({
