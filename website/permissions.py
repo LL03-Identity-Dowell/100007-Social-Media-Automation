@@ -4,6 +4,9 @@ from rest_framework import permissions
 
 class HasBeenAuthenticated(permissions.BasePermission):
     def has_permission(self, request, view):
+
+        if 'session_id' in request.session and 'username' in request.session:
+            return True
         session_id = request.GET.get("session_id", None)
         if not session_id:
             return False
@@ -56,7 +59,7 @@ class HasBeenAuthenticated(permissions.BasePermission):
         return True
 
 
-def can_view_page(request,):
+def can_view_page(request, ):
     session_id = request.GET.get("session_id", None)
     if not session_id:
         return False
@@ -107,3 +110,11 @@ def can_view_page(request,):
     # Adding session id to the session
     request.session['session_id'] = session_id
     return True
+
+
+class HasLoggedIn(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if 'session_id' in request.session and 'username' in request.session:
+            return False
+
+        return True
