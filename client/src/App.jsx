@@ -60,7 +60,7 @@ function App() {
             element={<PostList show={handleOpenSideBar} />}
           />
           <Route
-            path='/SpecificArticle'
+            path='/article-detail'
             element={<SpecificArticle show={handleOpenSideBar} />}
           />
           {/* <Route
