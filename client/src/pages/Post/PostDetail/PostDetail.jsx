@@ -63,7 +63,7 @@ function PostDetail({ show }) {
             designed_for: inputs.designed_for,
             targeted_category: inputs.targeted_category,
             title: postDetailData ? postDetailData.post.title : "",
-            paragraphs: newParagraphs ? newParagraphs : [],
+            paragraphs: postDetailData ? postDetailData.post.paragraph[0].replace(/\n\n/, '') : "",
             source: postDetailData ? postDetailData.post.source : "",
             image: postDetailData ? postDetailData.images : "",
         };
@@ -79,15 +79,15 @@ function PostDetail({ show }) {
                 let resData = response.data;
                 console.log(resData.message);
                 setSuccess(resData.message)
-                setTimeout(() => {
-                    navigate("/unscheduled");
-                }, 2000);
+                // setTimeout(() => {
+                //     navigate("/unscheduled");
+                // }, 2000);
 
             })
             .catch((error) => {
                 setLoading(false);
                 setError("Server error, Please try again later");
-                console.error("Error fetching article:", error);
+                console.error("Error submitting post:", error);
             });
     }
 
@@ -152,7 +152,7 @@ function PostDetail({ show }) {
                 .catch((error) => {
                     setLoading(false);
                     setError("Server error, Please try again later");
-                    console.error("Error fetching article:", error);
+                    console.error("Error fetching post:", error);
                 });
 
         } else {

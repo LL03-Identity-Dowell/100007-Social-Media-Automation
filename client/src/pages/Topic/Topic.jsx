@@ -5,7 +5,6 @@ import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 
 function Topic({ show }) {
-  const [loading, setLoading] = useState(false);
   const [userCategory, setUserCategory] = useState([])
   const [userTopic, setUserTopic] = useState([])
   const [topicName, setTopicName] = useState("")
