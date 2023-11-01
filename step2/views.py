@@ -9,6 +9,7 @@ import urllib.parse
 from datetime import datetime, date
 # image resizing
 from io import BytesIO
+
 # from website.views import get_client_approval
 import openai
 import pytz
@@ -31,7 +32,6 @@ from pexels_api import API
 from pymongo import MongoClient
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
 # rest(React endpoints)
 from rest_framework.views import APIView
 
@@ -39,15 +39,12 @@ from create_article import settings
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key, post_comment_to_social_media, get_post_comments)
+                     update_aryshare, get_key)
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          MostRecentJsonSerializer, PostCommentSerializer)
-                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer, MostRecentJsonSerializer)
-from django_q.tasks import async_task
-
+                          MostRecentJsonSerializer)
 
 global PEXELS_API_KEY
 
