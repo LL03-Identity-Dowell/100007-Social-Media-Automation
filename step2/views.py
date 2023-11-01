@@ -9,7 +9,7 @@ import urllib.parse
 from datetime import datetime, date
 # image resizing
 from io import BytesIO
-
+# from website.views import get_client_approval
 import openai
 import pytz
 import requests
@@ -45,6 +45,9 @@ from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer)
+                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer, MostRecentJsonSerializer)
+from django_q.tasks import async_task
+
 
 global PEXELS_API_KEY
 
@@ -547,7 +550,8 @@ class GenerateArticleView(APIView):
                                 "paragraph": article_str,
                                 "citation_and_url": sources,
                                 "subject": subject,
-                            }
+
+                        }
                             save_data('step3_data', 'step3_data',
                                       step3_data, '34567897799')
                             # Save data for step 2
@@ -1143,7 +1147,9 @@ class SavePostView(APIView):
                         "image": image,
                         "date": date,
                         "time": str(time),
-                        "status": ""
+                        "status": "",
+                    "timezone":request.session['timezone'],
+                    "username":request.session['username']
                     },
                     "update_field": {
                         "order_nos": 21
@@ -1542,6 +1548,91 @@ def update_schedule(pk):
     response = requests.request(
         "POST", url, headers=headers, data=payload)
     return ('scheduled')
+
+
+def get_key(user_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "ayrshare_info",
+        "document": "ayrshare_info",
+        "team_member_ID": "100007001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    post = json.loads(response.json())
+    for article in post['data']:
+        key = article['profileKey']
+    return key
+
+
+def api_call(postes, platforms, key, image, request, post_id):
+
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        messages.error(request, 'error in posting')
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_most_recent(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
+
+
+def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
+
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               'scheduleDate': str(formart),
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        for error in r1.json()['posts']:
+            for message in error['errors']:
+                messages.error(request, message['message'][:62])
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_schedule(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
 
 
 @csrf_exempt
@@ -3163,6 +3254,9 @@ class HashMentionUpdateView(APIView):
 
 
 class UserApprovalView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request):
         session_id = request.GET.get("session_id", None)
         url = "http://uxlivinglab.pythonanywhere.com/"
@@ -3194,7 +3288,6 @@ class UserApprovalView(APIView):
             status = 'insert'
         else:
             status = 'update'
-        # serialized_status = UserApprovalSerializer({'status': status}).data
 
         return Response({'status': status})
 
@@ -3203,10 +3296,11 @@ class UserApprovalView(APIView):
         if request.method != "POST":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -3215,7 +3309,7 @@ class UserApprovalView(APIView):
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -3246,12 +3340,13 @@ class UserApprovalView(APIView):
                     },
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
 
-            response = requests.post(url, headers=headers, data=payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Details updated successfully.")
 
@@ -3267,20 +3362,21 @@ class UserApprovalView(APIView):
         if request.method != "PUT":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            topic = request.POST.get("topic")
-            article = request.POST.get("article")
-            post = request.POST.get("post")
-            schedule = request.POST.get("schedule")
+            data = request.data  # Use request.data to access JSON data
+            topic = data.get("topic")
+            print("I got", topic)
+            article = data.get("article")
+            post = data.get("post")
+            schedule = data.get("schedule")
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
-            user_id = '62e7aea0eda55a0cd5e839fc'
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            payload = json.dumps({
+            payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
                 "collection": "user_info",
@@ -3288,7 +3384,6 @@ class UserApprovalView(APIView):
                 "team_member_ID": "1071",
                 "function_ID": "ABCDE",
                 "command": "update",
-
                 "field": {
                     'user_id': request.session['user_id']
                 },
@@ -3299,12 +3394,13 @@ class UserApprovalView(APIView):
                     "schedule": schedule,
                 },
                 "platform": "bangalore"
-            })
+            }
             headers = {
                 'Content-Type': 'application/json'
             }
-
-            response = requests.put(url, headers=headers, data=payload)
+            print("I have", payload)
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
             print(response.text)
             messages.success(request, "Approvals updated successfully.")
             return Response({
@@ -3313,7 +3409,6 @@ class UserApprovalView(APIView):
                 'post': post,
                 'schedule': schedule
             }, status=status.HTTP_200_OK)
-
 
 '''user settings ends here'''
 
