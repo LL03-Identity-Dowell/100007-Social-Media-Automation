@@ -23,23 +23,23 @@ export const Pagination = ({ currentPage, setPageNumber, totalPage }) => {
   };
 
   return (
-    <div className='relative max-w-max'>
+    <div className='flex justify-center pb-6 text-sm text-gray-800 lg:mt-3'>
       <button
-        className='hover:bg-[#333]/20 h-10 w-10 absolute left-[-60px] rounded-full '
+        className='px-2 py-1 border border-gray-300 rounded-l-sm'
         onClick={prevPage}
       >
-        Prev
+        Previous
       </button>
-      <ul className='flex gap-x-8'>
+      <ul className='flex font-normal'>
         {listOfNextPages.map((item) => {
           if (item <= totalPage) {
             return (
-              <li className='flex items-center justify-center ' key={item}>
+              <li className='' key={item}>
                 <button
                   onClick={() => setPageNumber(item)}
-                  className={`${
+                  className={`px-2 rounded-sm border border-gray-300  py-1 ${
                     currentPage === item && "bg-customBlue text-white"
-                  } rounded-full h-10 w-10  hover:bg-[#333]/20`}
+                  } `}
                 >
                   {item}
                 </button>
@@ -49,14 +49,14 @@ export const Pagination = ({ currentPage, setPageNumber, totalPage }) => {
             return null;
           }
         })}
-
-        <button
-          onClick={nextPage}
-          className='hover:bg-[#333]/20 rounded-full absolute right-[-60px] my-auto h-10 w-10'
-        >
-          Next
-        </button>
       </ul>
+
+      <button
+        onClick={nextPage}
+        className='px-2 py-1 border border-gray-300 rounded-r-sm'
+      >
+        Next
+      </button>
     </div>
   );
 };

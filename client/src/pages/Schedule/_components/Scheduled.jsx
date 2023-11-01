@@ -47,30 +47,28 @@ const ScheduledPage = () => {
   }, [pageNumber]);
 
   return (
-    <div className='px-20'>
-      <h3 className='text-[#495057] font-bold'>
+    <div className='px-6'>
+      <h3 className='ml-5 italic'>
         Total posts count: {articles?.list?.length}
       </h3>
-      <ul className='space-y-10 '>
+      <ul className='space-y-4 '>
         {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
         {success !== "" && <SuccessMessages>{success}</SuccessMessages>}
         {loading ? (
           <Loading />
         ) : (
           articles?.list?.map((item) => (
-            <li
-              id={item?.PK}
-              key={item?.PK}
-              className='flex justify-between gap-x-10'
-            >
-              <div className='flex flex-col w-9/12 gap-y-7 '>
-                <span className='text-base text-[#0000007c]'>
+            <li id={item?.PK} key={item?.PK} className='flex justify-between'>
+              <div className='flex flex-col w-5/6 gap-y-3 '>
+                <span className='text-base text-[#0000007c] ml-5'>
                   {item?.source}
                 </span>
-                <h3 className='text-2xl font-bold text-customTextBlue'>
+                <h3 className='px-2 py-2 font-bold lg:px-6 text-md lg:text-xl text-customTextBlue dark:text-white'>
                   {item?.title}
                 </h3>
-                <p className='text-[#333]'>{item?.paragraph}</p>
+                <p className='px-2 text-gray-500 lg:px-6 lg:py-4 text-md lg:text-lg'>
+                  {item?.paragraph}
+                </p>
                 <span className='flex items-center self-end gap-x-2'>
                   <div className='icons8-clock'></div>
                   <p className='text-[#333] text-sm'>{item?.Date}</p>
