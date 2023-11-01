@@ -112,48 +112,56 @@ function PostDetail({ show }) {
         }
     }
 
-
-
     // console.log(wordCount)
 
     const fetch = () => {
         setLoading(true);
 
-        const { post_id, title, paragraph, source } = location.state.data;
+        if (location.state && location.state.data) {
 
-        // console.log(postDetailRecieved);
+            const { post_id, title, paragraph, source } = location.state.data;
 
-        let payload = {
-            post_id: post_id,
-            title: title,
-            paragraph: paragraph,
-            source: source
+            let payload = {
+                post_id: post_id,
+                title: title,
+                paragraph: paragraph,
+                source: source
+            }
+
+            console.log({ payload })
+
+            // Make a POST request to the API endpoint with the session_id
+            axios
+                .post(`http://127.0.0.1:8000/api/v1/post-detail/`, payload, {
+                    withCredentials: true,
+                })
+                .then((response) => {
+                    setError(null);
+                    setLoading(false);
+                    let data = response.data;
+                    console.log(data);
+                    setPostDetailData(data);
+                    let paragraph = data.post.paragraph[0]
+                    // console.log(paragraph)
+                    paragraph = paragraph.split("\n\n");
+                    setNewParagraphs(paragraph)
+                    handleCharacCount();
+                    // console.log(paragraph)
+                    window.scrollTo(0, 0);
+                })
+                .catch((error) => {
+                    setLoading(false);
+                    setError("Server error, Please try again later");
+                    console.error("Error fetching article:", error);
+                });
+
+        } else {
+            setError("Cannot retrieve post details");
+            setTimeout(() => {
+                navigate('/post-list');
+            }, 4000)
         }
 
-        // Make a POST request to the API endpoint with the session_id
-        axios
-            .post(`http://127.0.0.1:8000/api/v1/post-detail/`, payload, {
-                withCredentials: true,
-            })
-            .then((response) => {
-                setError(null);
-                setLoading(false);
-                let data = response.data;
-                // console.log(data);
-                setPostDetailData(data);
-                let paragraph = data.post.paragraph[0]
-                // console.log(paragraph)
-                paragraph = paragraph.split("\n\n");
-                setNewParagraphs(paragraph)
-                handleCharacCount();
-                // console.log(paragraph)
-                window.scrollTo(0, 0);
-            })
-            .catch((error) => {
-                setLoading(false);
-                setError("Server error, Please try again later");
-                console.error("Error fetching article:", error);
-            });
     };
 
 
