@@ -113,18 +113,19 @@ const HashtagsMentions = ({ close }) => {
     e.preventDefault();
 
     if (getStatus === "update") {
-      //setLoading(true);
-      const payloadBody = [checkedHashtags.join(), checkedMentions.join()];
+      setLoading(true);
+      const payloadBody = {
+        update_field: {
+          hashtag_list: checkedHashtags.join(','),
+          mentions_list: checkedMentions.join(','),
+        },
+      };
 
-      //console.log("from update", payloadBody)
-      //console.log("from update", checkedMentions)
-
+      console.log("from update", payloadBody)
       await axios
         .put(
-          "http://127.0.0.1:8000/api/v1/update-hash-tags-and-mentions/",{
-            hashtags_list:[ payloadBody]
-          }
-          ,
+          "http://127.0.0.1:8000/api/v1/update-hash-tags-and-mentions/",
+          payloadBody,
           {
             withCredentials: true,
           }
