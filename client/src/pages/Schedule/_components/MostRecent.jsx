@@ -62,7 +62,7 @@ const MostRecent = () => {
   };
 
   return (
-    <div className='px-20'>
+    <div className='px-20 max-w-7xl mx-auto'>
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <h3 className='text-[#495057] font-bold text-start'>

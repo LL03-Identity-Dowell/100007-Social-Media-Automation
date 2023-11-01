@@ -97,7 +97,7 @@ const PostList = ({ show }) => {
 
 
   return (
-    <div className="relative h-[90vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
+    <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="text-center text-customTextBlue font-semibold py-2 lg:py-6">
