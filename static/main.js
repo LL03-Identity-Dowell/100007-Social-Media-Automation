@@ -33,6 +33,7 @@ modalBtns.forEach(modalBtn=> modalBtn.addEventListener('click', ()=>{
 //   });
 }))
 
+
 checkstatus();
 
 function checkstatus() {
@@ -72,7 +73,6 @@ function checkstatus() {
 }
 
 setInterval(checkstatus, 60000);
-
 
 
 

@@ -72,9 +72,11 @@ document.addEventListener("DOMContentLoaded", () => {
           location.href = "http://127.0.0.1:8000/social_media_channels/";
         } else if (data === "most_recent") {
           location.href = "http://127.0.0.1:8000/recent/";
+        }else if (data === "credit_error") {
+          location.href = "http://127.0.0.1:8000";
         }
 
-        debugger;
+        // debugger;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -98,9 +100,11 @@ document.addEventListener("DOMContentLoaded", () => {
           location.href = "http://127.0.0.1:8000/social_media_channels/";
         } else if (data === "scheduled") {
           location.href = "http://127.0.0.1:8000/scheduled/";
+        }else if (data === "credit_error") {
+          location.href = "http://127.0.0.1:8000/";
         }
 
-        debugger;
+        // debugger;
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -137,7 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return { data: []};
     }
   };
-  // fetchedSocials()
 
    function displayData(showData, totalCount) {
     let container = document.getElementById("article-list");
@@ -171,12 +174,12 @@ document.addEventListener("DOMContentLoaded", () => {
         let selectedArticle = { ...showData[index] };
         selectedArticle.social = [];
         selectedArticle.special = [];
-        
+
         checkboxes.forEach((checkbox) => {
           if (checkbox.checked) {
            if (!data.includes(checkbox.value)) {
               console.log(checkbox.value);
-              
+
               //Custom Notification popup
               function displayNotification(message) {
                 // Create a new notification element
@@ -222,7 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
               }
 
 
-              // You can use like so: 
+              // You can use like so:
               displayNotification(`${checkbox.value} account have not been linked`);
            }else{
             console.log(checkbox.value);
@@ -244,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         console.log(selectedArticle, index);
-        // sendData(selectedArticle, options);
+        sendData(selectedArticle, options);
 
         // Remove the dateTimeEl element from the form if it was added during the process
         if (dateTimeEl.parentElement === scheduleBtns) {

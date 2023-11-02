@@ -1,3 +1,4 @@
+from django.db import models
 from django.db import models, transaction
 
 
@@ -25,7 +26,6 @@ class User(models.Model):
         verbose_name_plural = 'Users'
         db_table = "Emails"
 
-
 class Category(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='categories')
     name = models.CharField(max_length=1000, blank=False, null=False)
@@ -42,7 +42,6 @@ class UserTopic(BaseModel):
 
     def __str__(self):
         return self.name
-
 
 class IndustryData(BaseModel):
     CHOICES = (
@@ -71,7 +70,17 @@ class IndustryData(BaseModel):
         return self.user
 
 
-class Sentences(models.Model):
+class Sentences(BaseModel):
+    SUBJECT_CHOICES = (
+        ('Livinglab', 'Livinglab'),
+        ('Innovation', 'Innovation'),
+        ('User experience', 'User experience'),
+        ('Storytelling', 'Storytelling'),
+        ('Consumer Behaviour', 'Consumer Behaviour'),
+        ('Behavioral economics', 'Behavioral economics'),
+        ('Consumer Insights', 'Consumer Insights'),
+        ('Statistics', 'Statistics'),
+    )
 
     DETERMINANTS = (
         ('-', ''),
@@ -97,7 +106,7 @@ class Sentences(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     subject_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS,
                                            default=DETERMINANTS[0][0])
-    # subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
+    #subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
     topic = models.ForeignKey(UserTopic, on_delete=models.PROTECT, null=True, blank=True,
                               related_name='sentence')
     subject_number = models.CharField(max_length=100, blank=False)
@@ -139,25 +148,24 @@ class SentenceResults(models.Model):
 
 class SentenceRank(models.Model):
     sentence_result = models.ForeignKey(SentenceResults, on_delete=models.CASCADE)
-    sentence_rank = models.CharField(null=True, max_length=2)
+    sentence_rank = models.CharField(null=True,max_length=2)
 
     def __str__(self):
         return self.sentence_result.sentence
 
-
-# to not to be used
-class Topic(models.Model):
-    owner = models.CharField(max_length=100, primary_key=True, default=None)
-    rank = models.CharField(null=True, max_length=2)
+#to not to be used
+class Topic (models.Model):
+    owner = models.CharField(max_length=100,primary_key=True,default=None)
+    rank= models.CharField(null=True,max_length=2)
     sentence = models.TextField(max_length=400)
-    key = models.CharField(null=True, max_length=100, blank=True)
+    key = models.CharField(null=True,max_length=100,blank=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.owner
 
     class Meta:
-        ordering = ['-updated']
+         ordering = ['-updated']
 
 
 # class MyTopic (models.Model):
@@ -175,18 +183,20 @@ class Topic(models.Model):
 #     class Meta:
 #          ordering = ['-updated']
 
-class MTopic(models.Model):
-    username = models.CharField(null=True, max_length=100, blank=True)
-    ranks = models.IntegerField(blank=True, null=True)
+class MTopic (models.Model):
+    username=models.CharField(null=True,max_length=100,blank=True)
+    ranks = models.IntegerField(blank=True,null=True)
     sentence = models.TextField(max_length=400)
-    keyes = models.CharField(null=True, max_length=100, blank=True)
+    keyes = models.CharField(null=True,max_length=100,blank=True)
     updated = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.username
 
     class Meta:
-        ordering = ['-updated']
+         ordering = ['-updated']
+
 
 
 class WebsiteManager:
@@ -245,3 +255,9 @@ class WebsiteManager:
         if user:
             return user.last()
         return User.objects.create(email=data.get('email'))
+
+
+
+
+
+

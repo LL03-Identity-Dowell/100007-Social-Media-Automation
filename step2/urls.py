@@ -6,6 +6,7 @@ app_name = 'generate_article'
 
 urlpatterns = [
     # path('', views.under_maintenance, name='home'),
+    # path('', views.home, name='home'),
     path('', views.dowell_login, name="dowelllogin"),
     path('main', views.main, name='main-view'),
     path('scheduled/', views.scheduled, name='scheduled-posts'),
@@ -13,7 +14,7 @@ urlpatterns = [
     path('schedule/', views.unscheduled, name='unscheduled-posts'),
     path('jsonpost/', views.unscheduled_json, name='unscheduled-jsonpost'),
     path('scheduler/', views.post_scheduler, name='post-scheduler'),
-    path('article_list/', views.post_list, name='article-list'),
+    path('posts_list/', views.post_list, name='article-list'),
     path('article_list/articles/', views.list_article_view,
          name='article-list-articles'),
     path('article_list/<str:filter>/', views.filtered_list_article,
@@ -21,8 +22,7 @@ urlpatterns = [
     path('post-detail/', views.post_detail, name='post-detail'),
     path('article-detail/', views.article_detail, name='article-detail'),
     path('login/', views.login, name='login'),
-    path('logout/', views.logout, name='logout'),  # socialmedia
-    path('logout', views.Logout, name="logout"),  # client admin
+    path('logout/', views.logout, name='logout'),
     path('reset/password/', views.reset_password, name='reset-password'),
     path('confirm/reset/password/', views.confirm_reset_password,
          name='confirm-reset-password'),
@@ -83,11 +83,13 @@ urlpatterns = [
          name='save_target_cities'),
     path('update-saved-target-cities/', views.update_saved_targeted_cities,
          name='update_saved_target_cities'),
-    path('hash-tags-and-mensions/', views.hash_mention, name='save_hash_mention'),
+    path('hash-tags-and-mentions/', views.hash_mention, name='save_hash_mention'),
     path('update-hash-tags-and-mensions/',
          views.update_hash_mention, name='update_hash_mention'),
     path('linked-account/', views.linked_account_json, name='linked-account'),
-    path('social-media/approve/', views.admin_approve_social_media, name='admin_approve_social_media'),
+    path('logout', views.Logout, name="logout"),
+    path('social-media/approve/', views.admin_approve_social_media,
+         name='admin_approve_social_media'),
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]

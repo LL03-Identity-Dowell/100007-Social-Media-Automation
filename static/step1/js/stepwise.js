@@ -80,7 +80,11 @@ function updateDisplay() {
   let capitalizedSpecifyTopic = capitalizeFirstLetter(specifyTopic);
 
   let yourTopicElement = document.getElementById("id_topic");
+<<<<<<< HEAD
+  var selectedOption =  yourTopicElement.options[yourTopicElement.selectedIndex];
+=======
   var selectedOption = yourTopicElement.options[yourTopicElement.selectedIndex];
+>>>>>>> d90409a1d6050645116d6261c2307583768c704f
   var yourTopic = selectedOption.text;
 
   //has/had
@@ -250,6 +254,7 @@ function validateForm() {
   return valid; // return the valid status
 }
 
+
 function fixStepIndicator(n) {
   // This function removes the "active" class of all steps...
   var i,
@@ -261,6 +266,10 @@ function fixStepIndicator(n) {
   x[n].className += " active";
 }
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> d90409a1d6050645116d6261c2307583768c704f
 const AmagiLoader = {
   __loader: null,
   __progressText: null,

@@ -1,5 +1,4 @@
 from django.contrib import admin
-
 from .models import Data, paragraph, stepFour, SocialMediaRequest
 
 # Register your models here.

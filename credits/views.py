@@ -16,8 +16,7 @@ class CreditBaseView(View):
     def dispatch(self, request, *args, **kwargs):
         """ Customized dispatch method
         """
-        response = super(CreditBaseView, self).dispatch(
-            request, *args, **kwargs)
+        response = super(CreditBaseView, self).dispatch(request, *args, **kwargs)
         return response
 
 

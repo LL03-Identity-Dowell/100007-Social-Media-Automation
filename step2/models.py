@@ -1,6 +1,16 @@
 from djongo import models
 
-from website.models import BaseModel
+class BaseModel(models.Model):
+    """
+    This model contains fields that are available in all the models
+    """
+    created_datetime = models.DateTimeField(auto_now_add=True, null=True)
+    created_by = models.CharField(max_length=500, default='', null=True)
+    modified_datetime = models.DateTimeField(auto_now=True, null=True)
+    modified_by = models.CharField(max_length=500, default='', null=True)
+
+    class Meta:
+        abstract = True
 
 
 class Data(models.Model):
@@ -49,16 +59,17 @@ class Step2Manager:
         """
         SocialMediaRequest.objects.filter(
             username=data.get('username'),
+            org_id=data.get('org_id'),
         ).delete()
         return SocialMediaRequest.objects.create(
             username=data.get('username'),
             email=data.get('email'),
             name=data.get('name'),
+            org_id=data.get('org_id'),
         )
 
     def get_all_unapproved_social_media_request(self, data):
         """
-
         """
         return SocialMediaRequest.objects.filter(
             is_approved=False,
@@ -71,6 +82,7 @@ class Step2Manager:
     def get_approved_user_social_media_request(self, data):
         social_media_request = SocialMediaRequest.objects.filter(
             username=data.get('username'),
+            org_id=data.get('org_id'),
             is_approved=True,
         )
         if social_media_request:
