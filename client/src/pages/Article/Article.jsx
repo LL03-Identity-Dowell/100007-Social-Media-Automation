@@ -94,7 +94,7 @@ const Article = ({ show }) => {
       </div>
 
       <div className="count-article flex justify-between pt-0 pb-2 items-center">
-        <p className="px-6 py-3 italic">Total posts count: {count}</p>
+        <p className="px-6 py-3 italic">Total article count: {count}</p>
 
         <Link to="/createarticle">
           <div className="lg:w-[140px] lg:pt-2">
@@ -118,7 +118,7 @@ const Article = ({ show }) => {
                     </p>
 
                     <div className="content-button flex flex-col md:flex-row justify-between items-baseline py-0">
-                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg w-full line-clamp-4 leading-loose">
+                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg line-clamp-4 leading-loose lg:w-[1000px] ">
                         {article.paragraph}
                       </p>
 
