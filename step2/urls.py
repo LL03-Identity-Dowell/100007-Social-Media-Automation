@@ -11,7 +11,6 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, VerifyArticle)
 
-
 app_name = 'generate_article'
 
 urlpatterns = [
@@ -65,7 +64,7 @@ urlpatterns = [
          name='targeted-cities-update'),
     path('api/v1/hash-tags-and-mentions/', HashMentionView.as_view(),
          name='save_hash_mentions'),
-    path('api/v1/update-hash-tags-and-mentions/ ', HashMentionUpdateView.as_view(),
+    path('api/v1/update-hash-tags-and-mentions/', HashMentionUpdateView.as_view(),
          name='update_hash_mentions'),
     path('api/v1/facebook-form/', FacebookFormAPI.as_view(),
          name='facebook-form-api'),
@@ -102,6 +101,5 @@ urlpatterns = [
     path('api/v1/scheduled-json/',
          ScheduledJsonView.as_view(), name='scheduled-json'),
     path('api/v1/recent_posts/', MostRecentJSON.as_view(), name='recent_post'),
-
 
 ]

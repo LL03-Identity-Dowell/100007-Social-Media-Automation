@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import ExtraSmallBtn from "../../components/ExtraSmallBtn/ExtraSmallBtn";
 import axios from "axios";
 import Loading from "../../components/Loading";
 import { ErrorMessages } from "../../components/Messages";
+import SpecificArticle from "./SpecificArticle";
 
 const Article = ({ show }) => {
   const [articleData, setArticleData] = useState();
@@ -16,6 +17,10 @@ const Article = ({ show }) => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
+
+  const [buttonClicked, setButtonClicked] = useState(false);
+  const [clickedPost, setClickedPost] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     show();
@@ -34,6 +39,7 @@ const Article = ({ show }) => {
         setError(null);
         setLoading(false);
         let data = response.data;
+        console.log(data)
         setArticleData(data.Articles);
         setCount(data.total_items);
         setPageCount(Math.ceil(data.total_items / perPage));
@@ -46,6 +52,25 @@ const Article = ({ show }) => {
         console.error("Error fetching article:", error);
       });
   };
+
+  const handlePostdetailNavigate = (article_id, title, paragraph, source) => {
+    const dataToSend = {
+      article_id: article_id,
+      title: title,
+      paragraph: paragraph,
+      source: source
+    };
+    // console.log(dataToSend);
+    setClickedPost(dataToSend);
+    setButtonClicked(true);
+  }
+
+  // Use the clickedPost state to determine when to navigate
+  useEffect(() => {
+    if (buttonClicked && clickedPost) {
+      navigate('/article-detail', { state: { data: clickedPost } });
+    }
+  }, [buttonClicked, clickedPost]);
 
   const handlePageClick = (data) => {
     setPage(data.selected);
@@ -98,9 +123,8 @@ const Article = ({ show }) => {
                       </p>
 
                       <div className="lg:w-[150px] lg:pt-2 flex justify-end md:mr-6 mt-2 md:mt-0">
-                        <Link to="/SpecificArticle">
-                          <ExtraSmallBtn title={"View Article"} />
-                        </Link>
+                        
+                          <ExtraSmallBtn title={"View Article"} onClick={() => handlePostdetailNavigate(article.article_id, article.title, article.paragraph, article.source)}/>
                       </div>
                     </div>
                   </div>
@@ -109,21 +133,21 @@ const Article = ({ show }) => {
           </div>
         </div>
 
-      <ReactPaginate
-        pageCount={pageCount}
-        pageRangeDisplayed={pagesToDisplay}
-        marginPagesDisplayed={2}
-        onPageChange={handlePageClick}
-        previousLabel={<span className="text-black">Previous</span>}
-        nextLabel={<span className="text-black">Next</span>}
-        containerClassName="flex justify-center items-center my-4 space-x-2"
-        pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
-        previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-        nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-        breakClassName="p-2"
-        activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
-      />
-      {showMorePages && (
+        <ReactPaginate
+          pageCount={pageCount}
+          pageRangeDisplayed={pagesToDisplay}
+          marginPagesDisplayed={2}
+          onPageChange={handlePageClick}
+          previousLabel={<span className="text-black">Previous</span>}
+          nextLabel={<span className="text-black">Next</span>}
+          containerClassName="flex justify-center items-center my-4 space-x-2"
+          pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
+          previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+          nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+          breakClassName="p-2"
+          activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
+        />
+        {showMorePages && (
           <button
             className="bg-customBlue text-white p-2 rounded-full cursor-pointer hover:bg-blue-600"
             onClick={loadMorePages}
