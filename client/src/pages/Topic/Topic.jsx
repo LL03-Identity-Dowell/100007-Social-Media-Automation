@@ -3,6 +3,7 @@ import axios from "axios";
 
 import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
+import  CSRFToken  from "../../components/CSRFToken";
 
 function Topic({ show }) {
   const [userCategory, setUserCategory] = useState([])
@@ -178,6 +179,7 @@ function Topic({ show }) {
           className="w-full mt-4 grid gap-4 md:gap-10"
           onSubmit={handleSubmit}
         >
+          <CSRFToken/>
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px] ">
               <label htmlFor="category" className="text-lg font-semibold">
