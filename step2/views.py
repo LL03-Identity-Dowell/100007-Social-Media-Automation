@@ -1867,7 +1867,7 @@ class UnScheduledJsonView(APIView):
             serializer = UnScheduledJsonSerializer({'response': page_article})
 
             response_data = {
-                'Unscheduled Posts': serializer.data,
+                'Unscheduled_Posts': serializer.data,
                 'page': page_article.number,
                 'total_pages': paginator.num_pages,
                 'total_items': paginator.count,
