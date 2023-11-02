@@ -1,62 +1,54 @@
-export const Pagination = ({ currentPage, setPageNumber, totalPage }) => {
-  const listOfNextPages =
-    currentPage === 1 || currentPage === 2
-      ? [1, 2, 3, 4, 5]
-      : [
-          currentPage - 2,
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          currentPage + 2,
-        ];
+const Pagination = ({
+  pageCount,
+  totalPage,
+  currentPage,
+  prevPage,
+  nextPage,
+  paginate,
+}) => {
+  const pageNumber = [];
 
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setPageNumber((prev) => prev - 1);
-    }
-  };
-
-  const nextPage = () => {
-    if (currentPage < totalPage) {
-      setPageNumber((prev) => prev + 1);
-    }
-  };
+  for (let i = 1; i <= Math.ceil(totalPage / pageCount); i++) {
+    pageNumber.push(i);
+  }
 
   return (
-    <div className='flex justify-center pb-6 text-sm text-gray-800 lg:mt-3'>
-      <button
-        className='px-2 py-1 border border-gray-300 rounded-l-sm'
-        onClick={prevPage}
-      >
-        Previous
-      </button>
-      <ul className='flex font-normal'>
-        {listOfNextPages.map((item) => {
-          if (item <= totalPage) {
-            return (
-              <li className='' key={item}>
-                <button
-                  onClick={() => setPageNumber(item)}
-                  className={`px-2 rounded-sm border border-gray-300  py-1 ${
-                    currentPage === item && "bg-customBlue text-white"
-                  } `}
-                >
-                  {item}
-                </button>
-              </li>
-            );
-          } else {
-            return null;
-          }
+    <nav aria-label='Page navigation example'>
+      <ul className='inline-flex -space-x-px text-sm'>
+        <li className='page-item'>
+          <a
+            href='#'
+            className='flex items-center justify-center h-8 px-3 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+            onClick={prevPage}
+          >
+            Prev
+          </a>
+        </li>
+        {pageNumber.map((number, i) => {
+          return (
+            <li className={`${currentPage === number ? "active" : ""}`} key={i}>
+              <a
+                href='#'
+                className='flex items-center justify-center h-8 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+                onClick={() => paginate(number)}
+              >
+                {number}
+              </a>
+            </li>
+          );
         })}
+        <li className='page-item'>
+          <a
+            href='#'
+            className='flex items-center justify-center h-8 px-3 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+            onClick={nextPage}
+          >
+            Next
+          </a>
+        </li>
       </ul>
-
-      <button
-        onClick={nextPage}
-        className='px-2 py-1 border border-gray-300 rounded-r-sm'
-      >
-        Next
-      </button>
-    </div>
+    </nav>
   );
 };
+
+export default Pagination;

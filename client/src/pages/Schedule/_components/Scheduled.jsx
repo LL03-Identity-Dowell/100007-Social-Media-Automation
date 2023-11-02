@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Loading from "/src/components/Loading.jsx";
 import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
 import axios from "axios";
-import { Pagination } from "../../../components/Pagination";
+import Pagination  from "../../../components/Pagination";
 
 const ScheduledPage = () => {
   const [articles, setArticles] = useState({
