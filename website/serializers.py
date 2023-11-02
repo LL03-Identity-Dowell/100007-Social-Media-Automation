@@ -58,3 +58,18 @@ class UserTopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserTopic
         fields = ('id', 'name')
+
+
+class SelectedResultSerializer(serializers.Serializer):
+    rank_1 = serializers.CharField(required=True)
+    rank_2 = serializers.CharField(required=True)
+    rank_3 = serializers.CharField(required=True)
+    rank_4 = serializers.CharField(required=False)
+    rank_5 = serializers.CharField(required=False)
+    rank_6 = serializers.CharField(required=False)
+    rank_7 = serializers.CharField(required=False)
+    rank_8 = serializers.CharField(required=False)
+    rank_9 = serializers.CharField(required=False)
+    rank_10 = serializers.CharField(required=False)
+    rank_11 = serializers.CharField(required=False)
+    rank_12 = serializers.CharField(required=False)

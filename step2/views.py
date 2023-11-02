@@ -232,6 +232,8 @@ class MainAPIView(APIView):
 '''
 step-2 starts here
 '''
+
+
 class ListArticleView(APIView):
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
@@ -439,7 +441,7 @@ class IndexView(APIView):
             return Response({'topics': serialized_data, 'profile': profile, 'page': page})
 
         else:
-            return Response({'topics': [], 'profile': 'member', 'page': 2})
+            return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class GenerateArticleView(APIView):
@@ -547,8 +549,8 @@ class GenerateArticleView(APIView):
                                 "paragraph": article_str,
                                 "citation_and_url": sources,
                                 "subject": subject,
-                              
-                        }
+
+                            }
                             save_data('step3_data', 'step3_data',
                                       step3_data, '34567897799')
                             # Save data for step 2
@@ -1148,8 +1150,8 @@ class SavePostView(APIView):
                         "date": date,
                         "time": str(time),
                         "status": "",
-                    "timezone":request.session['timezone'],
-                    "username":request.session['username']
+                        "timezone": request.session['timezone'],
+                        "username": request.session['username']
                     },
                     "update_field": {
                         "order_nos": 21
@@ -3415,6 +3417,7 @@ class UserApprovalView(APIView):
                 'post': post,
                 'schedule': schedule
             }, status=status.HTTP_200_OK)
+
 
 '''user settings ends here'''
 
