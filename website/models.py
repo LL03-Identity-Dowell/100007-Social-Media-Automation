@@ -80,8 +80,8 @@ class Sentences(BaseModel):
         ('Behavioral economics', 'Behavioral economics'),
         ('Consumer Insights', 'Consumer Insights'),
         ('Statistics', 'Statistics'),
-
     )
+
     DETERMINANTS = (
         ('-', ''),
         ('the', 'the'),

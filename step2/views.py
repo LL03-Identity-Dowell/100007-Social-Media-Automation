@@ -651,6 +651,34 @@ def linked_account_json(request):
 @csrf_exempt
 @xframe_options_exempt
 def social_media_channels(request):
+    if request.method == "POST":
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        email = request.session['userinfo']['email']
+        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        org_id = request.session['org_id']
+        data = {
+            'username': username,
+            'email': email,
+            'name': name,
+            'org_id': org_id,
+        }
+        step_2_manager.create_social_media_request(data)
+        messages.success(request,
+                         'Social media request was saved successfully. Wait for the admin to accept the request')
+        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+    else:
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        session = request.session['session_id']
+        print(session)
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
+            username)
+        linked_accounts = check_connected_accounts(username)
+        context_data = {'user_has_social_media_profile': user_has_social_media_profile,
+                        'linked_accounts': linked_accounts}
+        username = request.session['username']
+        org_id = request.session['org_id']
 
     username = request.session['username']
     session = request.session['session_id']
@@ -1163,6 +1191,52 @@ def user_team(request):
 @xframe_options_exempt
 def user_usage(request):
     return render(request, 'user_usage.html')
+
+
+
+
+# get user aproval
+def get_client_approval(user):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "user_info",
+        "document": "user_info",
+        "team_member_ID": "1071",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id":user},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+
+    print(response)
+    response_data_json = json.loads(response.json())
+    print(response_data_json)
+
+    try:
+        for value in response_data_json['data']:
+            aproval={
+                'topic':value['topic'],
+                'post':value['post'],
+                'article':value['article'],
+                'schedule':value['schedule']
+            }
+        return(aproval)
+    except:
+        aproval={'topic':'False'}
+    return(aproval)
+
+
+
 
 
 @csrf_exempt
@@ -2295,7 +2369,8 @@ def generate_article(request):
             duration = 4  # Total duration in seconds
             interval = 0.8  # Interval between generating articles in seconds
             start_time = time.time()
-
+            user_id = request.session['user_id']
+            approval=get_client_approval(user_id)
             def generate_and_save_article():
                 nonlocal start_time
 
@@ -2382,7 +2457,9 @@ def generate_article(request):
 
             # credit_handler = CreditHandler()
             # credit_handler.consume_step_2_credit(request)
-
+            if approval['post'] == 'True':
+                user_id = request.session['user_id']
+                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
             return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -2397,6 +2474,8 @@ def generate_article_wiki(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("main-view"))
         else:
+            user_id = request.session['user_id']
+            approval=get_client_approval(user_id)
             title = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2501,6 +2580,9 @@ def generate_article_wiki(request):
 
                     # credit_handler = CreditHandler()
                     # credit_handler.consume_step_2_credit(request)
+                    if approval['post'] == 'True':
+                        user_id = request.session['user_id']
+                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
                     if 'article_sub_verb' in locals():
                         # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
                         # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
@@ -2548,6 +2630,9 @@ def generate_article_wiki(request):
                 # return render(request, 'article/article.html',{'message': "Article saved Successfully.", 'article': article, 'source': page.fullurl,  'title': title})
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_2_credit(request)
+                if approval['post'] == 'True':
+                        user_id = request.session['user_id']
+                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
     else:
         return render(request, 'error.html')
@@ -2569,6 +2654,10 @@ def write_yourself(request):
             verb = request.POST.get("verb")
             target_industry = request.POST.get("target_industry")
             print("target_industry in write: ", target_industry)
+            user_id = request.session['user_id']
+            approval=get_client_approval(user_id)
+            if approval['post'] == 'True':
+                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
         return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
     else:
         return render(request, 'error.html')
@@ -3019,7 +3108,7 @@ def Save_Post(request):
             combined_article = "\n\n".join(paragraphs_list)
             paragraph_without_commas = combined_article.replace(
                 '.', '. ').replace(',.', '.')
-            print('paragraph_without_commas:', paragraph_without_commas)
+            # print('paragraph_without_commas:', paragraph_without_commas)
 
             url = "http://uxlivinglab.pythonanywhere.com"
 

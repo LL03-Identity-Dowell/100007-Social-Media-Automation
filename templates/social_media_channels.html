@@ -48,6 +48,22 @@
             <button type="submit" class="mt-5 px-5 btn btn-dark-blue">Request Connection</button>
         </form>
 
+<<<<<<< HEAD
+=======
+
+    {% if can_connect %}
+<a
+  class="mt-5 px-5 btn btn-dark-blue connect-button"
+  onclick="newUserStatus ? showPopup.showLinkAcc() : showPopup.showActivate()"
+  >Connect</a
+>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="mt-5 px-5 btn btn-dark-blue">Create Connect Request</button>
+        </form>
+
+>>>>>>> d90409a1d6050645116d6261c2307583768c704f
     {% endif %}
 <script>
   // varaible from views checking if user has social profile

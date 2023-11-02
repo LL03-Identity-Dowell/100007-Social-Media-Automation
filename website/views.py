@@ -152,7 +152,8 @@ def index(request):
                     'event_id': create_event()['event_id'],
                     'client_admin_id': request.session['userinfo']['client_admin_id']
                 }
-
+                userid=request.session['user_id']
+ 
                 print(topic)
                 if topic['topic'] == 'True':
                     # async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')

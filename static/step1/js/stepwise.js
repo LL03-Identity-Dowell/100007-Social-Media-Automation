@@ -12,7 +12,7 @@
 
 // ========================
 
-//  <select name="subject" class="form-select" id="id_subject">
+//  <select name="topic" class="form-select" id="id_topic">
 //   <option value="Livinglab">Livinglab</option>
 
 //   <option value="Innovation">Innovation</option>
@@ -80,7 +80,11 @@ function updateDisplay() {
   let capitalizedSpecifyTopic = capitalizeFirstLetter(specifyTopic);
 
   let yourTopicElement = document.getElementById("id_topic");
+<<<<<<< HEAD
   var selectedOption =  yourTopicElement.options[yourTopicElement.selectedIndex];
+=======
+  var selectedOption = yourTopicElement.options[yourTopicElement.selectedIndex];
+>>>>>>> d90409a1d6050645116d6261c2307583768c704f
   var yourTopic = selectedOption.text;
 
   //has/had
@@ -262,7 +266,10 @@ function fixStepIndicator(n) {
   x[n].className += " active";
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d90409a1d6050645116d6261c2307583768c704f
 const AmagiLoader = {
   __loader: null,
   __progressText: null,
