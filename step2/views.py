@@ -439,7 +439,7 @@ class IndexView(APIView):
             return Response({'topics': serialized_data, 'profile': profile, 'page': page})
 
         else:
-            return Response({'topics': [], 'profile': 'member', 'page': 2})
+            return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class GenerateArticleView(APIView):
@@ -548,7 +548,7 @@ class GenerateArticleView(APIView):
                                 "citation_and_url": sources,
                                 "subject": subject,
 
-                        }
+                            }
                             save_data('step3_data', 'step3_data',
                                       step3_data, '34567897799')
                             # Save data for step 2
@@ -1145,8 +1145,8 @@ class SavePostView(APIView):
                         "date": date,
                         "time": str(time),
                         "status": "",
-                    "timezone":request.session['timezone'],
-                    "username":request.session['username']
+                        "timezone": request.session['timezone'],
+                        "username": request.session['username']
                     },
                     "update_field": {
                         "order_nos": 21
@@ -3370,6 +3370,7 @@ class UserApprovalView(APIView):
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
+            user_id = '62e7aea0eda55a0cd5e839fc'
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -3395,9 +3396,8 @@ class UserApprovalView(APIView):
             headers = {
                 'Content-Type': 'application/json'
             }
-            print("I have", payload)
-            # Use the json parameter to send JSON data
-            response = requests.post(url, headers=headers, json=payload)
+
+            response = requests.put(url, headers=headers, data=payload)
             print(response.text)
             messages.success(request, "Approvals updated successfully.")
             return Response({
@@ -3406,6 +3406,7 @@ class UserApprovalView(APIView):
                 'post': post,
                 'schedule': schedule
             }, status=status.HTTP_200_OK)
+
 
 '''user settings ends here'''
 

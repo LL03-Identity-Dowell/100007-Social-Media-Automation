@@ -15,7 +15,7 @@ function Navbar() {
 
   return (
     <nav className='sticky top-0 z-20 w-full text-white border-b border-gray-200 bg-customBlue dark:bg-gray-900 dark:border-gray-600'>
-      <div className='flex flex-wrap items-center justify-between p-4 lg:px-20'>
+      <div className='flex flex-wrap items-center justify-between w-full p-4 lg:px-20'>
         <Link to='/' className='flex items-center'>
           {/* <img src={logoImage} className="h-8 mr-3" alt="Dowell Logo" /> */}
           <span
@@ -25,7 +25,7 @@ function Navbar() {
             Samanta
           </span>
         </Link>
-        <div className='flex gap-4 md:order-2 md:pr-4'>
+        <div className='flex gap-4 md:order-2 md:pr-4 '>
           <button
             type='button'
             data-collapse-toggle='navbar-search'
