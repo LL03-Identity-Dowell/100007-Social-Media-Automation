@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from config_master import SOCIAL_PLATFORM_CHOICES
+
 
 class ProfileSerializer(serializers.Serializer):
     userinfo = serializers.DictField()
@@ -55,3 +57,9 @@ class RankedTopicListSerializer(serializers.Serializer):
     sentence = serializers.CharField()
     key = serializers.CharField()
     created_by = serializers.CharField()
+
+
+class PostCommentSerializer(serializers.Serializer):
+    id = serializers.CharField(required=True)
+    platforms = serializers.MultipleChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
+    comment = serializers.CharField(required=True)
