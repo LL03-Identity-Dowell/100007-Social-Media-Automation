@@ -1,9 +1,3 @@
-from helpers import (download_and_upload_image,
-                     save_data, create_event, has_access,
-                     fetch_user_info, get_dowellclock,
-                     get_image, pretty_print, save_comments, tag_visible,
-                     check_connected_accounts, check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key)
 import concurrent.futures
 import datetime
 import json
@@ -15,13 +9,13 @@ import urllib.parse
 from datetime import datetime, date
 # image resizing
 from io import BytesIO
+
 # from website.views import get_client_approval
 import openai
 import pytz
 import requests
 import wikipediaapi
 from PIL import Image
-from ayrshare import SocialPost
 from bson import ObjectId
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -40,13 +34,17 @@ from rest_framework import status
 from rest_framework.response import Response
 # rest(React endpoints)
 from rest_framework.views import APIView
+
 from create_article import settings
+from helpers import (download_and_upload_image,
+                     save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
+                     check_if_user_has_social_media_profile_in_aryshare, text_from_html,
+                     update_aryshare, get_key)
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
-                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer, MostRecentJsonSerializer)
-from django_q.tasks import async_task
-
+                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
+                          MostRecentJsonSerializer)
 
 global PEXELS_API_KEY
 
@@ -232,6 +230,8 @@ class MainAPIView(APIView):
 '''
 step-2 starts here
 '''
+
+
 class ListArticleView(APIView):
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
@@ -439,7 +439,7 @@ class IndexView(APIView):
             return Response({'topics': serialized_data, 'profile': profile, 'page': page})
 
         else:
-            return Response({'topics': [], 'profile': 'member', 'page': 2})
+            return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class GenerateArticleView(APIView):
@@ -547,8 +547,8 @@ class GenerateArticleView(APIView):
                                 "paragraph": article_str,
                                 "citation_and_url": sources,
                                 "subject": subject,
-                              
-                        }
+
+                            }
                             save_data('step3_data', 'step3_data',
                                       step3_data, '34567897799')
                             # Save data for step 2
@@ -985,9 +985,6 @@ class PostListView(APIView):
 
 
 class PostDetailView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -1148,8 +1145,8 @@ class SavePostView(APIView):
                         "date": date,
                         "time": str(time),
                         "status": "",
-                    "timezone":request.session['timezone'],
-                    "username":request.session['username']
+                        "timezone": request.session['timezone'],
+                        "username": request.session['username']
                     },
                     "update_field": {
                         "order_nos": 21
@@ -1462,11 +1459,10 @@ class MostRecentJSON(APIView):
                     page_article = paginator.page(1)
                 except EmptyPage:
                     page_article = paginator.page(paginator.num_page)
-                serializer = MostRecentJsonSerializer(
-                    {'response': page_article})
+                serializer = MostRecentJsonSerializer({'response': page_article})
 
                 response_data = {
-                    'MostRecentPosts': serializer.data,
+                    'Most Recent Posts': serializer.data,
                     'page': page_article.number,
                     'total_pages': paginator.num_pages,
                     'total_items': paginator.count,
@@ -1477,6 +1473,7 @@ class MostRecentJSON(APIView):
             return Response(response_data)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 def update_most_recent(pk):
@@ -2941,9 +2938,6 @@ class PinterestFormView(APIView):
 
 
 class ClientProfileFormView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
             user_data = fetch_user_info(request)
@@ -3412,6 +3406,7 @@ class UserApprovalView(APIView):
                 'post': post,
                 'schedule': schedule
             }, status=status.HTTP_200_OK)
+
 
 '''user settings ends here'''
 
