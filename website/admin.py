@@ -5,7 +5,6 @@ from website.models import Sentences, SentenceResults, SentenceRank, MTopic, Ind
 
 admin.site.register(Sentences)
 admin.site.register(SentenceResults)
-admin.site.register(SentenceRank)
 admin.site.register(MTopic)
 
 
@@ -25,3 +24,8 @@ class UserTopicAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'name', 'created_datetime']
     list_filter = ['created_datetime', ]
+
+
+@admin.register(SentenceRank)
+class SentenceRankAdmin(admin.ModelAdmin):
+    list_display = ['id', 'sentence_result', 'sentence_rank', ]

@@ -20,7 +20,8 @@ from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
 from website.permissions import HasBeenAuthenticated
-from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer
+from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer, \
+    SelectedResultSerializer
 
 
 def under_maintenance(request):
@@ -759,3 +760,64 @@ def category_topic(request):
             return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
+
+
+class SelectedResultAPIView(generics.CreateAPIView):
+    """
+
+    """
+    permission_classes = (HasBeenAuthenticated,)
+    serializer_class = SelectedResultSerializer
+
+    def post(self, request, *args, **kwargs):
+        selected_result_serializer = SelectedResultSerializer(data=request.data)
+        if not selected_result_serializer.is_valid():
+            return Response(selected_result_serializer.errors, status=HTTP_400_BAD_REQUEST)
+        userid = request.session['user_id']
+        topic = get_client_approval(userid)
+        sentence_ids = request.session.get('result_ids')
+
+        loop_counter = 1
+        for sentence_id in sentence_ids:
+            selected_rank = request.data.get(
+                'rank_{}'.format(loop_counter))
+
+            loop_counter += 1
+            sentence_result = SentenceResults.objects.get(
+                pk=sentence_id)
+            selected_result_obj = SentenceRank.objects.create(
+                sentence_result=sentence_result, sentence_rank=selected_rank
+            )
+
+            request.session['data_dictionary'] = {
+                **request.session['data_dictionary'],
+                **{
+                    "sentence_rank_{}".format(loop_counter - 1): {
+                        "sentence_rank": selected_rank,
+                        'sentence_result': sentence_result.sentence,
+                        'sentence_id': sentence_id
+                    }
+                }
+            }
+
+        data_dictionary = request.data.dict()
+        data_dictionary['client_admin_id'] = request.session['userinfo']['client_admin_id']
+
+        request.session['data_dictionary'] = {
+            **request.session['data_dictionary'],
+            **data_dictionary
+        }
+
+        # del request.session['data_dictionary']
+        data_dic = request.session['data_dictionary']
+
+        insert_form_data(request.session['data_dictionary'])
+
+        print(topic)
+        if topic['article'] == 'True':
+            async_task("automate.services.generate_article", data_dic, hook='automate.services.hook_now2')
+            print('yes.......o')
+        else:
+            pass
+
+        return Response({'message': 'Sentence ranked successfully'})
