@@ -2,24 +2,37 @@ import { useEffect, useState } from "react";
 import Loading from "/src/components/Loading.jsx";
 import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
 import axios from "axios";
+import Pagination  from "../../../components/Pagination";
+
 const ScheduledPage = () => {
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState({
+    list: [],
+    totalPage: 0,
+    totalPosts: 0,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const [pageNumber, setPageNumber] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/v1/scheduled-json/",
+          `http://127.0.0.1:8000/api/v1/scheduled-json?page=${pageNumber}`,
           {
             withCredentials: true,
           }
         );
         const data = res.data;
-        setArticles(data["Scheduled Posts"]);
+        setArticles(data["Scheduled Posts"]["response"]);
+        setArticles({
+          list: data["Scheduled Posts"]["response"],
+          totalPage: data.total_page,
+          totalPosts: data.total_items,
+        });
         setSuccess("Successfully fetched articles");
         setError("");
       } catch (error) {
@@ -31,12 +44,12 @@ const ScheduledPage = () => {
     };
 
     fetchData();
-  }, []);
+  }, [pageNumber]);
 
   return (
     <div className='px-20'>
       <h3 className='text-[#495057] font-bold'>
-        Total posts count: {articles?.response?.length}
+        Total posts count: {articles?.list?.length}
       </h3>
       <ul className='space-y-10 '>
         {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
@@ -44,7 +57,7 @@ const ScheduledPage = () => {
         {loading ? (
           <Loading />
         ) : (
-          articles?.response?.map((item) => (
+          articles?.list?.map((item) => (
             <li
               id={item?.PK}
               key={item?.PK}
@@ -72,6 +85,13 @@ const ScheduledPage = () => {
           ))
         )}
       </ul>
+      <div className='flex justify-center w-full pr-24 mt-14'>
+        <Pagination
+          currentPage={pageNumber}
+          setPageNumber={setPageNumber}
+          totalPage={articles.totalPage}
+        />
+      </div>
     </div>
   );
 };

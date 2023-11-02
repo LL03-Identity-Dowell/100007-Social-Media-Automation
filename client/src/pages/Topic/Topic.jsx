@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+
 import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import  CSRFToken  from "../../components/CSRFToken";
 
 function Topic({ show }) {
+  const [userCategory, setUserCategory] = useState([])
+  const [userTopic, setUserTopic] = useState([])
+  const [topicName, setTopicName] = useState("")
   const [inputs, setInputs] = useState({
     category: "",
     product: "",
@@ -12,7 +17,7 @@ function Topic({ show }) {
     theme: "",
     purpose: "",
     verb: "",
-    adjectives: "",
+    adjective: "",
     success: "",
     error: "",
     loading: false,
@@ -20,7 +25,26 @@ function Topic({ show }) {
 
   useEffect(() => {
     show();
+    fetchCategoryTopic();
   }, []);
+
+
+  const fetchCategoryTopic = () => {
+    // Create two Axios GET requests
+    const categoryReq = axios.get("http://127.0.0.1:8000/website/api/v1/category/", { withCredentials: true, });
+    const topicReq = axios.get("http://127.0.0.1:8000/website/api/v1/topic/", { withCredentials: true, });
+
+    Promise.all([categoryReq, topicReq])
+      .then(([categoryRes, topicRes]) => {
+        setUserCategory(categoryRes.data);
+        setUserTopic(topicRes.data);
+      })
+      .catch(error => {
+        console.error('Error retrieving Category or Topic:', error);
+      });
+  }
+
+  // console.log(userCategory);
 
   const handelChange = (e) => {
     const { name, value } = e.target;
@@ -29,56 +53,128 @@ function Topic({ show }) {
       ...inputs,
       [name]: value,
     });
+
+    let yourTopicElement = document.getElementById("id_topic");
+    var selectedOption = yourTopicElement.options[yourTopicElement.selectedIndex];
+    var yourTopic = selectedOption.text;
+    setTopicName(yourTopic);
+    // const obj = e.target
+    // console.log(obj);
   };
+
+  function capitalizeFirstLetter(word) {
+    if (word.length === 0) {
+      return word; // Return the word as-is if it's empty
+    }
+
+    const firstLetter = word.charAt(0).toUpperCase();
+    const restOfWord = word.slice(1);
+
+    return firstLetter + restOfWord;
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const data = {
-      category: inputs.category,
-      product: inputs.product,
-      topic: inputs.topic,
-      article: inputs.article,
-      theme: inputs.theme,
-      purpose: inputs.purpose,
-      verb: inputs.verb,
-      adjectives: inputs.adjectives,
-    };
     setInputs({
       ...inputs,
-      success: "Topic created successful..!",
-      // error: "Error creating topic..!",
       loading: true
     });
+
+    const data = {
+      target_product: inputs.product,
+      category: inputs.category,
+      topic: inputs.topic,
+      object: inputs.purpose,
+      verb: inputs.verb,
+      adjective: inputs.adjective,
+      object_determinant: inputs.article,
+      subject_number: inputs.theme,
+    };
     console.log(data);
 
-    setTimeout(() => {
-      setInputs({
-        category: "",
-        product: "",
-        topic: "",
-        article: "",
-        theme: "",
-        purpose: "",
-        verb: "",
-        adjectives: "",
-        loading: false,
+    axios
+      .post(`http://127.0.0.1:8000/website/api/v1`, data, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setInputs({
+          ...inputs,
+          loading: false
+        });
+
+        let resData = response.data;
+        console.log(resData);
+
+        setInputs({
+          ...inputs,
+          success: "Topic created successful..!",
+        });
+
+        // setSuccess(resData.message)
+        // setTimeout(() => {
+        //   navigate("/unscheduled");
+        // }, 2000);
+
+      })
+      .catch((error) => {
+        setInputs({
+          ...inputs,
+          error: "Error creating topic..!",
+          loading: false
+        });
+        console.error("Error creating topic:", error);
       });
 
-    }, 2000)
+
+    // setInputs({
+    //   ...inputs,
+    //   success: "Topic created successful..!",
+    //   // error: "Error creating topic..!",
+    //   loading: true
+    // });
+
+
+    // setTimeout(() => {
+    //   setInputs({
+    //     category: "",
+    //     product: "",
+    //     topic: "",
+    //     article: "",
+    //     theme: "",
+    //     purpose: "",
+    //     verb: "",
+    //     adjective: "",
+    //     loading: false,
+    //   });
+
+    // }, 2000)
   };
 
   return (
     <div>
       {inputs.loading && <Loading />}
       {inputs.success && <SuccessMessages>{inputs.success}</SuccessMessages>}
-      {inputs.success && <ErrorMessages>{inputs.error}</ErrorMessages>}
+      {inputs.error && <ErrorMessages>{inputs.error}</ErrorMessages>}
       <div className="flex flex-col justify-center items-center pb-10">
+
         <div>
           <h1 className="font-bold text-customGray text-xl md:text-3xl py-4">
             What is your Topic About?
           </h1>
         </div>
+
+        {/* Sentence preview */}
+        <div className="flex items-center p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+          <svg className="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+          </svg>
+          <span className="sr-only">Info</span>
+          <div>
+            <span className="font-medium">Sample Topic Output:</span> The Livinglab was testing workflow ai digital documentation.
+          </div>
+        </div>
+
         <form
           className="w-full mt-4 grid gap-4 md:gap-10"
           onSubmit={handleSubmit}
@@ -108,9 +204,14 @@ function Topic({ show }) {
                 placeholder="Search..."
               >
                 <option >...</option>
-                <option value="list1" >List1</option>
-                <option value="list2">List2</option>
-                <option value="list3">List3</option>
+                {
+                  userCategory.map((category, index) => (
+                    <option value={category.id} key={index}>{category.name}</option>
+                  ))
+                }
+
+                {/* <option value="list2">List2</option>
+                <option value="list3">List3</option> */}
               </select>
             </div>
           </div>
@@ -154,17 +255,25 @@ function Topic({ show }) {
                 </span>
               </div>
               <select
+                id="id_topic"
                 value={inputs.topic}
                 onChange={handelChange}
                 name="topic"
+                topicname
                 required
                 className="block w-full p-2 pl-[100px] text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
                 placeholder="Search..."
               >
                 <option>...</option>
-                <option value="list1">List1</option>
+                {
+                  userTopic.map((topic, index) => (
+                    <option value={topic.id} key={index}>{topic.name}</option>
+                  ))
+                }
+
+                {/* <option value="list1">List1</option>
                 <option value="list2">List2</option>
-                <option value="list3">List3</option>
+                <option value="list3">List3</option> */}
               </select>
             </div>
           </div>
@@ -238,7 +347,7 @@ function Topic({ show }) {
                 Theme <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                Choose whether youyr topic should be in singular or plural
+                Choose whether your topic should be in singular or plural
               </p>
             </div>
             <div className="w-[90%] md:w-[50%] xl:w-[40%] flex gap-8">
@@ -286,7 +395,7 @@ function Topic({ show }) {
                 Purpose <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                Specify your purpose from thr drop down and iunput your
+                Specify your purpose from the drop down and iunput your
                 discriptive purpose in the input field below. (e.g, Digital
                 Documentation)
               </p>
@@ -312,7 +421,7 @@ function Topic({ show }) {
                 Verb <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                You can use comma to seperate the verbs (e.g, Optimise, inform)
+                Input verb (e.g, Optimise, inform)
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
@@ -334,20 +443,33 @@ function Topic({ show }) {
                 Adjectives <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                You can use comma to seperate the adjectives (e.g, Optimise,
+                Input adjectives (e.g, Optimise,
                 inform)
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
               <input
-                value={inputs.adjectives}
+                value={inputs.adjective}
                 onChange={handelChange}
-                name="adjectives"
+                name="adjective"
                 required
                 type="text"
                 className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
                 placeholder="Type your adjectives here.."
               />
+            </div>
+          </div>
+
+          {/* Sentence preview */}
+          <div className="flex items-center justify-center">
+            <div className="flex items-center p-4 mb-2 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+              <svg className="flex-shrink-0 inline w-4 h-4 mr-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+              </svg>
+              <span className="sr-only">Info</span>
+              <div>
+                <span className="font-medium">Your sample output:</span> {capitalizeFirstLetter(inputs.article)} {topicName} (was/had/is) {inputs.verb} (-ing/-ed) (the/a/an) {inputs.adjective} {inputs.purpose}
+              </div>
             </div>
           </div>
 
@@ -359,6 +481,8 @@ function Topic({ show }) {
             </div>
           </div>
         </form>
+
+
       </div>
     </div>
   );
