@@ -5,9 +5,12 @@ import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 
 function Topic({ show }) {
-  const [userCategory, setUserCategory] = useState([])
-  const [userTopic, setUserTopic] = useState([])
-  const [topicName, setTopicName] = useState("")
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [userCategory, setUserCategory] = useState([]);
+  const [userTopic, setUserTopic] = useState([]);
+  const [topicName, setTopicName] = useState("");
   const [inputs, setInputs] = useState({
     category: "",
     product: "",
@@ -17,9 +20,6 @@ function Topic({ show }) {
     purpose: "",
     verb: "",
     adjective: "",
-    success: "",
-    error: "",
-    loading: false,
   });
 
   useEffect(() => {
@@ -37,6 +37,8 @@ function Topic({ show }) {
       .then(([categoryRes, topicRes]) => {
         setUserCategory(categoryRes.data);
         setUserTopic(topicRes.data);
+        console.log(categoryRes.data)
+        console.log(topicRes.data)
       })
       .catch(error => {
         console.error('Error retrieving Category or Topic:', error);
@@ -75,86 +77,67 @@ function Topic({ show }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    setInputs({
-      ...inputs,
-      loading: true
-    });
+    if (!(inputs.category) || !(inputs.topic)) {
+      setError("Required field(s) missing please fill");
+      setTimeout(() => {
+        setError("");
+        return;
+      }, 4000);
 
-    const data = {
-      target_product: inputs.product,
-      category: inputs.category,
-      topic: inputs.topic,
-      object: inputs.purpose,
-      verb: inputs.verb,
-      adjective: inputs.adjective,
-      object_determinant: inputs.article,
-      subject_number: inputs.theme,
-    };
-    console.log(data);
+    } else {
+      setLoading(true);
 
-    axios
-      .post(`http://127.0.0.1:8000/website/api/v1`, data, {
-        withCredentials: true,
-      })
-      .then((response) => {
-        setInputs({
-          ...inputs,
-          loading: false
+      const data = {
+        target_product: inputs.product,
+        category: inputs.category,
+        topic: inputs.topic,
+        object: inputs.purpose,
+        verb: inputs.verb,
+        adjective: inputs.adjective,
+        object_determinant: inputs.article,
+        subject_number: inputs.theme,
+      };
+      console.log(data);
+
+      axios
+        .post(`http://127.0.0.1:8000/website/api/v1`, data, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          setLoading(false)
+          let resData = response.data;
+          console.log(resData);
+
+          setSuccess("Topic created successful..!");
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Error creating topic..!");
+          console.error("Error creating topic:", error);
         });
 
-        let resData = response.data;
-        console.log(resData);
 
-        setInputs({
-          ...inputs,
-          success: "Topic created successful..!",
-        });
+      // setInputs({
+      //   ...inputs,
+      //   success: "Topic created successful..!",
+      //   // error: "Error creating topic..!",
+      //   loading: true
+      // });
 
-        // setSuccess(resData.message)
-        // setTimeout(() => {
-        //   navigate("/unscheduled");
-        // }, 2000);
+      setTimeout(() => {
+        setError("");
+      }, 4000)
 
-      })
-      .catch((error) => {
-        setInputs({
-          ...inputs,
-          error: "Error creating topic..!",
-          loading: false
-        });
-        console.error("Error creating topic:", error);
-      });
+    }
 
 
-    // setInputs({
-    //   ...inputs,
-    //   success: "Topic created successful..!",
-    //   // error: "Error creating topic..!",
-    //   loading: true
-    // });
-
-
-    // setTimeout(() => {
-    //   setInputs({
-    //     category: "",
-    //     product: "",
-    //     topic: "",
-    //     article: "",
-    //     theme: "",
-    //     purpose: "",
-    //     verb: "",
-    //     adjective: "",
-    //     loading: false,
-    //   });
-
-    // }, 2000)
   };
 
   return (
     <div>
-      {inputs.loading && <Loading />}
-      {inputs.success && <SuccessMessages>{inputs.success}</SuccessMessages>}
-      {inputs.error && <ErrorMessages>{inputs.error}</ErrorMessages>}
+      {loading && <Loading />}
+      {success && <SuccessMessages>{success}</SuccessMessages>}
+      {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="flex flex-col justify-center items-center pb-10">
 
         <div>
@@ -257,7 +240,6 @@ function Topic({ show }) {
                 value={inputs.topic}
                 onChange={handelChange}
                 name="topic"
-                topicname
                 required
                 className="block w-full p-2 pl-[100px] text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
                 placeholder="Search..."
@@ -466,7 +448,7 @@ function Topic({ show }) {
               </svg>
               <span className="sr-only">Info</span>
               <div>
-                <span className="font-medium">Your sample output:</span> {capitalizeFirstLetter(inputs.article)} {topicName} (was/had/is) {inputs.verb} (-ing/-ed) (the/a/an) {inputs.adjective} {inputs.purpose}
+                <span className="font-medium">Your sample output:</span> {capitalizeFirstLetter(inputs.article ? inputs.article : "-")} {topicName} (was/had/is) {inputs.verb} (-ing/-ed) (the/a/an) {inputs.adjective} {inputs.purpose}
               </div>
             </div>
           </div>
