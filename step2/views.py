@@ -1523,15 +1523,14 @@ def comments(request):
         }
 
         response = requests.post(url, headers=headers, json=payload)
-
-        response = json.loads(response.json())
+        # print(response.text)
+        response = json.loads(response.text)
         hashtags = []
         for hashtag in response["data"]:
             if 'hashtag' in hashtag:
                 hashtags.append(
                     {'hashtag': hashtag['hashtag'], 'group_no': hashtag['group_no']})
-
-        topics = json.loads(topics)
+        print(hashtags)
         return render(request, 'comments.html', {'topics': topics['data'], 'hashtags': hashtags})
     else:
         return render(request, 'error.html')
