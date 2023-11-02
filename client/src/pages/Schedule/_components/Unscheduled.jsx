@@ -21,6 +21,7 @@ const UnscheduledPage = () => {
         withCredentials: true,
       })
       .then((response) => {
+        console.log(response.data)
         let unscheduledData = response.data.Unscheduled_Posts;
         setUnscheduledPost(unscheduledData.response);
       })
@@ -34,7 +35,7 @@ const UnscheduledPage = () => {
 
   //handle pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const pageCount = 5;
+  const pageCount = 4;
   const lastIndex = currentPage * pageCount;
   const firstIndex = lastIndex - pageCount;
   const currentPost = unscheduledPost.slice(firstIndex, lastIndex);

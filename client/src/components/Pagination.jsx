@@ -1,4 +1,4 @@
-import "bootstrap/dist/css/bootstrap.css";
+
 
 const Pagination = ({
   pageCount,
@@ -15,22 +15,22 @@ const Pagination = ({
   }
 
   return (
-    <nav>
-      <ul className="pagination">
+    <nav aria-label="Page navigation example">
+      <ul className="inline-flex -space-x-px text-sm">
         <li className="page-item">
-          <a href="#" className="page-link" onClick={prevPage}>
+          <a href="#" className="flex items-center justify-center px-3 h-8 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" onClick={prevPage}>
             Prev
           </a>
         </li>
         {pageNumber.map((number, i) => {
           return (
             <li
-              className={`page-item ${currentPage === number ? "active" : ""}`}
+              className={`${currentPage === number ? "active" : ""}`}
               key={i}
             >
               <a
                 href="#"
-                className="page-link"
+                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                 onClick={() => paginate(number)}
               >
                 {number}
@@ -39,7 +39,7 @@ const Pagination = ({
           );
         })}
         <li className="page-item">
-          <a href="#" className="page-link" onClick={nextPage}>
+          <a href="#" className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" onClick={nextPage}>
             Next
           </a>
         </li>
