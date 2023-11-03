@@ -1,5 +1,6 @@
 import { useState } from "react";
 import UserWrapper from "./UserWrapper";
+import axios from "axios";
 
 const cityListArr = [
   {
@@ -480,8 +481,36 @@ const TargetCities = () => {
   const [cityList, setCityList] = useState(cityListArr);
   const [inputValue, setInputValue] = useState("");
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const citiesArray = Array.from(formData.entries())
+      .filter(([key, value]) => value === "on")
+      .map(([key]) => key);
+
+    setLoading(true);
+    try {
+      const res = await axios.put(
+        `http://127.0.0.1:8000/api/v1/targeted_cities/update/`,
+        citiesArray,
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log(res);
+      setSuccess("Successfully updated cities");
+      setError("");
+    } catch (error) {
+      setError("Error updating the cities");
+      setSuccess("");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onChange = (e) => {
