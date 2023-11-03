@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import * as Dialog from "@radix-ui/react-dialog";
 import axios from "axios";
@@ -8,7 +8,7 @@ import {
   SocialComponentForSchedule,
 } from "./SocialComponent";
 
-import Pagination from "../../../components/Pagination";
+import { Pagination } from "../../../components/Pagination";
 
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
@@ -21,7 +21,7 @@ const UnscheduledPage = () => {
         withCredentials: true,
       })
       .then((response) => {
-        console.log(response.data)
+        console.log(response.data);
         let unscheduledData = response.data.Unscheduled_Posts;
         setUnscheduledPost(unscheduledData.response);
       })
@@ -54,48 +54,48 @@ const UnscheduledPage = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div className="px-20">
-      <h3 className="text-[#495057] font-bold">
+    <div className='px-20'>
+      <h3 className='text-[#495057] font-bold'>
         Total posts count: {unscheduledPost.length}
       </h3>
-      <ul className="space-y-10 ">
+      <ul className='space-y-10 '>
         {currentPost.map((item) => (
           <li
             id={item.PK}
             key={item.PK}
-            className="flex justify-between gap-x-14"
+            className='flex justify-between gap-x-14'
           >
-            <div className="flex flex-col w-9/12 gap-y-7 ">
-              <span className="text-base text-[#0000007c]">{item.source}</span>
-              <h3 className="text-2xl font-bold text-customTextBlue">
+            <div className='flex flex-col w-9/12 gap-y-7 '>
+              <span className='text-base text-[#0000007c]'>{item.source}</span>
+              <h3 className='text-2xl font-bold text-customTextBlue'>
                 {item.title}
               </h3>
-              <p className="text-[#333]">{item.paragraph}</p>
-              <div className="self-end space-x-8">
-                <Modal article={item} title="post">
+              <p className='text-[#333]'>{item.paragraph}</p>
+              <div className='self-end space-x-8'>
+                <Modal article={item} title='post'>
                   <Dialog.Close asChild>
                     <button
-                      className="text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
-                      aria-label="Close"
+                      className='text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none'
+                      aria-label='Close'
                     >
                       <Cross2Icon />
                     </button>
                   </Dialog.Close>
-                  <Dialog.Title className=" text-center text-[#1b3476] m-0 text-3xl font-semibold">
+                  <Dialog.Title className=' text-center text-[#1b3476] m-0 text-3xl font-semibold'>
                     Where do you want to post?
                   </Dialog.Title>
                   <SocialComponentForPost article={item} />
                 </Modal>
-                <Modal article={item} title="schedule">
+                <Modal article={item} title='schedule'>
                   <Dialog.Close asChild>
                     <button
-                      className="text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
-                      aria-label="Close"
+                      className='text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none'
+                      aria-label='Close'
                     >
                       <Cross2Icon />
                     </button>
                   </Dialog.Close>
-                  <Dialog.Title className=" text-center text-[#1b3476] m-0 text-3xl font-semibold">
+                  <Dialog.Title className=' text-center text-[#1b3476] m-0 text-3xl font-semibold'>
                     Where do you want to post?
                   </Dialog.Title>
                   <SocialComponentForSchedule article={item} />
@@ -103,9 +103,9 @@ const UnscheduledPage = () => {
               </div>
             </div>
             <img
-              className="w-40 h-40 mt-20 rounded-lg"
+              className='w-40 h-40 mt-20 rounded-lg'
               src={item.image}
-              alt="image"
+              alt='image'
             />
           </li>
         ))}
