@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 
-export const CSRFToken = () => {
+const CSRFToken = () => {
   const [csrfToken, setCsrfToken] = useState('');
 
   const getCookie = (name) => {
@@ -32,8 +32,11 @@ export const CSRFToken = () => {
   }, []);
 
   return (
-  <input type="hidden" value={csrfToken} name="csrfmiddlewaretoken" />
+    <div>
+      <input type="hidden" value={csrfToken} name="csrfmiddlewaretoken" />
+
+    </div>
   );
 };
 
- 
+export default CSRFToken
