@@ -2,7 +2,7 @@ import CustomLink from "./CustomLink";
 
 const Sidebar = () => {
   return (
-    <div className='fixed flex flex-col w-16 md:w-32 bg-[#d3d3d3] justify-around h-[90vh] py-14 items-center font-bold text-[#333]'>
+    <div className='fixed flex flex-col w-16 md:w-32 bg-[#d3d3d3] justify-around h-[100vh] py-14 items-center font-bold text-[#333]'>
       <CustomLink title='Topic' to='/topic'>
         <img
           src='user-check-solid.svg'

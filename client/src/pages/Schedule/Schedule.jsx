@@ -19,7 +19,7 @@ function ScheduleSection({ show }) {
     setPathname(url.pathname.split("/")[1]);
   }, [url, show]);
   return (
-    <div className='flex flex-col items-center gap-10'>
+    <div className='flex flex-col items-center gap-10 w-full h-full'>
       <div className='flex items-center gap-20 px-20 mt-10'>
         <ScheduledCustomLink pathname={pathname} to='/recent'>
           Most Recent
