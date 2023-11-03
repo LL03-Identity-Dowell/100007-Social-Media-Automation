@@ -54,21 +54,24 @@ const UnscheduledPage = () => {
   };
   //Select page number to navigate to the page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const handlePageClick = (data) => {
+    setPage(data.selected);
+  };
 
   return (
     <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
-      
       <div className="count-article flex justify-between pt-0 pb-2 items-center">
-        <p className="px-6 py-3 italic">Total posts count: {unscheduledPost.length}</p>
+        <p className="px-6 py-3 italic">
+          Total posts count: {unscheduledPost.length}
+        </p>
       </div>
-      {/* <div>
+      <div>
         <div className="overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:gap-10 pb-10">
           <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
             <div className="articles">
-              {postData &&
-                postData.map((post, index) => (
+              {currentPost &&
+                currentPost.map((post, index) => (
                   <div className="article mr-2 mt-6 " key={index}>
-                    
                     <p className="lg:px-6 px-2 py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold lg:w-[1000px]">
                       {post.title}
                     </p>
@@ -77,12 +80,43 @@ const UnscheduledPage = () => {
                       <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg line-clamp-4 leading-loose lg:w-[1000px]">
                         {post.paragraph}
                       </p>
-
-                      <div className="lg:w-[150px] lg:pt-2 flex justify-end md:mr-6 mt-2 md:mt-0">
-
-                        <ExtraSmallBtn title={"View Post"} onClick={() => handlePostdetailNavigate(post.post_id, post.title, post.paragraph, post.source)} />
-
+                      <div className="self-end space-x-8">
+                        <img
+                          className="w-40 h-40  rounded-lg"
+                          src={post.image}
+                          alt="image"
+                        />
                       </div>
+                    </div>
+                    <div className=" space-x-8 border flex flex-col md:flex-row justify-end items-baseline py-0 pr-60">
+                      <Modal article={post} title="post">
+                        <Dialog.Close asChild>
+                          <button
+                            className="text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
+                            aria-label="Close"
+                          >
+                            <Cross2Icon />
+                          </button>
+                        </Dialog.Close>
+                        <Dialog.Title className=" text-center text-[#1b3476] m-0 text-3xl font-semibold">
+                          Where do you want to post?
+                        </Dialog.Title>
+                        <SocialComponentForPost article={post} />
+                      </Modal>
+                      <Modal article={post} title="schedule">
+                        <Dialog.Close asChild>
+                          <button
+                            className="text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
+                            aria-label="Close"
+                          >
+                            <Cross2Icon />
+                          </button>
+                        </Dialog.Close>
+                        <Dialog.Title className=" text-center text-[#1b3476] m-0 text-3xl font-semibold">
+                          Where do you want to post?
+                        </Dialog.Title>
+                        <SocialComponentForSchedule article={post} />
+                      </Modal>
                     </div>
                   </div>
                 ))}
@@ -92,7 +126,7 @@ const UnscheduledPage = () => {
 
         <ReactPaginate
           pageCount={pageCount}
-          pageRangeDisplayed={pagesToDisplay}
+          pageRangeDisplayed={currentPage}
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
           previousLabel={<span className="text-black">Previous</span>}
@@ -104,9 +138,8 @@ const UnscheduledPage = () => {
           breakClassName="p-2"
           activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
         />
-        
-      </div> */}
-      <ul className="space-y-10 ">
+      </div>
+      {/* <ul className="space-y-10 ">
         {currentPost.map((item) => (
           <li
             id={item.PK}
@@ -170,7 +203,7 @@ const UnscheduledPage = () => {
           prevPage={prevPage}
           nextPage={nextPage}
         />
-      </ul>
+      </ul> */}
     </div>
   );
 };
