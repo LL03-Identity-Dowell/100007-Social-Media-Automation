@@ -1426,7 +1426,7 @@ class MostRecentJSON(APIView):
             post = []
 
             response_data = {  # Initialize the response_data here
-                'MostRecentPosts': [],
+                'Most Recent Posts': [],
                 'page': 1,
                 'total_pages': 1,
                 'total_items': 0,
@@ -1463,7 +1463,7 @@ class MostRecentJSON(APIView):
                     {'response': page_article})
 
                 response_data = {
-                    'MostRecentPosts': serializer.data,
+                    'Most Recent Posts': serializer.data,
                     'page': page_article.number,
                     'total_pages': paginator.num_pages,
                     'total_items': paginator.count,
@@ -3347,9 +3347,10 @@ class UserApprovalView(APIView):
             # Use the json parameter to send JSON data
             response = requests.post(url, headers=headers, json=payload)
             print(response.text)
-            messages.success(request, "Details updated successfully.")
+            messages.success(request, ".")
 
             return Response({
+                'message': 'Details inserted successfully',
                 'topic': topic,
                 'article': article,
                 'post': post,
@@ -3372,7 +3373,6 @@ class UserApprovalView(APIView):
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
-            user_id = '62e7aea0eda55a0cd5e839fc'
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -3399,10 +3399,11 @@ class UserApprovalView(APIView):
                 'Content-Type': 'application/json'
             }
 
-            response = requests.put(url, headers=headers, data=payload)
+            data = json.dumps(payload)
+            response = requests.post(url, headers=headers, data=data)
             print(response.text)
-            messages.success(request, "Approvals updated successfully.")
             return Response({
+                'message': 'Approvals updated successfully',
                 'topic': topic,
                 'article': article,
                 'post': post,

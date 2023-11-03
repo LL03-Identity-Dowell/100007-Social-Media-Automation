@@ -8,7 +8,6 @@ import {
   SocialComponentForSchedule,
 } from "./SocialComponent";
 
-import Pagination from "../../../components/Pagination";
 import ReactPaginate from "react-paginate";
 import Loading from "../../../components/Loading";
 import { ErrorMessages } from "../../../components/Messages";
@@ -73,16 +72,16 @@ const UnscheduledPage = () => {
             className="flex justify-between flex-col md:flex-row gap-x-14"
           >
             <div className="flex flex-col w-9/12 gap-y-7 ">
-            <p className="lg:px-6 lg:py-4 px-2 text-md lg:text-lg">
-                        {item.source}
-                      </p>
-                      <p className="lg:px-6 px-2 py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold">
-                        {item.title}
-                      </p>
+              <p className="lg:px-6 lg:py-4 px-2 text-md lg:text-lg">
+                {item.source}
+              </p>
+              <p className="lg:px-6 px-2 py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold">
+                {item.title}
+              </p>
 
-                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 lg:w-[920px] ">
-                        {item.paragraph}
-                      </p>
+              <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 lg:w-[920px] ">
+                {item.paragraph}
+              </p>
 
               <div className="self-end space-x-8">
                 <Modal article={item} title="post">
@@ -124,20 +123,20 @@ const UnscheduledPage = () => {
           </li>
         ))}
       </ul>
-        <ReactPaginate
-          pageCount={pageCount}
-          pageRangeDisplayed={pagesToDisplay}
-          marginPagesDisplayed={2}
-          onPageChange={handlePageClick}
-          previousLabel={<span className="text-black">Previous</span>}
-          nextLabel={<span className="text-black">Next</span>}
-          containerClassName="flex justify-center items-center my-4 space-x-2"
-          pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
-          previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-          nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-          breakClassName="p-2"
-          activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
-        />
+      <ReactPaginate
+        pageCount={pageCount}
+        pageRangeDisplayed={pagesToDisplay}
+        marginPagesDisplayed={2}
+        onPageChange={handlePageClick}
+        previousLabel={<span className="text-black">Previous</span>}
+        nextLabel={<span className="text-black">Next</span>}
+        containerClassName="flex justify-center items-center my-4 space-x-2"
+        pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
+        previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+        nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+        breakClassName="p-2"
+        activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
+      />
     </div>
   );
 };
