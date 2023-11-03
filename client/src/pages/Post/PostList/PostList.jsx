@@ -122,8 +122,9 @@ const PostList = ({ show }) => {
                       {post.title}
                     </p>
 
-                    <div className='flex flex-col items-baseline justify-between py-0 content-button md:flex-row'>
-                      <p className='lg:px-6 lg:pt-4 px-2 text-md lg:text-lg line-clamp-4 leading-loose lg:w-[1000px]'>
+                    <div className="content-button flex flex-col md:flex-row justify-between items-baseline py-0">
+                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 leading-loose lg:w-[1000px]">
+
                         {post.paragraph}
                       </p>
 
