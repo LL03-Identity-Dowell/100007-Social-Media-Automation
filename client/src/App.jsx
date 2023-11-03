@@ -29,6 +29,7 @@ import Youtube from "./pages/UserProfile/_components/youtube";
 import Pinterest from "./pages/UserProfile/_components/pinterest";
 import Linkedin from "./pages/UserProfile/_components/linkedin";
 import CreateArticle from "./pages/Article/CreateArticle";
+import Rank from "./pages/RankPage/Rank";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -47,6 +48,7 @@ function App() {
           <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
           <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
+          <Route path='/rank' element={<Rank show={handleCloseSideBar} />} />
           <Route
             path='/article'
             element={<Article show={handleOpenSideBar} />}

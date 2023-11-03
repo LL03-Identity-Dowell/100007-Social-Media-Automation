@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import * as Dialog from "@radix-ui/react-dialog";
 import axios from "axios";
@@ -13,6 +13,7 @@ import ReactPaginate from "react-paginate";
 import Loading from "../../../components/Loading";
 import { ErrorMessages } from "../../../components/Messages";
 
+
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,7 @@ const UnscheduledPage = () => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
 
-  
+
   useEffect(() => {
     setLoading(true);
     //Load unscheduled data from API
@@ -85,29 +86,30 @@ const UnscheduledPage = () => {
 
               <div className="self-end space-x-8">
                 <Modal article={item} title="post">
+
                   <Dialog.Close asChild>
                     <button
-                      className="text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
-                      aria-label="Close"
+                      className='text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none'
+                      aria-label='Close'
                     >
                       <Cross2Icon />
                     </button>
                   </Dialog.Close>
-                  <Dialog.Title className=" text-center text-[#1b3476] m-0 text-3xl font-semibold">
+                  <Dialog.Title className=' text-center text-[#1b3476] m-0 text-3xl font-semibold'>
                     Where do you want to post?
                   </Dialog.Title>
                   <SocialComponentForPost article={item} />
                 </Modal>
-                <Modal article={item} title="schedule">
+                <Modal article={item} title='schedule'>
                   <Dialog.Close asChild>
                     <button
-                      className="text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
-                      aria-label="Close"
+                      className='text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none'
+                      aria-label='Close'
                     >
                       <Cross2Icon />
                     </button>
                   </Dialog.Close>
-                  <Dialog.Title className=" text-center text-[#1b3476] m-0 text-3xl font-semibold">
+                  <Dialog.Title className=' text-center text-[#1b3476] m-0 text-3xl font-semibold'>
                     Where do you want to post?
                   </Dialog.Title>
                   <SocialComponentForSchedule article={item} />
@@ -115,9 +117,9 @@ const UnscheduledPage = () => {
               </div>
             </div>
             <img
-              className="w-40 h-40 mt-20 rounded-lg"
+              className='w-40 h-40 mt-20 rounded-lg'
               src={item.image}
-              alt="image"
+              alt='image'
             />
           </li>
         ))}
