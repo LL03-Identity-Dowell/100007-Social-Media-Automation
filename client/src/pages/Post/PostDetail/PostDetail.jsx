@@ -79,9 +79,9 @@ function PostDetail({ show }) {
                 let resData = response.data;
                 console.log(resData.message);
                 setSuccess(resData.message)
-                // setTimeout(() => {
-                //     navigate("/unscheduled");
-                // }, 2000);
+                setTimeout(() => {
+                    navigate("/unscheduled");
+                }, 2000);
 
             })
             .catch((error) => {
