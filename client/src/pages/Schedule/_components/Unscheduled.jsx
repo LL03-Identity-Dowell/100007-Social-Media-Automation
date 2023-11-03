@@ -70,7 +70,7 @@ const UnscheduledPage = () => {
               <h3 className="text-2xl font-bold text-customTextBlue">
                 {item.title}
               </h3>
-              <p className="text-[#333]">{item.paragraph}</p>
+              <p className="text-[#333] line-clamp-4">{item.paragraph}</p>
               <div className="self-end space-x-8">
                 <Modal article={item} title="post">
                   <Dialog.Close asChild>

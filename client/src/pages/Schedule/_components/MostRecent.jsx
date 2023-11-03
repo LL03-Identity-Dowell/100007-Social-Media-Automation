@@ -71,7 +71,7 @@ const MostRecent = () => {
       <p className="px-6 py-2 italic">Total article count: {count}</p>
 
       <div>
-        <div className="overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6">
+        <div className="overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10">
           <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
             <div className="articles">
               {articles &&
@@ -95,7 +95,7 @@ const MostRecent = () => {
 
                     <div className="mr-4 lg:mr-8">
                       <img
-                        className="w-[250px] h-[200px] rounded-lg"
+                        className="w-50 h-40 rounded-lg"
                         src={article.image}
                         alt="image"
                       />
