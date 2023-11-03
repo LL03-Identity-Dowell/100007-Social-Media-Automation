@@ -3223,7 +3223,7 @@ class HashMentionUpdateView(APIView):
             if request.method != "PUT":
                 return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                hashtag_list = request.data.get('hashtags_list')
+                hashtag_list = request.data.get('hashtag_list')
                 print("Here we have", hashtag_list)
                 mentions_list = request.data.get('mentions_list')
                 print("Here we have", mentions_list)

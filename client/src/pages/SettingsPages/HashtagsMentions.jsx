@@ -115,7 +115,7 @@ const HashtagsMentions = ({ close }) => {
     if (getStatus === "update") {
       setLoading(true);
       const data = {
-        hashtag_list: checkedHashtags.join(","),
+        hashtag_list: checkedHashtags.join(","),  
         mentions_list: checkedMentions.join(","),
       };
 
