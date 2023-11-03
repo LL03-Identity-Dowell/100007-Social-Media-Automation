@@ -1463,7 +1463,7 @@ class MostRecentJSON(APIView):
                     {'response': page_article})
 
                 response_data = {
-                    'Most Recent Posts': serializer.data,
+                    'MostRecentPosts': serializer.data,
                     'page': page_article.number,
                     'total_pages': paginator.num_pages,
                     'total_items': paginator.count,
