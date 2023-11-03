@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Loading from "/src/components/Loading.jsx";
 import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
 import axios from "axios";
-import Pagination  from "../../../components/Pagination";
+import { Pagination } from "../../../components/Pagination";
 
 const ScheduledPage = () => {
   const [articles, setArticles] = useState({
@@ -48,9 +48,7 @@ const ScheduledPage = () => {
 
   return (
     <div className='px-6'>
-      <h3 className='ml-5 italic'>
-        Total posts count: {articles?.list?.length}
-      </h3>
+      <h4 className='ml-5 italic'>Total posts count: {articles?.totalPosts}</h4>
       <ul className='space-y-4 '>
         {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
         {success !== "" && <SuccessMessages>{success}</SuccessMessages>}
@@ -58,24 +56,28 @@ const ScheduledPage = () => {
           <Loading />
         ) : (
           articles?.list?.map((item) => (
-            <li id={item?.PK} key={item?.PK} className='flex justify-between'>
-              <div className='flex flex-col w-5/6 gap-y-3 '>
+            <li
+              id={item?.PK}
+              key={item?.PK}
+              className='flex flex-col justify-between md:flex-row'
+            >
+              <div className='flex flex-col w-full md:w-9/12 gap-y-3 '>
                 <span className='text-base text-[#0000007c] ml-5'>
                   {item?.source}
                 </span>
-                <h3 className='px-2 py-2 font-bold lg:px-6 text-md lg:text-xl text-customTextBlue dark:text-white'>
+                <p className=' py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold lg:w-[1000px]'>
                   {item?.title}
-                </h3>
-                <p className='px-2 text-gray-500 lg:px-6 lg:py-4 text-md lg:text-lg'>
+                </p>
+                <p className='lg:pt-4 text-md lg:text-lg line-clamp-4 leading-loose lg:w-[980px] text-gray-500'>
                   {item?.paragraph}
                 </p>
-                <span className='flex items-center self-end gap-x-2'>
+                <span className='flex items-center self-end mt-3 gap-x-2'>
                   <div className='icons8-clock'></div>
                   <p className='text-[#333] text-sm'>{item?.Date}</p>
                 </span>
               </div>
               <img
-                className='w-40 h-40 mt-20 rounded-lg'
+                className='w-full mt-6 rounded-lg md:w-40 aspect-square md:mt-20'
                 src={item?.image}
                 alt='image'
               />
@@ -83,7 +85,7 @@ const ScheduledPage = () => {
           ))
         )}
       </ul>
-      <div className='flex justify-center w-full pr-24 mt-14'>
+      <div className='flex p-0 md:justify-center justify-normal md:w-full md:pr-24 md:mt-14'>
         <Pagination
           currentPage={pageNumber}
           setPageNumber={setPageNumber}
