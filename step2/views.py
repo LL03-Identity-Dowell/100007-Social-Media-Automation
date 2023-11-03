@@ -1459,7 +1459,8 @@ class MostRecentJSON(APIView):
                     page_article = paginator.page(1)
                 except EmptyPage:
                     page_article = paginator.page(paginator.num_page)
-                serializer = MostRecentJsonSerializer({'response': page_article})
+                serializer = MostRecentJsonSerializer(
+                    {'response': page_article})
 
                 response_data = {
                     'Most Recent Posts': serializer.data,
@@ -1473,7 +1474,6 @@ class MostRecentJSON(APIView):
             return Response(response_data)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
 
 
 def update_most_recent(pk):
@@ -3214,15 +3214,19 @@ class HashMentionView(APIView):
 
 
 class HashMentionUpdateView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if 'session_id' in request.session and 'username' in request.session:
             if request.method != "PUT":
                 return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                hashtag_list = request.data.get('hashtags_list').split(',')
-                mentions_list = request.data.get('mentions_list').split(',')
-
+                hashtag_list = request.data.get('hashtags_list')
+                print("Here we have", hashtag_list)
+                mentions_list = request.data.get('mentions_list')
+                print("Here we have", mentions_list)
                 url = "http://uxlivinglab.pythonanywhere.com/"
                 headers = {'content-type': 'application/json'}
 
@@ -3245,8 +3249,10 @@ class HashMentionUpdateView(APIView):
                 }
 
                 data = json.dumps(payload)
-                response = requests.put(url, headers=headers, data=data)
-
+                response = requests.post(url, headers=headers, data=data)
+                print(response)
+                user_data = fetch_user_info(request)
+                print(user_data)
                 return Response({'detail': 'Hashtags and Mentions updated successfully'}, status=status.HTTP_200_OK)
 
 
