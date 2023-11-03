@@ -1,4 +1,5 @@
 from django.db import models, transaction
+from django.db.models import Q
 
 
 class BaseModel(models.Model):
@@ -229,13 +230,15 @@ class WebsiteManager:
         """
         This method returns categories created by a user
         """
-        return Category.objects.filter(user__email=data.get('email'))
+        q_filter = Q(user__email=data.get('email')) | Q(is_default=True)
+        return Category.objects.filter(q_filter)
 
     def get_user_topics_by_email(self, data):
         """
         This method returns topics created by a user
         """
-        return UserTopic.objects.filter(user__email=data.get('email'))
+        q_filter = Q(user__email=data.get('email')) | Q(is_default=True)
+        return UserTopic.objects.filter(q_filter)
 
     def get_or_create_user(self, data):
         """
