@@ -23,14 +23,14 @@ export const Pagination = ({ currentPage, setPageNumber, totalPage }) => {
   };
 
   return (
-    <div className='relative max-w-max'>
+    <div className='flex items-center w-4/6 gap-x-1 md:max-w-max'>
       <button
-        className='hover:bg-[#333]/20 h-10 w-10 absolute left-[-60px] rounded-full '
+        className='hover:bg-[#333]/20  p-2 rounded-full md:text-base text-xs'
         onClick={prevPage}
       >
-        Prev
+        Previous
       </button>
-      <ul className='flex gap-x-8'>
+      <ul className='flex gap-x-1 md:gap-x-5'>
         {listOfNextPages.map((item) => {
           if (item <= totalPage) {
             return (
@@ -39,7 +39,7 @@ export const Pagination = ({ currentPage, setPageNumber, totalPage }) => {
                   onClick={() => setPageNumber(item)}
                   className={`${
                     currentPage === item && "bg-customBlue text-white"
-                  } rounded-full h-10 w-10  hover:bg-[#333]/20`}
+                  } rounded-full md:w-10 aspect-square w-6 text-xs md:text-base hover:bg-[#333]/20`}
                 >
                   {item}
                 </button>
@@ -52,7 +52,7 @@ export const Pagination = ({ currentPage, setPageNumber, totalPage }) => {
 
         <button
           onClick={nextPage}
-          className='hover:bg-[#333]/20 rounded-full absolute right-[-60px] my-auto h-10 w-10'
+          className='hover:bg-[#333]/20  p-2 rounded-full md:text-base text-xs'
         >
           Next
         </button>
