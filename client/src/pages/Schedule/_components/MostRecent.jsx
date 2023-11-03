@@ -17,51 +17,52 @@ const MostRecent = () => {
 
   useEffect(() => {
     setLoading(true);
+    const fetch = () => {
+      setLoading(true);
+      // Make a GET request to the API endpoint with the session_id
+      axios
+        .get(
+          `http://127.0.0.1:8000/api/v1/recent_posts/?page=${
+            page + 1
+          }&order=newest`,
+          {
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          setError(null);
+          setLoading(false);
+          let data = response.data.MostRecentPosts.response;
+          setArticles(data);
+          console.log(response.data);
+          setCount(response.data.total_items);
+          setPageCount(Math.ceil(response.data.total_items / perPage));
+          setShowMorePages(pageCount > pagesToDisplay);
+          window.scrollTo(0, 0);
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Server error, Please try again later");
+          console.error("Error fetching article:", error);
+        });
+    };
     fetch();
   }, [page]);
 
-  const fetch = () => {
-    setLoading(true);
-    // Make a GET request to the API endpoint with the session_id
-    axios
-      .get(
-        `http://127.0.0.1:8000/api/v1/recent_posts/?page=${
-          page + 1
-        }&order=newest`,
-        {
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        setError(null);
-        setLoading(false);
-        let data = response.data.MostRecentPosts.response;
-        setArticles(data);
-        console.log(response.data);
-        setCount(response.data.total_items);
-        setPageCount(Math.ceil(response.data.total_items / perPage));
-        setShowMorePages(pageCount > pagesToDisplay);
-        window.scrollTo(0, 0);
-      })
-      .catch((error) => {
-        setLoading(false);
-        setError("Server error, Please try again later");
-        console.error("Error fetching article:", error);
-      });
-  };
+  
 
-  console.log(articles);
+  // console.log(articles);
   const handlePageClick = (data) => {
     setPage(data.selected);
   };
 
-  const loadMorePages = () => {
-    if (pageCount > pagesToDisplay) {
-      const nextPagesToDisplay = Math.min(pageCount - page, pagesToDisplay);
-      setShowMorePages(nextPagesToDisplay + page < pageCount);
-      setPage(page + nextPagesToDisplay);
-    }
-  };
+  // const loadMorePages = () => {
+  //   if (pageCount > pagesToDisplay) {
+  //     const nextPagesToDisplay = Math.min(pageCount - page, pagesToDisplay);
+  //     setShowMorePages(nextPagesToDisplay + page < pageCount);
+  //     setPage(page + nextPagesToDisplay);
+  //   }
+  // };
 
   return (
     <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
@@ -73,7 +74,7 @@ const MostRecent = () => {
       <div>
         <div className="overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10">
           <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
-            <div className="articles">
+            <div className="">
               {articles &&
                 articles.map((article, index) => (
                   <div
@@ -88,7 +89,7 @@ const MostRecent = () => {
                         {article.title}
                       </p>
 
-                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg line-clamp-4 lg:w-[920px] ">
+                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 lg:w-[920px] ">
                         {article.paragraph}
                       </p>
                     </div>
@@ -121,14 +122,14 @@ const MostRecent = () => {
           breakClassName="p-2"
           activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
         />
-        {showMorePages && (
+        {/* {showMorePages && (
           <button
             className="bg-customBlue text-white p-2 rounded-full cursor-pointer hover:bg-blue-600"
             onClick={loadMorePages}
           >
             &gt;&gt;
           </button>
-        )}
+        )} */}
       </div>
     </div>
   );
