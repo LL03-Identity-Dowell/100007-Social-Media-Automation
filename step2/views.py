@@ -1426,7 +1426,7 @@ class MostRecentJSON(APIView):
             post = []
 
             response_data = {  # Initialize the response_data here
-                'Most Recent Posts': [],
+                'MostRecentPosts': [],
                 'page': 1,
                 'total_pages': 1,
                 'total_items': 0,
@@ -1463,7 +1463,7 @@ class MostRecentJSON(APIView):
                     {'response': page_article})
 
                 response_data = {
-                    'Most Recent Posts': serializer.data,
+                    'MostRecentPosts': serializer.data,
                     'page': page_article.number,
                     'total_pages': paginator.num_pages,
                     'total_items': paginator.count,
@@ -3073,8 +3073,8 @@ class TargetedCitiesCreateView(APIView):
             return Response({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Receive selected cities from the form
-            target_cities = request.data.getlist('target_cities[]')
-
+            # target_cities = request.data.getlist('target_cities[]')
+            target_cities = request.data
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -3111,19 +3111,21 @@ class TargetedCitiesCreateView(APIView):
             response = requests.post(url, headers=headers, data=payload)
 
             user_data = fetch_user_info(request)
-            messages.success(
-                request, "target_cities details inserted successfully.")
-            return Response({'detail': 'Targeted cities created successfully'}, status=status.HTTP_201_CREATED)
+            return Response({'detail': 'Targeted cities saved successfully'}, status=status.HTTP_201_CREATED)
 
 
 class TargetedCitiesUpdateView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if request.method != "PUT":
             return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Receive selected cities from the form
-            target_cities = request.data.getlist('target_cities[]')
+            # target_cities = request.data.getlist('target_cities[]')
+            target_cities = request.data
             url = "http://uxlivinglab.pythonanywhere.com"
 
             payload = json.dumps({
@@ -3146,9 +3148,9 @@ class TargetedCitiesUpdateView(APIView):
                 'Content-Type': 'application/json'
             }
 
-            response = requests.put(url, headers=headers, data=payload)
-
+            response = requests.post(url, headers=headers, data=payload)
             user_data = fetch_user_info(request)
+            print(user_data)
             messages.success(
                 request, "target_cities details updated successfully.")
             return Response({'detail': 'Targeted cities updated successfully'}, status=status.HTTP_200_OK)

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import * as Dialog from "@radix-ui/react-dialog";
 import axios from "axios";
@@ -8,12 +8,16 @@ import {
   SocialComponentForSchedule,
 } from "./SocialComponent";
 
-import Pagination from "../../../components/Pagination";
+
 import ReactPaginate from "react-paginate";
+import Loading from "../../../components/Loading";
+import { ErrorMessages } from "../../../components/Messages";
+
 
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
   const [pageNumber, setPageNumber] = useState(0);
+  
   const postPerpPage = 5;
   const pageVisited = pageNumber * postPerpPage;
   const displayPage = unscheduledPost.slice(
