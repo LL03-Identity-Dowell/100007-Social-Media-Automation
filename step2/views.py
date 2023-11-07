@@ -1193,8 +1193,6 @@ def user_usage(request):
     return render(request, 'user_usage.html')
 
 
-
-
 # get user aproval
 def get_client_approval(user):
     url = "http://uxlivinglab.pythonanywhere.com/"
@@ -1208,7 +1206,7 @@ def get_client_approval(user):
         "team_member_ID": "1071",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {"user_id":user},
+        "field": {"user_id": user},
         "update_field": {
             "order_nos": 21
         },
@@ -1224,19 +1222,16 @@ def get_client_approval(user):
 
     try:
         for value in response_data_json['data']:
-            aproval={
-                'topic':value['topic'],
-                'post':value['post'],
-                'article':value['article'],
-                'schedule':value['schedule']
+            aproval = {
+                'topic': value['topic'],
+                'post': value['post'],
+                'article': value['article'],
+                'schedule': value['schedule']
             }
-        return(aproval)
+        return (aproval)
     except:
-        aproval={'topic':'False'}
-    return(aproval)
-
-
-
+        aproval = {'topic': 'False'}
+    return (aproval)
 
 
 @csrf_exempt
@@ -2370,7 +2365,8 @@ def generate_article(request):
             interval = 0.8  # Interval between generating articles in seconds
             start_time = time.time()
             user_id = request.session['user_id']
-            approval=get_client_approval(user_id)
+            approval = get_client_approval(user_id)
+
             def generate_and_save_article():
                 nonlocal start_time
 
@@ -2459,7 +2455,8 @@ def generate_article(request):
             # credit_handler.consume_step_2_credit(request)
             if approval['post'] == 'True':
                 user_id = request.session['user_id']
-                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                async_task("automate.services.post_list", user_id,
+                           hook='automate.services.hook_now')
             return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -2475,7 +2472,7 @@ def generate_article_wiki(request):
             return HttpResponseRedirect(reverse("main-view"))
         else:
             user_id = request.session['user_id']
-            approval=get_client_approval(user_id)
+            approval = get_client_approval(user_id)
             title = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2582,7 +2579,8 @@ def generate_article_wiki(request):
                     # credit_handler.consume_step_2_credit(request)
                     if approval['post'] == 'True':
                         user_id = request.session['user_id']
-                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                        async_task("automate.services.post_list",
+                                   user_id, hook='automate.services.hook_now')
                     if 'article_sub_verb' in locals():
                         # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
                         # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
@@ -2631,8 +2629,9 @@ def generate_article_wiki(request):
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_2_credit(request)
                 if approval['post'] == 'True':
-                        user_id = request.session['user_id']
-                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                    user_id = request.session['user_id']
+                    async_task("automate.services.post_list",
+                               user_id, hook='automate.services.hook_now')
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
     else:
         return render(request, 'error.html')
@@ -2655,9 +2654,10 @@ def write_yourself(request):
             target_industry = request.POST.get("target_industry")
             print("target_industry in write: ", target_industry)
             user_id = request.session['user_id']
-            approval=get_client_approval(user_id)
+            approval = get_client_approval(user_id)
             if approval['post'] == 'True':
-                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                async_task("automate.services.post_list", user_id,
+                           hook='automate.services.hook_now')
         return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
     else:
         return render(request, 'error.html')
@@ -3106,9 +3106,20 @@ def Save_Post(request):
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
             combined_article = "\n\n".join(paragraphs_list)
-            paragraph_without_commas = combined_article.replace(
-                '.', '. ').replace(',.', '.')
-            # print('paragraph_without_commas:', paragraph_without_commas)
+
+            # Define a regular expression pattern to identify URLs
+            url_pattern = r'https?://\S+'
+
+            urls = re.findall(url_pattern, combined_article)
+            for url in urls:
+                combined_article = combined_article.replace(url, f'URL_PLACEHOLDER{urls.index(url)}')
+            paragraph_without_commas = combined_article.replace('.', '. ').replace(',', ', ')
+
+            # Restore URLs back to the text
+            for index, url in enumerate(urls):
+                paragraph_without_commas = paragraph_without_commas.replace(f'URL_PLACEHOLDER{index}', url)
+
+            print(paragraph_without_commas)
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
