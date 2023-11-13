@@ -8,7 +8,6 @@ import {
   SocialComponentForSchedule,
 } from "./SocialComponent";
 
-import Pagination from "../../../components/Pagination";
 import ReactPaginate from "react-paginate";
 import Loading from "../../../components/Loading";
 import { ErrorMessages } from "../../../components/Messages";
@@ -22,6 +21,7 @@ const UnscheduledPage = () => {
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
+  const [showMorePages, setShowMorePages] = useState(false);
 
   
   useEffect(() => {
