@@ -9,7 +9,6 @@ import {
 } from "./SocialComponent";
 
 import Pagination from "../../../components/Pagination";
-
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
 
