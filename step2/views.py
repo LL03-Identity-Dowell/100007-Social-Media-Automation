@@ -3216,15 +3216,19 @@ class HashMentionView(APIView):
 
 
 class HashMentionUpdateView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if 'session_id' in request.session and 'username' in request.session:
             if request.method != "PUT":
                 return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                hashtag_list = request.data.get('hashtags_list').split(',')
-                mentions_list = request.data.get('mentions_list').split(',')
-
+                hashtag_list = request.data.get('hashtag_list')
+                print("Here we have", hashtag_list)
+                mentions_list = request.data.get('mentions_list')
+                print("Here we have", mentions_list)
                 url = "http://uxlivinglab.pythonanywhere.com/"
                 headers = {'content-type': 'application/json'}
 
@@ -3247,8 +3251,10 @@ class HashMentionUpdateView(APIView):
                 }
 
                 data = json.dumps(payload)
-                response = requests.put(url, headers=headers, data=data)
-
+                response = requests.post(url, headers=headers, data=data)
+                print(response)
+                user_data = fetch_user_info(request)
+                print(user_data)
                 return Response({'detail': 'Hashtags and Mentions updated successfully'}, status=status.HTTP_200_OK)
 
 
