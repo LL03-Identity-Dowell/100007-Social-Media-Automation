@@ -1,64 +1,45 @@
-from django.contrib.sessions.models import Session
-from create_article.custom_session_backend import CustomSessionStore
-from create_article import settings
-from django.shortcuts import render, redirect, HttpResponse
-from django.urls import reverse
-from django.http import HttpResponseRedirect, JsonResponse
-import requests
-import json
-import time
-from datetime import datetime
+from django.shortcuts import render, redirect
+import concurrent.futures
 import datetime
+import json
+import random
+import re
+import time
+import traceback
+import urllib
+import urllib.parse
+from datetime import datetime, date
+# image resizing
+from io import BytesIO
+
+import openai
+import pytz
+import requests
+import wikipediaapi
+from PIL import Image
+from ayrshare import SocialPost
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-import wikipediaapi
+from bson import ObjectId
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db import transaction
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime, timedelta, date
 from mega import Mega
-from create_article import settings
-from pymongo import MongoClient
-from django.core.paginator import Paginator
-from bson import ObjectId
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.timezone import localdate, localtime
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage, Page
-from website.models import Sentences, SentenceResults, SentenceRank, MTopic
-import urllib
-from urllib.request import urlopen
-from django.contrib import messages
 from pexels_api import API
-import random
-from .models import stepFour
-from .forms import StepFourForm, VerifyArticleForm
-from ayrshare import SocialPost
-from django.utils import timezone
-# image resizing
-import base64
-from io import BytesIO
-from PIL import Image, UnidentifiedImageError
-from pytz import timezone
-import pytz
-import openai
-import re
-import os
-from create_article.settings import STATIC_ROOT, BASE_DIR
-import shutil
-import math
-import traceback
-import urllib.parse
-from functools import lru_cache
-import concurrent.futures
-from functools import partial
-from django.utils.decorators import method_decorator
+from pymongo import MongoClient
+
 from config_master import UPLOAD_IMAGE_ENDPOINT, SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
-from django.contrib.auth import logout
-
-
-from django.db import transaction
-
-from credits.credit_handler import CreditHandler
-from credits.constants import STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
+from create_article import settings
+from website.models import Sentences, SentenceResults
+from .forms import VerifyArticleForm
 from .models import Step2Manager
 
 # helper functions
@@ -1985,12 +1966,6 @@ def index(request):
         #     request=request,
         # )
 
-        # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
-
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
-
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -3002,9 +2977,6 @@ def post_detail(request):
         #     sub_service_id=STEP_3_SUB_SERVICE_ID,
         #     request=request,
         # )
-
-        # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
 
         url = "http://uxlivinglab.pythonanywhere.com"
         payload = json.dumps({
