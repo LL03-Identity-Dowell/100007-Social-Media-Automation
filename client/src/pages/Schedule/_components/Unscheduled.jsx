@@ -8,49 +8,54 @@ import {
   SocialComponentForSchedule,
 } from "./SocialComponent";
 
-
 import ReactPaginate from "react-paginate";
 import Loading from "../../../components/Loading";
 import { ErrorMessages } from "../../../components/Messages";
 
-
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
-  const [pageNumber, setPageNumber] = useState(0);
-  
-  const postPerpPage = 5;
-  const pageVisited = pageNumber * postPerpPage;
-  const displayPage = unscheduledPost.slice(
-    pageVisited,
-    pageVisited + postPerpPage
-  );
-  const pageCount = Math.ceil(unscheduledPost / postPerpPage);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   //Load unscheduled data from API
   const url = "http://127.0.0.1:8000/api/v1/unscheduled-json/";
   const fetchUnscheduled = async () => {
+    setIsError(null);
+    setIsLoading(true);
     await axios
       .get(url, {
         withCredentials: true,
       })
       .then((response) => {
+        setIsLoading(false);
         let unscheduledData = response.data.Unscheduled_Posts;
         setUnscheduledPost(unscheduledData.response);
       })
       .catch((error) => {
-        console.log(error);
+        setIsLoading(false);
+        setIsError(error);
       });
   };
   useEffect(() => {
     fetchUnscheduled();
   }, []);
 
-  const handlePageClick = ({ selected }) => {
-    setPageNumber(selected);
+  const itemsPerPage = 2;
+  const [itemOffset, setItemOffset] = useState(0);
+  const endOffset = itemOffset + itemsPerPage;
+  const currentItems = unscheduledPost.slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(unscheduledPost.length / itemsPerPage);
+
+  // Invoke when user click to request another page.
+  const handlePageClick = (event) => {
+    const newOffset = (event.selected * itemsPerPage) % unscheduledPost.length;
+    setItemOffset(newOffset);
   };
 
   return (
     <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
+      {isLoading && <Loading />}
+      {isError && <ErrorMessages>{isError}</ErrorMessages>}
       <div className="count-article flex justify-between pt-0 pb-2 items-center">
         <p className="px-6 py-3 italic">
           Total posts count: {unscheduledPost.length}
@@ -60,7 +65,7 @@ const UnscheduledPage = () => {
         <div className="overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:gap-10 pb-10">
           <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
             <div className="articles">
-              {displayPage.map((item, index) => (
+              {currentItems.map((item, index) => (
                 <div className="article mr-2 mt-6 " key={index}>
                   <p className="lg:px-6 px-2 py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold lg:w-[1000px]">
                     {item.title}
@@ -116,7 +121,7 @@ const UnscheduledPage = () => {
         <ReactPaginate
           pageCount={pageCount}
           onPageChange={handlePageClick}
-          pageRangeDisplayed={pageVisited}
+          pageRangeDisplayed={2}
           marginPagesDisplayed={2}
           previousLabel={<span className="text-black">Previous</span>}
           nextLabel={<span className="text-black">Next</span>}
