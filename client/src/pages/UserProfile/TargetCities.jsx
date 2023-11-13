@@ -639,7 +639,7 @@ const TargetCities = () => {
   const onChange = (e) => {
     setInputValue(e.target.value);
     const filteredCities = cityListArr.filter((each) =>
-      each.value.toLowerCase().startsWith(e.target.value.toLowerCase())
+      each.name.toLowerCase().startsWith(e.target.value.toLowerCase())
     );
     setCityList(filteredCities);
   };
@@ -687,12 +687,12 @@ const TargetCities = () => {
                   className='city-label cursor-pointer w-full py-2.5 px-10 text-xl text-[#333] bg-transparent'
                   htmlFor={each.id}
                 >
-                  {each.value}
+                  {each.name}
                   <input
                     id={each.id}
                     className='hidden'
                     type='checkbox'
-                    name={each.value}
+                    name={each.name}
                   />
                 </label>
               ))}
