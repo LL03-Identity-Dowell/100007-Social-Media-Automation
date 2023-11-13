@@ -40,7 +40,7 @@ const UnscheduledPage = () => {
     fetchUnscheduled();
   }, []);
 
-  const itemsPerPage = 2;
+  const itemsPerPage = 5;
   const [itemOffset, setItemOffset] = useState(0);
   const endOffset = itemOffset + itemsPerPage;
   const currentItems = unscheduledPost.slice(itemOffset, endOffset);
@@ -120,7 +120,7 @@ const UnscheduledPage = () => {
         <ReactPaginate
           pageCount={pageCount}
           onPageChange={handlePageClick}
-          pageRangeDisplayed={2}
+          pageRangeDisplayed={5}
           marginPagesDisplayed={2}
           previousLabel={<span className="text-black">Previous</span>}
           nextLabel={<span className="text-black">Next</span>}
