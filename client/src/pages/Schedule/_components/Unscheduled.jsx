@@ -18,7 +18,6 @@ const UnscheduledPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
-  //Load unscheduled data from API
   const url = "http://127.0.0.1:8000/api/v1/unscheduled-json/";
   const fetchUnscheduled = async () => {
     setIsError(null);
@@ -47,7 +46,6 @@ const UnscheduledPage = () => {
   const currentItems = unscheduledPost.slice(itemOffset, endOffset);
   const pageCount = Math.ceil(unscheduledPost.length / itemsPerPage);
 
-  // Invoke when user click to request another page.
   const handlePageClick = (event) => {
     const newOffset = (event.selected * itemsPerPage) % unscheduledPost.length;
     setItemOffset(newOffset);
