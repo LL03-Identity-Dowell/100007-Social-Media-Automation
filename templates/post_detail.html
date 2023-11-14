@@ -80,12 +80,16 @@
 
       <div class="post-options">
         <label for="content" class="mb-4"><strong>Qualitative categorization:</strong></label>
-        <select  name="qualitative_categorization">
+        <select  id="qualitative_categorization" name="qualitative_categorization">
+          <option value="Valuable">Valuable</option>
+          <option value="Aspirational">Aspirational</option>
+          <option value="Lifecycle">Lifecycle</option>
+          <option value="Unique">Unique</option>
+          <option value="Evergreen">Evergreen</option>
           {% for category in categories %} 
             <option value="{{category}}">{{category}}</option>
           {% endfor %}
         </select>
-
         <br><br>
 
         <label for="brand" class="mb-4"><strong>Targeted for:</strong> </label>

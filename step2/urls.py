@@ -90,6 +90,11 @@ urlpatterns = [
     path('logout', views.Logout, name="logout"),
     path('social-media/approve/', views.admin_approve_social_media,
          name='admin_approve_social_media'),
+    path('post_detail_addition/', views.post_detail_dropdowns,
+         name='post_detail_dropdowns'),
+    path('update_post_detail_addition/', views.update_post_detail_dropdowns,
+         name='update_post_detail_dropdowns'),
+
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 ]
