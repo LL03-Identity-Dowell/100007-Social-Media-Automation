@@ -8,7 +8,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 
 const ClientProfile = ({ close }) => {
+  const [userName, setUserName] = useState()
+
   useEffect(() => {
+    let user = JSON.parse(localStorage.getItem("userInfo"));
+    setUserName(user?.userinfo?.username);
     close();
     fetch();
   }, []);
@@ -120,7 +124,7 @@ const ClientProfile = ({ close }) => {
               className="rounded-full w-[40px] h-[40px] "
             />
             <h2 className="text-customBlue text-3xl font-semibold py-2">
-              UserName
+              {userName}
             </h2>
           </div>
           <form action="" className="w-full px-6 md:w-[70%] lg:w-[50%]">

@@ -27,7 +27,9 @@ const UnscheduledPage = () => {
   useEffect(() => {
     setLoading(true);
     //Load unscheduled data from API
-    const url = "http://127.0.0.1:8000/api/v1/unscheduled-json/";
+    const url = `http://127.0.0.1:8000/api/v1/unscheduled-json/?page=${
+      page + 1
+    }&order=newest`;
     const fetchUnscheduled = async () => {
       await axios
         .get(url, {
@@ -61,7 +63,7 @@ const UnscheduledPage = () => {
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
 
-      <h3 className="px-6 py-3 italic">
+      <h3 className="px-4 py-3 italic">
         Total posts count: {count}
       </h3>
       <ul className="overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10 ">
@@ -72,14 +74,14 @@ const UnscheduledPage = () => {
             className="flex justify-between flex-col md:flex-row gap-x-14"
           >
             <div className="flex flex-col w-9/12 gap-y-7 ">
-            <p className="lg:px-6 lg:py-4 px-2 text-md lg:text-lg">
+            <p className=" lg:py-4 px-2 text-md lg:text-lg">
                         {item.source}
                       </p>
-                      <p className="lg:px-6 px-2 py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold">
+                      <p className=" px-2 py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold">
                         {item.title}
                       </p>
 
-                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 lg:w-[920px] ">
+                      <p className=" lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 lg:w-[920px] ">
                         {item.paragraph}
                       </p>
 
