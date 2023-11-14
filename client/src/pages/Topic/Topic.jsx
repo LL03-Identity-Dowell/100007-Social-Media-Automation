@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
-import  CSRFToken  from "../../components/CSRFToken";
+import CSRFToken from "../../components/CSRFToken";
 
 function Topic({ show }) {
   const [error, setError] = useState("");
@@ -22,6 +23,8 @@ function Topic({ show }) {
     verb: "",
     adjective: "",
   });
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     show();
@@ -109,7 +112,10 @@ function Topic({ show }) {
           let resData = response.data;
           console.log(resData);
 
-          setSuccess("Topic created successful..!");
+          setSuccess("Topic created successfully!");
+          setTimeout(() => {
+            handleSentenceNavigate(resData)
+          }, 2000);
         })
         .catch((error) => {
           setLoading(false);
@@ -133,6 +139,18 @@ function Topic({ show }) {
 
 
   };
+
+  // handle navigation to Ramk page with sentence data
+  const handleSentenceNavigate = (sentenceData) => {
+
+    navigate('/rank', { state: { data: sentenceData } });
+
+  }
+
+
+
+
+
 
   return (
     <div>
@@ -162,7 +180,7 @@ function Topic({ show }) {
           className="w-full mt-4 grid gap-4 md:gap-10"
           onSubmit={handleSubmit}
         >
-          <CSRFToken/>
+          <CSRFToken />
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px] ">
               <label htmlFor="category" className="text-lg font-semibold">
