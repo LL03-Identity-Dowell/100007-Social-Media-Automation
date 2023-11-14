@@ -27,6 +27,7 @@ const UnscheduledPage = () => {
         withCredentials: true,
       })
       .then((response) => {
+        // console.log("response",response.data)
         setIsLoading(false);
         let unscheduledData = response.data.Unscheduled_Posts;
         setUnscheduledPost(unscheduledData.response);
