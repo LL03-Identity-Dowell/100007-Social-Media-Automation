@@ -1361,6 +1361,123 @@ def update_saved_targeted_cities(request):
 
 @csrf_exempt
 @xframe_options_exempt
+def post_detail_dropdowns(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            status = 'update'
+            return render(request, 'post_detail_dropdowns.html', {'status': status})
+        elif request.method == "POST":
+
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            qualitative_categorization = request.POST.get(
+                'qualitative_categorization_list').split(',')
+            targeted = request.POST.get('targeted_list').split(',')
+            designed_for = request.POST.get('designed_for_list').split(',')
+            targeted_category = request.POST.get(
+                'targeted_category_list').split(',')
+
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "insert",
+                "field": {
+                    "user_id": request.session['user_id'],
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    "date": date,
+                    "time": str(time),
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted": targeted,
+                    "designed_for": designed_for,
+                    "targeted_category": targeted_category,
+
+                },
+                "update_field": {
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted": targeted,
+                    "designed_for": designed_for,
+                    "targeted_category": targeted_category,
+                },
+                "platform": "bangalore"
+            }
+
+            data = json.dumps(payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
+            print(response)
+
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
+def update_post_detail_dropdowns(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse("generate_article:client"))
+        else:
+            qualitative_categorization = request.POST.get(
+                'qualitative_categorization_list').split(',')
+            targeted = request.POST.get('targeted_list').split(',')
+            designed_for = request.POST.get('designed_for_list').split(',')
+            targeted_category = request.POST.get(
+                'targeted_category_list').split(',')
+
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted": targeted,
+                    "designed_for": designed_for,
+                    "targeted_category": targeted_category,
+                },
+                "platform": "bangalore"
+            }
+
+            data = json.dumps(payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
+            print(response)
+            messages.success(
+                request, "Data updated successfully.")
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
 def hash_mention(request):
     session_id = request.GET.get("session_id", None)
     if 'session_id' and 'username' in request.session:
@@ -3112,12 +3229,15 @@ def Save_Post(request):
 
             urls = re.findall(url_pattern, combined_article)
             for url in urls:
-                combined_article = combined_article.replace(url, f'URL_PLACEHOLDER{urls.index(url)}')
-            paragraph_without_commas = combined_article.replace('.', '. ').replace(',', ', ')
+                combined_article = combined_article.replace(
+                    url, f'URL_PLACEHOLDER{urls.index(url)}')
+            paragraph_without_commas = combined_article.replace(
+                '.', '. ').replace(',', ', ')
 
             # Restore URLs back to the text
             for index, url in enumerate(urls):
-                paragraph_without_commas = paragraph_without_commas.replace(f'URL_PLACEHOLDER{index}', url)
+                paragraph_without_commas = paragraph_without_commas.replace(
+                    f'URL_PLACEHOLDER{index}', url)
 
             print(paragraph_without_commas)
 
