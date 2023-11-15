@@ -1,4 +1,5 @@
 from django.db import models, transaction
+from django.db.models import Q
 
 
 class BaseModel(models.Model):
@@ -72,17 +73,7 @@ class IndustryData(BaseModel):
 
 
 class Sentences(models.Model):
-    SUBJECT_CHOICES = (
-        ('Livinglab', 'Livinglab'),
-        ('Innovation', 'Innovation'),
-        ('User experience', 'User experience'),
-        ('Storytelling', 'Storytelling'),
-        ('Consumer Behaviour', 'Consumer Behaviour'),
-        ('Behavioral economics', 'Behavioral economics'),
-        ('Consumer Insights', 'Consumer Insights'),
-        ('Statistics', 'Statistics'),
 
-    )
     DETERMINANTS = (
         ('-', ''),
         ('the', 'the'),
@@ -239,13 +230,15 @@ class WebsiteManager:
         """
         This method returns categories created by a user
         """
-        return Category.objects.filter(user__email=data.get('email'))
+        q_filter = Q(user__email=data.get('email')) | Q(is_default=True)
+        return Category.objects.filter(q_filter)
 
     def get_user_topics_by_email(self, data):
         """
         This method returns topics created by a user
         """
-        return UserTopic.objects.filter(user__email=data.get('email'))
+        q_filter = Q(user__email=data.get('email')) | Q(is_default=True)
+        return UserTopic.objects.filter(q_filter)
 
     def get_or_create_user(self, data):
         """

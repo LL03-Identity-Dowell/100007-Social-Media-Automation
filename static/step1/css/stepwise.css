@@ -85,15 +85,16 @@ button:hover {
 
 .popup {
   position: fixed;
-  top: 20px; /* Adjust the top position as per your needs */
-  right: 20px; /* Adjust the right position as per your needs */
+  top: 20px;
+  /* Adjust the top position as per your needs */
+  right: 20px;
+  /* Adjust the right position as per your needs */
   padding: 20px;
-  background-color: rgba(
-    255,
-    255,
-    255,
-    0.8
-  ); /* Adjust the alpha value (0.8 in this example) */
+  background-color: rgba(255,
+      255,
+      255,
+      0.8);
+  /* Adjust the alpha value (0.8 in this example) */
   border: none;
   box-shadow: none;
   font-style: italic;
@@ -119,22 +120,27 @@ button:hover {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 100%; /* Set initial width to full */
+  width: 100%;
+  /* Set initial width to full */
   transition: width 30s linear;
   height: 4px;
   background-color: green;
 }
 
 .popup.timeout::after {
-  animation: decreaseWidth 10s linear forwards; /* Use animation for decreasing width */
+  animation: decreaseWidth 10s linear forwards;
+  /* Use animation for decreasing width */
 }
 
 @keyframes decreaseWidth {
   0% {
-    width: 100%; /* Set initial width to full */
+    width: 100%;
+    /* Set initial width to full */
   }
+
   100% {
-    width: 0; /* Decrease width to 0 */
+    width: 0;
+    /* Decrease width to 0 */
   }
 }
 
@@ -142,6 +148,7 @@ button:hover {
   0% {
     transform: translateX(100%);
   }
+
   100% {
     transform: translateX(0);
   }

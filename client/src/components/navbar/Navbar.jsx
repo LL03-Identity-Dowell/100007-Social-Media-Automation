@@ -15,7 +15,7 @@ function Navbar() {
 
   return (
     <nav className='sticky top-0 z-20 w-full text-white border-b border-gray-200 bg-customBlue dark:bg-gray-900 dark:border-gray-600'>
-      <div className='flex flex-wrap items-center justify-between w-full p-4 lg:px-20'>
+      <div className='flex flex-wrap items-center justify-between w-full p-4 '>
         <Link to='/' className='flex items-center'>
           {/* <img src={logoImage} className="h-8 mr-3" alt="Dowell Logo" /> */}
           <span
@@ -57,7 +57,7 @@ function Navbar() {
 
           <div className='items-center justify-center hidden md:flex'>
             <span className='pr-2 text-sm font-semibold text-white'>
-              {username}
+              {username ? username : "... "}
             </span>
             <button
               data-tooltip-target='user-tooltip1'

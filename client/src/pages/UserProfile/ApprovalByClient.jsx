@@ -18,38 +18,44 @@ const ApprovalByClient = () => {
   });
 
   useEffect(() => {
-    // let savedState = JSON.parse(localStorage.getItem("approvalData"));
-    // setApprovals({
-    //   topic: !savedState.topic ? false : true,
-    //   article: !savedState.article ? false : true,
-    //   post: !savedState.post ? false : true,
-    //   schedule: !savedState.schedule ? false : true,
-    // });
+    try {
+      const savedState = JSON.parse(localStorage.getItem("approvalData")) || {};
+      setApprovals((prevApprovals) => ({
+        ...prevApprovals,
+        topic: savedState.topic || false,
+        article: savedState.article || false,
+        post: savedState.post || false,
+        schedule: savedState.schedule || false,
+      }));
 
-    fetch();
+      const fetch = () => {
+        // Make a GET request to the API endpoint with the session_id
+        axios
+          .get("http://127.0.0.1:8000/api/v1/user-approval/", {
+            withCredentials: true,
+          })
+          .then((response) => {
+            let data = response.data.status;
+            setGetStatus(data);
+            console.log(data);
+          })
+          .catch((error) => {
+            setError("Server error, Please try again later");
+            console.error("Error fetching user-approval:", error);
+          });
+      };
+      fetch();
+    } catch (error) {
+      // Handle parsing or fetch errors here.
+      console.error("An error occurred:", error);
+    }
   }, []);
 
-  const fetch = () => {
-    // Make a GET request to the API endpoint with the session_id
-    axios
-    .get("http://127.0.0.1:8000/api/v1/user-approval/", {
-      withCredentials: true,
-    })
-    .then((response) => {
-        let data = response.data.status;
-        setGetStatus(data);
-        console.log(data);
-      })
-      .catch((error) => {
-        setError("Server error, Please try again later");
-        console.error("Error fetching user-approval:", error);
-      });
-  };
-
+  
   const handelChange = (e) => {
     let checkedName = e.target.name;
     let checked = e.target.checked;
-    
+
     setIsChecked(checkedName);
     setApprovals({
       ...approvals,
@@ -67,15 +73,15 @@ const ApprovalByClient = () => {
     };
 
     if (getStatus === "update") {
-      setLoading(true)
+      setLoading(true);
       axios
         .put("http://127.0.0.1:8000/api/v1/user-approval/", data, {
           withCredentials: true,
         })
         .then((response) => {
-          setLoading(false)
-            setSuccess(`${isChecked} is Approved...!`);
-          
+          setLoading(false);
+          setSuccess(`${isChecked} is Approved...!`);
+
           let data = response.data;
           console.log(data);
           let resData = JSON.stringify(data);
@@ -86,13 +92,13 @@ const ApprovalByClient = () => {
           console.error("Error fetching user-approval:", error);
         });
     } else if (getStatus === "insert") {
-      setLoading(true)
+      setLoading(true);
       axios
         .post("http://127.0.0.1:8000/api/v1/user-approval/", data, {
           withCredentials: true,
         })
         .then((response) => {
-          setLoading(false)
+          setLoading(false);
           setSuccess(`${isChecked} Approved...!`);
           let data = response.data.status;
           console.log(data);
@@ -106,7 +112,7 @@ const ApprovalByClient = () => {
 
   return (
     <div className="bg-pens bg-cover bg-center h-[95vh]">
-      {loading && <Loading/>}
+      {loading && <Loading />}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="bg-overlay w-full lg:max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400 ">
