@@ -9,7 +9,7 @@ export const SocialComponentForPost = ({ article }) => {
   return (
     <form className='form' onSubmit={onSubmit}>
       <div className='flex justify-around'>
-        <label htmlFor='facebook' className='flex flex-col items-center'>
+        <label htmlFor='facebook' className='flex flex-row-reverse items-center'>
           <img src='/facebook.svg' className='w-20 h-20' alt='facebook' />
           <input
             name='facebook'
@@ -18,7 +18,7 @@ export const SocialComponentForPost = ({ article }) => {
             id='facebook'
           />
         </label>
-        <label htmlFor='twitter' className='flex flex-col items-center'>
+        <label htmlFor='twitter' className='flex flex-row-reverse items-center'>
           <img src='/twitter.svg' className='w-20 h-20' alt='twitter' />
           <input
             name='twitter'
@@ -27,7 +27,7 @@ export const SocialComponentForPost = ({ article }) => {
             id='twitter'
           />
         </label>
-        <label htmlFor='instagram' className='flex flex-col items-center'>
+        <label htmlFor='instagram' className='flex flex-row-reverse items-center'>
           <img src='/instagram.svg' className='w-20 h-20' alt='facebook' />
           <input
             name='instagram'
@@ -36,7 +36,7 @@ export const SocialComponentForPost = ({ article }) => {
             id='instagram'
           />
         </label>
-        <label htmlFor='linkedin' className='flex flex-col items-center'>
+        <label htmlFor='linkedin' className='flex flex-row-reverse items-center'>
           <img src='/linkedin.svg' className='w-20 h-20' alt='linkedin' />
           <input
             name='linkedin'
@@ -46,7 +46,7 @@ export const SocialComponentForPost = ({ article }) => {
           />
         </label>
 
-        <label htmlFor='youtube' className='flex flex-col items-center'>
+        <label htmlFor='youtube' className='flex flex-row-reverse items-center'>
           <img src='/youtube.svg' className='w-20 h-20' alt='youtube' />
           <input
             name='youtube'
@@ -55,7 +55,7 @@ export const SocialComponentForPost = ({ article }) => {
             id='youtube'
           />
         </label>
-        <label htmlFor='pinterest' className='flex flex-col items-center'>
+        <label htmlFor='pinterest' className='flex flex-row-reverse items-center'>
           <img src='/pinterest.svg' className='w-20 h-20' alt='pinterest' />
           <input
             name='pinterest'
@@ -95,7 +95,7 @@ export const SocialComponentForSchedule = ({ article }) => {
   return (
     <form className='form' onSubmit={onSubmit}>
       <div className='flex justify-around'>
-        <label htmlFor='facebook' className='flex flex-col items-center'>
+        <label htmlFor='facebook' className='flex flex-row-reverse items-center'>
           <img src='/facebook.svg' className='w-20 h-20' alt='facebook' />
           <input
             name='facebook'
@@ -104,7 +104,7 @@ export const SocialComponentForSchedule = ({ article }) => {
             id='facebook'
           />
         </label>
-        <label htmlFor='twitter' className='flex flex-col items-center'>
+        <label htmlFor='twitter' className='flex flex-row-reverse items-center'>
           <img src='/twitter.svg' className='w-20 h-20' alt='twitter' />
           <input
             name='twitter'
@@ -113,7 +113,7 @@ export const SocialComponentForSchedule = ({ article }) => {
             id='twitter'
           />
         </label>
-        <label htmlFor='instagram' className='flex flex-col items-center'>
+        <label htmlFor='instagram' className='flex flex-row-reverse items-center'>
           <img src='/instagram.svg' className='w-20 h-20' alt='facebook' />
           <input
             name='instagram'
@@ -122,7 +122,7 @@ export const SocialComponentForSchedule = ({ article }) => {
             id='instagram'
           />
         </label>
-        <label htmlFor='linkedin' className='flex flex-col items-center'>
+        <label htmlFor='linkedin' className='flex flex-row-reverse items-center'>
           <img src='/linkedin.svg' className='w-20 h-20' alt='linkedin' />
           <input
             name='linkedin'
@@ -132,7 +132,7 @@ export const SocialComponentForSchedule = ({ article }) => {
           />
         </label>
 
-        <label htmlFor='youtube' className='flex flex-col items-center'>
+        <label htmlFor='youtube' className='flex flex-row-reverse items-center'>
           <img src='/youtube.svg' className='w-20 h-20' alt='youtube' />
           <input
             name='youtube'
@@ -141,7 +141,7 @@ export const SocialComponentForSchedule = ({ article }) => {
             id='youtube'
           />
         </label>
-        <label htmlFor='pinterest' className='flex flex-col items-center'>
+        <label htmlFor='pinterest' className='flex flex-row-reverse items-center'>
           <img src='/pinterest.svg' className='w-20 h-20' alt='pinterest' />
           <input
             name='pinterest'

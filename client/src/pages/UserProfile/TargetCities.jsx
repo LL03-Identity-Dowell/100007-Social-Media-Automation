@@ -1,478 +1,600 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import UserWrapper from "./UserWrapper";
+import axios from "axios";
+
+import Loading from "/src/components/Loading.jsx";
+import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
 
 const cityListArr = [
   {
-    id: "city_63",
-    value: "Aarhus",
+    id: 63,
+    name: "Aarhus",
+    country: "19",
   },
   {
-    id: "city_31",
-    value: "Abu Dhabi",
+    id: 31,
+    name: "Abu Dhabi",
+    country: "56",
   },
   {
-    id: "city_121",
-    value: "Abuja",
+    id: 121,
+    name: "Abuja",
+    country: "41",
   },
   {
-    id: "city_49",
-    value: "Accra",
+    id: 49,
+    name: "Accra",
+    country: "27",
   },
   {
-    id: "city_54",
-    value: "ADDIS ABABA",
+    id: 54,
+    name: "ADDIS ABABA",
+    country: "23",
   },
   {
-    id: "city_37",
-    value: "Ahmedabad",
+    id: 37,
+    name: "Ahmedabad",
+    country: "29",
   },
   {
-    id: "city_50",
-    value: "Alexandria",
+    id: 50,
+    name: "Alexandria",
+    country: "21",
   },
   {
-    id: "city_62",
-    value: "Antwerp",
+    id: 62,
+    name: "Antwerp",
+    country: "5",
   },
   {
-    id: "city_82",
-    value: "Atlanta",
+    id: 82,
+    name: "Atlanta",
+    country: "57",
   },
   {
-    id: "city_105",
-    value: "Auckland",
+    id: 105,
+    name: "Auckland",
+    country: "40",
   },
   {
-    id: "city_24",
-    value: "Bangkok",
+    id: 24,
+    name: "Bangkok",
+    country: "54",
   },
   {
-    id: "city_70",
-    value: "Barcelona",
+    id: 70,
+    name: "Barcelona",
+    country: "51",
   },
   {
-    id: "city_119",
-    value: "Bariloche",
+    id: 119,
+    name: "Bariloche",
+    country: "74",
   },
   {
-    id: "city_12",
-    value: "Beijing",
+    id: 12,
+    name: "Beijing",
+    country: "10",
   },
   {
-    id: "city_108",
-    value: "Bengaluru",
+    id: 108,
+    name: "Bengaluru",
+    country: "29",
   },
   {
-    id: "city_42",
-    value: "Benin city",
+    id: 42,
+    name: "Benin city",
+    country: "41",
   },
   {
-    id: "city_116",
-    value: "Birmingham",
+    id: 116,
+    name: "Birmingham",
+    country: "68",
   },
   {
-    id: "city_93",
-    value: "Bogotá",
+    id: 93,
+    name: "Bogotá",
+    country: "17",
   },
   {
-    id: "city_115",
-    value: "Bradford",
+    id: 115,
+    name: "Bradford",
+    country: "68",
   },
   {
-    id: "city_102",
-    value: "Brisbane",
+    id: 102,
+    name: "Brisbane",
+    country: "3",
   },
   {
-    id: "city_58",
-    value: "Brussels",
+    id: 58,
+    name: "Brussels",
+    country: "5",
   },
   {
-    id: "city_64",
-    value: "Budapest",
+    id: 64,
+    name: "Budapest",
+    country: "28",
   },
   {
-    id: "city_19",
-    value: "Bundang",
+    id: 19,
+    name: "Bundang",
+    country: "50",
   },
   {
-    id: "city_44",
-    value: "Cairo",
+    id: 44,
+    name: "Cairo",
+    country: "21",
   },
   {
-    id: "city_83",
-    value: "California",
+    id: 83,
+    name: "California",
+    country: "57",
   },
   {
-    id: "city_103",
-    value: "Canberra",
+    id: 103,
+    name: "Canberra",
+    country: "3",
   },
   {
-    id: "city_46",
-    value: "Cape Town",
+    id: 46,
+    name: "Cape Town",
+    country: "49",
   },
   {
-    id: "city_117",
-    value: "Caseros, Buenos Aires",
+    id: 117,
+    name: "Caseros, Buenos Aires",
+    country: "74",
   },
   {
-    id: "city_6",
-    value: "Chennai",
+    id: 6,
+    name: "Chennai",
+    country: "29",
   },
   {
-    id: "city_81",
-    value: "Chicago",
+    id: 81,
+    name: "Chicago",
+    country: "57",
   },
   {
-    id: "city_106",
-    value: "Christchurch",
+    id: 106,
+    name: "Christchurch",
+    country: "40",
   },
   {
-    id: "city_29",
-    value: "Colombo",
+    id: 29,
+    name: "Colombo",
+    country: "52",
   },
   {
-    id: "city_98",
-    value: "Columbus",
+    id: 98,
+    name: "Columbus",
+    country: "57",
   },
   {
-    id: "city_61",
-    value: "Copenhagen",
+    id: 61,
+    name: "Copenhagen",
+    country: "19",
   },
   {
-    id: "city_100",
-    value: "Dallas",
+    id: 100,
+    name: "Dallas",
+    country: "57",
   },
   {
-    id: "city_5",
-    value: "Delhi",
+    id: 5,
+    name: "Delhi",
+    country: "29",
   },
   {
-    id: "city_88",
-    value: "Denver",
+    id: 88,
+    name: "Denver",
+    country: "57",
   },
   {
-    id: "city_28",
-    value: "Dhaka",
+    id: 28,
+    name: "Dhaka",
+    country: "4",
   },
   {
-    id: "city_30",
-    value: "Dubai",
+    id: 30,
+    name: "Dubai",
+    country: "56",
   },
   {
-    id: "city_110",
-    value: "Dummy City",
+    id: 110,
+    name: "Dummy City",
+    country: "23",
   },
   {
-    id: "city_47",
-    value: "Durban",
+    id: 47,
+    name: "Durban",
+    country: "49",
   },
   {
-    id: "city_65",
-    value: "Florence",
+    id: 65,
+    name: "Florence",
+    country: "33",
   },
   {
-    id: "city_90",
-    value: "Florianópolis",
+    id: 90,
+    name: "Florianópolis",
+    country: "7",
   },
   {
-    id: "city_55",
-    value: "Frankfurt",
+    id: 55,
+    name: "Frankfurt",
+    country: "26",
   },
   {
-    id: "city_53",
-    value: "Giza",
+    id: 53,
+    name: "Giza",
+    country: "21",
   },
   {
-    id: "city_72",
-    value: "Granada",
+    id: 72,
+    name: "Granada",
+    country: "51",
   },
   {
-    id: "city_13",
-    value: "Guangzhou",
+    id: 13,
+    name: "Guangzhou",
+    country: "10",
   },
   {
-    id: "city_86",
-    value: "Guayaquil",
+    id: 86,
+    name: "Guayaquil",
+    country: "20",
   },
   {
-    id: "city_27",
-    value: "Hanoi",
+    id: 27,
+    name: "Hanoi",
+    country: "58",
   },
   {
-    id: "city_26",
-    value: "HCM city",
+    id: 26,
+    name: "HCM city",
+    country: "58",
   },
   {
-    id: "city_59",
-    value: "Helsinki",
+    id: 59,
+    name: "Helsinki",
+    country: "24",
   },
   {
-    id: "city_25",
-    value: "Hongkong",
+    id: 25,
+    name: "Hongkong",
+    country: "10",
   },
   {
-    id: "city_96",
-    value: "Houston",
+    id: 96,
+    name: "Houston",
+    country: "57",
   },
   {
-    id: "city_7",
-    value: "Hyderabad",
+    id: 7,
+    name: "Hyderabad",
+    country: "29",
   },
   {
-    id: "city_41",
-    value: "Ibadan",
+    id: 41,
+    name: "Ibadan",
+    country: "41",
   },
   {
-    id: "city_67",
-    value: "Istanbul",
+    id: 67,
+    name: "Istanbul",
+    country: "55",
   },
   {
-    id: "city_97",
-    value: "Jacksonville ",
+    id: 97,
+    name: "Jacksonville ",
+    country: "57",
   },
   {
-    id: "city_17",
-    value: "Jakarta",
+    id: 17,
+    name: "Jakarta",
+    country: "30",
   },
   {
-    id: "city_45",
-    value: "Johannesburg",
+    id: 45,
+    name: "Johannesburg",
+    country: "49",
   },
   {
-    id: "city_109",
-    value: "Kampala",
+    id: 109,
+    name: "Kampala",
+    country: "64",
   },
   {
-    id: "city_40",
-    value: "Kano",
+    id: 40,
+    name: "Kano",
+    country: "41",
   },
   {
-    id: "city_8",
-    value: "Kolkata",
+    id: 8,
+    name: "Kolkata",
+    country: "29",
   },
   {
-    id: "city_76",
-    value: "krakow",
+    id: 76,
+    name: "krakow",
+    country: "44",
   },
   {
-    id: "city_20",
-    value: "Kuala Lumpur",
+    id: 20,
+    name: "Kuala Lumpur",
+    country: "35",
   },
   {
-    id: "city_48",
-    value: "Kumasi",
+    id: 48,
+    name: "Kumasi",
+    country: "27",
   },
   {
-    id: "city_39",
-    value: "Lagos",
+    id: 39,
+    name: "Lagos",
+    country: "41",
   },
   {
-    id: "city_35",
-    value: "Lahore",
+    id: 35,
+    name: "Lahore",
+    country: "42",
   },
   {
-    id: "city_99",
-    value: "Las Vegas",
+    id: 99,
+    name: "Las Vegas",
+    country: "57",
   },
   {
-    id: "city_68",
-    value: "Lisbon",
+    id: 68,
+    name: "Lisbon",
+    country: "45",
   },
   {
-    id: "city_57",
-    value: "London",
+    id: 57,
+    name: "London",
+    country: "22",
   },
   {
-    id: "city_71",
-    value: "Madrid",
+    id: 71,
+    name: "Madrid",
+    country: "51",
   },
   {
-    id: "city_114",
-    value: "Manchester",
+    id: 114,
+    name: "Manchester",
+    country: "68",
   },
   {
-    id: "city_22",
-    value: "Manila",
+    id: 22,
+    name: "Manila",
+    country: "43",
   },
   {
-    id: "city_104",
-    value: "Melbourne",
+    id: 104,
+    name: "Melbourne",
+    country: "3",
   },
   {
-    id: "city_85",
-    value: "Mexico City",
+    id: 85,
+    name: "Mexico City",
+    country: "37",
   },
   {
-    id: "city_78",
-    value: "Milan",
+    id: 78,
+    name: "Milan",
+    country: "33",
   },
   {
-    id: "city_3",
-    value: "Mumbai",
+    id: 3,
+    name: "Mumbai",
+    country: "29",
   },
   {
-    id: "city_43",
-    value: "Nairobi",
+    id: 43,
+    name: "Nairobi",
+    country: "34",
   },
   {
-    id: "city_79",
-    value: "Naples",
+    id: 79,
+    name: "Naples",
+    country: "33",
   },
   {
-    id: "city_80",
-    value: "New York",
+    id: 80,
+    name: "New York",
+    country: "57",
   },
   {
-    id: "city_56",
-    value: "Paris",
+    id: 56,
+    name: "Paris",
+    country: "25",
   },
   {
-    id: "city_21",
-    value: "Penang",
+    id: 21,
+    name: "Penang",
+    country: "35",
   },
   {
-    id: "city_94",
-    value: "Pheonix",
+    id: 94,
+    name: "Pheonix",
+    country: "57",
   },
   {
-    id: "city_34",
-    value: "Phnom Penh",
+    id: 34,
+    name: "Phnom Penh",
+    country: "8",
   },
   {
-    id: "city_52",
-    value: "Port Harcourt",
+    id: 52,
+    name: "Port Harcourt",
+    country: "41",
   },
   {
-    id: "city_51",
-    value: "Port Louis",
+    id: 51,
+    name: "Port Louis",
+    country: "36",
   },
   {
-    id: "city_73",
-    value: "Prague",
+    id: 73,
+    name: "Prague",
+    country: "18",
   },
   {
-    id: "city_23",
-    value: "Quezon city",
+    id: 23,
+    name: "Quezon city",
+    country: "43",
   },
   {
-    id: "city_75",
-    value: "Ravenna",
+    id: 75,
+    name: "Ravenna",
+    country: "33",
   },
   {
-    id: "city_36",
-    value: "Rawalpindi",
+    id: 36,
+    name: "Rawalpindi",
+    country: "42",
   },
   {
-    id: "city_91",
-    value: "Rio de Janeiro",
+    id: 91,
+    name: "Rio de Janeiro",
+    country: "7",
   },
   {
-    id: "city_66",
-    value: "Rome",
+    id: 66,
+    name: "Rome",
+    country: "33",
   },
   {
-    id: "city_95",
-    value: "San Diego",
+    id: 95,
+    name: "San Diego",
+    country: "57",
   },
   {
-    id: "city_87",
-    value: "San Francisco",
+    id: 87,
+    name: "San Francisco",
+    country: "46",
   },
   {
-    id: "city_113",
-    value: "Santa Rosa ",
+    id: 113,
+    name: "Santa Rosa ",
+    country: "74",
   },
   {
-    id: "city_92",
-    value: "Santiago",
+    id: 92,
+    name: "Santiago",
+    country: "9",
   },
   {
-    id: "city_89",
-    value: "Seattle",
+    id: 89,
+    name: "Seattle",
+    country: "57",
   },
   {
-    id: "city_69",
-    value: "Seville",
+    id: 69,
+    name: "Seville",
+    country: "51",
   },
   {
-    id: "city_11",
-    value: "Shanghai",
+    id: 11,
+    name: "Shanghai",
+    country: "10",
   },
   {
-    id: "city_32",
-    value: "Sharjah",
+    id: 32,
+    name: "Sharjah",
+    country: "56",
   },
   {
-    id: "city_15",
-    value: "Shenzhen",
+    id: 15,
+    name: "Shenzhen",
+    country: "10",
   },
   {
-    id: "city_4",
-    value: "Singapore",
+    id: 4,
+    name: "Singapore",
+    country: "47",
   },
   {
-    id: "city_60",
-    value: "Stockholm",
+    id: 60,
+    name: "Stockholm",
+    country: "53",
   },
   {
-    id: "city_18",
-    value: "Surabaya",
+    id: 18,
+    name: "Surabaya",
+    country: "30",
   },
   {
-    id: "city_101",
-    value: "Sydney",
+    id: 101,
+    name: "Sydney",
+    country: "3",
   },
   {
-    id: "city_16",
-    value: "Taipei",
+    id: 16,
+    name: "Taipei",
+    country: "10",
   },
   {
-    id: "city_112",
-    value: "Tandil",
+    id: 112,
+    name: "Tandil",
+    country: "74",
   },
   {
-    id: "city_33",
-    value: "Thimphu",
+    id: 33,
+    name: "Thimphu",
+    country: "6",
   },
   {
-    id: "city_10",
-    value: "Tianjin",
+    id: 10,
+    name: "Tianjin",
+    country: "10",
   },
   {
-    id: "city_120",
-    value: "Toronto",
+    id: 120,
+    name: "Toronto",
+    country: "63",
   },
   {
-    id: "city_111",
-    value: "Trelew",
+    id: 111,
+    name: "Trelew",
+    country: "74",
   },
   {
-    id: "city_77",
-    value: "valencia",
+    id: 77,
+    name: "valencia",
+    country: "51",
   },
   {
-    id: "city_74",
-    value: "Venice",
+    id: 74,
+    name: "Venice",
+    country: "33",
   },
   {
-    id: "city_118",
-    value: "Virrey del Pino",
+    id: 118,
+    name: "Virrey del Pino",
+    country: "74",
   },
   {
-    id: "city_38",
-    value: "Visakhapatnam",
+    id: 38,
+    name: "Visakhapatnam",
+    country: "29",
   },
   {
-    id: "city_84",
-    value: "Washington",
+    id: 84,
+    name: "Washington",
+    country: "57",
   },
   {
-    id: "city_107",
-    value: "Wellington",
+    id: 107,
+    name: "Wellington",
+    country: "40",
   },
   {
-    id: "city_14",
-    value: "Yangon",
+    id: 14,
+    name: "Yangon",
+    country: "38",
   },
 ];
 
@@ -480,14 +602,44 @@ const TargetCities = () => {
   const [cityList, setCityList] = useState(cityListArr);
   const [inputValue, setInputValue] = useState("");
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const formRef = useRef();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const citiesArray = Array.from(formData.entries())
+      .filter(([key, value]) => value === "on")
+      .map(([key]) => key);
+
+    setLoading(true);
+    try {
+      await axios.put(
+        `http://127.0.0.1:8000/api/v1/targeted_cities/update/`,
+        citiesArray,
+        {
+          withCredentials: true,
+        }
+      );
+
+      setSuccess("Successfully updated cities");
+      setError("");
+      formRef.current.reset();
+    } catch (error) {
+      setError("Error updating the cities");
+      setSuccess("");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onChange = (e) => {
     setInputValue(e.target.value);
     const filteredCities = cityListArr.filter((each) =>
-      each.value.toLowerCase().startsWith(e.target.value.toLowerCase())
+      each.name.toLowerCase().startsWith(e.target.value.toLowerCase())
     );
     setCityList(filteredCities);
   };
@@ -495,6 +647,9 @@ const TargetCities = () => {
   return (
     <UserWrapper>
       <div className='w-[70%] mx-auto  h-[600px] pt-14 pb-3.5'>
+        {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
+        {success !== "" && <SuccessMessages>{success}</SuccessMessages>}
+        {loading ? <Loading /> : null}
         <div className='flex items-center justify-between h-14 mb-2.5 gap-30 w-full'>
           <button
             type='button'
@@ -524,7 +679,7 @@ const TargetCities = () => {
         </div>
 
         {cityList.length !== 0 ? (
-          <form onSubmit={handleSubmit} className='flex flex-col'>
+          <form ref={formRef} onSubmit={handleSubmit} className='flex flex-col'>
             <ul className='h-[400px] w-9/12 mx-auto overflow-y-scroll flex flex-col  gap-y-0.5'>
               {cityList.map((each) => (
                 <label
@@ -532,12 +687,12 @@ const TargetCities = () => {
                   className='city-label cursor-pointer w-full py-2.5 px-10 text-xl text-[#333] bg-transparent'
                   htmlFor={each.id}
                 >
-                  {each.value}
+                  {each.name}
                   <input
                     id={each.id}
                     className='hidden'
                     type='checkbox'
-                    name={each.value}
+                    name={each.name}
                   />
                 </label>
               ))}
