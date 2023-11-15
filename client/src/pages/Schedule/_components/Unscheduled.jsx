@@ -39,7 +39,7 @@ const UnscheduledPage = () => {
       .then((response) => {
         if (response.status === 200) {
           setIsLoading(false);
-          setSuccess("Successfully fetched Unscheduled Post");
+          setSuccess("Successfully fetched Post");
           let unscheduledData = response.data.Unscheduled_Posts;
           let totalItems = response.data.total_items;
 
@@ -52,7 +52,7 @@ const UnscheduledPage = () => {
       })
       .catch((error) => {
         setIsLoading(false);
-        setIsError("Unable to fetch Unscheduled Post please try again");
+        setIsError("Unable to fetch Post please try again");
       });
   };
   useEffect(() => {
