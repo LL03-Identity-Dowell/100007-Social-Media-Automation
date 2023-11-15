@@ -57,7 +57,7 @@ function Navbar() {
 
           <div className='items-center justify-center hidden md:flex'>
             <span className='pr-2 text-sm font-semibold text-white'>
-              {username}
+              {username ? username : "... "}
             </span>
             <button
               data-tooltip-target='user-tooltip1'

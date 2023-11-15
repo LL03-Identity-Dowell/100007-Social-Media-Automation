@@ -113,7 +113,7 @@ const MostRecent = () => {
           pageRangeDisplayed={pagesToDisplay}
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
-          previousLabel={<span className="text-black">Previous</span>}
+          previousLabel={<span className="text-black">{page > 0 ? "Previous" : ""}</span>}
           nextLabel={<span className="text-black">Next</span>}
           containerClassName="flex justify-center items-center my-4 space-x-2"
           pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
@@ -122,14 +122,7 @@ const MostRecent = () => {
           breakClassName="p-2"
           activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
         />
-        {/* {showMorePages && (
-          <button
-            className="bg-customBlue text-white p-2 rounded-full cursor-pointer hover:bg-blue-600"
-            onClick={loadMorePages}
-          >
-            &gt;&gt;
-          </button>
-        )} */}
+        
       </div>
     </div>
   );

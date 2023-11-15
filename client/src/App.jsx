@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/homepage/Home";
 import Layout from "./Layout";
@@ -30,9 +30,13 @@ import Pinterest from "./pages/UserProfile/_components/pinterest";
 import Linkedin from "./pages/UserProfile/_components/linkedin";
 import CreateArticle from "./pages/Article/CreateArticle";
 import Rank from "./pages/RankPage/Rank";
+import axios from "axios";
+import Loading from "./components/Loading";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
+  const [product, setProduct] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleOpenSideBar = () => {
     setShowSidebar(true);
@@ -41,12 +45,59 @@ function App() {
     setShowSidebar(false);
   };
 
+  axios.defaults.withCredentials = true;
+
+  useEffect(() => {
+    const fetchAndRemoveSessionId = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const session_id = urlParams.get("session_id");
+
+      if (session_id) {
+        // Store the session_id in both local storage and session storage
+        localStorage.setItem("session_id", session_id);
+        sessionStorage.setItem("session_id", session_id);
+
+        // Remove the session_id from the URL without causing a page reload
+        const newUrl = window.location.href.split('?')[0];
+        window.history.replaceState({}, document.title, newUrl);
+
+        // Proceed to fetch data or handle authenticated user logic
+        setLoading(true);
+        fetchData();
+      } else {
+        // If no session_id, redirect to the login page with session_id as a query parameter
+        window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/`;
+      }
+    };
+
+    // Check if session_id has already been processed to avoid continuous reload
+    if (!localStorage.getItem("session_id") && !sessionStorage.getItem("session_id")) {
+      fetchAndRemoveSessionId();
+    }
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    axios.get('http://127.0.0.1:8000/api/v1/main/')
+    .then(res=>{
+      const data = res.data;
+      const saveUserInfo = JSON.stringify(data);
+      localStorage.setItem("userInfo", saveUserInfo);
+      setLoading(false);
+    }).catch(err=>{
+      setLoading(false);
+      console.error("Error fetching data:", err);
+    })
+  }
+  
+
   return (
     <>
+    {loading && <Loading />}
       <Layout side={showSidebar} show={handleOpenSideBar}>
+
         <Routes>
-          <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
-          <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
+          <Route index element={<Home close={handleCloseSideBar} />} />
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
           <Route path='/rank' element={<Rank show={handleCloseSideBar} />} />
           <Route
