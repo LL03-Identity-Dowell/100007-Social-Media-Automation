@@ -32,14 +32,19 @@ const Article = ({ show }) => {
     setLoading(true);
     // Make a GET request to the API endpoint with the session_id
     axios
-      .get(`http://127.0.0.1:8000/api/v1/list-articles/?page=${page + 1}&order=newest`, {
-        withCredentials: true,
-      })
+      .get(
+        `http://127.0.0.1:8000/api/v1/list-articles/?page=${
+          page + 1
+        }&order=newest`,
+        {
+          withCredentials: true,
+        }
+      )
       .then((response) => {
         setError(null);
         setLoading(false);
         let data = response.data;
-        console.log(data)
+        console.log(data);
         setArticleData(data.Articles);
         setCount(data.total_items);
         setPageCount(Math.ceil(data.total_items / perPage));
@@ -58,17 +63,17 @@ const Article = ({ show }) => {
       article_id: article_id,
       title: title,
       paragraph: paragraph,
-      source: source
+      source: source,
     };
     // console.log(dataToSend);
     setClickedPost(dataToSend);
     setButtonClicked(true);
-  }
+  };
 
   // Use the clickedPost state to determine when to navigate
   useEffect(() => {
     if (buttonClicked && clickedPost) {
-      navigate('/article-detail', { state: { data: clickedPost } });
+      navigate("/article-detail", { state: { data: clickedPost } });
     }
   }, [buttonClicked, clickedPost]);
 
@@ -83,7 +88,6 @@ const Article = ({ show }) => {
       setPage(page + nextPagesToDisplay);
     }
   };
-
 
   return (
     <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
@@ -123,8 +127,17 @@ const Article = ({ show }) => {
                       </p>
 
                       <div className="lg:w-[150px] lg:pt-2 flex justify-end md:mr-6 mt-2 md:mt-0">
-                        
-                          <ExtraSmallBtn title={"View Article"} onClick={() => handlePostdetailNavigate(article.article_id, article.title, article.paragraph, article.source)}/>
+                        <ExtraSmallBtn
+                          title={"View Article"}
+                          onClick={() =>
+                            handlePostdetailNavigate(
+                              article.article_id,
+                              article.title,
+                              article.paragraph,
+                              article.source
+                            )
+                          }
+                        />
                       </div>
                     </div>
                   </div>
