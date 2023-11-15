@@ -36,6 +36,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from create_article import settings
+from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
@@ -232,7 +233,7 @@ step-2 starts here
 '''
 
 
-class ListArticleView(APIView):
+class ListArticleView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
