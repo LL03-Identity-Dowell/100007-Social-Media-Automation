@@ -36,6 +36,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from create_article import settings
+from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
@@ -232,7 +233,7 @@ step-2 starts here
 '''
 
 
-class ListArticleView(APIView):
+class ListArticleView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -299,7 +300,7 @@ class ListArticleView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class ArticleDetailView(APIView):
+class ArticleDetailView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             profile = request.session['operations_right']
@@ -328,7 +329,7 @@ class ArticleDetailView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class IndexView(APIView):
+class IndexView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -442,7 +443,7 @@ class IndexView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class GenerateArticleView(APIView):
+class GenerateArticleView(AuthenticatedBaseView):
 
     def post(self, request):
         start_datetime = datetime.now()
@@ -596,7 +597,7 @@ class GenerateArticleView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class GenerateArticleWikiView(APIView):
+class GenerateArticleWikiView(AuthenticatedBaseView):
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -747,7 +748,7 @@ class GenerateArticleWikiView(APIView):
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class WriteYourselfView(APIView):
+class WriteYourselfView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             if request.method != "POST":
@@ -771,7 +772,7 @@ class WriteYourselfView(APIView):
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class VerifyArticle(APIView):
+class VerifyArticle(AuthenticatedBaseView):
     def pot(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
