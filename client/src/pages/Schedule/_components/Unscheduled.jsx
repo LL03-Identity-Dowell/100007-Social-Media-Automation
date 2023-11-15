@@ -37,10 +37,10 @@ const UnscheduledPage = () => {
       )
       .then((response) => {
         setIsLoading(false);
-        let data = response.data.Unscheduled_Posts;
+        let unscheduledData = response.data.Unscheduled_Posts;
         let totalItems = response.data.total_items;
 
-        setUnscheduledPost(data.response);
+        setUnscheduledPost(unscheduledData.response);
         setCount(totalItems);
         setPageCount(Math.ceil(totalItems / perPage));
         setShowMorePages(pageCount > pagesToDisplay);
