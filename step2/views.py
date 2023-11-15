@@ -300,7 +300,7 @@ class ListArticleView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class ArticleDetailView(APIView):
+class ArticleDetailView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             profile = request.session['operations_right']
@@ -329,7 +329,7 @@ class ArticleDetailView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class IndexView(APIView):
+class IndexView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -443,7 +443,7 @@ class IndexView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class GenerateArticleView(APIView):
+class GenerateArticleView(AuthenticatedBaseView):
 
     def post(self, request):
         start_datetime = datetime.now()
@@ -597,7 +597,7 @@ class GenerateArticleView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class GenerateArticleWikiView(APIView):
+class GenerateArticleWikiView(AuthenticatedBaseView):
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -748,7 +748,7 @@ class GenerateArticleWikiView(APIView):
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class WriteYourselfView(APIView):
+class WriteYourselfView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             if request.method != "POST":
@@ -772,7 +772,7 @@ class WriteYourselfView(APIView):
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class VerifyArticle(APIView):
+class VerifyArticle(AuthenticatedBaseView):
     def pot(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
