@@ -4,14 +4,16 @@ import { FaUser } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
 function Navbar() {
-  const [username, setUserName] = useState("");
+  const [username, setUserName] = useState(null);
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
+    
     let user = JSON.parse(localStorage.getItem("userInfo"));
     setUserName(user?.userinfo?.username);
     setUserEmail(user?.userinfo?.email);
-  }, []);
+
+  }, [username, userEmail]);
 
   return (
     <nav className='sticky top-0 z-20 w-full text-white border-b border-gray-200 bg-customBlue dark:bg-gray-900 dark:border-gray-600'>
@@ -57,7 +59,7 @@ function Navbar() {
 
           <div className='items-center justify-center hidden md:flex'>
             <span className='pr-2 text-sm font-semibold text-white'>
-              {username}
+              {username && username}
             </span>
             <button
               data-tooltip-target='user-tooltip1'
