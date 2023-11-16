@@ -1,8 +1,8 @@
-{% extends "article/base_background.html" %} {% load static %} 
+{% extends "article/base_background.html" %} {% load static %}
 {% block style %}
 {{ block.super }}
 <link rel="stylesheet" type="text/css" href="{% static 'step2/css/twitter.css'%}">
-{% endblock %} 
+{% endblock %}
 {% block stuff %}
 <div class="m-2">
   <i class="fa-brands fa-twitter fa-4x"></i>
@@ -50,7 +50,7 @@
     />
   </div>
   <div class="mb-3">
-    <label for="posts_no">Page Password</label>
+    <label for="posts_no">Number of Posts</label>
     <input
       type="number"
       min="1"

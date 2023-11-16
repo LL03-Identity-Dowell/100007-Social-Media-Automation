@@ -6,7 +6,12 @@ window.onload = function downdis() {
   console.log("Hellow On Load");
 };
 
-
+document.querySelector("#edit-post").onclick = editPost;
+document.querySelector("#save-post").onclick = savePost;
+document.querySelector("#delete-post").onclick = deletePost;
+document.getElementById("edit-button").addEventListener("click", function () {
+  alert("Page is under construction");
+});
 var postti = document.getElementById("post-title");
 var postpar = document.getElementById("post-paragraph");
 var postsor = document.getElementById("post-sources");
@@ -100,55 +105,3 @@ function savePost() {
   div.append(...postSources);
   document.querySelector("#sources-input").replaceWith(div);
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  updCharacWrdCnt();
-});
-
-// Word count, Character count, Hashtag count
-let wordCount = 0;
-let characCount = 0;
-let hashTagCount = 0;
-console.log(wordCount);
-
-const updCharacWrdCnt = () => {
-  let paragraphContent;
-  let paragraphCharacCount;
-  let paragraphWordArray;
-  let paragraphWordCount;
-  let hashTagMatches;
-  hashTagCount = 0;
-
-  let titleContent = document.getElementById("post-title").textContent;
-
-  let titleCharacCount = titleContent.length;
-  characCount = titleCharacCount;
-
-  let titleWordArray = titleContent.split(" ").filter((word) => word !== "");
-  let titleWordCount = titleWordArray.length;
-  wordCount = titleWordCount;
-
-  Array(...document.querySelectorAll(".post-paragraph")).map((element) => {
-    paragraphContent = element.textContent;
-
-    paragraphCharacCount = paragraphContent.length;
-    characCount += paragraphCharacCount;
-
-    paragraphWordArray = paragraphContent
-      .split(" ")
-      .filter((word) => word !== "");
-    paragraphWordCount = paragraphWordArray.length;
-    wordCount += paragraphWordCount;
-
-    hashTagMatches = paragraphContent.match(/#/g);
-    hashTagCount += hashTagMatches ? hashTagMatches.length : 0;
-  });
-
-  document.getElementById("word-count").textContent = `${wordCount} Word(s)`;
-  document.getElementById(
-    "charac-count"
-  ).textContent = `${characCount} Character(s)`;
-  document.getElementById(
-    "hashtag-count"
-  ).textContent = `${hashTagCount} Hashtag(s)`;
-};

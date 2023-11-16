@@ -1,20 +1,20 @@
-import json
 from datetime import datetime
-
+import json
 import requests
 from django.contrib import messages
 from django.db import transaction
-from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
-from django_q.tasks import async_task
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
+from credits.constants import STEP_1_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
 from step2.views import create_event
 from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
@@ -27,6 +27,47 @@ def under_maintenance(request):
         'message': "Kindly bear with us and check back in a few.",
     }
     return render(request, 'under_maintenance.html', context)
+
+def get_client_approval(user):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "user_info",
+        "document": "user_info",
+        "team_member_ID": "1071",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+
+    print(response)
+    response_data_json = json.loads(response.json())
+    print(response_data_json)
+
+    try:
+        for value in response_data_json['data']:
+            aproval = {
+                'topic': value['topic'],
+                'post': value['post'],
+                'article': value['article'],
+                'schedule': value['schedule']
+            }
+        return (aproval)
+    except:
+        aproval = {'topic': 'False'}
+    return (aproval)
+
+
 
 @csrf_exempt
 @xframe_options_exempt
@@ -115,9 +156,9 @@ def index(request):
  
                 print(topic)
                 if topic['topic'] == 'True':
-                    async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
-                    print('yes.......o')
-                    return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+                    # async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
+                    # return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+                    pass
                 else:
 
                     def api_call(grammar_arguments=None):
@@ -427,8 +468,6 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
 @xframe_options_exempt
 @transaction.atomic
 def selected_result(request):
-    userid = request.session['user_id']
-    topic = get_client_approval(userid)
     try:
         if 'session_id' and 'username' in request.session:
             if request.method == 'POST':
@@ -441,12 +480,14 @@ def selected_result(request):
                 # if not credit_response.get('success'):
                 #     return redirect(reverse('credit_error_view'))
                 sentence_ids = request.session.get('result_ids')
-
                 loop_counter = 1
+
+                print('This is the post data======================================================')
+                print(request.POST)
+
                 for sentence_id in sentence_ids:
                     selected_rank = request.POST.get(
                         'rank_{}'.format(loop_counter))
-
                     loop_counter += 1
                     sentence_result = SentenceResults.objects.get(
                         pk=sentence_id)
@@ -466,7 +507,6 @@ def selected_result(request):
                     }
 
                 data_dictionary = request.POST.dict()
-                data_dictionary['client_admin_id'] = request.session['userinfo']['client_admin_id']
                 data_dictionary.pop('csrfmiddlewaretoken')
                 request.session['data_dictionary'] = {
                     **request.session['data_dictionary'],
@@ -474,25 +514,16 @@ def selected_result(request):
                 }
 
                 # del request.session['data_dictionary']
-                data_dic = request.session['data_dictionary']
 
                 insert_form_data(request.session['data_dictionary'])
-
-                print(topic)
-                if topic['article'] == 'True':
-                    async_task("automate.services.generate_article", data_dic, hook='automate.services.hook_now2')
-                    print('yes.......o')
-                else:
-                    pass
 
                 # Removing industry form data and sentence forms data from the session
                 request.session.pop('industry_form_data', None)
                 request.session.pop('sentences_form_data', None)
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_1_credit(request)
-                # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
-                return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
+                return redirect("https://www.socialmediaautomation.uxlivinglab.online/main")
         else:
             return render(request, 'error.html')
     except Exception as e:
@@ -560,47 +591,6 @@ def insert_form_data(data_dict):
     print(response.json())
     print("-------------end of insert function---------------")
     return response.json()
-
-
-# get user aproval
-def get_client_approval(user):
-    url = "http://uxlivinglab.pythonanywhere.com/"
-    headers = {'content-type': 'application/json'}
-
-    payload = {
-        "cluster": "socialmedia",
-        "database": "socialmedia",
-        "collection": "user_info",
-        "document": "user_info",
-        "team_member_ID": "1071",
-        "function_ID": "ABCDE",
-        "command": "fetch",
-        "field": {"user_id": user},
-        "update_field": {
-            "order_nos": 21
-        },
-        "platform": "bangalore"
-    }
-
-    data = json.dumps(payload)
-    response = requests.request("POST", url, headers=headers, data=data)
-
-    print(response)
-    response_data_json = json.loads(response.json())
-    print(response_data_json)
-
-    try:
-        for value in response_data_json['data']:
-            aproval = {
-                'topic': value['topic'],
-                'post': value['post'],
-                'article': value['article'],
-                'schedule': value['schedule']
-            }
-        return (aproval)
-    except:
-        aproval = {'topic': 'False'}
-    return (aproval)
 
 
 # added code for posts
@@ -671,13 +661,14 @@ def login(request):
     return render(request, 'login.html')
 
 
+
 @csrf_exempt
 @xframe_options_exempt
 def category_topic(request):
     session_id = request.GET.get("session_id", None)
     if 'session_id' and 'username' in request.session:
         if request.method == "GET":
-            #
+
             return render(request, 'category_topic.html', )
         elif request.method == "POST":
             website_manager = WebsiteManager()

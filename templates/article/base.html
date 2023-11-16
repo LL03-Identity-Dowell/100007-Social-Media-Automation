@@ -7,6 +7,12 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS Flickity-->
+  <link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
+  <!-- JavaScript Flickity-->
+  <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
+
   <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
   <!--<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">-->
   <!--<link rel="preconnect" href="https://fonts.googleapis.com">-->
@@ -46,7 +52,7 @@
     <div class="container-fluid">
 
       <!--Brand/Logo-->
-      <a class="navbar-brand" href="http://127.0.0.1:8000/main">
+      <a class="navbar-brand" href="https://www.socialmediaautomation.uxlivinglab.online/main">
         <!--<i class="fa-solid fa-pencil"></i>-->
         SAMANTA
       </a>
@@ -113,9 +119,15 @@
                   <hr class="dropdown-divider">
                 </li>
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-plan' %}">My Plan</a></li>
+                <li><a class="dropdown-item" href="{% url 'category_topic' %}">Categories and Topics</a></li>
                   <li><a class="dropdown-item" href="{% url 'generate_article:save_hash_mention' %}">Hash Tags and
                       Mentions</a></li>
+                  {% if request.session.can_approve_social_media == True %}
+                      <li><a class="dropdown-item" href="{% url 'generate_article:admin_approve_social_media' %}">Approve
+                          Social Media Request</a></li>
+                  {% endif %}
                   <li><a class="dropdown-item" href="{% url 'category_topic' %}">Categories and Topics</a></li>
+                  <li><a class="dropdown-item" href="{% url 'generate_article:post_detail_dropdowns' %}">Post Detail Content Options</a></li>
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-team' %}">My Team</a></li>
                 <li><a class="dropdown-item" href="{% url 'generate_article:user-usage' %}">My Usage</a></li>
                 <li>
@@ -135,11 +147,12 @@
 
           <!-- Back to Main Page Button -->
           <li class="nav-item">
-            <a class="nav-link" href="http://127.0.0.1:8000/main" >
+            <a class="nav-link" href="https://www.socialmediaautomation.uxlivinglab.online/main" >
               <!--<i class="fa-solid fa-user-crown fa-lg"></i>-->
-              <i class="fa-solid fa-house fa-lg" style="color: white"></i> 
+              <i class="fa-solid fa-house fa-lg" style="color: white"></i>
             </a>
           </li>
+
 
           <!--Client options-->
           <li class="nav-item">
@@ -192,65 +205,21 @@
 
 
     <!-- SERVICE KEY MODAL -->
-<!-- 
+
     <div class="do-modal">
         <div class="do-modal-content">
             <span class="do-close-button">×</span>
              <strong>Please note</strong>
             <p>{{ request.session.credit_response.message }}</p>
         </div>
-    </div> -->
+    </div>
 
 
-    {% comment %} <div class="modal-sm fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <strong>Please note</strong>
-            <p>The workspace you are logged in doesn't have SERVICE KEY</p>
-          </div>
-        </div>
-      </div>
-    </div> {% endcomment %}
-
-
-
-    <!-- SERVICE KEY MODAL -->
-
-    {% comment %} <div class="do-modal">
-        <div class="do-modal-content">
-            <span class="do-close-button">×</span>
-             <strong>Please note</strong>
-            <p>The workspace you are logged in doesn't have SERVICE KEY</p>
-        </div>
-    </div> {% endcomment %}
-
-    {% comment %} <div class="modal fade" id="serviceAlertModal" tabindex="-1" aria-labelledby="alertModal" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" id="serviceAlertDialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-             <strong>Please note</strong>
-            <p>The workspace you are logged in doesn't have SERVICE KEY</p>
-          </div>
-          <div class="modal-footer">
-          </div>
-        </div>
-      </div>
-    </div> {% endcomment %}
-
-    
   </div>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <!-- JavaScript function to clear sessionStorage -->
-      <script>
+        <script>
         // Retrieve the session_id from the context passed by Django
         var session_id = "{{ session_id|default:'' }}";
         var session_id = "{{ session_id|default:'' }}";
@@ -262,6 +231,7 @@
             sessionStorage.setItem('session_id', session_id);
         }
     </script>
+  <!-- JavaScript function to clear sessionStorage -->
     <script>
 
         // JavaScript fctn to clear sessionStorage
@@ -314,7 +284,93 @@
         }
 
     </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+    <script>
+        //SERVICE KEY NOTIFICATION SCRIPT
+        {% if request.session.credit_response %}
+
+            var triggers = document.querySelectorAll('.check-key');
+
+            triggers.forEach(element => {
+
+                element.addEventListener("click", (event) =>{
+
+                    event.preventDefault();
+
+                    displayNotification("{{ request.session.credit_response.message }}");
+                });
+            })
+
+        {% endif %}
+
+
+        //SERVICE KEY MODAL SCRIPT
+        {% if request.session.credit_response %}
+
+        var do_modal = document.querySelector(".do-modal");
+        var closeButton = document.querySelector(".do-close-button");
+
+        function toggleModal() {
+            do_modal.classList.toggle("do-show-modal");
+        }
+
+        function windowOnClick(event) {
+            if (event.target === do_modal) {
+                toggleModal();
+            }
+        }
+
+        window.onload = toggleModal();
+
+        closeButton.addEventListener("click", toggleModal);
+        window.addEventListener("click", windowOnClick);
+        {% endif %}
+
+    </script>
+
+
+    <script>
+
+    //Default notification Script
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var closeButtons = document.querySelectorAll('.close-button');
+            closeButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var notification = this.parentNode.parentNode;
+                    notification.style.display = 'none';
+                });
+            });
+
+            var notification = document.querySelector('.custom-notification');
+            notification.classList.add('timeout');
+
+            var contentElement = notification.querySelector('.notification');
+            var pseudoElement = getComputedStyle(contentElement, 'after');
+            var animationDuration = 10000; // Animation duration in milliseconds
+            var animationStartTime = Date.now();
+
+            function decreaseWidth() {
+                var currentTime = Date.now();
+                var elapsedTime = currentTime - animationStartTime;
+                var progress = elapsedTime / animationDuration;
+                var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
+
+                contentElement.style.setProperty('--after-width', updatedWidth + '%');
+
+                if (progress < 1) {
+                    requestAnimationFrame(decreaseWidth);
+                } else {
+                    notification.style.display = 'none'; // Hide the notification
+                }
+            }
+
+            requestAnimationFrame(decreaseWidth);
+        });
+
+    </script>
 
 <script>
 checkstatus();
@@ -358,98 +414,6 @@ function checkstatus() {
 setInterval(checkstatus, 60000);
 
 </script>
-
-<!-- 
-    <script>
-        //SERVICE KEY NOTIFICATION SCRIPT
-        {% if request.session.credit_response %}
-
-            var triggers = document.querySelectorAll('.check-key');
-
-            triggers.forEach(element => {
-
-                element.addEventListener("click", (event) =>{
-
-                    event.preventDefault();
-
-                    displayNotification("{{ request.session.credit_response.message }}");
-                });
-            })
-
-        {% endif %}
-
-
-        //SERVICE KEY MODAL SCRIPT
-        {% if request.session.credit_response %}
-
-        var do_modal = document.querySelector(".do-modal");
-        var closeButton = document.querySelector(".do-close-button");
-
-        function toggleModal() {
-            do_modal.classList.toggle("do-show-modal");
-        }
-
-        function windowOnClick(event) {
-            if (event.target === do_modal) {
-                toggleModal();
-            }
-        }
-
-        window.onload = toggleModal();
-
-        closeButton.addEventListener("click", toggleModal);
-        window.addEventListener("click", windowOnClick);
-        {% endif %}
-
-    </script> -->
-
-
-    <script>
-
-    //Default notification Script
-
-        document.addEventListener('DOMContentLoaded', function () {
-            var closeButtons = document.querySelectorAll('.close-button');
-            closeButtons.forEach(function (button) {
-                button.addEventListener('click', function () {
-                    var notification = this.parentNode.parentNode;
-                    notification.style.display = 'none';
-                });
-            });
-
-            var notification = document.querySelector('.custom-notification');
-            notification.classList.add('timeout');
-
-            var contentElement = notification.querySelector('.notification');
-            var pseudoElement = getComputedStyle(contentElement, 'after');
-            var animationDuration = 10000; // Animation duration in milliseconds
-            var animationStartTime = Date.now();
-
-            function decreaseWidth() {
-                var currentTime = Date.now();
-                var elapsedTime = currentTime - animationStartTime;
-                var progress = elapsedTime / animationDuration;
-                var updatedWidth = 100 - (progress * 100); // Decrease width linearly over time
-
-                contentElement.style.setProperty('--after-width', updatedWidth + '%');
-
-                if (progress < 1) {
-                    requestAnimationFrame(decreaseWidth);
-                } else {
-                    notification.style.display = 'none'; // Hide the notification
-                }
-            }
-
-            requestAnimationFrame(decreaseWidth);
-        });
-
-
-
-    </script>
-
-
-
-
 
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>

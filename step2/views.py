@@ -1,7 +1,9 @@
+from django.shortcuts import render, redirect
 import concurrent.futures
 import datetime
 import json
 import random
+import re
 import time
 import traceback
 import urllib
@@ -9,7 +11,7 @@ import urllib.parse
 from datetime import datetime, date
 # image resizing
 from io import BytesIO
-# from website.views import get_client_approval
+
 import openai
 import pytz
 import requests
@@ -34,11 +36,11 @@ from mega import Mega
 from pexels_api import API
 from pymongo import MongoClient
 
-from config_master import UPLOAD_IMAGE_ENDPOINT
+from config_master import UPLOAD_IMAGE_ENDPOINT, SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
-from django_q.tasks import async_task
+from .models import Step2Manager
 
 # helper functions
 
@@ -286,25 +288,13 @@ def has_access(portfolio_info):
     return True
 
 
-# def dowell_login(request):
-#     try:
-#         session_id = request.GET.get('session_id', None)
-#         print("Before setting session_id:", request.session.get("session_id"))
-#         request.session["session_id"] = session_id
-#         request.session.save()
-#         print("After setting session_id:", request.session.get("session_id"))
-#         return redirect("http://127.0.0.1:8000/main")
-#     except:
-#         # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
-#         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
-
 def dowell_login(request):
-    session_id = request.GET.get('session_id', None)
-    print("here we have", session_id)
+    session_id = request.GET.get("session_id", None)
     if session_id:
         request.session["session_id"] = session_id
-        return HttpResponseRedirect('main')
+        return redirect("http://127.0.0.1:8000/main")
     else:
+        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
         return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
 
@@ -314,9 +304,7 @@ def main(request):
     if request.session.get("session_id"):
         user_map = {}
         redirect_to_living_lab = True
-        # First API
         url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-        # headers = {"Authorization": f"Bearer {session_id}"}
         session_id = request.session["session_id"]
         response_1 = requests.post(url_1, data={"session_id": session_id})
         if response_1.status_code == 200 and "portfolio_info" in response_1.json():
@@ -335,7 +323,6 @@ def main(request):
             #     messages.error(request,'You are not allowed to access this page')
             #     return render(request, 'portofolio-logib.html')
         else:
-            # Second API
             url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
             response_2 = requests.post(
                 url_2, data={"session_id": session_id})
@@ -374,7 +361,9 @@ def main(request):
 
         # Map the username with the userID
         username = user_map.get(request.session['user_id'], None)
-        print(user_map)
+
+        if request.session.get('username') == SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+            request.session['can_approve_social_media'] = True
 
         # Adding session id to the session
         request.session['session_id'] = session_id
@@ -596,7 +585,7 @@ def user_approval_form_update(request):
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
+        print(response.json())
         messages.success(request, "Approvals updated successfully.")
     return HttpResponseRedirect(reverse("generate_article:client"))
 
@@ -633,9 +622,44 @@ def check_connected_accounts(username):
     return (socials)
 
 
+def linked_account_json(request):
+    username = request.session['username']
+    linked_accounts = check_connected_accounts(username)
+
+    return JsonResponse({'response': linked_accounts})
+
+
 @csrf_exempt
 @xframe_options_exempt
 def social_media_channels(request):
+    if request.method == "POST":
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        email = request.session['userinfo']['email']
+        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        org_id = request.session['org_id']
+        data = {
+            'username': username,
+            'email': email,
+            'name': name,
+            'org_id': org_id,
+        }
+        step_2_manager.create_social_media_request(data)
+        messages.success(request,
+                         'Social media request was saved successfully. Wait for the admin to accept the request')
+        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+    else:
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        session = request.session['session_id']
+        print(session)
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
+            username)
+        linked_accounts = check_connected_accounts(username)
+        context_data = {'user_has_social_media_profile': user_has_social_media_profile,
+                        'linked_accounts': linked_accounts}
+        username = request.session['username']
+        org_id = request.session['org_id']
 
     username = request.session['username']
     session = request.session['session_id']
@@ -645,14 +669,8 @@ def social_media_channels(request):
     linked_accounts = check_connected_accounts(username)
     context_data = {'user_has_social_media_profile': user_has_social_media_profile,
                     'linked_accounts': linked_accounts}
+    messages.error(request, 'We will restore the connect button soon')
     return render(request, 'social_media_channels.html', context_data)
-
-
-def linked_account_json(request):
-    username = request.session['username']
-    linked_accounts = check_connected_accounts(username)
-
-    return JsonResponse({'response': linked_accounts})
 
 
 @csrf_exempt
@@ -1156,8 +1174,6 @@ def user_usage(request):
     return render(request, 'user_usage.html')
 
 
-
-
 # get user aproval
 def get_client_approval(user):
     url = "http://uxlivinglab.pythonanywhere.com/"
@@ -1171,7 +1187,7 @@ def get_client_approval(user):
         "team_member_ID": "1071",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {"user_id":user},
+        "field": {"user_id": user},
         "update_field": {
             "order_nos": 21
         },
@@ -1187,19 +1203,16 @@ def get_client_approval(user):
 
     try:
         for value in response_data_json['data']:
-            aproval={
-                'topic':value['topic'],
-                'post':value['post'],
-                'article':value['article'],
-                'schedule':value['schedule']
+            aproval = {
+                'topic': value['topic'],
+                'post': value['post'],
+                'article': value['article'],
+                'schedule': value['schedule']
             }
-        return(aproval)
+        return (aproval)
     except:
-        aproval={'topic':'False'}
-    return(aproval)
-
-
-
+        aproval = {'topic': 'False'}
+    return (aproval)
 
 
 @csrf_exempt
@@ -1325,6 +1338,123 @@ def update_saved_targeted_cities(request):
             request, "target_cities details updated successfully.")
 
         return HttpResponseRedirect(reverse("generate_article:main-view"))
+
+
+@csrf_exempt
+@xframe_options_exempt
+def post_detail_dropdowns(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            status = 'update'
+            return render(request, 'post_detail_dropdowns.html', {'status': status})
+        elif request.method == "POST":
+
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            qualitative_categorization = request.POST.get(
+                'qualitative_categorization_list').split(',')
+            targeted = request.POST.get('targeted_list').split(',')
+            designed_for = request.POST.get('designed_for_list').split(',')
+            targeted_category = request.POST.get(
+                'targeted_category_list').split(',')
+
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "insert",
+                "field": {
+                    "user_id": request.session['user_id'],
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    "date": date,
+                    "time": str(time),
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted": targeted,
+                    "designed_for": designed_for,
+                    "targeted_category": targeted_category,
+
+                },
+                "update_field": {
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted": targeted,
+                    "designed_for": designed_for,
+                    "targeted_category": targeted_category,
+                },
+                "platform": "bangalore"
+            }
+
+            data = json.dumps(payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
+            print(response)
+
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
+def update_post_detail_dropdowns(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method != "POST":
+            return HttpResponseRedirect(reverse("generate_article:client"))
+        else:
+            qualitative_categorization = request.POST.get(
+                'qualitative_categorization_list').split(',')
+            targeted = request.POST.get('targeted_list').split(',')
+            designed_for = request.POST.get('designed_for_list').split(',')
+            targeted_category = request.POST.get(
+                'targeted_category_list').split(',')
+
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    "user_id": request.session['user_id'],
+                },
+                "update_field": {
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted": targeted,
+                    "designed_for": designed_for,
+                    "targeted_category": targeted_category,
+                },
+                "platform": "bangalore"
+            }
+
+            data = json.dumps(payload)
+            response = requests.request(
+                "POST", url, headers=headers, data=data)
+            print(response)
+            messages.success(
+                request, "Data updated successfully.")
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
 
 
 @csrf_exempt
@@ -1953,12 +2083,6 @@ def index(request):
         #     request=request,
         # )
 
-        # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
-
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
-
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2321,18 +2445,20 @@ def generate_article(request):
             prompt = (
                 f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
                 f" Generate only 2 paragraphs."
-                f" Include the following at the end of the article {formatted_hashtags}."
+                f" Include  {formatted_hashtags} at the end of the article."
+                # f" Include the following at the end of the article {formatted_hashtags}."
                 f" Also, append {formatted_cities} to the end of the article ."
                 [:prompt_limit]
                 + "..."
             )
 
             # Variables for loop control
-            duration = 4   # Total duration in seconds
-            interval = 0.9  # Interval between generating articles in seconds
+            duration = 4  # Total duration in seconds
+            interval = 0.8  # Interval between generating articles in seconds
             start_time = time.time()
             user_id = request.session['user_id']
-            approval=get_client_approval(user_id)
+            approval = get_client_approval(user_id)
+
             def generate_and_save_article():
                 nonlocal start_time
 
@@ -2421,7 +2547,8 @@ def generate_article(request):
             # credit_handler.consume_step_2_credit(request)
             if approval['post'] == 'True':
                 user_id = request.session['user_id']
-                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                async_task("automate.services.post_list", user_id,
+                           hook='automate.services.hook_now')
             return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
     else:
@@ -2437,7 +2564,7 @@ def generate_article_wiki(request):
             return HttpResponseRedirect(reverse("main-view"))
         else:
             user_id = request.session['user_id']
-            approval=get_client_approval(user_id)
+            approval = get_client_approval(user_id)
             title = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2544,7 +2671,8 @@ def generate_article_wiki(request):
                     # credit_handler.consume_step_2_credit(request)
                     if approval['post'] == 'True':
                         user_id = request.session['user_id']
-                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                        async_task("automate.services.post_list",
+                                   user_id, hook='automate.services.hook_now')
                     if 'article_sub_verb' in locals():
                         # return render(request, 'article/article.html',{'message': "Article using verb and subject saved Successfully.", 'article_verb': article_sub_verb[0], 'source_verb': source_verb,
                         # 'article': article_subject[0], 'source': page.fullurl,  'title': title})
@@ -2593,8 +2721,9 @@ def generate_article_wiki(request):
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_2_credit(request)
                 if approval['post'] == 'True':
-                        user_id = request.session['user_id']
-                        async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                    user_id = request.session['user_id']
+                    async_task("automate.services.post_list",
+                               user_id, hook='automate.services.hook_now')
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
     else:
         return render(request, 'error.html')
@@ -2617,9 +2746,10 @@ def write_yourself(request):
             target_industry = request.POST.get("target_industry")
             print("target_industry in write: ", target_industry)
             user_id = request.session['user_id']
-            approval=get_client_approval(user_id)
+            approval = get_client_approval(user_id)
             if approval['post'] == 'True':
-                async_task("automate.services.post_list",user_id,hook='automate.services.hook_now')
+                async_task("automate.services.post_list", user_id,
+                           hook='automate.services.hook_now')
         return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
     else:
         return render(request, 'error.html')
@@ -2832,75 +2962,6 @@ def list_article_view(request):
             },
             "platform": "bangalore"
         }
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-
-        response_data_json = json.loads(response.json())
-
-        # takes in user_id
-        user_id = str(request.session['user_id'])
-        article_detail_list = response_data_json.get('data', [])
-
-        user_articles = []
-        for article in article_detail_list:
-
-            if article.get('user_id') == user_id:
-                articles = {
-                    'title': article.get('title'),
-                    'paragraph': article.get('paragraph'),
-                    'source': article.get('source'),
-                }
-                # appends articles to posts
-                user_articles.append(articles)
-
-        # Reverse the order of the posts list
-        user_articles = list(reversed(user_articles))
-
-        number_of_items_per_page = 5
-        page = request.GET.get('page', 1)
-
-        paginator = Paginator(user_articles, number_of_items_per_page)
-        try:
-            page_post = paginator.page(page)
-        except PageNotAnInteger:
-            page_post = paginator.page(1)
-        except EmptyPage:
-            page_post = paginator.page(paginator.num_pages)
-
-        context = {
-            'posts': user_articles,
-            'page_post': page_post,
-        }
-
-        messages.info(
-            request, 'Click on view article to finalize the article before posting')
-
-        return render(request, 'post_list.html', context)
-    else:
-        return render(request, 'error.html')
-
-
-@xframe_options_exempt
-def list_article_view(request):
-    # return HttpResponse(request.session.get('user_name'))
-    if 'session_id' and 'username' in request.session:
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
-
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "step2_data",
-            "document": "step2_data",
-            "team_member_ID": "9992828281",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
 
         data = json.dumps(payload)
         response = requests.request("POST", url, headers=headers, data=data)
@@ -3034,9 +3095,6 @@ def post_detail(request):
         #     request=request,
         # )
 
-        # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
-
         url = "http://uxlivinglab.pythonanywhere.com"
         payload = json.dumps({
             "cluster": "socialmedia",
@@ -3060,7 +3118,6 @@ def post_detail(request):
         profile = request.session['operations_right']
 
         categ = json.loads(response.json())['data']
-        print(categ)
         categories = []
         for row in categ:
             for data in row:
@@ -3130,7 +3187,6 @@ def Save_Post(request):
             paragraphs_list = request.POST.getlist("paragraphs[]")
             print('paragraphs_list:', paragraphs_list)
             source = request.POST.get("source")
-            # target_industry = request.POST.get("p-content")
             qualitative_categorization = request.POST.get(
                 "qualitative_categorization")
             targeted_for = request.POST.get("targeted_for")
@@ -3139,10 +3195,23 @@ def Save_Post(request):
             image = request.POST.get("images")
             # dowellclock = get_dowellclock(),
             combined_article = "\n\n".join(paragraphs_list)
-            # print('combined_article', combined_article[0:230])
+
+            # Define a regular expression pattern to identify URLs
+            url_pattern = r'https?://\S+'
+
+            urls = re.findall(url_pattern, combined_article)
+            for url in urls:
+                combined_article = combined_article.replace(
+                    url, f'URL_PLACEHOLDER{urls.index(url)}')
             paragraph_without_commas = combined_article.replace(
-                '.', '. ').replace(',.', '.')
-            # print('paragraph_without_commas:', paragraph_without_commas)
+                '.', '. ').replace(',', ', ')
+
+            # Restore URLs back to the text
+            for index, url in enumerate(urls):
+                paragraph_without_commas = paragraph_without_commas.replace(
+                    f'URL_PLACEHOLDER{index}', url)
+
+            print(paragraph_without_commas)
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -3406,41 +3475,12 @@ def get_key(user_id):
     return key
 
 
-def api_call(postes, platforms, key, image, request, post_id):
+def api_call(poste, platforms, key, image, request, post_id):
 
-    payload = {'post': postes,
+    payload = {'post': poste,
                'platforms': platforms,
                'profileKey': key,
                'mediaUrls': [image],
-               }
-    headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r1 = requests.post('https://app.ayrshare.com/api/post',
-                       json=payload,
-                       headers=headers)
-    print(r1.json())
-    if r1.json()['status'] == 'error':
-        messages.error(request, 'error in posting')
-    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-        messages.success(
-            request, 'post have been sucessfully posted')
-        # credit_handler = CreditHandler()
-        # credit_handler.consume_step_4_credit(request)
-        update = update_most_recent(post_id)
-
-    else:
-        for warnings in r1.json()['warnings']:
-            messages.error(request, warnings['message'])
-
-
-def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
-
-    payload = {'post': postes,
-               'platforms': platforms,
-               'profileKey': key,
-               'mediaUrls': [image],
-               'scheduleDate': str(formart),
                }
     headers = {'Content-Type': 'application/json',
                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
@@ -3459,6 +3499,37 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
+
+
+def api_call2(poste, platforms, key, image, request, post_id, formart):
+
+    payload = {'post': poste,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               "scheduleDate": str(formart),
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        for error in r1.json()['posts']:
+            for message in error['errors']:
+                messages.error(request, message['message'][:62])
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        # credit_handler = CreditHandler()
+        # credit_handler.consume_step_4_credit(request)
+        update = update_schedule(post_id)
 
     else:
         for warnings in r1.json()['warnings']:
@@ -3488,6 +3559,8 @@ def Media_Post(request):
         logo = "Created and posted by #samanta #uxlivinglab"
 
         post_id = data['PK']
+        print('This is the post PK')
+        print(post_id)
 
         # Splitting the content and logo into separate paragraphs
         postes_paragraph1 = f"{paragraph[0:2000]}."
@@ -3499,7 +3572,7 @@ def Media_Post(request):
         twitter_post_paragraph1 = paragraph2
         twitter_post_paragraph2 = logo
 
-        twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
+        twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}"
 
         print(twitter_post)
         try:
@@ -3547,17 +3620,19 @@ def Media_schedule(request):
         # )
 
         # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
+        #     return JsonResponse('credit_error', safe=False)
         start_datetime = datetime.now()
         data = json.loads(request.body.decode("utf-8"))
         timezone = request.session['timezone']
         title = data['title']
         paragraph = data['paragraph']
-        paragraph2 = paragraph[0:230]
+        paragraph2 = str(paragraph[0:230])
+        print('paragraph:', paragraph2)
         image = data['image']
         logo = "Created and posted by #samanta #uxlivinglab"
         post_id = data['PK']
         schedule = data['schedule']
+        print('this is :', schedule)
 
         # Adding a period to the end of the content before "Created and posted by"
         postes_paragraph1 = f"{paragraph[0:2000]}."
@@ -3567,18 +3642,18 @@ def Media_schedule(request):
         postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
 
         # Adding a period to the end of the content before "Created and posted by"
-        twitter_post_paragraph1 = f"{paragraph2[0:235]}."
+        twitter_post_paragraph1 = paragraph2
         twitter_post_paragraph2 = logo
 
         # Combining the paragraphs with a newline character
         twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}"
-
+        print('hello_____', len(twitter_post))
         try:
             platforms = data['social']
             splited = data['special']
         except:
             pass
-        print(splited)
+        print(platforms)
         # Formatting time for utc
         formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
         current_time = pytz.timezone(timezone)
@@ -3609,13 +3684,119 @@ def Media_schedule(request):
         "posting to Various social media"
         with concurrent.futures.ThreadPoolExecutor() as executor:
             # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
-            executor.map(lambda f: api_call_schedule(*f), arguments)
+            executor.map(lambda f: api_call2(*f), arguments)
             end_datetime = datetime.now()
             time_taken = end_datetime - start_datetime
             print(f"Total time taken: {time_taken}")
         return JsonResponse('scheduled', safe=False)
     else:
         return JsonResponse('social_media_channels', safe=False)
+
+
+@csrf_exempt
+@xframe_options_exempt
+def social_media_channels(request):
+    if request.method == "POST":
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        email = request.session['userinfo']['email']
+        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        org_id = request.session['org_id']
+        data = {
+            'username': username,
+            'email': email,
+            'name': name,
+            'org_id': org_id,
+        }
+        step_2_manager.create_social_media_request(data)
+        messages.success(request,
+                         'Social media request was saved successfully. Wait for the admin to accept the request')
+        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+    else:
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        session = request.session['session_id']
+        print(session)
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
+            username)
+        linked_accounts = check_connected_accounts(username)
+        context_data = {'user_has_social_media_profile': user_has_social_media_profile,
+                        'linked_accounts': linked_accounts}
+        username = request.session['username']
+        org_id = request.session['org_id']
+
+        data = {
+            'username': username,
+            'org_id': org_id,
+        }
+        social_media_request = step_2_manager.get_approved_user_social_media_request(
+            data)
+        if user_has_social_media_profile:
+            context_data['can_connect'] = True
+        elif social_media_request:
+            context_data['can_connect'] = True
+        else:
+            context_data['can_connect'] = False
+
+        return render(request, 'social_media_channels.html', context_data)
+
+
+@csrf_exempt
+@xframe_options_exempt
+def admin_approve_social_media(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            step_2_manager = Step2Manager()
+            social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+                {
+                    'org_id': request.session.get('org_id'),
+                }
+            )
+            context_data = {
+                'social_media_requests': social_media_requests
+            }
+            return render(request, 'admin_approve.html', context_data)
+        elif request.method == "POST":
+            step_2_manager = Step2Manager()
+            data = {
+                'social_media_request_id': request.POST.getlist('social_media_request_id')
+            }
+            approve = False
+            if request.POST.get('approve') == 'Approve Selected':
+                approve = True
+            elif request.POST.get('approve') == 'Reject Selected':
+                approve = False
+            elif request.POST.get('approve') == 'Approve All':
+                approve = True
+                social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+                    {'org_id': request.session.get('org_id'), }
+                )
+                data['social_media_request_id'] = social_media_requests.values_list(
+                    'id', flat=True)
+            data['is_approved'] = approve
+            step_2_manager.update_social_media_request_status(data)
+            messages.success(
+                request, 'Status of social media has been updated successfully')
+            return HttpResponseRedirect(reverse("generate_article:admin_approve_social_media"))
+    else:
+        return render(request, 'error.html')
+
+
+@csrf_exempt
+@xframe_options_exempt
+def create_social_media_request(request):
+    session_id = request.GET.get("session_id", None)
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+
+            return render(request, 'admin_approve.html', )
+        elif request.method == "POST":
+
+            return HttpResponseRedirect(reverse("generate_article:main-view"))
+    else:
+        return render(request, 'error.html')
+
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)

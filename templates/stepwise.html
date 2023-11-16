@@ -40,10 +40,9 @@
 
 
     /* Hide all steps by default: */
-    /*.tab {
+    .tab {
         display: none;
-    }*/
-
+    }
 
     button#nextBtn {
         border-color: #ffc107;
@@ -264,7 +263,7 @@
             {% endif %}
             <span class="help_text">{{ sentencesForm.topic.help_text }}</span>
         </span>
-        &nbsp;{{ sentencesForm.topic }}
+        <span class="required_field">*</span>&nbsp;&nbsp;&nbsp;{{ sentencesForm.topic }}
         &nbsp;{{ sentencesForm.subject_number }}
         {{ sentencesForm.topic.errors }}
     </span>

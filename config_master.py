@@ -12,3 +12,8 @@ UPLOAD_IMAGE_ENDPOINT = 'https://dowellfileuploader.uxlivinglab.online/uploadfil
 
 def session_id(request):
     return {'session_id': request.GET.get("session_id", None)}
+
+SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME = 'uxliveadmin'
+# SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME = 'wilfex'
+
+CREDITS_EXEMPTED_USERNAMES = [SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME]

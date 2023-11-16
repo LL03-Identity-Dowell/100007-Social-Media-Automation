@@ -1,11 +1,11 @@
-{% extends "article/base_background.html" %} 
-{% load static %} 
-
-{% block style %}
+{% extends "article/base_background.html" %} {% load static %} {% block style %}
 {{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static 'step2/css/social_media_channels.css' %}">
-{% endblock %} 
-{% block stuff %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'step2/css/social_media_channels.css'%}"
+/>
+{% endblock %} {% block stuff %}
 <h2 class="mb-5 blue-text">My Channels</h2>
 {% comment %}
 <p>User has social profile {{ user_has_social_media_profile }}</p>
@@ -38,13 +38,33 @@
   </a>
 
 </div>
+{% if can_connect %}
+<a class="mt-5 px-5 btn btn-dark-blue connect-button" onclick="newUserStatus ? showPopup.showLinkAcc() : showPopup.showActivate()" >Connect</a>
+<!--<a class="mt-5 px-5 btn btn-dark-blue connect-button" >Connect</a>-->
+{% else %}
+        <form method="post">
+            {% csrf_token %}
+            <p>You don't have any channels</p>
+            <button type="submit" class="mt-5 px-5 btn btn-dark-blue">Request Connection</button>
+        </form>
 
+<<<<<<< HEAD
+=======
+
+    {% if can_connect %}
 <a
   class="mt-5 px-5 btn btn-dark-blue connect-button"
   onclick="newUserStatus ? showPopup.showLinkAcc() : showPopup.showActivate()"
   >Connect</a
 >
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="mt-5 px-5 btn btn-dark-blue">Create Connect Request</button>
+        </form>
 
+>>>>>>> d90409a1d6050645116d6261c2307583768c704f
+    {% endif %}
 <script>
   // varaible from views checking if user has social profile
   var userStatus = "{{user_has_social_media_profile}}";
