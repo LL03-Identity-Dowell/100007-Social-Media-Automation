@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Home from "./pages/homepage/Home";
 import Layout from "./Layout";
 import Topic from "./pages/Topic/Topic";
@@ -30,9 +30,15 @@ import Pinterest from "./pages/UserProfile/_components/pinterest";
 import Linkedin from "./pages/UserProfile/_components/linkedin";
 import CreateArticle from "./pages/Article/CreateArticle";
 import Rank from "./pages/RankPage/Rank";
+import axios from "axios";
+import Loading from "./components/Loading";
+import PortfolioError from "./pages/NotFound/PortfolioError";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
+  const [product, setProduct] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
 
   const handleOpenSideBar = () => {
     setShowSidebar(true);
@@ -41,12 +47,87 @@ function App() {
     setShowSidebar(false);
   };
 
+  axios.defaults.withCredentials = true;
+  const clearLocalStorage = () => {
+    localStorage.clear();
+  };
+
+  // Set a timeout to clear local storage after 24 hours
+  const clearStorageTimeout = setTimeout(clearLocalStorage, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+
+  const clearStorageOnUnload = () => {
+    // Clear the timeout when the user is about to leave the page
+    clearTimeout(clearStorageTimeout);
+  };
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', clearStorageOnUnload);
+
+    // Cleanup: remove the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('beforeunload', clearStorageOnUnload);
+      // Also clear the timeout to prevent it from triggering after unmount
+      clearTimeout(clearStorageTimeout);
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchAndRemoveSessionId = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const session_id = urlParams.get("session_id");
+
+      if (session_id) {
+        // Store the session_id in both local storage and session storage
+        localStorage.setItem("session_id", session_id);
+        sessionStorage.setItem("session_id", session_id);
+
+        // Remove the session_id from the URL without causing a page reload
+        const newUrl = window.location.href.split('?')[0];
+        window.history.replaceState({}, document.title, newUrl);
+
+        // Proceed to fetch data or handle authenticated user logic
+        setLoading(true);
+        fetchData();
+      } else {
+        // If no session_id, redirect to the login page with session_id as a query parameter
+        window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/`;
+      }
+    };
+
+    // Check if session_id has already been processed to avoid continuous reload
+    if (!localStorage.getItem("session_id") && !sessionStorage.getItem("session_id")) {
+      fetchAndRemoveSessionId();
+    }
+  }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    axios.get('http://127.0.0.1:8000/api/v1/main/')
+      .then(res => {
+        const data = res.data;
+        const saveUserInfo = JSON.stringify(data);
+        localStorage.setItem("userInfo", saveUserInfo);
+        const userProduct = data.portfolio_info[0].product
+        if (userProduct !== "Social Media Automation") {
+          setProduct(false);
+          console.log("You do not have a portfolio");
+          navigate('/protfolio_check')
+        }
+        setLoading(false);
+      }).catch(err => {
+        setLoading(false);
+        console.error("Error fetching data:", err);
+      })
+  }
+
+
   return (
     <>
-      <Layout side={showSidebar} show={handleOpenSideBar}>
+      {loading && <Loading />}
+      <Layout side={showSidebar} show={handleOpenSideBar} isProduct={product}>
+
         <Routes>
-          <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
-          <Route exact path='/' element={<Home close={handleCloseSideBar} />} />
+          <Route index element={<Home close={handleCloseSideBar} />} />
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
           <Route path='/rank' element={<Rank show={handleCloseSideBar} />} />
           <Route
@@ -163,7 +244,13 @@ function App() {
             path="/createarticle"
             element={<CreateArticle show={handleOpenSideBar} />} //Halima
           />
+          <Route
+            path='/protfolio_check'
+            element={<PortfolioError close={handleCloseSideBar} />}
+
+          />
         </Routes>
+
       </Layout>
     </>
   );
