@@ -24,7 +24,7 @@ const UnscheduledPage = () => {
   const [showMorePages, setShowMorePages] = useState(false);
   // const [readMore, setReadMore] = useState(true);
 
-  
+
   useEffect(() => {
     setLoading(true);
     //Load unscheduled data from API
@@ -184,7 +184,7 @@ const UnscheduledPage = () => {
           breakClassName="p-2"
           activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
         />
-    </div>
+   </div>
   );
 };
 
