@@ -159,6 +159,10 @@ function App() {
             path='/target-cities'
             element={<TargetCities close={handleCloseSideBar} />}
           />
+          <Route
+            path="/createarticle"
+            element={<CreateArticle show={handleOpenSideBar} />} //Halima
+          />
         </Routes>
       </Layout>
     </>

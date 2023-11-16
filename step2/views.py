@@ -234,6 +234,9 @@ step-2 starts here
 
 
 class ListArticleView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -444,6 +447,8 @@ class IndexView(AuthenticatedBaseView):
 
 
 class GenerateArticleView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
 
     def post(self, request):
         start_datetime = datetime.now()
@@ -470,13 +475,13 @@ class GenerateArticleView(AuthenticatedBaseView):
                 user_data = fetch_user_info(request)
 
                 for item in user_data["data"]:
-                    if "target_city" in item:
+                    if "target_city" in item and item["target_city"] is not None:
                         user_selected_cities.extend(item["target_city"])
 
-                    if "hashtag_list" in item:
+                    if "hashtag_list" in item and item["hashtag_list"] is not None:
                         hashtags.extend(item["hashtag_list"])
 
-                    if "mentions_list" in item:
+                    if "mentions_list" in item and item["mentions_list"] is not None:
                         user_tags_mentions.extend(item["mentions_list"])
 
                 formatted_hashtags = " ".join(hashtags) if hashtags else ""
@@ -598,6 +603,9 @@ class GenerateArticleView(AuthenticatedBaseView):
 
 
 class GenerateArticleWikiView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -711,17 +719,23 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     print("For Title: "+title+" Page exists.")
                     article = page.text
                     article = article.split("See also")
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                           "title": title,
-                                                           "target_industry": target_industry,
-                                                           "paragraph": article[0],
-                                                           "source": page.fullurl,
-                                                           'subject': subject,
-                                                           # 'dowelltime': dowellclock
-                                                           }, "9992828281")
+                    para_list = article[0].split("\n\n")
+                    for i in range(len(para_list)):
+                        if para_list[i] != '':
+                            save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                                   "session_id": session_id,
+                                                                   "eventId": create_event()['event_id'],
+                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                   "title": title,
+                                                                   "target_industry": target_industry,
+                                                                   "paragraph": article[0],
+                                                                   "source": page.fullurl,
+                                                                   'subject': subject,
+                                                                   # 'dowelltime': dowellclock
+                                                                   }, "9992828281")
+                            print("step-2 data saved")
+                        break
+
                     para_list = article[0].split("\n\n")
                     for i in range(len(para_list)):
                         if para_list[i] != '':
@@ -741,6 +755,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                    'subject': subject,
                                                                    # 'dowelltime': dowellclock
                                                                    }, '34567897799')
+                            print("step-3 data saved")
+                        break
                     # credit_handler = CreditHandler()
                     # credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
@@ -749,25 +765,32 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
 
 
 class WriteYourselfView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             if request.method != "POST":
                 return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
-            form = VerifyArticleForm()
-            title = request.POST.get("title")
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
+            form = VerifyArticleForm(request.POST)
 
-            response_data = {
-                'title': title,
-                'subject': subject,
-                'verb': verb,
-                'target_industry': target_industry,
-                'form': form
-            }
+            if form.is_valid():
+                title = request.POST.get("title")
+                subject = request.POST.get("subject")
+                verb = request.POST.get("verb")
+                target_industry = request.POST.get("target_industry")
 
-            return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+                response_data = {
+                    'title': title,
+                    'subject': subject,
+                    'verb': verb,
+                    'target_industry': target_industry,
+                    'form_data': form.cleaned_data  # Serialize form data, not the form instance
+                }
+
+                return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'Form validation failed', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
