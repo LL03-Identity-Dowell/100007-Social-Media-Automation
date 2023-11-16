@@ -197,6 +197,14 @@
     fill: var(--dark-blue);
 }
 
+
+/*button in select*/
+.button-like-option {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 @media (min-width: 1200px) {
     #word-count {
         max-width: 914px;

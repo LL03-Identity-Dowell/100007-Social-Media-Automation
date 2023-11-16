@@ -8,10 +8,6 @@
   <link rel="stylesheet" type="text/css" href="{% static 'step2/css/post_detail.css' %}">
 {% endblock %}
 
-{% block script %}
-  {{ block.super }}
-  <script type="text/javascript" src="{% static 'step2/js/post_detail.js' %}"></script>
-{% endblock %}
 
 
 {% block content %}
@@ -419,3 +415,8 @@
 
 {% endblock %}
 
+
+{% block script %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'step2/js/post_detail.js' %}"></script>
+{% endblock %}

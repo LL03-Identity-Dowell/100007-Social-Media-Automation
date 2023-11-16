@@ -614,3 +614,41 @@ const allImages = document.querySelectorAll('.pexels-img')
 allImages.forEach((image) => {
     image.addEventListener("click", (e) => { handleImageSelect(e) }, false);
 })
+
+
+
+
+// Function to create a button-like option dynamically
+function addButtonLikeOption(selectId, redirectUrl) {
+    var buttonOption = document.createElement("option");
+    buttonOption.value = "buttonOption";
+    buttonOption.text = "Add more";
+    buttonOption.classList.add("button-like-option");
+
+    var select = document.getElementById(selectId);
+    select.appendChild(buttonOption);
+
+    // Add the onchange event dynamically
+    select.onchange = function () {
+        handleDropdownChange(selectId, redirectUrl);
+    };
+}
+
+// Function to handle dropdown change
+function handleDropdownChange(selectId, redirectUrl) {
+    var select = document.getElementById(selectId);
+    var selectedIndex = select.selectedIndex;
+    var selectedValue = select.options[selectedIndex].value;
+
+    // Check if the button-like option is selected
+    if (selectedValue === "buttonOption") {
+
+        window.location.href = redirectUrl;
+    }
+}
+
+
+addButtonLikeOption("qualitative_categorization", "http://127.0.0.1:8000/post_detail_addition/");
+addButtonLikeOption("brand", "http://127.0.0.1:8000/post_detail_addition/");
+addButtonLikeOption("channel", "http://127.0.0.1:8000/post_detail_addition/");
+addButtonLikeOption("channelbrand", "http://127.0.0.1:8000/post_detail_addition/");
