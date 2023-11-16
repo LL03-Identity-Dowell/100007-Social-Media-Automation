@@ -80,11 +80,7 @@ function updateDisplay() {
   let capitalizedSpecifyTopic = capitalizeFirstLetter(specifyTopic);
 
   let yourTopicElement = document.getElementById("id_topic");
-<<<<<<< HEAD
-  var selectedOption =  yourTopicElement.options[yourTopicElement.selectedIndex];
-=======
   var selectedOption = yourTopicElement.options[yourTopicElement.selectedIndex];
->>>>>>> d90409a1d6050645116d6261c2307583768c704f
   var yourTopic = selectedOption.text;
 
   //has/had
@@ -266,10 +262,6 @@ function fixStepIndicator(n) {
   x[n].className += " active";
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> d90409a1d6050645116d6261c2307583768c704f
 const AmagiLoader = {
   __loader: null,
   __progressText: null,
@@ -346,3 +338,38 @@ const AmagiLoader = {
     }
   },
 };
+
+
+// Function to create a button-like option dynamically
+function addButtonLikeOption(selectId, redirectUrl) {
+  var buttonOption = document.createElement("option");
+  buttonOption.value = "buttonOption";
+  buttonOption.text = "Add more";
+  buttonOption.classList.add("button-like-option");
+
+  var select = document.getElementById(selectId);
+  select.appendChild(buttonOption);
+
+  // Add the onchange event dynamically
+  select.onchange = function () {
+    handleDropdownChange(selectId, redirectUrl);
+  };
+}
+
+// Function to handle dropdown change
+function handleDropdownChange(selectId, redirectUrl) {
+  var select = document.getElementById(selectId);
+  var selectedIndex = select.selectedIndex;
+  var selectedValue = select.options[selectedIndex].value;
+
+  // Check if the button-like option is selected
+  if (selectedValue === "buttonOption") {
+
+    window.location.href = redirectUrl;
+  }
+}
+
+
+addButtonLikeOption("id_category", "http://127.0.0.1:8000/hash-tags-and-mentions/");
+
+addButtonLikeOption("id_topic", "http://127.0.0.1:8000/hash-tags-and-mentions/");
