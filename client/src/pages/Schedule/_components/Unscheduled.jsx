@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Modal from "./Modal";
 import * as Dialog from "@radix-ui/react-dialog";
 import axios from "axios";
@@ -22,6 +22,7 @@ const UnscheduledPage = () => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
+  // const [readMore, setReadMore] = useState(true);
 
   
   useEffect(() => {
@@ -57,7 +58,54 @@ const UnscheduledPage = () => {
   const handlePageClick = (data) => {
     setPage(data.selected);
   };
+  
+  const handleReadMore = () => {
+    setReadMore(!readMore)
+  };
 
+  
+  const ReadMoreParagraph = ({ text }) => {
+    const [readMore, setReadMore] = useState(false);
+
+    const [isOverflowed, setIsOverflowed] = useState(false);
+    const paragraphRef = useRef(null);
+
+    useEffect(() => {
+      const paragraphElement = paragraphRef.current;
+
+      // Check if the paragraph content overflows the container
+      setIsOverflowed(
+        paragraphElement.scrollHeight > paragraphElement.clientHeight
+      );
+    }, [text]);
+
+    const handleReadMore = () => {
+      setReadMore(!readMore);
+    };
+  
+    return (
+      <div>
+         <p
+        ref={paragraphRef}
+        className={`lg:pt-4 px-2 text-md lg:text-lg text-gray-600 ${
+          readMore ? "" : "line-clamp-4"
+        } lg:w-[920px]`}
+      >
+        {text}
+      </p>
+        {isOverflowed && (
+        <span
+          onClick={handleReadMore}
+          className="text-md lg:text-lg text-customTextBlue cursor-pointer font-semibold px-2"
+        >
+          {readMore ? "Read Less..." : "Read More..."}
+        </span>
+      )}
+      </div>
+    );
+  };  
+
+  
   return (
     <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
       {loading && <Loading />}
@@ -81,9 +129,7 @@ const UnscheduledPage = () => {
                         {item.title}
                       </p>
 
-                      <p className=" lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 lg:w-[920px] ">
-                        {item.paragraph}
-                      </p>
+                      <ReadMoreParagraph text={item.paragraph} />
 
               <div className="self-end space-x-8">
                 <Modal article={item} title="post">
@@ -130,7 +176,7 @@ const UnscheduledPage = () => {
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
           previousLabel={<span className="text-black">{page > 0 ? "Previous" : ""}</span>}
-          nextLabel={<span className="text-black">Next</span>}
+          nextLabel={<span className="text-black">{page < pageCount - 1 ? "Next" : " "}</span>}
           containerClassName="flex justify-center items-center my-4 space-x-2"
           pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
           previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"

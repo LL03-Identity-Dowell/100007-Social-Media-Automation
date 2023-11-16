@@ -114,7 +114,7 @@ const MostRecent = () => {
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
           previousLabel={<span className="text-black">{page > 0 ? "Previous" : ""}</span>}
-          nextLabel={<span className="text-black">Next</span>}
+          nextLabel={<span className="text-black">{page < pageCount - 1 ? "Next" : " "}</span>}
           containerClassName="flex justify-center items-center my-4 space-x-2"
           pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
           previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
