@@ -218,7 +218,7 @@ You can store this session_id for future authentication. Whenever you get 403 pe
 session_id as a url parameter to an endpoint.
 For example http://127.0.0.1:8000/website/api/v1/category/?session_id=ep0hu5u2msqv6sk24afcztnga7to48c3
 Doing this will create a new session for the user. In subsequent calls to the backend please send the credential headers
-in the request so as to maintain a user's session
+in the request to maintain a user's session
 
 ## License
 <http://www.apache.org/licenses/>

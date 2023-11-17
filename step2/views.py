@@ -1074,7 +1074,7 @@ class PostDetailView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class SavePostView(APIView):
+class SavePostView(AuthenticatedBaseView):
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
