@@ -9,7 +9,8 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
                     ClientProfileFormView, ListArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
-                    GenerateArticleWikiView, WriteYourselfView, VerifyArticle)
+                    GenerateArticleWikiView, WriteYourselfView, VerifyArticle, MediaScheduleView,
+                    MediaPostView,)
 
 app_name = 'generate_article'
 
@@ -39,8 +40,6 @@ urlpatterns = [
     path('user/detail/<str:id>/', views.User_DetailView, name='user-detail'),
     path('address/', views.address, name='address'),
     path('recent/', views.most_recent, name='recent-post'),
-    path('media_post/', views.Media_Post, name='media-post'),
-    path('media_schedule/', views.Media_schedule, name='media-schedule'),
     path('proxy-api/', views.frontend_api_request, name='proxy-api'),
     path('exit/', views.exit_view, name='exit'),
     path('linked-account/', views.linked_account_json, name='linked-account'),
@@ -95,6 +94,10 @@ urlpatterns = [
     path('api/v1/post_list/', PostListView.as_view(), name='submit-title'),
     path('api/v1/post-detail/', PostDetailView.as_view(), name='post-detail'),
     path('api/v1/save_post/', SavePostView.as_view(), name='save-post'),
+    path('api/v1/media_schedule/',
+         MediaScheduleView.as_view(), name='media-schedule'),
+     path('api/v1/media_post/',
+         MediaPostView.as_view(), name='media-post'),
     path('api/v1/unscheduled/', UnScheduledView.as_view(), name='unscheduled'),
     path('api/v1/unscheduled-json/',
          UnScheduledJsonView.as_view(), name='unscheduled-json'),
