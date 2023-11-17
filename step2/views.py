@@ -902,7 +902,7 @@ step-3 starts here
 '''
 
 
-class PostListView(APIView):
+class PostListView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -985,7 +985,7 @@ class PostListView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class PostDetailView(APIView):
+class PostDetailView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
