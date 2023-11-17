@@ -51,10 +51,10 @@ function App() {
   const clearLocalStorage = () => {
     localStorage.clear();
   };
-  
+
   // Set a timeout to clear local storage after 24 hours
   const clearStorageTimeout = setTimeout(clearLocalStorage, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
-  
+
   const clearStorageOnUnload = () => {
     // Clear the timeout when the user is about to leave the page
     clearTimeout(clearStorageTimeout);
@@ -103,27 +103,27 @@ function App() {
   const fetchData = async () => {
     setLoading(true);
     axios.get('http://127.0.0.1:8000/api/v1/main/')
-    .then(res=>{
-      const data = res.data;
-      const saveUserInfo = JSON.stringify(data);
-      localStorage.setItem("userInfo", saveUserInfo);
-      const userProduct = data.portfolio_info[0].product
-      if (userProduct !== "Social Media Automation") {
-        setProduct(false);
-        console.log("You do not have a portfolio");
-        navigate('/protfolio_check')
-      }
-      setLoading(false);
-    }).catch(err=>{
-      setLoading(false);
-      console.error("Error fetching data:", err);
-    })
+      .then(res => {
+        const data = res.data;
+        const saveUserInfo = JSON.stringify(data);
+        localStorage.setItem("userInfo", saveUserInfo);
+        const userProduct = data.portfolio_info[0].product
+        if (userProduct !== "Social Media Automation") {
+          setProduct(false);
+          console.log("You do not have a portfolio");
+          navigate('/protfolio_check')
+        }
+        setLoading(false);
+      }).catch(err => {
+        setLoading(false);
+        console.error("Error fetching data:", err);
+      })
   }
-  
+
 
   return (
     <>
-    {loading && <Loading />}
+      {loading && <Loading />}
       <Layout side={showSidebar} show={handleOpenSideBar} isProduct={product}>
 
         <Routes>
@@ -241,8 +241,13 @@ function App() {
             element={<TargetCities close={handleCloseSideBar} />}
           />
           <Route
+            path="/createarticle"
+            element={<CreateArticle show={handleOpenSideBar} />} //Halima
+          />
+          <Route
             path='/protfolio_check'
             element={<PortfolioError close={handleCloseSideBar} />}
+
           />
         </Routes>
 
