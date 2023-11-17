@@ -32,14 +32,19 @@ const Article = ({ show }) => {
     setLoading(true);
     // Make a GET request to the API endpoint with the session_id
     axios
-      .get(`http://127.0.0.1:8000/api/v1/list-articles/?page=${page + 1}&order=newest`, {
-        withCredentials: true,
-      })
+      .get(
+        `http://127.0.0.1:8000/api/v1/list-articles/?page=${
+          page + 1
+        }&order=newest`,
+        {
+          withCredentials: true,
+        }
+      )
       .then((response) => {
         setError(null);
         setLoading(false);
         let data = response.data;
-        console.log(data)
+        console.log(data);
         setArticleData(data.Articles);
         setCount(data.total_items);
         setPageCount(Math.ceil(data.total_items / perPage));
@@ -58,17 +63,17 @@ const Article = ({ show }) => {
       article_id: article_id,
       title: title,
       paragraph: paragraph,
-      source: source
+      source: source,
     };
     // console.log(dataToSend);
     setClickedPost(dataToSend);
     setButtonClicked(true);
-  }
+  };
 
   // Use the clickedPost state to determine when to navigate
   useEffect(() => {
     if (buttonClicked && clickedPost) {
-      navigate('/article-detail', { state: { data: clickedPost } });
+      navigate("/article-detail", { state: { data: clickedPost } });
     }
   }, [buttonClicked, clickedPost]);
 
@@ -83,7 +88,6 @@ const Article = ({ show }) => {
       setPage(page + nextPagesToDisplay);
     }
   };
-
 
   return (
     <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
@@ -123,8 +127,17 @@ const Article = ({ show }) => {
                       </p>
 
                       <div className="lg:w-[150px] lg:pt-2 flex justify-end md:mr-6 mt-2 md:mt-0">
-                        
-                          <ExtraSmallBtn title={"View Article"} onClick={() => handlePostdetailNavigate(article.article_id, article.title, article.paragraph, article.source)}/>
+                        <ExtraSmallBtn
+                          title={"View Article"}
+                          onClick={() =>
+                            handlePostdetailNavigate(
+                              article.article_id,
+                              article.title,
+                              article.paragraph,
+                              article.source
+                            )
+                          }
+                        />
                       </div>
                     </div>
                   </div>
@@ -138,8 +151,8 @@ const Article = ({ show }) => {
           pageRangeDisplayed={pagesToDisplay}
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
-          previousLabel={<span className="text-black">Previous</span>}
-          nextLabel={<span className="text-black">Next</span>}
+          previousLabel={<span className="text-black">{page > 0 ? "Previous" : ""}</span>}
+          nextLabel={<span className="text-black">{page < pageCount - 1 ? "Next" : " "}</span>}
           containerClassName="flex justify-center items-center my-4 space-x-2"
           pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
           previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
@@ -147,14 +160,7 @@ const Article = ({ show }) => {
           breakClassName="p-2"
           activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
         />
-        {showMorePages && (
-          <button
-            className="bg-customBlue text-white p-2 rounded-full cursor-pointer hover:bg-blue-600"
-            onClick={loadMorePages}
-          >
-            &gt;&gt;
-          </button>
-        )}
+        
       </div>
     </div>
   );
