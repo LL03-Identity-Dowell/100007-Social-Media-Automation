@@ -634,7 +634,7 @@ function addButtonLikeOption(selectId, redirectUrl) {
     };
 }
 
-// Function to handle dropdown change
+// Function to handle dropdown change .
 function handleDropdownChange(selectId, redirectUrl) {
     var select = document.getElementById(selectId);
     var selectedIndex = select.selectedIndex;
