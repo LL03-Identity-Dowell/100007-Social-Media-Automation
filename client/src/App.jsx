@@ -114,7 +114,7 @@ function App() {
   
       if (!hasSocialMediaAutomation) {
         setProduct(false);
-        console.log("You do not have a portfolio");
+        console.log("You do not have a portfolio", userProducts);
         navigate('/portfolio_check');
       } else {
         // Continue with your logic if "Social Media Automation" is found

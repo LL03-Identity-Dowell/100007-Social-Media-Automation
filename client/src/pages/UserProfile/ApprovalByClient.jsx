@@ -16,6 +16,16 @@ const ApprovalByClient = () => {
     post: false,
     schedule: false,
   });
+  const [changedCheckboxes, setChangedCheckboxes] = useState([]);
+
+
+
+  const initialCheckboxStates = {
+    topic: false,
+    article: false,
+    post: false,
+    schedule: false,
+  };
 
   useEffect(() => {
     try {
@@ -27,6 +37,11 @@ const ApprovalByClient = () => {
         post: savedState.post || false,
         schedule: savedState.schedule || false,
       }));
+
+      initialCheckboxStates.topic = savedState.topic || false;
+      initialCheckboxStates.article = savedState.article || false;
+      initialCheckboxStates.post = savedState.post || false;
+      initialCheckboxStates.schedule = savedState.schedule || false;
 
       const fetch = () => {
         // Make a GET request to the API endpoint with the session_id
@@ -51,7 +66,6 @@ const ApprovalByClient = () => {
     }
   }, []);
 
-  
   const handelChange = (e) => {
     let checkedName = e.target.name;
     let checked = e.target.checked;
@@ -61,6 +75,13 @@ const ApprovalByClient = () => {
       ...approvals,
       [checkedName]: checked,
     });
+
+    if (initialCheckboxStates[checkedName] !== checked) {
+      setChangedCheckboxes((prevChangedCheckboxes) => [
+        ...prevChangedCheckboxes,
+        checkedName,
+      ]);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -80,10 +101,15 @@ const ApprovalByClient = () => {
         })
         .then((response) => {
           setLoading(false);
-          setSuccess(`${isChecked} is Approved...!`);
+          // setSuccess(`${isChecked} is Approved...!`);
+          setSuccess(
+            changedCheckboxes.length > 0
+              ? `${changedCheckboxes.join(', ')} approved...!`
+              : 'Done...!'
+          );
 
           let data = response.data;
-          console.log(data);
+          // console.log(data);
           let resData = JSON.stringify(data);
           localStorage.setItem("approvalData", resData);
         })
