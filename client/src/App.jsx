@@ -107,11 +107,17 @@ function App() {
       const data = res.data;
       const saveUserInfo = JSON.stringify(data);
       localStorage.setItem("userInfo", saveUserInfo);
-      const userProduct = data.portfolio_info[0].product
-      if (userProduct !== "Social Media Automation") {
+      const userProducts = data.portfolio_info;
+
+      // Check if any product is "Social Media Automation"
+      const hasSocialMediaAutomation = userProducts.some(product => product.product === "Social Media Automation");
+  
+      if (!hasSocialMediaAutomation) {
         setProduct(false);
         console.log("You do not have a portfolio");
-        navigate('/protfolio_check')
+        navigate('/portfolio_check');
+      } else {
+        // Continue with your logic if "Social Media Automation" is found
       }
       setLoading(false);
     }).catch(err=>{

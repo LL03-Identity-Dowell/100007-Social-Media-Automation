@@ -33,7 +33,7 @@ const ScheduledPage = () => {
           totalPage: data.total_page,
           totalPosts: data.total_items,
         });
-        setSuccess("Successfully fetched articles");
+        setSuccess("Successfully fetched posts");
         setError("");
       } catch (error) {
         setError("Error fetching the articles");
@@ -45,6 +45,49 @@ const ScheduledPage = () => {
 
     fetchData();
   }, [pageNumber]);
+
+
+  const ReadMoreParagraph = ({ text }) => {
+    const [readMore, setReadMore] = useState(false);
+
+    const [isOverflowed, setIsOverflowed] = useState(false);
+    const paragraphRef = useRef(null);
+
+    useEffect(() => {
+      const paragraphElement = paragraphRef.current;
+
+      // Check if the paragraph content overflows the container
+      setIsOverflowed(
+        paragraphElement.scrollHeight > paragraphElement.clientHeight
+      );
+    }, [text]);
+
+    const handleReadMore = () => {
+      setReadMore(!readMore);
+    };
+  
+    return (
+      <div>
+         <p
+        ref={paragraphRef}
+        className={`lg:pt-4 px-2 text-md lg:text-lg text-gray-600 ${
+          readMore ? "" : "line-clamp-4"
+        } lg:w-[920px]`}
+      >
+        {text}
+      </p>
+        {isOverflowed && (
+        <span
+          onClick={handleReadMore}
+          className="text-md lg:text-lg text-customTextBlue cursor-pointer font-semibold px-2"
+        >
+          {readMore ? "Read Less..." : "Read More..."}
+        </span>
+      )}
+      </div>
+    );
+  }; 
+
 
   return (
     <div className='px-6'>
@@ -68,9 +111,10 @@ const ScheduledPage = () => {
                 <p className=' py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold lg:w-[1000px]'>
                   {item?.title}
                 </p>
-                <p className='lg:pt-4 text-md lg:text-lg line-clamp-4 leading-loose lg:w-[980px] text-gray-500'>
+                {/* <p className='lg:pt-4 text-md lg:text-lg line-clamp-4 leading-loose lg:w-[980px] text-gray-500'>
                   {item?.paragraph}
-                </p>
+                </p> */}
+                <ReadMoreParagraph text={item.paragraph} />
                 <span className='flex items-center self-end mt-3 gap-x-2'>
                   <div className='icons8-clock'></div>
                   <p className='text-[#333] text-sm'>{item?.Date}</p>

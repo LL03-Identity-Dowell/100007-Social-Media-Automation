@@ -10,11 +10,12 @@ import {
 
 import ReactPaginate from "react-paginate";
 import Loading from "../../../components/Loading";
-import { ErrorMessages } from "../../../components/Messages";
+import { ErrorMessages, SuccessMessages } from "../../../components/Messages";
 
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState();
   const [error, setError] = useState();
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
@@ -39,6 +40,7 @@ const UnscheduledPage = () => {
         .then((response) => {
           setError(null);
           setLoading(false);
+          setSuccess("Successfully fetched posts")
           let unscheduledData = response.data.Unscheduled_Posts.response;
           setUnscheduledPost(unscheduledData);
           setCount(response.data.total_items);
@@ -47,6 +49,7 @@ const UnscheduledPage = () => {
           window.scrollTo(0, 0);
         })
         .catch((error) => {
+          setSuccess(null)
           setLoading(false);
           setError("Server error, Please try again later");
           console.error("Error fetching article:", error);
@@ -58,12 +61,7 @@ const UnscheduledPage = () => {
   const handlePageClick = (data) => {
     setPage(data.selected);
   };
-  
-  const handleReadMore = () => {
-    setReadMore(!readMore)
-  };
-
-  
+    
   const ReadMoreParagraph = ({ text }) => {
     const [readMore, setReadMore] = useState(false);
 
@@ -110,6 +108,7 @@ const UnscheduledPage = () => {
     <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
+      {success && <SuccessMessages>{success}</SuccessMessages>}
 
       <h3 className="px-4 py-3 italic">
         Total posts count: {count}
