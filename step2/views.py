@@ -36,6 +36,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from create_article import settings
+from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
@@ -232,7 +233,10 @@ step-2 starts here
 '''
 
 
-class ListArticleView(APIView):
+class ListArticleView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -299,7 +303,7 @@ class ListArticleView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class ArticleDetailView(APIView):
+class ArticleDetailView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             profile = request.session['operations_right']
@@ -328,7 +332,7 @@ class ArticleDetailView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class IndexView(APIView):
+class IndexView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -442,7 +446,9 @@ class IndexView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class GenerateArticleView(APIView):
+class GenerateArticleView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
 
     def post(self, request):
         start_datetime = datetime.now()
@@ -469,13 +475,13 @@ class GenerateArticleView(APIView):
                 user_data = fetch_user_info(request)
 
                 for item in user_data["data"]:
-                    if "target_city" in item:
+                    if "target_city" in item and item["target_city"] is not None:
                         user_selected_cities.extend(item["target_city"])
 
-                    if "hashtag_list" in item:
+                    if "hashtag_list" in item and item["hashtag_list"] is not None:
                         hashtags.extend(item["hashtag_list"])
 
-                    if "mentions_list" in item:
+                    if "mentions_list" in item and item["mentions_list"] is not None:
                         user_tags_mentions.extend(item["mentions_list"])
 
                 formatted_hashtags = " ".join(hashtags) if hashtags else ""
@@ -596,7 +602,10 @@ class GenerateArticleView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class GenerateArticleWikiView(APIView):
+class GenerateArticleWikiView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -710,17 +719,23 @@ class GenerateArticleWikiView(APIView):
                     print("For Title: "+title+" Page exists.")
                     article = page.text
                     article = article.split("See also")
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                           "title": title,
-                                                           "target_industry": target_industry,
-                                                           "paragraph": article[0],
-                                                           "source": page.fullurl,
-                                                           'subject': subject,
-                                                           # 'dowelltime': dowellclock
-                                                           }, "9992828281")
+                    para_list = article[0].split("\n\n")
+                    for i in range(len(para_list)):
+                        if para_list[i] != '':
+                            save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                                   "session_id": session_id,
+                                                                   "eventId": create_event()['event_id'],
+                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                   "title": title,
+                                                                   "target_industry": target_industry,
+                                                                   "paragraph": article[0],
+                                                                   "source": page.fullurl,
+                                                                   'subject': subject,
+                                                                   # 'dowelltime': dowellclock
+                                                                   }, "9992828281")
+                            print("step-2 data saved")
+                        break
+
                     para_list = article[0].split("\n\n")
                     for i in range(len(para_list)):
                         if para_list[i] != '':
@@ -740,6 +755,8 @@ class GenerateArticleWikiView(APIView):
                                                                    'subject': subject,
                                                                    # 'dowelltime': dowellclock
                                                                    }, '34567897799')
+                            print("step-3 data saved")
+                        break
                     # credit_handler = CreditHandler()
                     # credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
@@ -747,31 +764,38 @@ class GenerateArticleWikiView(APIView):
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class WriteYourselfView(APIView):
+class WriteYourselfView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             if request.method != "POST":
                 return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
-            form = VerifyArticleForm()
-            title = request.POST.get("title")
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
+            form = VerifyArticleForm(request.POST)
 
-            response_data = {
-                'title': title,
-                'subject': subject,
-                'verb': verb,
-                'target_industry': target_industry,
-                'form': form
-            }
+            if form.is_valid():
+                title = request.POST.get("title")
+                subject = request.POST.get("subject")
+                verb = request.POST.get("verb")
+                target_industry = request.POST.get("target_industry")
 
-            return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+                response_data = {
+                    'title': title,
+                    'subject': subject,
+                    'verb': verb,
+                    'target_industry': target_industry,
+                    'form_data': form.cleaned_data  # Serialize form data, not the form instance
+                }
+
+                return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'Form validation failed', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class VerifyArticle(APIView):
+class VerifyArticle(AuthenticatedBaseView):
     def pot(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1095,23 +1119,6 @@ class SavePostView(APIView):
                 designed_for = data.get("designed_for")
                 targeted_category = data.get("targeted_category")
                 image = data.get("image")
-                # title = request.POST.get("title")
-                # paragraphs_list = request.POST.getlist("paragraphs[]")
-                # print('paragraphs_list:', paragraphs_list)
-                # source = request.POST.get("source")
-                # # target_industry = request.POST.get("p-content")
-                # qualitative_categorization = request.POST.get(
-                #     "qualitative_categorization")
-                # targeted_for = request.POST.get("targeted_for")
-                # designed_for = request.POST.get("designed_for")
-                # targeted_category = request.POST.get("targeted_category")
-                # image = request.POST.get("images")
-                # # dowellclock = get_dowellclock(),
-                # combined_article = "\n\n".join(paragraphs_list)
-                # print('combined_article', combined_article[0:230])
-                # paragraph_without_commas = combined_article.replace(
-                #     '.', '. ').replace(',.', '.')
-                # print('paragraph_without_commas:', paragraph_without_commas)
 
                 url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -1630,159 +1637,162 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
     else:
         for warnings in r1.json()['warnings']:
             messages.error(request, warnings['message'])
+            
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class MediaPostView(AuthenticatedBaseView):
+    def post(self, request, *args, **kwargs):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' and 'username' in request.session:
+            # credit_handler = CreditHandler()
+            # credit_response = credit_handler.check_if_user_has_enough_credits(
+            #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+            #     request=request,
+            # )
 
+            # if not credit_response.get('success'):
+            #     return JsonResponse('credit_error', safe=False)
+            start_datetime = datetime.now()
+            data = json.loads(request.body.decode("utf-8"))
+            title = data['title']
+            paragraph = data['paragraph']
+            paragraph2 = paragraph[0:230]
+            image = data['image']
 
-@csrf_exempt
-def Media_Post(request):
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
-        # credit_handler = CreditHandler()
-        # credit_response = credit_handler.check_if_user_has_enough_credits(
-        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-        #     request=request,
-        # )
+            # Logo in its own paragraph
+            logo = "Created and posted by #samanta #uxlivinglab"
 
-        # if not credit_response.get('success'):
-        #     return JsonResponse('credit_error', safe=False)
-        start_datetime = datetime.now()
-        data = json.loads(request.body.decode("utf-8"))
-        title = data['title']
-        paragraph = data['paragraph']
-        paragraph2 = paragraph[0:230]
-        image = data['image']
+            post_id = data['PK']
 
-        # Logo in its own paragraph
-        logo = "Created and posted by #samanta #uxlivinglab"
+            # Splitting the content and logo into separate paragraphs
+            postes_paragraph1 = f"{paragraph[0:2000]}."
+            postes_paragraph2 = logo
 
-        post_id = data['PK']
+            # Combining the paragraphs with a newline character
+            postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
 
-        # Splitting the content and logo into separate paragraphs
-        postes_paragraph1 = f"{paragraph[0:2000]}."
-        postes_paragraph2 = logo
+            twitter_post_paragraph1 = paragraph2
+            twitter_post_paragraph2 = logo
 
-        # Combining the paragraphs with a newline character
-        postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
+            twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
 
-        twitter_post_paragraph1 = paragraph2
-        twitter_post_paragraph2 = logo
-
-        twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
-
-        print(twitter_post)
-        try:
-            platforms = data['social']
-            splited = data['special']
-            print(platforms)
-        except:
-            pass
-        user_id = request.session['user_id']
-        key = get_key(user_id)
-        if len(splited) == 0:
-            arguments = (
-                (postes, platforms, key, image, request, post_id),
-            )
-        if len(platforms) == 0:
-            arguments = (
-                (twitter_post, splited, key, image, request, post_id),
-            )
-            print(splited, twitter_post)
+            print(twitter_post)
+            try:
+                platforms = data['social']
+                splited = data['special']
+                print(platforms)
+            except:
+                pass
+            user_id = request.session['user_id']
+            key = get_key(user_id)
+            if len(splited) == 0:
+                arguments = (
+                    (postes, platforms, key, image, request, post_id),
+                )
+            if len(platforms) == 0:
+                arguments = (
+                    (twitter_post, splited, key, image, request, post_id),
+                )
+                print(splited, twitter_post)
+            else:
+                arguments = (
+                    (postes, platforms, key, image, request, post_id),
+                    (twitter_post, splited, key, image, request, post_id)
+                )
+            "posting to Various social media"
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                # Using lambda, unpacks the tuple (*f) into api_call(*args)
+                executor.map(lambda f: api_call(*f), arguments)
+                end_datetime = datetime.now()
+                time_taken = end_datetime - start_datetime
+                print(f"Total time taken: {time_taken}")
+            return JsonResponse('most_recent', safe=False)
         else:
-            arguments = (
-                (postes, platforms, key, image, request, post_id),
-                (twitter_post, splited, key, image, request, post_id)
-            )
-        "posting to Various social media"
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Using lambda, unpacks the tuple (*f) into api_call(*args)
-            executor.map(lambda f: api_call(*f), arguments)
-            end_datetime = datetime.now()
-            time_taken = end_datetime - start_datetime
-            print(f"Total time taken: {time_taken}")
-        return JsonResponse('most_recent', safe=False)
-    else:
-        return JsonResponse('social_media_channels', safe=False)
+            return JsonResponse('social_media_channels', safe=False)
+        
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class MediaScheduleView(AuthenticatedBaseView):
+    def post(self, request, *args, **kwargs):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' and 'username' in request.session:
+            # credit_handler = CreditHandler()
+            # credit_response = credit_handler.check_if_user_has_enough_credits(
+            #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+            #     request=request,
+            # )
 
+            # if not credit_response.get('success'):
+            #     return redirect(reverse('credit_error_view'))
+            start_datetime = datetime.now()
+            data = json.loads(request.body.decode("utf-8"))
+            timezone = request.session['timezone']
+            title = data['title']
+            paragraph = data['paragraph']
+            paragraph2 = paragraph[0:230]
+            image = data['image']
+            logo = "Created and posted by #samanta #uxlivinglab"
+            post_id = data['PK']
+            schedule = data['schedule']
 
-@csrf_exempt
-def Media_schedule(request):
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
-        # credit_handler = CreditHandler()
-        # credit_response = credit_handler.check_if_user_has_enough_credits(
-        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-        #     request=request,
-        # )
+            # Adding a period to the end of the content before "Created and posted by"
+            postes_paragraph1 = f"{paragraph[0:2000]}."
+            postes_paragraph2 = logo
 
-        # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
-        start_datetime = datetime.now()
-        data = json.loads(request.body.decode("utf-8"))
-        timezone = request.session['timezone']
-        title = data['title']
-        paragraph = data['paragraph']
-        paragraph2 = paragraph[0:230]
-        image = data['image']
-        logo = "Created and posted by #samanta #uxlivinglab"
-        post_id = data['PK']
-        schedule = data['schedule']
+            # Combining the paragraphs with a newline character
+            postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
 
-        # Adding a period to the end of the content before "Created and posted by"
-        postes_paragraph1 = f"{paragraph[0:2000]}."
-        postes_paragraph2 = logo
+            # Adding a period to the end of the content before "Created and posted by"
+            twitter_post_paragraph1 = f"{paragraph2[0:235]}."
+            twitter_post_paragraph2 = logo
 
-        # Combining the paragraphs with a newline character
-        postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
+            # Combining the paragraphs with a newline character
+            twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}"
 
-        # Adding a period to the end of the content before "Created and posted by"
-        twitter_post_paragraph1 = f"{paragraph2[0:235]}."
-        twitter_post_paragraph2 = logo
+            try:
+                platforms = data['social']
+                splited = data['special']
+            except:
+                pass
+            print(splited)
+            # Formatting time for utc
+            formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
+            current_time = pytz.timezone(timezone)
+            localize = current_time.localize(formart)
+            utc = pytz.timezone('UTC')
+            shedulded = localize.astimezone(utc)
+            string = str(shedulded)[:-6]
+            formart = datetime.strptime(
+                string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
 
-        # Combining the paragraphs with a newline character
-        twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}"
+            user_id = request.session['user_id']
+            key = get_key(user_id)
+            if len(splited) == 0:
+                arguments = (
+                    (postes, platforms, key, image, request, post_id, formart),
+                )
+            if len(platforms) == 0:
 
-        try:
-            platforms = data['social']
-            splited = data['special']
-        except:
-            pass
-        print(splited)
-        # Formatting time for utc
-        formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
-        current_time = pytz.timezone(timezone)
-        localize = current_time.localize(formart)
-        utc = pytz.timezone('UTC')
-        shedulded = localize.astimezone(utc)
-        string = str(shedulded)[:-6]
-        formart = datetime.strptime(
-            string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
-
-        user_id = request.session['user_id']
-        key = get_key(user_id)
-        if len(splited) == 0:
-            arguments = (
-                (postes, platforms, key, image, request, post_id, formart),
-            )
-        if len(platforms) == 0:
-
-            arguments = (
-                (twitter_post, splited, key, image, request, post_id, formart),
-            )
-            print(arguments)
+                arguments = (
+                    (twitter_post, splited, key, image, request, post_id, formart),
+                )
+                print(arguments)
+            else:
+                arguments = (
+                    (postes, platforms, key, image, request, post_id, formart),
+                    (twitter_post, splited, key, image, request, post_id, formart)
+                )
+            "posting to Various social media"
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
+                executor.map(lambda f: api_call_schedule(*f), arguments)
+                end_datetime = datetime.now()
+                time_taken = end_datetime - start_datetime
+                print(f"Total time taken: {time_taken}")
+            return JsonResponse('scheduled', safe=False)
         else:
-            arguments = (
-                (postes, platforms, key, image, request, post_id, formart),
-                (twitter_post, splited, key, image, request, post_id, formart)
-            )
-        "posting to Various social media"
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
-            executor.map(lambda f: api_call_schedule(*f), arguments)
-            end_datetime = datetime.now()
-            time_taken = end_datetime - start_datetime
-            print(f"Total time taken: {time_taken}")
-        return JsonResponse('scheduled', safe=False)
-    else:
-        return JsonResponse('social_media_channels', safe=False)
+            return JsonResponse('social_media_channels', safe=False)
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')

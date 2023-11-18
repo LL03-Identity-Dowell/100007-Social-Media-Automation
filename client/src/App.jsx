@@ -51,10 +51,10 @@ function App() {
   const clearLocalStorage = () => {
     localStorage.clear();
   };
-  
+
   // Set a timeout to clear local storage after 24 hours
   const clearStorageTimeout = setTimeout(clearLocalStorage, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
-  
+
   const clearStorageOnUnload = () => {
     // Clear the timeout when the user is about to leave the page
     clearTimeout(clearStorageTimeout);
@@ -125,11 +125,11 @@ function App() {
       console.error("Error fetching data:", err);
     })
   }
-  
+
 
   return (
     <>
-    {loading && <Loading />}
+      {loading && <Loading />}
       <Layout side={showSidebar} show={handleOpenSideBar} isProduct={product}>
 
         <Routes>
@@ -247,8 +247,13 @@ function App() {
             element={<TargetCities close={handleCloseSideBar} />}
           />
           <Route
+            path="/createarticle"
+            element={<CreateArticle show={handleOpenSideBar} />} //Halima
+          />
+          <Route
             path='/protfolio_check'
             element={<PortfolioError close={handleCloseSideBar} />}
+
           />
         </Routes>
 
