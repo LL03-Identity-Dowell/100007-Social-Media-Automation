@@ -10,14 +10,14 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     ClientProfileFormView, ListArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, VerifyArticle, MediaScheduleView,
-                    MediaPostView,)
+                    MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
+                    )
 
 app_name = 'generate_article'
 
 urlpatterns = [
     # path('', views.under_maintenance, name='home'),
     path('', views.dowell_login, name="dowelllogin"),
-    path('scheduled/', views.scheduled, name='scheduled-posts'),
     path('scheduler/', views.post_scheduler, name='post-scheduler'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),  # socialmedia
@@ -26,33 +26,21 @@ urlpatterns = [
     path('confirm/reset/password/', views.confirm_reset_password,
          name='confirm-reset-password'),
     path('forget_password/', views.forget_password, name='forget_password'),
-    path('social_media_channels/', views.social_media_channels,
-         name='social_media_channels'),
     path('link/linkusers/', views.aryshare_profile, name='aryshare'),
     path('link_social_media/', views.link_media_channels, name='link_social_media'),
-    path('comments/', views.comments, name='comments'),
-    path('generate/comments/', views.generate_comments, name='generate-comments'),
-    path('selected/comments/', views.selected_comments, name='selected-comment'),
-    path('emoji/comments/', views.comments_emojis, name='comment-emoji'),
     path('topics/', views.topics, name='topics'),
     path('signup/', views.register, name='register'),
     path('user/info/', views.User_Info_ListView, name='user-info'),
     path('user/detail/<str:id>/', views.User_DetailView, name='user-detail'),
     path('address/', views.address, name='address'),
-    path('recent/', views.most_recent, name='recent-post'),
     path('proxy-api/', views.frontend_api_request, name='proxy-api'),
     path('exit/', views.exit_view, name='exit'),
-    path('linked-account/', views.linked_account_json, name='linked-account'),
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
 
 
-
     # React endpoints start here
     path('api/v1/main/', MainAPIView.as_view(), name='main-api'),
-
-    # *************** '''Start user_settings''' *********************
-
     path('api/v1/user-approval/', UserApprovalView.as_view(),
          name='user_approval_api'),
     path('api/v1/targeted_cities/', TargetedCitiesListView.as_view(),
@@ -96,7 +84,7 @@ urlpatterns = [
     path('api/v1/save_post/', SavePostView.as_view(), name='save-post'),
     path('api/v1/media_schedule/',
          MediaScheduleView.as_view(), name='media-schedule'),
-     path('api/v1/media_post/',
+    path('api/v1/media_post/',
          MediaPostView.as_view(), name='media-post'),
     path('api/v1/unscheduled/', UnScheduledView.as_view(), name='unscheduled'),
     path('api/v1/unscheduled-json/',
@@ -104,5 +92,11 @@ urlpatterns = [
     path('api/v1/scheduled-json/',
          ScheduledJsonView.as_view(), name='scheduled-json'),
     path('api/v1/recent_posts/', MostRecentJSON.as_view(), name='recent_post'),
+    path('api/v1/social_media_channels/',
+         SocialMediaChannelsView.as_view(), name='social_media_channels'),
+    path('api/v1/linked-account/',
+         LinkedAccountsJson.as_view(), name='linked-account'),
+    path('api/v1/can-post/',
+         CanPostOnSocialMedia.as_view(), name='can-post'),
 
 ]

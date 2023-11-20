@@ -234,9 +234,6 @@ step-2 starts here
 
 
 class ListArticleView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -447,9 +444,6 @@ class IndexView(AuthenticatedBaseView):
 
 
 class GenerateArticleView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request):
         start_datetime = datetime.now()
         session_id = request.GET.get('session_id', None)
@@ -603,9 +597,6 @@ class GenerateArticleView(AuthenticatedBaseView):
 
 
 class GenerateArticleWikiView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -765,9 +756,6 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
 
 
 class WriteYourselfView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             if request.method != "POST":
@@ -1060,14 +1048,14 @@ class PostDetailView(APIView):
                 paragraph = data.get("paragraph")
                 paragraph = paragraph.split('\r\n')
                 source = data.get("source")
-                if "\r\n" in source:
-                    source = source.split('\r\n')
+                # if "\r\n" in source:
+                #     source = source.split('\r\n')
 
                 post = {
                     "_id": post_id,
                     "title": title,
                     "paragraph": paragraph,
-                    "source": source
+                    # "source": source
                 }
             a = random.randint(1, 9)
             query = title
@@ -1354,19 +1342,20 @@ def link_media_channels(request):
     return redirect(link['url'])
 
 
-@csrf_exempt
-@xframe_options_exempt
-def social_media_channels(request):
+@method_decorator(csrf_exempt, name='dispatch')
+class SocialMediaChannelsView(APIView):
+    def get(self, request, *args, **kwargs):
+        username = request.session['username']
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
+            username)
+        linked_accounts = check_connected_accounts(username)
 
-    username = request.session['username']
-    session = request.session['session_id']
-    print(session)
-    user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
-        username)
-    linked_accounts = check_connected_accounts(username)
-    context_data = {'user_has_social_media_profile': user_has_social_media_profile,
-                    'linked_accounts': linked_accounts}
-    return render(request, 'social_media_channels.html', context_data)
+        response_data = {
+            'user_has_social_media_profile': user_has_social_media_profile,
+            'linked_accounts': linked_accounts
+        }
+
+        return Response(response_data)
 
 
 def can_post_on_social_media(request):
@@ -1386,21 +1375,32 @@ def can_post_on_social_media(request):
     return False
 
 
-def linked_account_json(request):
-    username = request.session['username']
-    linked_accounts = check_connected_accounts(username)
+@method_decorator(csrf_exempt, name='dispatch')
+class CanPostOnSocialMedia(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        This function check of a user can post an article on social media sites
+        """
+        portfolio_info = request.session.get('portfolio_info')
+        if not portfolio_info:
+            return Response({'can_post': False})
+        if not isinstance(portfolio_info, list):
+            return Response({'can_post': False})
+        portfolio_info = portfolio_info[0]
+        if portfolio_info.get('member_type') == 'owner' and portfolio_info.get('username') == 'socialmedia':
+            return Response({'can_post': True})
+        elif portfolio_info.get('member_type') == 'member_type' and portfolio_info.get('username') == 'socialmedia':
+            return Response({'can_post': True})
+        return Response({'can_post': False})
 
-    return JsonResponse({'response': linked_accounts})
 
+@method_decorator(csrf_exempt, name='dispatch')
+class LinkedAccountsJson(APIView):
+    def get(self, request, *args, **kwargs):
+        username = request.session['username']
+        linked_accounts = check_connected_accounts(username)
 
-@csrf_exempt
-@xframe_options_exempt
-def most_recent(request):
-    if 'session_id' and 'username' in request.session:
-
-        return render(request, 'most_recent.html')
-    else:
-        return render(request, 'error.html')
+        return Response({'response': linked_accounts})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1637,7 +1637,8 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
     else:
         for warnings in r1.json()['warnings']:
             messages.error(request, warnings['message'])
-            
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaPostView(AuthenticatedBaseView):
@@ -1709,7 +1710,8 @@ class MediaPostView(AuthenticatedBaseView):
             return JsonResponse('most_recent', safe=False)
         else:
             return JsonResponse('social_media_channels', safe=False)
-        
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaScheduleView(AuthenticatedBaseView):
@@ -1792,7 +1794,6 @@ class MediaScheduleView(AuthenticatedBaseView):
             return JsonResponse('scheduled', safe=False)
         else:
             return JsonResponse('social_media_channels', safe=False)
-
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1917,16 +1918,6 @@ def post_scheduler(request):
     # print(response.text)
 
     return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def scheduled(request):
-    if 'session_id' and 'username' in request.session:
-
-        return render(request, 'scheduled.html')
-    else:
-        return render(request, 'error.html')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
