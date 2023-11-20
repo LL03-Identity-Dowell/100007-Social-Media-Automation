@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Modal from "./Modal";
 import * as Dialog from "@radix-ui/react-dialog";
 import axios from "axios";
@@ -10,11 +10,12 @@ import {
 
 import ReactPaginate from "react-paginate";
 import Loading from "../../../components/Loading";
-import { ErrorMessages } from "../../../components/Messages";
+import { ErrorMessages, SuccessMessages } from "../../../components/Messages";
 
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState();
   const [error, setError] = useState();
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
@@ -22,8 +23,9 @@ const UnscheduledPage = () => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
+  // const [readMore, setReadMore] = useState(true);
 
-  
+
   useEffect(() => {
     setLoading(true);
     //Load unscheduled data from API
@@ -38,6 +40,7 @@ const UnscheduledPage = () => {
         .then((response) => {
           setError(null);
           setLoading(false);
+          setSuccess("Successfully fetched posts")
           let unscheduledData = response.data.Unscheduled_Posts.response;
           setUnscheduledPost(unscheduledData);
           setCount(response.data.total_items);
@@ -46,6 +49,7 @@ const UnscheduledPage = () => {
           window.scrollTo(0, 0);
         })
         .catch((error) => {
+          setSuccess(null)
           setLoading(false);
           setError("Server error, Please try again later");
           console.error("Error fetching article:", error);
@@ -57,11 +61,54 @@ const UnscheduledPage = () => {
   const handlePageClick = (data) => {
     setPage(data.selected);
   };
+    
+  const ReadMoreParagraph = ({ text }) => {
+    const [readMore, setReadMore] = useState(false);
 
+    const [isOverflowed, setIsOverflowed] = useState(false);
+    const paragraphRef = useRef(null);
+
+    useEffect(() => {
+      const paragraphElement = paragraphRef.current;
+
+      // Check if the paragraph content overflows the container
+      setIsOverflowed(
+        paragraphElement.scrollHeight > paragraphElement.clientHeight
+      );
+    }, [text]);
+
+    const handleReadMore = () => {
+      setReadMore(!readMore);
+    };
+  
+    return (
+      <div>
+         <p
+        ref={paragraphRef}
+        className={`lg:pt-4 px-2 text-md lg:text-lg text-gray-600 ${
+          readMore ? "" : "line-clamp-4"
+        } lg:w-[920px]`}
+      >
+        {text}
+      </p>
+        {isOverflowed && (
+        <span
+          onClick={handleReadMore}
+          className="text-md lg:text-lg text-customTextBlue cursor-pointer font-semibold px-2"
+        >
+          {readMore ? "Read Less..." : "Read More..."}
+        </span>
+      )}
+      </div>
+    );
+  };  
+
+  
   return (
     <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
+      {success && <SuccessMessages>{success}</SuccessMessages>}
 
       <h3 className="px-4 py-3 italic">
         Total posts count: {count}
@@ -81,9 +128,7 @@ const UnscheduledPage = () => {
                         {item.title}
                       </p>
 
-                      <p className=" lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 lg:w-[920px] ">
-                        {item.paragraph}
-                      </p>
+                      <ReadMoreParagraph text={item.paragraph} />
 
               <div className="self-end space-x-8">
                 <Modal article={item} title="post">
@@ -130,7 +175,7 @@ const UnscheduledPage = () => {
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
           previousLabel={<span className="text-black">{page > 0 ? "Previous" : ""}</span>}
-          nextLabel={<span className="text-black">Next</span>}
+          nextLabel={<span className="text-black">{page < pageCount - 1 ? "Next" : " "}</span>}
           containerClassName="flex justify-center items-center my-4 space-x-2"
           pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
           previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
@@ -138,7 +183,7 @@ const UnscheduledPage = () => {
           breakClassName="p-2"
           activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
         />
-    </div>
+   </div>
   );
 };
 

@@ -32,14 +32,18 @@ const Article = ({ show }) => {
     setLoading(true);
     // Make a GET request to the API endpoint with the session_id
     axios
-      .get(`http://127.0.0.1:8000/api/v1/list-articles/?page=${page + 1}&order=newest`, {
-        withCredentials: true,
-      })
+      .get(
+        `http://127.0.0.1:8000/api/v1/list-articles/?page=${page + 1
+        }&order=newest`,
+        {
+          withCredentials: true,
+        }
+      )
       .then((response) => {
         setError(null);
         setLoading(false);
         let data = response.data;
-        console.log(data)
+        console.log(data);
         setArticleData(data.Articles);
         setCount(data.total_items);
         setPageCount(Math.ceil(data.total_items / perPage));
@@ -58,17 +62,17 @@ const Article = ({ show }) => {
       article_id: article_id,
       title: title,
       paragraph: paragraph,
-      source: source
+      source: source,
     };
     // console.log(dataToSend);
     setClickedPost(dataToSend);
     setButtonClicked(true);
-  }
+  };
 
   // Use the clickedPost state to determine when to navigate
   useEffect(() => {
     if (buttonClicked && clickedPost) {
-      navigate('/article-detail', { state: { data: clickedPost } });
+      navigate("/article-detail", { state: { data: clickedPost } });
     }
   }, [buttonClicked, clickedPost]);
 
@@ -84,9 +88,8 @@ const Article = ({ show }) => {
     }
   };
 
-
   return (
-    <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
+    <div className="relative h-[90vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="text-center text-customTextBlue font-semibold py-2 lg:py-6">
@@ -94,7 +97,7 @@ const Article = ({ show }) => {
       </div>
 
       <div className="count-article flex justify-between pt-0 pb-2 items-center">
-        <p className="px-6 py-3 italic">Total article count: {count}</p>
+        <p className="px-6 py-3 italic">Total posts count: {count}</p>
 
         <Link to="/createarticle">
           <div className="lg:w-[140px] lg:pt-2">
@@ -118,13 +121,22 @@ const Article = ({ show }) => {
                     </p>
 
                     <div className="content-button flex flex-col md:flex-row justify-between items-baseline py-0">
-                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 leading-loose lg:w-[1000px] ">
+                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg w-full line-clamp-4 leading-loose">
                         {article.paragraph}
                       </p>
 
                       <div className="lg:w-[150px] lg:pt-2 flex justify-end md:mr-6 mt-2 md:mt-0">
-                        
-                          <ExtraSmallBtn title={"View Article"} onClick={() => handlePostdetailNavigate(article.article_id, article.title, article.paragraph, article.source)}/>
+                        <ExtraSmallBtn
+                          title={"View Article"}
+                          onClick={() =>
+                            handlePostdetailNavigate(
+                              article.article_id,
+                              article.title,
+                              article.paragraph,
+                              article.source
+                            )
+                          }
+                        />
                       </div>
                     </div>
                   </div>
@@ -139,7 +151,7 @@ const Article = ({ show }) => {
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
           previousLabel={<span className="text-black">{page > 0 ? "Previous" : ""}</span>}
-          nextLabel={<span className="text-black">Next</span>}
+          nextLabel={<span className="text-black">{page < pageCount - 1 ? "Next" : " "}</span>}
           containerClassName="flex justify-center items-center my-4 space-x-2"
           pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
           previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"

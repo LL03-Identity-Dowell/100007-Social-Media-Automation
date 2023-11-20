@@ -3,7 +3,7 @@ import {initFlowbite} from "flowbite"
 import Navbar from "./components/navbar/Navbar";
 import Sidebar from "./components/sidebar/Sidebar";
 
-const Layout = ({ children, side, show }) => {
+const Layout = ({ children, side, show, isProduct, isUser }) => {
 
     useEffect(()=>{
       initFlowbite()
@@ -11,7 +11,7 @@ const Layout = ({ children, side, show }) => {
     
   return (
     <div className="w-full ">
-      <Navbar />
+      {isProduct && <Navbar user={isUser}/>}
       <div className={!side ? " grid w-full " : "grid grid-cols-10 2xl:grid-cols-12"}>
       <div className={ show && "col-span-1"}> 
         {side &&  <Sidebar /> }
