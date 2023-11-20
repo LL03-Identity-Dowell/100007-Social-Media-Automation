@@ -913,7 +913,7 @@ step-3 starts here
 '''
 
 
-class PostListView(APIView):
+class PostListView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -996,7 +996,7 @@ class PostListView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class PostDetailView(APIView):
+class PostDetailView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -1085,7 +1085,7 @@ class PostDetailView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class SavePostView(APIView):
+class SavePostView(AuthenticatedBaseView):
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1404,7 +1404,7 @@ class LinkedAccountsJson(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MostRecentJSON(APIView):
+class MostRecentJSON(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -1798,7 +1798,7 @@ class MediaScheduleView(AuthenticatedBaseView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
-class UnScheduledView(APIView):
+class UnScheduledView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
             profile = request.session['operations_right']
@@ -1812,7 +1812,7 @@ class UnScheduledView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
-class UnScheduledJsonView(APIView):
+class UnScheduledJsonView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -1922,7 +1922,7 @@ def post_scheduler(request):
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
-class ScheduledJsonView(APIView):
+class ScheduledJsonView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -2294,9 +2294,8 @@ def comments_emojis(request):
 '''user settings starts here'''
 
 
-class FacebookFormAPI(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class FacebookFormAPI(AuthenticatedBaseView):
+
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2395,9 +2394,7 @@ class FacebookFormAPI(APIView):
             return Response({'error': 'Failed to update Facebook details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class InstaFormAPI(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class InstaFormAPI(AuthenticatedBaseView):
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2502,9 +2499,7 @@ class InstaFormAPI(APIView):
             return Response({'error': 'Failed to update Instagram details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class XFormAPI(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class XFormAPI(AuthenticatedBaseView):
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2611,7 +2606,7 @@ class XFormAPI(APIView):
             return Response({'error': 'Failed to update X details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class LinkedInFormAPI(APIView):
+class LinkedInFormAPI(AuthenticatedBaseView):
     permission_classes = ()
     authentication_classes = ()
 
@@ -2718,7 +2713,7 @@ class LinkedInFormAPI(APIView):
             return Response({'error': 'Failed to update LinkedIn details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class YoutubeFormView(APIView):
+class YoutubeFormView(AuthenticatedBaseView):
     permission_classes = ()
     authentication_classes = ()
 
@@ -2827,7 +2822,7 @@ class YoutubeFormView(APIView):
                 return Response({'error': 'Failed to update Youtube details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class PinterestFormView(APIView):
+class PinterestFormView(AuthenticatedBaseView):
     permission_classes = ()
     authentication_classes = ()
 
