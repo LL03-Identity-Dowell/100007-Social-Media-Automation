@@ -80,14 +80,14 @@ function App() {
         // Store the session_id in both local storage and session storage
         localStorage.setItem("session_id", session_id);
         sessionStorage.setItem("session_id", session_id);
-
+        
         // Remove the session_id from the URL without causing a page reload
         const newUrl = window.location.href.split('?')[0];
         window.history.replaceState({}, document.title, newUrl);
 
         // Proceed to fetch data or handle authenticated user logic
         setLoading(true);
-        fetchData();
+        fetchData(session_id);
       } else {
         // If no session_id, redirect to the login page with session_id as a query parameter
         window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/`;
@@ -100,9 +100,13 @@ function App() {
     }
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (session_id) => {
     setLoading(true);
-    axios.get('http://127.0.0.1:8000/api/v1/main/')
+    axios.get('http://127.0.0.1:8000/api/v1/main/', {
+    headers: {
+      'Authorization': `Bearer ${session_id}`, 
+    }
+})
     .then(res=>{
       const data = res.data;
       const saveUserInfo = JSON.stringify(data);
@@ -116,9 +120,8 @@ function App() {
         setProduct(false);
         console.log("You do not have a portfolio", userProducts);
         navigate('/portfolio_check');
-      } else {
-        // Continue with your logic if "Social Media Automation" is found
-      }
+      } 
+      
       setLoading(false);
     }).catch(err=>{
       setLoading(false);

@@ -102,13 +102,13 @@ const ApprovalByClient = () => {
         .then((response) => {
           setLoading(false);
           // setSuccess(`${isChecked} is Approved...!`);
+          let data = response.data;
           setSuccess(
             changedCheckboxes.length > 0
               ? `${changedCheckboxes.join(', ')} approved...!`
-              : 'Done...!'
+              : `${data.message}`
           );
 
-          let data = response.data;
           // console.log(data);
           let resData = JSON.stringify(data);
           localStorage.setItem("approvalData", resData);
@@ -125,7 +125,13 @@ const ApprovalByClient = () => {
         })
         .then((response) => {
           setLoading(false);
-          setSuccess(`${isChecked} Approved...!`);
+          // setSuccess(`${isChecked} Approved...!`);
+          setSuccess(
+            changedCheckboxes.length > 0
+              ? `${changedCheckboxes.join(', ')} approved...!`
+              : 'Done...!'
+          );
+          
           let data = response.data.status;
           console.log(data);
         })
