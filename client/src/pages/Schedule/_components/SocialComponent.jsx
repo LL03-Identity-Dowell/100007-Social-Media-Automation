@@ -6,6 +6,7 @@ export const SocialComponentForPost = ({ article }) => {
     const socialArray = Object.fromEntries(new FormData(e.currentTarget));
     console.log({ ...article, socials: Object.keys(socialArray) });
   };
+  
   return (
     <form className='form' onSubmit={onSubmit}>
       <div className='flex justify-around'>
