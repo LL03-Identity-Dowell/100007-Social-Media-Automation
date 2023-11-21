@@ -8,7 +8,7 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 
 
 
-function Rank() {
+function Rank({ show }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -23,6 +23,7 @@ function Rank() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        show();
         fetchSentences();
     }, []);
 
@@ -231,15 +232,15 @@ function Rank() {
             {error && <ErrorMessages>{error}</ErrorMessages>}
             {success && <SuccessMessages>{success}</SuccessMessages>}
 
-            <div className="flex flex-col justify-center items-center my-24">
-                <div className="w-[720px] mb-5">
+            <div className="flex flex-col justify-center lg:items-center my-5">
+                <div className="lg:w-[720px] mb-5">
                     {sentences &&
                         sentences.map((sentence, index) => (
                             <div className="pt-4" key={index} >
                                 <p className="block mb-2 font-semibold text-gray-900 dark:text-white">
                                     {sentence.sentenceType}
                                 </p>
-                                <div className="flex justify-between bg-slate-200">
+                                <div className="flex flex-col lg:justify-between lg:flex-row bg-slate-200">
                                     <p className="ml-2 italic">{sentence.sentence}</p>
                                     <span className="answer_rank">
                                         <label>
@@ -269,7 +270,7 @@ function Rank() {
                         ))}
                 </div>
 
-                <div className="flex mt-4 gap-2 mr-6 md:mr-0 w-[720px] text-white ">
+                <div className="flex mt-4 gap-2 mr-6 md:mr-0 lg:w-[720px] text-white ">
                     <div>
                         <button className="bg-red-500 hover:bg-red-900 rounded py-2 px-6" onClick={handleCancel}>Cancel</button>
                     </div>
