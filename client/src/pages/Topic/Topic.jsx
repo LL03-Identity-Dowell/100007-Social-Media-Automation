@@ -41,8 +41,8 @@ function Topic({ show }) {
       .then(([categoryRes, topicRes]) => {
         setUserCategory(categoryRes.data);
         setUserTopic(topicRes.data);
-        console.log(categoryRes.data)
-        console.log(topicRes.data)
+        // console.log(categoryRes.data)
+        // console.log(topicRes.data)
       })
       .catch(error => {
         console.error('Error retrieving Category or Topic:', error);
@@ -112,15 +112,15 @@ function Topic({ show }) {
           let resData = response.data;
           console.log(resData);
 
-          setSuccess("Topic created successfully!");
+          setSuccess("Topics created successfully!");
           setTimeout(() => {
             handleSentenceNavigate(resData)
           }, 2000);
         })
         .catch((error) => {
           setLoading(false);
-          setError("Error creating topic..!");
-          console.error("Error creating topic:", error);
+          setError("Error creating topics..!");
+          console.error("Error creating topics:", error);
         });
 
 
