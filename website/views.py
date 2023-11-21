@@ -825,7 +825,7 @@ class SelectedResultAPIView(generics.CreateAPIView):
         insert_form_data(request.session['data_dictionary'])
 
         print(topic)
-        if topic['article'] == 'True':
+        if topic.get('article') == 'True':
             async_task("automate.services.generate_article",
                        data_dic, hook='automate.services.hook_now2')
             print('yes.......o')
