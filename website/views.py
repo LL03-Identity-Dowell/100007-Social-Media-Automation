@@ -30,6 +30,7 @@ def under_maintenance(request):
     }
     return render(request, 'under_maintenance.html', context)
 
+
 @csrf_exempt
 @xframe_options_exempt
 @transaction.atomic
@@ -37,7 +38,8 @@ def index(request):
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
         website_manager = WebsiteManager()
-        user = website_manager.get_or_create_user({'email': request.session['userinfo']['email']})
+        user = website_manager.get_or_create_user(
+            {'email': request.session['userinfo']['email']})
         email = request.session['userinfo']['email']
         industryForm = IndustryForm(email=email)
         sentencesForm = SentencesForm(email=email)
@@ -112,13 +114,14 @@ def index(request):
                     'username': request.session['username'],
                     'event_id': create_event()['event_id'],
                     'client_admin_id': request.session['userinfo']['client_admin_id'],
-                    'time_zone':request.session['timezone']
+                    'time_zone': request.session['timezone']
                 }
-                userid=request.session['user_id']
- 
+                userid = request.session['user_id']
+
                 print(topic)
                 if topic['topic'] == 'True':
-                    async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
+                    async_task("automate.services.step_1", auto_strings,
+                               data_di, hook='automate.services.hook_now')
                     print('yes.......o')
                     return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
                 else:
@@ -137,7 +140,8 @@ def index(request):
 
                         iter_sentence_type = []
                         if 'tense' in grammar_arguments:
-                            querystring['tense'] = grammar_arguments['tense'].capitalize()
+                            querystring['tense'] = grammar_arguments['tense'].capitalize(
+                            )
                             iter_sentence_type.append(
                                 grammar_arguments['tense'].capitalize())
 
@@ -148,15 +152,18 @@ def index(request):
 
                         if 'perfect' in grammar_arguments:
                             querystring['perfect'] = 'perfect'
-                            iter_sentence_type.append(grammar_arguments['perfect'])
+                            iter_sentence_type.append(
+                                grammar_arguments['perfect'])
 
                         if 'negated' in grammar_arguments:
                             querystring['negated'] = 'negated'
-                            iter_sentence_type.append(grammar_arguments['negated'])
+                            iter_sentence_type.append(
+                                grammar_arguments['negated'])
 
                         if 'passive' in grammar_arguments:
                             querystring['passive'] = 'passive'
-                            iter_sentence_type.append(grammar_arguments['passive'])
+                            iter_sentence_type.append(
+                                grammar_arguments['passive'])
 
                         if 'modal_verb' in grammar_arguments:
                             querystring['modal'] = grammar_arguments['modal_verb']
@@ -235,7 +242,8 @@ def index(request):
                                 'sentence_id': sentence_result.pk
                             }
                             for counter, (api_result, sentence_result) in
-                            enumerate(zip(api_results, sentence_results), start=1)
+                            enumerate(
+                                zip(api_results, sentence_results), start=1)
                         }
                     }
 
@@ -293,8 +301,10 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         #     return Response({'message':'You are not allowed to view this page'},status=HTTP_400_BAD_REQUEST)
 
         email = request.session['userinfo']['email']
-        industry_serializer = IndustrySerializer(email=email, data=request.data)
-        sentence_serializer = SentenceSerializer(email=email, data=request.data)
+        industry_serializer = IndustrySerializer(
+            email=email, data=request.data)
+        sentence_serializer = SentenceSerializer(
+            email=email, data=request.data)
 
         if not industry_serializer.is_valid():
             return Response(industry_serializer.errors, status=HTTP_400_BAD_REQUEST)
@@ -470,8 +480,6 @@ class UserTopicAPIView(generics.ListCreateAPIView):
         return Response(serializer.data)
 
 
-
-
 @csrf_exempt
 @xframe_options_exempt
 @transaction.atomic
@@ -529,7 +537,8 @@ def selected_result(request):
 
                 print(topic)
                 if topic['article'] == 'True':
-                    async_task("automate.services.generate_article", data_dic, hook='automate.services.hook_now2')
+                    async_task("automate.services.generate_article",
+                               data_dic, hook='automate.services.hook_now2')
                     print('yes.......o')
                 else:
                     pass
@@ -756,7 +765,8 @@ def category_topic(request):
 
             if topic_list:
                 website_manager.create_user_topics_from_list(data)
-                messages.success(request, 'Topics have been saved successfully')
+                messages.success(
+                    request, 'Topics have been saved successfully')
             return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
@@ -770,7 +780,8 @@ class SelectedResultAPIView(generics.CreateAPIView):
     serializer_class = SelectedResultSerializer
 
     def post(self, request, *args, **kwargs):
-        selected_result_serializer = SelectedResultSerializer(data=request.data)
+        selected_result_serializer = SelectedResultSerializer(
+            data=request.data)
         if not selected_result_serializer.is_valid():
             return Response(selected_result_serializer.errors, status=HTTP_400_BAD_REQUEST)
         userid = request.session['user_id']
@@ -800,7 +811,7 @@ class SelectedResultAPIView(generics.CreateAPIView):
                 }
             }
 
-        data_dictionary = request.data.dict()
+        data_dictionary = request.POST.dict()
         data_dictionary['client_admin_id'] = request.session['userinfo']['client_admin_id']
 
         request.session['data_dictionary'] = {
@@ -815,7 +826,8 @@ class SelectedResultAPIView(generics.CreateAPIView):
 
         print(topic)
         if topic['article'] == 'True':
-            async_task("automate.services.generate_article", data_dic, hook='automate.services.hook_now2')
+            async_task("automate.services.generate_article",
+                       data_dic, hook='automate.services.hook_now2')
             print('yes.......o')
         else:
             pass
