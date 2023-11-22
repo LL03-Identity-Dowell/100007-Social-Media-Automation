@@ -36,7 +36,7 @@ const MostRecent = () => {
           setSuccess('Successfully fetched posts')
           let data = response.data.MostRecentPosts.response;
           setArticles(data);
-          console.log(response.data);
+          // console.log(response.data);
           setCount(response.data.total_items);
           setPageCount(Math.ceil(response.data.total_items / perPage));
           setShowMorePages(pageCount > pagesToDisplay);
