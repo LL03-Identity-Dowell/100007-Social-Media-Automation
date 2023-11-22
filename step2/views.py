@@ -155,11 +155,12 @@ def register(request):
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-        if request.session.get("session_id"):
+        session_id = request.session.get("session_id") or request.GET.get('session_id')
+        if session_id:
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-            session_id = request.session["session_id"]
+
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
