@@ -13,8 +13,7 @@ function Rank({ show }) {
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
     const [sentences, setSentences] = useState([]);
-    // const [ranked, setRanked] = useState({});
-    const [rank, setRank] = useState({}) // { 1: rank_12, 3: rank_5, 6: rank_9 ...} before switching
+    const [rank, setRank] = useState({}) // { "1": "rank_12", "3": "rank_5", "6": "rank_9" ...} before switching
     const [id, setId] = useState();
 
 
@@ -28,10 +27,8 @@ function Rank({ show }) {
     }, []);
 
     useEffect(() => {
-        // console.log(rank)
-        // console.log(id)
+        // remove duplicate values properties from rank object leaving only current selection
         const propertiesDeleted = deletePropertiesWithSameValue(rank, id);
-        // console.log(propertiesDeleted)
     }, [rank]);
 
 
@@ -65,11 +62,11 @@ function Rank({ show }) {
     const handleChange = (index, event) => {
         const newValue = event.target.value;
         const id = event.target.id;
-        // console.log(id)
         setId(id);
 
         handleRanking(event);
 
+        // remove also from rank object
         const propertiesDeleted = deletePropertiesWithSameValue(rank, id);
 
         setSentences((prevSentences) => {
@@ -80,12 +77,7 @@ function Rank({ show }) {
                         selectedValue: newValue,
                     };
                 } else if (sentence.selectedValue === newValue) {
-                    // remove also from rank object
-                    // const propertiesDeleted = deletePropertiesWithSameValue(rank, id);
 
-                    if (propertiesDeleted) {
-                        console.log(`Properties with the same value as ${id} were deleted`);
-                    }
 
                     // Reset the value in other dropdowns if it matches the new value
                     return {
@@ -102,11 +94,8 @@ function Rank({ show }) {
     };
 
     const handleRanking = (event) => {
-        //  const { name, value } = event.target;
         const { id, value } = event.target;
 
-        // console.log(id);
-        console.log({ id, value });
         setRank({
             ...rank,
             [id]: value,
@@ -127,16 +116,12 @@ function Rank({ show }) {
                 setError("");
                 return;
             }, 4000);
-            console.log(rank);
+
         } else {
             setLoading(true);
 
             const data = rank
             const flippedData = flipObject(data)
-
-            console.log(flippedData);
-
-            isValidJSON(flippedData);
 
             axios
                 .post(`http://127.0.0.1:8000/website/api/v1/selected_result/`, flippedData, {
@@ -146,7 +131,6 @@ function Rank({ show }) {
                     setLoading(false)
                     let resData = response.data;
                     console.log(resData);
-
                     setSuccess("Topics ranked successfully!");
                     setTimeout(() => {
                         navigate('/')
@@ -165,19 +149,8 @@ function Rank({ show }) {
 
     };
 
-    function isValidJSON(obj) {
-        try {
-            JSON.stringify(obj);
-            console.log("Valid Json")
-        } catch (error) {
-            console.log("Invalid Json")
-        }
-    }
-
-
     const checkNumberRankSentence = (allRankData) => {
         const rankLength = Object.keys(allRankData).length
-        console.log(rankLength)
 
         if (rankLength >= 3) {
             return true;
@@ -210,21 +183,6 @@ function Rank({ show }) {
 
         return flippedObject;
     }
-
-    // const setOnlyRankedSentence = (allRankData) => {
-    //     const sentenceWithValues = Object.keys(allRankData).reduce((result, key) => {
-    //         if (allRankData[key] !== "") {
-    //             result[key] = allRankData[key];
-    //         }
-    //         return result;
-    //     }, {})
-    //     // setRanked({ ...ranked, ...sentenceWithValues })
-    // }
-
-    // console.log(ranked)
-
-
-    // console.log(rank);
 
     return (
         <div className="bg-slate-50 h-full">
