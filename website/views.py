@@ -1,6 +1,7 @@
 import json
-import requests
 from datetime import datetime
+
+import requests
 from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseRedirect
@@ -14,11 +15,13 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
+from create_article.permissions import HasBeenAuthenticated
+from credits.constants import STEP_1_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
 from step2.views import create_event
 from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
-from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer, \
     SelectedResultSerializer
 
@@ -287,9 +290,13 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
 
         session_id = request.GET.get('session_id', None)
-        # has_permission=can_view_page(request)
-        # if not has_permission:
-        #     return Response({'message':'You are not allowed to view this page'},status=HTTP_400_BAD_REQUEST)
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_1_SUB_SERVICE_ID,
+            request=request,
+        )
+        if not credit_response.get('success'):
+            return Response(credit_response, status=HTTP_400_BAD_REQUEST)
 
         email = request.session['userinfo']['email']
         industry_serializer = IndustrySerializer(email=email, data=request.data)
@@ -430,6 +437,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         sentences_dictionary = {
             'sentences': sentence_results,
         }
+
         return Response(request.session['data_dictionary'])
 
 
