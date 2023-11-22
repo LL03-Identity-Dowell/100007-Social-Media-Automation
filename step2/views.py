@@ -36,6 +36,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from create_article import settings
+from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
@@ -232,7 +233,7 @@ step-2 starts here
 '''
 
 
-class ListArticleView(APIView):
+class ListArticleView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -299,7 +300,7 @@ class ListArticleView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class ArticleDetailView(APIView):
+class ArticleDetailView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             profile = request.session['operations_right']
@@ -328,7 +329,7 @@ class ArticleDetailView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class IndexView(APIView):
+class IndexView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -442,8 +443,7 @@ class IndexView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class GenerateArticleView(APIView):
-
+class GenerateArticleView(AuthenticatedBaseView):
     def post(self, request):
         start_datetime = datetime.now()
         session_id = request.GET.get('session_id', None)
@@ -469,13 +469,13 @@ class GenerateArticleView(APIView):
                 user_data = fetch_user_info(request)
 
                 for item in user_data["data"]:
-                    if "target_city" in item:
+                    if "target_city" in item and item["target_city"] is not None:
                         user_selected_cities.extend(item["target_city"])
 
-                    if "hashtag_list" in item:
+                    if "hashtag_list" in item and item["hashtag_list"] is not None:
                         hashtags.extend(item["hashtag_list"])
 
-                    if "mentions_list" in item:
+                    if "mentions_list" in item and item["mentions_list"] is not None:
                         user_tags_mentions.extend(item["mentions_list"])
 
                 formatted_hashtags = " ".join(hashtags) if hashtags else ""
@@ -596,7 +596,7 @@ class GenerateArticleView(APIView):
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class GenerateArticleWikiView(APIView):
+class GenerateArticleWikiView(AuthenticatedBaseView):
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -710,17 +710,23 @@ class GenerateArticleWikiView(APIView):
                     print("For Title: "+title+" Page exists.")
                     article = page.text
                     article = article.split("See also")
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
-                                                           "title": title,
-                                                           "target_industry": target_industry,
-                                                           "paragraph": article[0],
-                                                           "source": page.fullurl,
-                                                           'subject': subject,
-                                                           # 'dowelltime': dowellclock
-                                                           }, "9992828281")
+                    para_list = article[0].split("\n\n")
+                    for i in range(len(para_list)):
+                        if para_list[i] != '':
+                            save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                                   "session_id": session_id,
+                                                                   "eventId": create_event()['event_id'],
+                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                   "title": title,
+                                                                   "target_industry": target_industry,
+                                                                   "paragraph": article[0],
+                                                                   "source": page.fullurl,
+                                                                   'subject': subject,
+                                                                   # 'dowelltime': dowellclock
+                                                                   }, "9992828281")
+                            print("step-2 data saved")
+                        break
+
                     para_list = article[0].split("\n\n")
                     for i in range(len(para_list)):
                         if para_list[i] != '':
@@ -740,6 +746,8 @@ class GenerateArticleWikiView(APIView):
                                                                    'subject': subject,
                                                                    # 'dowelltime': dowellclock
                                                                    }, '34567897799')
+                            print("step-3 data saved")
+                        break
                     # credit_handler = CreditHandler()
                     # credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
@@ -747,31 +755,35 @@ class GenerateArticleWikiView(APIView):
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class WriteYourselfView(APIView):
+class WriteYourselfView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             if request.method != "POST":
                 return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
-            form = VerifyArticleForm()
-            title = request.POST.get("title")
-            subject = request.POST.get("subject")
-            verb = request.POST.get("verb")
-            target_industry = request.POST.get("target_industry")
+            form = VerifyArticleForm(request.POST)
 
-            response_data = {
-                'title': title,
-                'subject': subject,
-                'verb': verb,
-                'target_industry': target_industry,
-                'form': form
-            }
+            if form.is_valid():
+                title = request.POST.get("title")
+                subject = request.POST.get("subject")
+                verb = request.POST.get("verb")
+                target_industry = request.POST.get("target_industry")
 
-            return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+                response_data = {
+                    'title': title,
+                    'subject': subject,
+                    'verb': verb,
+                    'target_industry': target_industry,
+                    'form_data': form.cleaned_data  # Serialize form data, not the form instance
+                }
+
+                return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'Form validation failed', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class VerifyArticle(APIView):
+class VerifyArticle(AuthenticatedBaseView):
     def pot(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -901,7 +913,7 @@ step-3 starts here
 '''
 
 
-class PostListView(APIView):
+class PostListView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -984,7 +996,7 @@ class PostListView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class PostDetailView(APIView):
+class PostDetailView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -1036,14 +1048,14 @@ class PostDetailView(APIView):
                 paragraph = data.get("paragraph")
                 paragraph = paragraph.split('\r\n')
                 source = data.get("source")
-                if "\r\n" in source:
-                    source = source.split('\r\n')
+                # if "\r\n" in source:
+                #     source = source.split('\r\n')
 
                 post = {
                     "_id": post_id,
                     "title": title,
                     "paragraph": paragraph,
-                    "source": source
+                    # "source": source
                 }
             a = random.randint(1, 9)
             query = title
@@ -1073,7 +1085,7 @@ class PostDetailView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class SavePostView(APIView):
+class SavePostView(AuthenticatedBaseView):
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1095,23 +1107,6 @@ class SavePostView(APIView):
                 designed_for = data.get("designed_for")
                 targeted_category = data.get("targeted_category")
                 image = data.get("image")
-                # title = request.POST.get("title")
-                # paragraphs_list = request.POST.getlist("paragraphs[]")
-                # print('paragraphs_list:', paragraphs_list)
-                # source = request.POST.get("source")
-                # # target_industry = request.POST.get("p-content")
-                # qualitative_categorization = request.POST.get(
-                #     "qualitative_categorization")
-                # targeted_for = request.POST.get("targeted_for")
-                # designed_for = request.POST.get("designed_for")
-                # targeted_category = request.POST.get("targeted_category")
-                # image = request.POST.get("images")
-                # # dowellclock = get_dowellclock(),
-                # combined_article = "\n\n".join(paragraphs_list)
-                # print('combined_article', combined_article[0:230])
-                # paragraph_without_commas = combined_article.replace(
-                #     '.', '. ').replace(',.', '.')
-                # print('paragraph_without_commas:', paragraph_without_commas)
 
                 url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -1347,19 +1342,20 @@ def link_media_channels(request):
     return redirect(link['url'])
 
 
-@csrf_exempt
-@xframe_options_exempt
-def social_media_channels(request):
+@method_decorator(csrf_exempt, name='dispatch')
+class SocialMediaChannelsView(APIView):
+    def get(self, request, *args, **kwargs):
+        username = request.session['username']
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
+            username)
+        linked_accounts = check_connected_accounts(username)
 
-    username = request.session['username']
-    session = request.session['session_id']
-    print(session)
-    user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
-        username)
-    linked_accounts = check_connected_accounts(username)
-    context_data = {'user_has_social_media_profile': user_has_social_media_profile,
-                    'linked_accounts': linked_accounts}
-    return render(request, 'social_media_channels.html', context_data)
+        response_data = {
+            'user_has_social_media_profile': user_has_social_media_profile,
+            'linked_accounts': linked_accounts
+        }
+
+        return Response(response_data)
 
 
 def can_post_on_social_media(request):
@@ -1379,25 +1375,36 @@ def can_post_on_social_media(request):
     return False
 
 
-def linked_account_json(request):
-    username = request.session['username']
-    linked_accounts = check_connected_accounts(username)
-
-    return JsonResponse({'response': linked_accounts})
-
-
-@csrf_exempt
-@xframe_options_exempt
-def most_recent(request):
-    if 'session_id' and 'username' in request.session:
-
-        return render(request, 'most_recent.html')
-    else:
-        return render(request, 'error.html')
+@method_decorator(csrf_exempt, name='dispatch')
+class CanPostOnSocialMedia(APIView):
+    def get(self, request, *args, **kwargs):
+        """
+        This function check of a user can post an article on social media sites
+        """
+        portfolio_info = request.session.get('portfolio_info')
+        if not portfolio_info:
+            return Response({'can_post': False})
+        if not isinstance(portfolio_info, list):
+            return Response({'can_post': False})
+        portfolio_info = portfolio_info[0]
+        if portfolio_info.get('member_type') == 'owner' and portfolio_info.get('username') == 'socialmedia':
+            return Response({'can_post': True})
+        elif portfolio_info.get('member_type') == 'member_type' and portfolio_info.get('username') == 'socialmedia':
+            return Response({'can_post': True})
+        return Response({'can_post': False})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MostRecentJSON(APIView):
+class LinkedAccountsJson(APIView):
+    def get(self, request, *args, **kwargs):
+        username = request.session['username']
+        linked_accounts = check_connected_accounts(username)
+
+        return Response({'response': linked_accounts})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MostRecentJSON(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -1632,162 +1639,166 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
             messages.error(request, warnings['message'])
 
 
-@csrf_exempt
-def Media_Post(request):
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
-        # credit_handler = CreditHandler()
-        # credit_response = credit_handler.check_if_user_has_enough_credits(
-        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-        #     request=request,
-        # )
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class MediaPostView(AuthenticatedBaseView):
+    def post(self, request, *args, **kwargs):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' and 'username' in request.session:
+            # credit_handler = CreditHandler()
+            # credit_response = credit_handler.check_if_user_has_enough_credits(
+            #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+            #     request=request,
+            # )
 
-        # if not credit_response.get('success'):
-        #     return JsonResponse('credit_error', safe=False)
-        start_datetime = datetime.now()
-        data = json.loads(request.body.decode("utf-8"))
-        title = data['title']
-        paragraph = data['paragraph']
-        paragraph2 = paragraph[0:230]
-        image = data['image']
+            # if not credit_response.get('success'):
+            #     return JsonResponse('credit_error', safe=False)
+            start_datetime = datetime.now()
+            data = json.loads(request.body.decode("utf-8"))
+            title = data['title']
+            paragraph = data['paragraph']
+            paragraph2 = paragraph[0:230]
+            image = data['image']
 
-        # Logo in its own paragraph
-        logo = "Created and posted by #samanta #uxlivinglab"
+            # Logo in its own paragraph
+            logo = "Created and posted by #samanta #uxlivinglab"
 
-        post_id = data['PK']
+            post_id = data['PK']
 
-        # Splitting the content and logo into separate paragraphs
-        postes_paragraph1 = f"{paragraph[0:2000]}."
-        postes_paragraph2 = logo
+            # Splitting the content and logo into separate paragraphs
+            postes_paragraph1 = f"{paragraph[0:2000]}."
+            postes_paragraph2 = logo
 
-        # Combining the paragraphs with a newline character
-        postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
+            # Combining the paragraphs with a newline character
+            postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
 
-        twitter_post_paragraph1 = paragraph2
-        twitter_post_paragraph2 = logo
+            twitter_post_paragraph1 = paragraph2
+            twitter_post_paragraph2 = logo
 
-        twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
+            twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
 
-        print(twitter_post)
-        try:
-            platforms = data['social']
-            splited = data['special']
-            print(platforms)
-        except:
-            pass
-        user_id = request.session['user_id']
-        key = get_key(user_id)
-        if len(splited) == 0:
-            arguments = (
-                (postes, platforms, key, image, request, post_id),
-            )
-        if len(platforms) == 0:
-            arguments = (
-                (twitter_post, splited, key, image, request, post_id),
-            )
-            print(splited, twitter_post)
+            print(twitter_post)
+            try:
+                platforms = data['social']
+                splited = data['special']
+                print(platforms)
+            except:
+                pass
+            user_id = request.session['user_id']
+            key = get_key(user_id)
+            if len(splited) == 0:
+                arguments = (
+                    (postes, platforms, key, image, request, post_id),
+                )
+            if len(platforms) == 0:
+                arguments = (
+                    (twitter_post, splited, key, image, request, post_id),
+                )
+                print(splited, twitter_post)
+            else:
+                arguments = (
+                    (postes, platforms, key, image, request, post_id),
+                    (twitter_post, splited, key, image, request, post_id)
+                )
+            "posting to Various social media"
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                # Using lambda, unpacks the tuple (*f) into api_call(*args)
+                executor.map(lambda f: api_call(*f), arguments)
+                end_datetime = datetime.now()
+                time_taken = end_datetime - start_datetime
+                print(f"Total time taken: {time_taken}")
+            return JsonResponse('most_recent', safe=False)
         else:
-            arguments = (
-                (postes, platforms, key, image, request, post_id),
-                (twitter_post, splited, key, image, request, post_id)
-            )
-        "posting to Various social media"
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Using lambda, unpacks the tuple (*f) into api_call(*args)
-            executor.map(lambda f: api_call(*f), arguments)
-            end_datetime = datetime.now()
-            time_taken = end_datetime - start_datetime
-            print(f"Total time taken: {time_taken}")
-        return JsonResponse('most_recent', safe=False)
-    else:
-        return JsonResponse('social_media_channels', safe=False)
-
-
-@csrf_exempt
-def Media_schedule(request):
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
-        # credit_handler = CreditHandler()
-        # credit_response = credit_handler.check_if_user_has_enough_credits(
-        #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-        #     request=request,
-        # )
-
-        # if not credit_response.get('success'):
-        #     return redirect(reverse('credit_error_view'))
-        start_datetime = datetime.now()
-        data = json.loads(request.body.decode("utf-8"))
-        timezone = request.session['timezone']
-        title = data['title']
-        paragraph = data['paragraph']
-        paragraph2 = paragraph[0:230]
-        image = data['image']
-        logo = "Created and posted by #samanta #uxlivinglab"
-        post_id = data['PK']
-        schedule = data['schedule']
-
-        # Adding a period to the end of the content before "Created and posted by"
-        postes_paragraph1 = f"{paragraph[0:2000]}."
-        postes_paragraph2 = logo
-
-        # Combining the paragraphs with a newline character
-        postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
-
-        # Adding a period to the end of the content before "Created and posted by"
-        twitter_post_paragraph1 = f"{paragraph2[0:235]}."
-        twitter_post_paragraph2 = logo
-
-        # Combining the paragraphs with a newline character
-        twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}"
-
-        try:
-            platforms = data['social']
-            splited = data['special']
-        except:
-            pass
-        print(splited)
-        # Formatting time for utc
-        formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
-        current_time = pytz.timezone(timezone)
-        localize = current_time.localize(formart)
-        utc = pytz.timezone('UTC')
-        shedulded = localize.astimezone(utc)
-        string = str(shedulded)[:-6]
-        formart = datetime.strptime(
-            string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
-
-        user_id = request.session['user_id']
-        key = get_key(user_id)
-        if len(splited) == 0:
-            arguments = (
-                (postes, platforms, key, image, request, post_id, formart),
-            )
-        if len(platforms) == 0:
-
-            arguments = (
-                (twitter_post, splited, key, image, request, post_id, formart),
-            )
-            print(arguments)
-        else:
-            arguments = (
-                (postes, platforms, key, image, request, post_id, formart),
-                (twitter_post, splited, key, image, request, post_id, formart)
-            )
-        "posting to Various social media"
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
-            executor.map(lambda f: api_call_schedule(*f), arguments)
-            end_datetime = datetime.now()
-            time_taken = end_datetime - start_datetime
-            print(f"Total time taken: {time_taken}")
-        return JsonResponse('scheduled', safe=False)
-    else:
-        return JsonResponse('social_media_channels', safe=False)
+            return JsonResponse('social_media_channels', safe=False)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
-class UnScheduledView(APIView):
+class MediaScheduleView(AuthenticatedBaseView):
+    def post(self, request, *args, **kwargs):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' and 'username' in request.session:
+            # credit_handler = CreditHandler()
+            # credit_response = credit_handler.check_if_user_has_enough_credits(
+            #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+            #     request=request,
+            # )
+
+            # if not credit_response.get('success'):
+            #     return redirect(reverse('credit_error_view'))
+            start_datetime = datetime.now()
+            data = json.loads(request.body.decode("utf-8"))
+            timezone = request.session['timezone']
+            title = data['title']
+            paragraph = data['paragraph']
+            paragraph2 = paragraph[0:230]
+            image = data['image']
+            logo = "Created and posted by #samanta #uxlivinglab"
+            post_id = data['PK']
+            schedule = data['schedule']
+
+            # Adding a period to the end of the content before "Created and posted by"
+            postes_paragraph1 = f"{paragraph[0:2000]}."
+            postes_paragraph2 = logo
+
+            # Combining the paragraphs with a newline character
+            postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
+
+            # Adding a period to the end of the content before "Created and posted by"
+            twitter_post_paragraph1 = f"{paragraph2[0:235]}."
+            twitter_post_paragraph2 = logo
+
+            # Combining the paragraphs with a newline character
+            twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}"
+
+            try:
+                platforms = data['social']
+                splited = data['special']
+            except:
+                pass
+            print(splited)
+            # Formatting time for utc
+            formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
+            current_time = pytz.timezone(timezone)
+            localize = current_time.localize(formart)
+            utc = pytz.timezone('UTC')
+            shedulded = localize.astimezone(utc)
+            string = str(shedulded)[:-6]
+            formart = datetime.strptime(
+                string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
+
+            user_id = request.session['user_id']
+            key = get_key(user_id)
+            if len(splited) == 0:
+                arguments = (
+                    (postes, platforms, key, image, request, post_id, formart),
+                )
+            if len(platforms) == 0:
+
+                arguments = (
+                    (twitter_post, splited, key, image, request, post_id, formart),
+                )
+                print(arguments)
+            else:
+                arguments = (
+                    (postes, platforms, key, image, request, post_id, formart),
+                    (twitter_post, splited, key, image, request, post_id, formart)
+                )
+            "posting to Various social media"
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
+                executor.map(lambda f: api_call_schedule(*f), arguments)
+                end_datetime = datetime.now()
+                time_taken = end_datetime - start_datetime
+                print(f"Total time taken: {time_taken}")
+            return JsonResponse('scheduled', safe=False)
+        else:
+            return JsonResponse('social_media_channels', safe=False)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class UnScheduledView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
             profile = request.session['operations_right']
@@ -1801,7 +1812,7 @@ class UnScheduledView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
-class UnScheduledJsonView(APIView):
+class UnScheduledJsonView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -1909,19 +1920,9 @@ def post_scheduler(request):
     return HttpResponseRedirect(reverse("generate_article:main-view"))
 
 
-@csrf_exempt
-@xframe_options_exempt
-def scheduled(request):
-    if 'session_id' and 'username' in request.session:
-
-        return render(request, 'scheduled.html')
-    else:
-        return render(request, 'error.html')
-
-
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
-class ScheduledJsonView(APIView):
+class ScheduledJsonView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -2293,9 +2294,8 @@ def comments_emojis(request):
 '''user settings starts here'''
 
 
-class FacebookFormAPI(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class FacebookFormAPI(AuthenticatedBaseView):
+
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2394,9 +2394,7 @@ class FacebookFormAPI(APIView):
             return Response({'error': 'Failed to update Facebook details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class InstaFormAPI(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class InstaFormAPI(AuthenticatedBaseView):
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2501,9 +2499,7 @@ class InstaFormAPI(APIView):
             return Response({'error': 'Failed to update Instagram details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class XFormAPI(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class XFormAPI(AuthenticatedBaseView):
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2610,7 +2606,7 @@ class XFormAPI(APIView):
             return Response({'error': 'Failed to update X details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class LinkedInFormAPI(APIView):
+class LinkedInFormAPI(AuthenticatedBaseView):
     permission_classes = ()
     authentication_classes = ()
 
@@ -2717,7 +2713,7 @@ class LinkedInFormAPI(APIView):
             return Response({'error': 'Failed to update LinkedIn details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class YoutubeFormView(APIView):
+class YoutubeFormView(AuthenticatedBaseView):
     permission_classes = ()
     authentication_classes = ()
 
@@ -2826,7 +2822,7 @@ class YoutubeFormView(APIView):
                 return Response({'error': 'Failed to update Youtube details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class PinterestFormView(APIView):
+class PinterestFormView(AuthenticatedBaseView):
     permission_classes = ()
     authentication_classes = ()
 

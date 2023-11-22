@@ -33,8 +33,7 @@ const Article = ({ show }) => {
     // Make a GET request to the API endpoint with the session_id
     axios
       .get(
-        `http://127.0.0.1:8000/api/v1/list-articles/?page=${
-          page + 1
+        `http://127.0.0.1:8000/api/v1/list-articles/?page=${page + 1
         }&order=newest`,
         {
           withCredentials: true,
@@ -90,7 +89,7 @@ const Article = ({ show }) => {
   };
 
   return (
-    <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
+    <div className="relative h-[90vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="text-center text-customTextBlue font-semibold py-2 lg:py-6">
@@ -98,7 +97,7 @@ const Article = ({ show }) => {
       </div>
 
       <div className="count-article flex justify-between pt-0 pb-2 items-center">
-        <p className="px-6 py-3 italic">Total article count: {count}</p>
+        <p className="px-6 py-3 italic">Total posts count: {count}</p>
 
         <Link to="/createarticle">
           <div className="lg:w-[140px] lg:pt-2">
@@ -122,7 +121,7 @@ const Article = ({ show }) => {
                     </p>
 
                     <div className="content-button flex flex-col md:flex-row justify-between items-baseline py-0">
-                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 leading-loose lg:w-[1000px] ">
+                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg w-full line-clamp-4 leading-loose">
                         {article.paragraph}
                       </p>
 

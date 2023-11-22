@@ -1,19 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
-import Modal from "./Modal";
-import * as Dialog from "@radix-ui/react-dialog";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { Cross2Icon } from "@radix-ui/react-icons";
-import {
-  SocialComponentForPost,
-  SocialComponentForSchedule,
-} from "./SocialComponent";
-
 import ReactPaginate from "react-paginate";
 import Loading from "../../../components/Loading";
-import { ErrorMessages } from "../../../components/Messages";
+import { ErrorMessages, SuccessMessages } from "../../../components/Messages";
+import { PostModal, ScheduleModal } from "./Modal";
 
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
+  const [sucessMessage, setSuccessMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [count, setCount] = useState(0);
@@ -23,7 +17,6 @@ const UnscheduledPage = () => {
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
   // const [readMore, setReadMore] = useState(true);
-
 
   useEffect(() => {
     setLoading(true);
@@ -49,6 +42,7 @@ const UnscheduledPage = () => {
         .catch((error) => {
           setLoading(false);
           setError("Server error, Please try again later");
+
           console.error("Error fetching article:", error);
         });
     };
@@ -58,12 +52,11 @@ const UnscheduledPage = () => {
   const handlePageClick = (data) => {
     setPage(data.selected);
   };
-  
+
   const handleReadMore = () => {
-    setReadMore(!readMore)
+    setReadMore(!readMore);
   };
 
-  
   const ReadMoreParagraph = ({ text }) => {
     const [readMore, setReadMore] = useState(false);
 
@@ -82,109 +75,95 @@ const UnscheduledPage = () => {
     const handleReadMore = () => {
       setReadMore(!readMore);
     };
-  
+
     return (
       <div>
-         <p
-        ref={paragraphRef}
-        className={`lg:pt-4 px-2 text-md lg:text-lg text-gray-600 ${
-          readMore ? "" : "line-clamp-4"
-        } lg:w-[920px]`}
-      >
-        {text}
-      </p>
-        {isOverflowed && (
-        <span
-          onClick={handleReadMore}
-          className="text-md lg:text-lg text-customTextBlue cursor-pointer font-semibold px-2"
+        <p
+          ref={paragraphRef}
+          className={`lg:pt-4 px-2 text-md lg:text-lg text-gray-600 ${
+            readMore ? "" : "line-clamp-4"
+          } lg:w-[920px]`}
         >
-          {readMore ? "Read Less..." : "Read More..."}
-        </span>
-      )}
+          {text}
+        </p>
+        {isOverflowed && (
+          <span
+            onClick={handleReadMore}
+            className='px-2 font-semibold cursor-pointer text-md lg:text-lg text-customTextBlue'
+          >
+            {readMore ? "Read Less..." : "Read More..."}
+          </span>
+        )}
       </div>
     );
-  };  
+  };
 
-  
   return (
-    <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
+    <div className='relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto'>
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
+      {sucessMessage && <SuccessMessages>{sucessMessage}</SuccessMessages>}
 
-      <h3 className="px-4 py-3 italic">
-        Total posts count: {count}
-      </h3>
-      <ul className="overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10 ">
+      <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
+      <ul className='overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10 '>
         {unscheduledPost.map((item) => (
           <li
             id={item.PK}
             key={item.PK}
-            className="flex justify-between flex-col md:flex-row gap-x-14"
+            className='flex flex-col justify-between md:flex-row gap-x-14'
           >
-            <div className="flex flex-col w-9/12 gap-y-7 ">
-            <p className=" lg:py-4 px-2 text-md lg:text-lg">
-                        {item.source}
-                      </p>
-                      <p className=" px-2 py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold">
-                        {item.title}
-                      </p>
+            <div className='flex flex-col w-9/12 gap-y-7 '>
+              <p className='px-2 lg:py-4 text-md lg:text-lg'>{item.source}</p>
+              <p className='px-2 py-0 font-bold text-md lg:text-xl text-customTextBlue dark:text-white'>
+                {item.title}
+              </p>
 
-                      <ReadMoreParagraph text={item.paragraph} />
+              <ReadMoreParagraph text={item.paragraph} />
 
-              <div className="self-end space-x-8">
-                <Modal article={item} title="post">
-                  <Dialog.Close asChild>
-                    <button
-                      className="text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
-                      aria-label="Close"
-                    >
-                      <Cross2Icon />
-                    </button>
-                  </Dialog.Close>
-                  <Dialog.Title className=" text-center text-[#1b3476] m-0 text-3xl font-semibold">
-                    Where do you want to post?
-                  </Dialog.Title>
-                  <SocialComponentForPost article={item} />
-                </Modal>
-                <Modal article={item} title="schedule">
-                  <Dialog.Close asChild>
-                    <button
-                      className="text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none"
-                      aria-label="Close"
-                    >
-                      <Cross2Icon />
-                    </button>
-                  </Dialog.Close>
-                  <Dialog.Title className=" text-center text-[#1b3476] m-0 text-3xl font-semibold">
-                    Where do you want to post?
-                  </Dialog.Title>
-                  <SocialComponentForSchedule article={item} />
-                </Modal>
+              <div className='self-end space-x-8'>
+                <PostModal
+                  article={item}
+                  setError={setError}
+                  setLoading={setLoading}
+                  setSuccessMessage={setSuccessMessage}
+                />
+                <ScheduleModal
+                  article={item}
+                  setError={setError}
+                  setLoading={setLoading}
+                  setSuccessMessage={setSuccessMessage}
+                ></ScheduleModal>
               </div>
             </div>
             <img
-              className="w-40 h-40 mt-20 rounded-lg"
+              className='w-40 h-40 mt-20 rounded-lg'
               src={item.image}
-              alt="image"
+              alt='image'
             />
           </li>
         ))}
       </ul>
-        <ReactPaginate
-          pageCount={pageCount}
-          pageRangeDisplayed={pagesToDisplay}
-          marginPagesDisplayed={2}
-          onPageChange={handlePageClick}
-          previousLabel={<span className="text-black">{page > 0 ? "Previous" : ""}</span>}
-          nextLabel={<span className="text-black">{page < pageCount - 1 ? "Next" : " "}</span>}
-          containerClassName="flex justify-center items-center my-4 space-x-2"
-          pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
-          previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-          nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-          breakClassName="p-2"
-          activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
-        />
-   </div>
+      <ReactPaginate
+        pageCount={pageCount}
+        pageRangeDisplayed={pagesToDisplay}
+        marginPagesDisplayed={2}
+        onPageChange={handlePageClick}
+        previousLabel={
+          <span className='text-black'>{page > 0 ? "Previous" : ""}</span>
+        }
+        nextLabel={
+          <span className='text-black'>
+            {page < pageCount - 1 ? "Next" : " "}
+          </span>
+        }
+        containerClassName='flex justify-center items-center my-4 space-x-2'
+        pageClassName='p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
+        previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
+        nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
+        breakClassName='p-2'
+        activeClassName='bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 '
+      />
+    </div>
   );
 };
 
