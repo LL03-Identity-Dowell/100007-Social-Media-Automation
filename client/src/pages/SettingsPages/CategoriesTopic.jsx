@@ -237,9 +237,6 @@ const CategoriesTopic = ({ close }) => {
               </div>
             </div>
             <div className="flex justify-center items-center mt-6 md:mt-16">
-              {/* <button className="bg-customTextBlue px-4 py-2 text-white rounded-md flex items-center gap-3">
-                Save <FaCheck />
-              </button> */}
               <button
                 type="submit"
                 className={`${
