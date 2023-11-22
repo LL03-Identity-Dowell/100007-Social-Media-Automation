@@ -74,3 +74,24 @@
 .save-button:focus {
     box-shadow: 0 0 0 0.1rem rgba(38, 143, 255, .5);
 }
+
+
+.input-wrapper{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.input-wrapper > div { 
+    width: 46%;
+    max-width: 46%;
+    padding: 0;
+    margin: 0 10px 10px 0;
+    flex-basis: 50%;
+}
+.save-button{
+    cursor: pointer;
+}
+input {
+    border: 0;
+}

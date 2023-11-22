@@ -22,146 +22,68 @@
 <div class="container">
 
   <div class="flex-wrap justify-content-center">
-    <h4 class="blue-text text-center mb-5">Add Data for step-3 dropdowns</h4>
-    {% if status == 'insert' %}
-    <form method="post" id="hashMentionForm" action="{% url 'generate_article:post_detail_dropdowns' %}">
-      {% csrf_token %}
-      <div class="row">
+    <h4 class="mb-5 text-center blue-text">Add Data for step-3 dropdowns</h4>
+   
+<form id="form">
+<div class="input-wrapper">
 
-        <div class="col-sm" >
-          <p class= "text-center" style="font-weight: 500">Qualitative Categorization</p>
-          <div class="input-group rounded mb-3" style="border-radius: 25px;">
-            <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">#</span>
-            <input name="hashtag" type="text" class="form-cvscode-file://vscode-app/c:/Users/HP%20250/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.htmlontrol" aria-describedby="button-addon2" id="tag_input" placeholder="Enter one hashtag..">
-            <input type="hidden" name="hashtags_list" id="hashtags_list" value="">
-            <button class="btn btn-primary btn-dark-blue" type="button" id="tagBtn" style="border-radius: 0 25px 25px 0;">Add</button>
-          </div>
+  <div class="col-sm">
+    <p class="text-center" style="font-weight: 500">Qualitative Categorization</p>
+    <div class="mb-3 rounded input-group" style="border-radius: 25px;">
+      <input type="text" class="form-control" aria-describedby="button-addon2" placeholder="Enter the Category" id="input1">
+      <input type="hidden" id="input1_list" value="">
+      <button class="btn btn-primary btn-dark-blue" type="button" id="addBtn1" style="border-radius: 0 25px 25px 0;">Add</button>
+    </div>
 
-          <div  id="tag_col" class="d-flex flex-wrap ms-3"></div>
-        </div>
+    <div class="flex-wrap d-flex ms-3" id="parent1"></div>
+  </div>
 
-        <div class="col-sm">
-          <p class="text-center" style="font-weight: 500">Targeted For</p>
-          <div class="input-group rounded mb-3" style="border-radius: 25px;">
-            <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">@</span>
-              <input name="mention" type="text" class="form-control" aria-describedby="button-addon2" id="men_input" placeholder="Mention one user..">
-              <input type="hidden" name="mentions_list" id="mentions_list" value="">
-            <button class="btn btn-primary btn-dark-blue" type="button" id="mentionBtn" style="border-radius: 0 25px 25px 0;">Add</button>
-          </div>
+  <div class="col-sm" >
+    <p class="text-center" style="font-weight: 500">Targeted For</p>
+    <div class="mb-3 rounded input-group" style="border-radius: 25px;">
+      <input type="text" class="form-control" aria-describedby="button-addon2" placeholder="Enter the Target for" id="input2">
+      <input type="hidden" id="input2_list" value="">
 
-          <div id="men_col" class="d-flex flex-wrap ms-3"></div>
-        </div>
+      <button class="btn btn-primary btn-dark-blue" type="button" id="addBtn2" style="border-radius: 0 25px 25px 0;">Add</button>
+    </div>
 
-        <div class="col-sm">
-            <p class="text-center" style="font-weight: 500">Designed For</p>
-            <div class="input-group rounded mb-3" style="border-radius: 25px;">
-              <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">@</span>
-                <input name="mention" type="text" class="form-control" aria-describedby="button-addon2" id="men_input" placeholder="Mention one user..">
-                <input type="hidden" name="mentions_list" id="mentions_list" value="">
-              <button class="btn btn-primary btn-dark-blue" type="button" id="mentionBtn" style="border-radius: 0 25px 25px 0;">Add</button>
-            </div>
-  
-            <div id="men_col" class="d-flex flex-wrap ms-3"></div>
-          </div>
+    <div class="flex-wrap d-flex ms-3" id="parent2"></div>
+  </div>
 
-          <div class="col-sm">
-            <p class="text-center" style="font-weight: 500">Targeted Category</p>
-            <div class="input-group rounded mb-3" style="border-radius: 25px;">
-              <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">@</span>
-                <input name="mention" type="text" class="form-control" aria-describedby="button-addon2" id="men_input" placeholder="Mention one user..">
-                <input type="hidden" name="mentions_list" id="mentions_list" value="">
-              <button class="btn btn-primary btn-dark-blue" type="button" id="mentionBtn" style="border-radius: 0 25px 25px 0;">Add</button>
-            </div>
-  
-            <div id="men_col" class="d-flex flex-wrap ms-3"></div>
-          </div>
+  <div class="col-sm" >
+    <p class="text-center" style="font-weight: 500">Designed For</p>
+    <div class="mb-3 rounded input-group" style="border-radius: 25px;">
+      <input id="input3" type="text" class="form-control" aria-describedby="button-addon2" placeholder="Enter the Designed for">
+      <input type="hidden" id="input3_list" value="">
 
-      </div>
+      <button class="btn btn-primary btn-dark-blue" type="button" id="addBtn3" style="border-radius: 0 25px 25px 0;">Add</button>
+    </div>
 
-      <div class="text-center">
-        <button class="btn btn-primary rounded btn-dark-blue save-button mt-5" onclick="submitForm();" id="saveBtn" disabled >Save <i class="fas fa-check check-icon"></i></button>
-      </div>
-    </form>
-    {% else %}
-    <form method="post" id="hashMentionForm" action="{% url 'generate_article:update_post_detail_dropdowns' %}">
-      {% csrf_token %}
-      <div class="row">
+    <div class="flex-wrap d-flex ms-3" id="parent3"></div>
+  </div>
 
-        <div class="col-sm" >
-          <p class= "text-center" style="font-weight: 500">Qualitative Categorization</p>
-          <div class="input-group rounded mb-3" style="border-radius: 25px;">
-            <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">#</span>
-            <input name="hashtag" type="text" class="form-control" aria-describedby="button-addon2" id="tag_input" placeholder="Enter one hashtag..">
-            <input type="hidden" name="hashtags_list" id="hashtags_list" value="">
-            <button class="btn btn-primary btn-dark-blue" type="button" id="tagBtn" style="border-radius: 0 25px 25px 0;">Add</button>
-          </div>
+  <div class="col-sm" >
+    <p class="text-center" style="font-weight: 500">Targeted Category</p>
+    <div class="mb-3 rounded input-group" style="border-radius: 25px;">
+      <input id="input4" type="text" class="form-control" aria-describedby="button-addon2" placeholder="Enter the Target Category">
+      <input type="hidden" id="input4_list" value="">
 
-          <div  id="tag_col" class="d-flex flex-wrap ms-3"></div>
-        </div>
+      <button class="btn btn-primary btn-dark-blue" type="button" id="addBtn4" style="border-radius: 0 25px 25px 0;">Add</button>
+    </div>
 
-        <div class="col-sm">
-          <p class="text-center" style="font-weight: 500">Targeted For</p>
-          <div class="input-group rounded mb-3" style="border-radius: 25px;">
-            <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">@</span>
-              <input name="mention" type="text" class="form-control" aria-describedby="button-addon2" id="men_input" placeholder="Mention one user..">
-              <input type="hidden" name="mentions_list" id="mentions_list" value="">
-            <button class="btn btn-primary btn-dark-blue" type="button" id="mentionBtn" style="border-radius: 0 25px 25px 0;">Add</button>
-          </div>
-
-          <div id="men_col" class="d-flex flex-wrap ms-3"></div>
-        </div>
-
-        <div class="col-sm">
-            <p class="text-center" style="font-weight: 500">Designed For</p>
-            <div class="input-group rounded mb-3" style="border-radius: 25px;">
-              <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">@</span>
-                <input name="mention" type="text" class="form-control" aria-describedby="button-addon2" id="men_input" placeholder="Mention one user..">
-                <input type="hidden" name="mentions_list" id="mentions_list" value="">
-              <button class="btn btn-primary btn-dark-blue" type="button" id="mentionBtn" style="border-radius: 0 25px 25px 0;">Add</button>
-            </div>
-  
-            <div id="men_col" class="d-flex flex-wrap ms-3"></div>
-          </div>
-
-          <div class="col-sm">
-            <p class="text-center" style="font-weight: 500">Targeted Category</p>
-            <div class="input-group rounded mb-3" style="border-radius: 25px;">
-              <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">@</span>
-                <input name="mention" type="text" class="form-control" aria-describedby="button-addon2" id="men_input" placeholder="Mention one user..">
-                <input type="hidden" name="mentions_list" id="mentions_list" value="">
-              <button class="btn btn-primary btn-dark-blue" type="button" id="mentionBtn" style="border-radius: 0 25px 25px 0;">Add</button>
-            </div>
-  
-            <div id="men_col" class="d-flex flex-wrap ms-3"></div>
-          </div>
-
-          <div class="col-sm">
-            <p class="text-center" style="font-weight: 500">Targeted For</p>
-            <div class="input-group rounded mb-3" style="border-radius: 25px;">
-              <span class="input-group-text text-center d-inline-block" id="basic-addon1" style="background-color: #8c9ba9; width: 26px">@</span>
-                <input name="mention" type="text" class="form-control" aria-describedby="button-addon2" id="men_input" placeholder="Mention one user..">
-                <input type="hidden" name="mentions_list" id="mentions_list" value="">
-              <button class="btn btn-primary btn-dark-blue" type="button" id="mentionBtn" style="border-radius: 0 25px 25px 0;">Add</button>
-            </div>
-  
-            <div id="men_col" class="d-flex flex-wrap ms-3"></div>
-          </div>
-
-
-      </div>
-
-      <div class="text-center">
-        <button class="btn btn-primary rounded btn-dark-blue save-button mt-5" onclick="submitForm();" disabled id="saveBtn">Save <i class="fas fa-check check-icon"></i></button>
-      </div>
-    </form>
-    {%endif%}
-  </div>   
+    <div class="flex-wrap d-flex ms-3" id="parent4"></div>
+  </div>
 
 </div>
 
-{% comment %} 
-<script>
- 
-</script> {% endcomment %}
+
+  <div class="text-center">
+    <button type="submit" class="mt-5 rounded btn btn-primary btn-dark-blue save-button" id="saveBtn">Save <i class="fas fa-check check-icon"></i></button>
+  </div>
+</form>
+
+  </div>   
+
+</div>
 
 {% endblock %}

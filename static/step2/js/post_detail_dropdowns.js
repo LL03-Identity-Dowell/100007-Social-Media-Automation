@@ -1,92 +1,97 @@
-const tagBtn = document.getElementById("tagBtn");
-const mentionBtn = document.getElementById("mentionBtn");
-const saveBtn = document.getElementById("saveBtn");
-let checkboxes;
+  const addBtn1 = document.getElementById('addBtn1')
+  const addBtn2 = document.getElementById('addBtn2')
+  const addBtn3 = document.getElementById('addBtn3')
+  const addBtn4 = document.getElementById('addBtn4')
+  const saveBtn = document.getElementById("saveBtn");
+  let checkboxes;
 
-function updateSaveButtonState() {
-     const hashtagsChecked = document.querySelectorAll('input[name="hashtag_value"]:checked').length > 0;
-     const mentionsChecked = document.querySelectorAll('input[name="mention_value"]:checked').length > 0;
-     saveBtn.disabled = !(hashtagsChecked || mentionsChecked);
-}
 
-updateSaveButtonState();
+  function pushData( inputId, parentId) {
+      let view = document.getElementById(parentId);
+      let inputText = document.getElementById(inputId).value;
 
-tagBtn.addEventListener("click", (e) => {
-    e.preventDefault();
+      if (!inputText) {
+          return;
+      }
 
-    pushData('hashtag_value', 'tag_input', 'tag_col');
-    checkboxes = document.querySelectorAll('input[name="hashtag_value"], input[name="mention_value"]');
-    addEvent(checkboxes); addEvent(checkboxes);
-     updateSaveButtonState();
-})
+      view.innerHTML += `<div class="form-check me-3">
+              <input class="form-check-input" type="checkbox" value="${inputText}" name="${inputId}">
+              <label class="form-check-label font-italic" style="font-weight: 500">
+                  ${inputText}
+              </label>
+              <button style="font-size: 10px;" type="button" class="btn-close btn-sm" aria-label="Close" onclick="removeDiv(this)"></button>
+          </div>
+      `;
+      document.getElementById(inputId).value = "";
 
-mentionBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    pushData('mention_value', 'men_input', 'men_col');
-    checkboxes = document.querySelectorAll('input[name="hashtag_value"], input[name="mention_value"]');
+  }
+
+  function updateSaveButtonState() {
+      const checkboxesLength = document.querySelectorAll("input[type='checkbox']:checked").length > 0;
+      saveBtn.disabled = !checkboxesLength;
+  }
+
+
+
+  addBtn1.addEventListener("click", () => {
+    pushData( 'input1', 'parent1');
+    checkboxes = document.querySelectorAll("input[type='checkbox']");
     addEvent(checkboxes);
-     updateSaveButtonState();
-})
+    updateSaveButtonState();
+  })
 
-function pushData(name, inputId, col) {
-    let addHash;
-    let view = document.getElementById(col);
-    let inputText = document.getElementById(inputId).value;
-
-    if (!inputText) {
-        return;
-    }
-
-    if (col == "tag_col") {
-        addHash = `#${inputText}`;
-    } else {
-        addHash = inputText;
-    }
-
-    view.innerHTML += `<div class="form-check me-3" role="tags_mentions">
-                          <input class="form-check-input" type="checkbox" value="${addHash}" name="${name}" id="${name}">
-                          <label class="form-check-label font-italic" for="${name}" id="mention_list" style="font-weight: 500">
-                            ${addHash}
-                          </label>
-                          <button style="font-size: 10px;" type="button" class="btn-close btn-sm" aria-label="Close"  onclick="removeDiv(this)"></button>
-                        </div>`;
-    document.getElementById(inputId).value = "";
-
-}
-
-
-
-function submitForm() {
-    // Gather data from hashtags and mentions
-    const hashtagsList = Array.from(document.querySelectorAll('input[name="hashtag_value"]:checked'))
-        .map(checkbox => checkbox.value);
-    const mentionsList = Array.from(document.querySelectorAll('input[name="mention_value"]:checked'))
-        .map(checkbox => checkbox.value);
-
-    // Update the hidden input fields with the collected data
-    document.getElementById('hashtags_list').value = hashtagsList.join(',');
-    document.getElementById('mentions_list').value = mentionsList.join(',');
-
-    // Submit the form to  backend
-    document.getElementById('hashMentionForm').submit();
-}
-
-
-function removeDiv(button) {
-    const divToRemove = button.parentElement; // Get the parent div
-    if (divToRemove) {
-        divToRemove.remove();
-    }
-    checkboxes = document.querySelectorAll('input[name="hashtag_value"], input[name="mention_value"]');
+  addBtn2.addEventListener("click", () => {
+     pushData( 'input2', 'parent2');
+    checkboxes = document.querySelectorAll("input[type='checkbox']");
     addEvent(checkboxes);
-     updateSaveButtonState();
-}
+    updateSaveButtonState();
+  })
+  addBtn3.addEventListener("click", () => {
+     pushData( 'input3', 'parent3');
+    checkboxes = document.querySelectorAll("input[type='checkbox']");
+    addEvent(checkboxes);
+    updateSaveButtonState();
+  })
+  addBtn4.addEventListener("click", () => {
+     pushData( 'input4', 'parent4');
+    checkboxes = document.querySelectorAll("input[type='checkbox']");
+    addEvent(checkboxes);
+    updateSaveButtonState();
+  })
 
-// Add event listeners to checkboxes
-const addEvent = (checkboxElements) => {
+  saveBtn.addEventListener("click", () => {
+    const input1List = Array.from(document.querySelectorAll('input[name="input1"]:checked'))
+        .map(checkbox => checkbox.value);
+    const input2List = Array.from(document.querySelectorAll('input[name="input2"]:checked'))
+        .map(checkbox => checkbox.value);
+    const input3List = Array.from(document.querySelectorAll('input[name="input3"]:checked'))
+        .map(checkbox => checkbox.value);
+    const input4List = Array.from(document.querySelectorAll('input[name="input4"]:checked'))
+        .map(checkbox => checkbox.value);
+
+    document.getElementById('input1_list').value = input1List.join(',');
+    document.getElementById('inout2_list').value = input2List.join(',');
+    document.getElementById('inout3_list').value = input3List.join(',');
+    document.getElementById('inout4_list').value = input4List.join(',');
+
+    document.getElementById('form').submit();
+  });
+
+
+  function removeDiv(button) {
+      const divToRemove = button.parentElement;
+      if (divToRemove) {
+          divToRemove.remove();
+      }
+      checkboxes = document.querySelectorAll("input[type='checkbox']:checked");
+      addEvent(checkboxes);
+      updateSaveButtonState();
+  }
+
+  const addEvent = (checkboxElements) => {
     checkboxElements.forEach(checkbox => {
-        checkbox.addEventListener("change", () => {
-            updateSaveButtonState();
-        });
+      checkbox.addEventListener("change", () => {
+        updateSaveButtonState();
+      });
     });
-}
+  }
