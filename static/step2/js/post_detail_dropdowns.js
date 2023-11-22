@@ -69,10 +69,22 @@
     const input4List = Array.from(document.querySelectorAll('input[name="input4"]:checked'))
         .map(checkbox => checkbox.value);
 
+        console.log('Input 1 List:', input1List);
+        console.log('Input 2 List:', input2List);
+        console.log('Input 3 List:', input3List);
+        console.log('Input 4 List:', input4List);
+
     document.getElementById('input1_list').value = input1List.join(',');
-    document.getElementById('inout2_list').value = input2List.join(',');
-    document.getElementById('inout3_list').value = input3List.join(',');
-    document.getElementById('inout4_list').value = input4List.join(',');
+    document.getElementById('input2_list').value = input2List.join(',');
+    document.getElementById('input3_list').value = input3List.join(',');
+    document.getElementById('input4_list').value = input4List.join(',');
+
+    console.log('Form Data:', {
+      input1List,
+      input2List,
+      input3List,
+      input4List,
+  });
 
     document.getElementById('form').submit();
   });

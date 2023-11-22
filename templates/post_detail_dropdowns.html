@@ -23,8 +23,9 @@
 
   <div class="flex-wrap justify-content-center">
     <h4 class="mb-5 text-center blue-text">Add Data for step-3 dropdowns</h4>
-   
-<form id="form">
+   {% if status == 'insert' %}
+<form id="form" action="{% url 'generate_article:post_detail_dropdowns' %}" method="post">
+  {% csrf_token %}
 <div class="input-wrapper">
 
   <div class="col-sm">
@@ -81,6 +82,67 @@
     <button type="submit" class="mt-5 rounded btn btn-primary btn-dark-blue save-button" id="saveBtn">Save <i class="fas fa-check check-icon"></i></button>
   </div>
 </form>
+{% else %}
+
+<form id="form" action="{% url 'generate_article:update_post_detail_dropdowns' %}" method="post">
+  {% csrf_token %}
+<div class="input-wrapper">
+
+  <div class="col-sm">
+    <p class="text-center" style="font-weight: 500">Qualitative Categorization</p>
+    <div class="mb-3 rounded input-group" style="border-radius: 25px;">
+      <input type="text" class="form-control" aria-describedby="button-addon2" placeholder="Enter the Category" id="input1">
+      <input type="hidden" id="input1_list" value="">
+      <button class="btn btn-primary btn-dark-blue" type="button" id="addBtn1" style="border-radius: 0 25px 25px 0;">Add</button>
+    </div>
+
+    <div class="flex-wrap d-flex ms-3" id="parent1"></div>
+  </div>
+
+  <div class="col-sm" >
+    <p class="text-center" style="font-weight: 500">Targeted For</p>
+    <div class="mb-3 rounded input-group" style="border-radius: 25px;">
+      <input type="text" class="form-control" aria-describedby="button-addon2" placeholder="Enter the Target for" id="input2">
+      <input type="hidden" id="input2_list" value="">
+
+      <button class="btn btn-primary btn-dark-blue" type="button" id="addBtn2" style="border-radius: 0 25px 25px 0;">Add</button>
+    </div>
+
+    <div class="flex-wrap d-flex ms-3" id="parent2"></div>
+  </div>
+
+  <div class="col-sm" >
+    <p class="text-center" style="font-weight: 500">Designed For</p>
+    <div class="mb-3 rounded input-group" style="border-radius: 25px;">
+      <input id="input3" type="text" class="form-control" aria-describedby="button-addon2" placeholder="Enter the Designed for">
+      <input type="hidden" id="input3_list" value="">
+
+      <button class="btn btn-primary btn-dark-blue" type="button" id="addBtn3" style="border-radius: 0 25px 25px 0;">Add</button>
+    </div>
+
+    <div class="flex-wrap d-flex ms-3" id="parent3"></div>
+  </div>
+
+  <div class="col-sm" >
+    <p class="text-center" style="font-weight: 500">Targeted Category</p>
+    <div class="mb-3 rounded input-group" style="border-radius: 25px;">
+      <input id="input4" type="text" class="form-control" aria-describedby="button-addon2" placeholder="Enter the Target Category">
+      <input type="hidden" id="input4_list" value="">
+
+      <button class="btn btn-primary btn-dark-blue" type="button" id="addBtn4" style="border-radius: 0 25px 25px 0;">Add</button>
+    </div>
+
+    <div class="flex-wrap d-flex ms-3" id="parent4"></div>
+  </div>
+
+</div>
+
+
+  <div class="text-center">
+    <button type="submit" class="mt-5 rounded btn btn-primary btn-dark-blue save-button" id="saveBtn">Save <i class="fas fa-check check-icon"></i></button>
+  </div>
+</form>
+{%endif%}
 
   </div>   
 

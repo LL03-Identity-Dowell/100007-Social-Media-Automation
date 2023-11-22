@@ -1418,6 +1418,7 @@ def update_post_detail_dropdowns(request):
         else:
             qualitative_categorization = request.POST.get(
                 'qualitative_categorization_list').split(',')
+            print(qualitative_categorization)
             targeted = request.POST.get('targeted_list').split(',')
             designed_for = request.POST.get('designed_for_list').split(',')
             targeted_category = request.POST.get(
