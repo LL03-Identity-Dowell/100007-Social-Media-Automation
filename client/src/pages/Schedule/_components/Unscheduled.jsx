@@ -7,6 +7,7 @@ import { PostModal, ScheduleModal } from "./Modal";
 
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
+  const [socialArr, setSocialArr] = useState([]);
   const [sucessMessage, setSuccessMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
@@ -17,6 +18,8 @@ const UnscheduledPage = () => {
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
   // const [readMore, setReadMore] = useState(true);
+
+  console.log(error);
 
   useEffect(() => {
     setLoading(true);
@@ -31,7 +34,7 @@ const UnscheduledPage = () => {
         withCredentials: true,
       });
 
-      console.log(res.data);
+      setSocialArr(res.data.response);
     };
 
     const fetchUnscheduled = async () => {
@@ -137,12 +140,14 @@ const UnscheduledPage = () => {
                   setError={setError}
                   setLoading={setLoading}
                   setSuccessMessage={setSuccessMessage}
+                  socialArr={socialArr}
                 />
                 <ScheduleModal
                   article={item}
                   setError={setError}
                   setLoading={setLoading}
                   setSuccessMessage={setSuccessMessage}
+                  socialArr={socialArr}
                 ></ScheduleModal>
               </div>
             </div>

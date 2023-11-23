@@ -9,13 +9,31 @@ export const SocialComponentForPost = ({
   setLoading,
   setSuccessMessage,
   setOpen,
+  socialArr,
 }) => {
   const navigate = useNavigate();
 
   const onSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
-    const socialArray = Object.fromEntries(new FormData(e.currentTarget));
+
+    const formData = new FormData(e.currentTarget);
+    const socialArray = Array.from(formData.entries())
+      .filter(([key, value]) => value === "on")
+      .map(([key]) => key);
+
+    if (socialArr.length === 0) {
+      setError("No social channel linked! Please link atleast one.");
+      setOpen(false);
+      return;
+    }
+    const missingItems = socialArray.filter(
+      (item) => !socialArr.includes(item)
+    );
+
+    if (missingItems.length > 0) {
+      setError(`${missingItems.join(", ")} not linked`);
+    }
 
     const filteredSocial = Object.keys(socialArray).filter(
       (social) => social !== "twitter" && social !== "pinterest"
@@ -31,8 +49,6 @@ export const SocialComponentForPost = ({
       special: specialArray,
     };
 
-    console.log(mergedData);
-
     const url = "http://127.0.0.1:8000/api/v1/media_post/";
     await axios
       .post(url, mergedData, {
@@ -46,7 +62,7 @@ export const SocialComponentForPost = ({
 
         setTimeout(() => {
           navigate("/recent");
-        }, 1000);
+        }, 700);
       })
       .catch((error) => {
         setLoading(false);
@@ -154,6 +170,7 @@ export const SocialComponentForSchedule = ({
   setLoading,
   setSuccessMessage,
   setOpen,
+  socialArr,
 }) => {
   const navigate = useNavigate();
   const onSubmit = async (e) => {
@@ -164,6 +181,19 @@ export const SocialComponentForSchedule = ({
     const socialArray = Array.from(formData.entries())
       .filter(([key, value]) => value === "on")
       .map(([key]) => key);
+
+    if (socialArr.length === 0) {
+      setError("No social channel linked! Please link atleast one.");
+      setOpen(false);
+      return;
+    }
+    const missingItems = socialArray.filter(
+      (item) => !socialArr.includes(item)
+    );
+
+    if (missingItems.length > 0) {
+      setError(`${missingItems.join(", ")} not linked`);
+    }
 
     const filteredSocial = Object.keys(socialArray).filter(
       (social) => social !== "twitter" && social !== "pinterest"
