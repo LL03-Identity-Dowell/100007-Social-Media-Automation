@@ -11,7 +11,8 @@ class IndustrySerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
         q_filter = Q(user__email=email) | Q(is_default=True)
-        self.fields['category'].queryset = Category.objects.filter(q_filter).order_by('-created_datetime')
+        self.fields['category'].queryset = Category.objects.filter(
+            q_filter).order_by('-created_datetime')
         self.fields['category'].required = True
 
     class Meta:
@@ -28,15 +29,18 @@ class SentenceSerializer(serializers.ModelSerializer):
         ('singular', 'singular'),
         ('plural', 'plural'),
     )
-    subject_number=serializers.ChoiceField(choices=NUMBERS,default='singular')
-    object_number=serializers.ChoiceField(choices=NUMBERS,default='singular')
+    subject_number = serializers.ChoiceField(
+        choices=NUMBERS, default='singular')
+    object_number = serializers.ChoiceField(
+        choices=NUMBERS, default='singular')
 
     def __init__(self, *args, **kwargs):
         email = kwargs.pop('email')
         super().__init__(*args, **kwargs)
 
         q_filter = Q(user__email=email) | Q(is_default=True)
-        self.fields['topic'].queryset = UserTopic.objects.filter(q_filter).order_by('-created_datetime')
+        self.fields['topic'].queryset = UserTopic.objects.filter(
+            q_filter).order_by('-created_datetime')
         self.fields['topic'].required = True
         self.fields['object_determinant'].required = True
 
@@ -61,9 +65,9 @@ class UserTopicSerializer(serializers.ModelSerializer):
 
 
 class SelectedResultSerializer(serializers.Serializer):
-    rank_1 = serializers.CharField(required=True)
-    rank_2 = serializers.CharField(required=True)
-    rank_3 = serializers.CharField(required=True)
+    rank_1 = serializers.CharField(required=False)
+    rank_2 = serializers.CharField(required=False)
+    rank_3 = serializers.CharField(required=False)
     rank_4 = serializers.CharField(required=False)
     rank_5 = serializers.CharField(required=False)
     rank_6 = serializers.CharField(required=False)
