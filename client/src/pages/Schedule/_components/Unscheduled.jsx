@@ -24,6 +24,16 @@ const UnscheduledPage = () => {
     const url = `http://127.0.0.1:8000/api/v1/unscheduled-json/?page=${
       page + 1
     }&order=newest`;
+
+    const linkedAcc = "http://127.0.0.1:8000/api/v1/linked-account/";
+    const fetchLinkedAcc = async () => {
+      const res = await axios.get(linkedAcc, {
+        withCredentials: true,
+      });
+
+      console.log(res.data);
+    };
+
     const fetchUnscheduled = async () => {
       await axios
         .get(url, {
@@ -47,6 +57,7 @@ const UnscheduledPage = () => {
         });
     };
     fetchUnscheduled();
+    fetchLinkedAcc();
   }, [page]);
 
   const handlePageClick = (data) => {

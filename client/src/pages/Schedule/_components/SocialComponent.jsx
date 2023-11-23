@@ -16,11 +16,22 @@ export const SocialComponentForPost = ({
     setLoading(true);
     e.preventDefault();
     const socialArray = Object.fromEntries(new FormData(e.currentTarget));
+
+    const filteredSocial = Object.keys(socialArray).filter(
+      (social) => social !== "twitter" && social !== "pinterest"
+    );
+
+    const specialArray = ["twitter", "pinterest"].filter(
+      (social) => socialArray[social]
+    );
+
     const mergedData = {
       ...article,
-      social: Object.keys(socialArray),
-      special: [],
+      social: filteredSocial,
+      special: specialArray,
     };
+
+    console.log(mergedData);
 
     const url = "http://127.0.0.1:8000/api/v1/media_post/";
     await axios
@@ -154,15 +165,25 @@ export const SocialComponentForSchedule = ({
       .filter(([key, value]) => value === "on")
       .map(([key]) => key);
 
+    const filteredSocial = Object.keys(socialArray).filter(
+      (social) => social !== "twitter" && social !== "pinterest"
+    );
+
+    const specialArray = ["twitter", "pinterest"].filter(
+      (social) => socialArray[social]
+    );
+
     const datetimeInput = formData.get("datetime");
 
     const mergedData = {
       ...article,
       time: datetimeInput,
-      social: socialArray,
-      special: [],
+      social: filteredSocial,
+      special: specialArray,
       schedule: "11/23/2023 21:27:00",
     };
+
+    console.log(mergedData);
 
     const url = "http://127.0.0.1:8000/api/v1/media_schedule/";
 
