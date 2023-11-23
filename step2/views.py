@@ -155,7 +155,8 @@ def register(request):
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-        session_id = request.session.get("session_id") or request.GET.get('session_id')
+        session_id = request.session.get(
+            "session_id") or request.GET.get('session_id')
         if session_id:
             user_map = {}
             redirect_to_living_lab = True
@@ -1643,6 +1644,9 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaPostView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1716,6 +1720,9 @@ class MediaPostView(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaScheduleView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -2296,7 +2303,6 @@ def comments_emojis(request):
 
 
 class FacebookFormAPI(AuthenticatedBaseView):
-
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
