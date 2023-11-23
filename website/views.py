@@ -777,6 +777,14 @@ class SelectedResultAPIView(generics.CreateAPIView):
     serializer_class = SelectedResultSerializer
 
     def post(self, request, *args, **kwargs):
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_1_SUB_SERVICE_ID,
+            request=request,
+        )
+        if not credit_response.get('success'):
+            return Response(credit_response, status=HTTP_400_BAD_REQUEST)
+
         selected_result_serializer = SelectedResultSerializer(data=request.data)
         if not selected_result_serializer.is_valid():
             return Response(selected_result_serializer.errors, status=HTTP_400_BAD_REQUEST)
