@@ -842,4 +842,7 @@ class SelectedResultAPIView(generics.CreateAPIView):
         else:
             pass
 
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_1_credit(request)
+
         return Response({'message': 'Sentence ranked successfully'})
