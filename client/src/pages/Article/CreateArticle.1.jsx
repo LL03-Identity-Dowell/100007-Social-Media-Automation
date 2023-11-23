@@ -2,11 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
-import "react-toastify/dist/ReactToastify.css";
 import Loading from "../../components/Loading";
-import { useNavigate } from "react-router-dom";
 
-const CreateArticle = ({ show }) => {
+export const CreateArticle = ({ show }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -17,8 +15,7 @@ const CreateArticle = ({ show }) => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
-  const navigate = useNavigate();
-
+  // const [title, setTitle] = useState();
   useEffect(() => {
     show();
     const callGenerateArticleAPI = () => {
@@ -59,35 +56,37 @@ const CreateArticle = ({ show }) => {
     setPage(data.selected);
   };
 
-  const callGenerateArticleAI = (item) => {
-    console.log(item);
-    const data = {
-      title: item,
-    };
-    setLoading(true);
-
-    axios
-      .post("http://127.0.0.1:8000/api/v1/article/AI/", data, {
-        withCredentials: true,
-      })
-      .then((response) => {
-        console.log(response);
-        setLoading(false);
-        // Handle the response here
-        setSuccess("Topic created successfully...!");
-        navigate("/article");
-      })
-      .catch((error) => {
-        setSuccess(null);
-        setError("Error Fetching Data, Please try again");
-        // Handle any errors
-        console.error(error);
-      });
+  const callGenerateArticleAI = (item, index) => {
+    item.forEach((data) => {});
+    // Make an API request to GenerateArticleView
+    // const payload = {
+    //   title: "Sample Research Topic",
+    //   subject: "Technology",
+    //   verb: "improves",
+    //   target_industry: "Healthcare",
+    //   qualitative_categorization: "Research Article",
+    //   targeted_for: "Medical Professionals",
+    //   designed_for: "Information Sharing",
+    //   targeted_category: "Medical Technology",
+    //   image: "https://example.com/sample-image.jpg",
+    // };
+    // axios
+    //   .post("http://127.0.0.1:8000/api/v1/article/AI/", {
+    //     withCredentials: true,
+    //   })
+    //   .then((response) => {
+    //     // Handle the response here
+    //     console.log(response.data);
+    //     toast.success(response?.data?.message);
+    //   })
+    //   .catch((error) => {
+    //     // Handle any errors
+    //     console.error(error);
+    //   });
   };
 
   const callGenerateArticleWiki = () => {
     // Make an API request to GenerateArticleView
-
     const payload = {
       title: "social",
       subject: "Technology",
@@ -117,7 +116,6 @@ const CreateArticle = ({ show }) => {
 
   const callGenerateArticleWriteYourself = () => {
     // Make an API request to GenerateArticleView
-
     const session_id = localStorage.getItem("session_id");
     const payload = {
       title: "title",
@@ -196,9 +194,7 @@ const CreateArticle = ({ show }) => {
                           <td className="whitespace-nowrap px-6 py-4">
                             <button
                               className="bg-[#999999] text-white text-xs mx-3 rounded p-2 w-auto"
-                              onClick={() =>
-                                callGenerateArticleAI(item.sentence)
-                              }
+                              onClick={callGenerateArticleAI(item, index)}
                             >
                               AiWriter
                             </button>
@@ -249,5 +245,3 @@ const CreateArticle = ({ show }) => {
     </div>
   );
 };
-
-export default CreateArticle;
