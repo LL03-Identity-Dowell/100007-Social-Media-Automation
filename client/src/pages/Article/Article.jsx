@@ -43,7 +43,7 @@ const Article = ({ show }) => {
         setError(null);
         setLoading(false);
         let data = response.data;
-        console.log(data);
+        // console.log(data);
         setArticleData(data.Articles);
         setCount(data.total_items);
         setPageCount(Math.ceil(data.total_items / perPage));
