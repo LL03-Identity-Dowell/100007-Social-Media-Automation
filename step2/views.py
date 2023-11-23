@@ -32,11 +32,14 @@ from pexels_api import API
 from pymongo import MongoClient
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 # rest(React endpoints)
 from rest_framework.views import APIView
 
 from create_article import settings
 from create_article.views import AuthenticatedBaseView
+from credits.constants import STEP_2_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
@@ -445,6 +448,16 @@ class IndexView(AuthenticatedBaseView):
 
 class GenerateArticleView(AuthenticatedBaseView):
     def post(self, request):
+
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_2_SUB_SERVICE_ID,
+            request=request,
+        )
+
+        if not credit_response.get('success'):
+            return Response(credit_response, status=HTTP_400_BAD_REQUEST)
+
         start_datetime = datetime.now()
         session_id = request.GET.get('session_id', None)
 
