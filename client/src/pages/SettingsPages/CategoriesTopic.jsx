@@ -13,7 +13,7 @@ const CategoriesTopic = ({ close }) => {
   const [inputTopicsList, setinputTopicsList] = useState([]);
   const [checkedTopicsList, setcheckedTopicsList] = useState([]);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-  const [checkedCategorys, setCheckedCategorys] = useState([]);
+  const [checkedCategories, setCheckedCategories] = useState([]);
   const [checkedTopics, setCheckedTopics] = useState([]);
   const [getStatus, setGetStatus] = useState();
   const [loading, setLoading] = useState(false);
@@ -49,7 +49,7 @@ const CategoriesTopic = ({ close }) => {
     const updatedChecked = [...checkedCategoryList];
     updatedChecked[index] = !updatedChecked[index];
     setcheckedCategoryList(updatedChecked);
-    setCheckedCategorys(inputCategoryList.filter((_, i) => updatedChecked[i]));
+    setCheckedCategories(inputCategoryList.filter((_, i) => updatedChecked[i]));
     updateSaveButtonState(updatedChecked, checkedTopicsList);
   };
 
@@ -97,14 +97,18 @@ const CategoriesTopic = ({ close }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setLoading(true);
+    //console.log("checkedCategories", checkedCategories);
+    //console.log("Join", checkedCategories.join(','))
+
+    // setLoading(true);
     const data = {
-      category_list: checkedCategorys.join(","),
-      topics_list: checkedTopics.join(","),
+      category_list: checkedCategories.join(","),
+      //topics_list: checkedTopics.join(","),
     };
+
     await axios
       .post(
-        "http://127.0.0.1:8000/api/v1/topics/",
+        "http://127.0.0.1:8000/website/api/v1/category/",
         data,
 
         {
@@ -112,17 +116,39 @@ const CategoriesTopic = ({ close }) => {
         }
       )
       .then((response) => {
-        console.log(response);
-        setLoading(false);
-        setSuccess(null);
-        setTimeout(() => {
-          setSuccess("Categories and Topics are updated...!");
-        }, 1);
+        console.log("response", response);
+        // setLoading(false);
+        // setSuccess(null);
+        // setTimeout(() => {
+        //   setSuccess("Categories and Topics are updated...!");
+        // }, 1);
       })
       .catch((error) => {
         setLoading(false);
         setError("Error making the request. Please try again later.");
       });
+
+      // await axios
+      // .post(
+      //   "http://127.0.0.1:8000/website/api/v1/topic/",
+      //   data,
+
+      //   {
+      //     withCredentials: true,
+      //   }
+      // )
+      // .then((response) => {
+      //   console.log(response);
+      //   setLoading(false);
+      //   setSuccess(null);
+      //   setTimeout(() => {
+      //     setSuccess("Categories and Topics are updated...!");
+      //   }, 1);
+      // })
+      // .catch((error) => {
+      //   setLoading(false);
+      //   setError("Error making the request. Please try again later.");
+      // });
   };
 
   useEffect(() => {
