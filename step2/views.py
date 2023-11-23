@@ -423,10 +423,6 @@ class IndexView(AuthenticatedBaseView):
                     topics = paginator.page(1)
                 except EmptyPage:
                     topics = paginator.page(paginator.num_pages)
-                # if len(topics):
-                #     total_pages=math.ceil(len(topics)/number_of_items_per_page)
-                # total_pages=0
-                # topics=topics[start_number:end_number]
             except Exception as e:
                 print('this is the error that has occured')
                 traceback.print_exc()
@@ -439,7 +435,13 @@ class IndexView(AuthenticatedBaseView):
             serialized_data = RankedTopicListSerializer(
                 topics_data, many=True).data
 
-            return Response({'topics': serialized_data, 'profile': profile, 'page': page})
+            return Response({
+                'topics': serialized_data,
+                'profile': profile,
+                'page': topics.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
+            })
 
         else:
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -1232,116 +1234,116 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         for warnings in r1.json()['warnings']:
             messages.error(request, warnings['message'])
 
+@method_decorator(csrf_exempt, name='dispatch')
+class AryshareProfileView(APIView):
+    def get(self, request, *args, **kwargs):
+        event_id = create_event()['event_id']
+        user = request.session['username']
+        payload = {'title': user}
+        headers = {'Content-Type': 'application/json',
+                   'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
 
-@csrf_exempt
-@xframe_options_exempt
-def aryshare_profile(request):
-    event_id = create_event()['event_id']
-    user = request.session['username']
-    payload = {'title': user}
-    headers = {'Content-Type': 'application/json',
-               'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
+        r = requests.post('https://app.ayrshare.com/api/profiles/profile',
+                          json=payload,
+                          headers=headers)
+        data = r.json()
+        print(data)
+        if data['status'] == 'error':
+            messages.error(request, data['message'])
+        else:
 
-    r = requests.post('https://app.ayrshare.com/api/profiles/profile',
-                      json=payload,
-                      headers=headers)
-    data = r.json()
-    print(data)
-    if data['status'] == 'error':
-        messages.error(request, data['message'])
-    else:
+            url = "http://uxlivinglab.pythonanywhere.com"
+            test_date = str(localdate())
 
-        url = "http://uxlivinglab.pythonanywhere.com"
-        test_date = str(localdate())
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "ayrshare_info",
+                "document": "ayrshare_info",
+                "team_member_ID": "100007001",
+                "function_ID": "ABCDE",
+                "command": "insert",
+                "field": {
+                    "user_id": request.session['user_id'],
+                    "session_id": request.session['session_id'],
+                    'title': data['title'],
+                    'refId': data['refId'],
+                    'profileKey': data['profileKey'],
+                    "eventId": event_id,
 
-        payload = json.dumps({
+                },
+                "update_field": {
+                    "aryshare_details": {
+
+
+
+                    }
+
+
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
+            print(response.text)
+            print(data)
+            return Response("Social media profile created")
+        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class LinkMediaChannelsView(APIView):
+    def get(self, request, *args, **kwargs):
+        session_id = request.GET.get("session_id", None)
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
             "collection": "ayrshare_info",
             "document": "ayrshare_info",
             "team_member_ID": "100007001",
             "function_ID": "ABCDE",
-            "command": "insert",
-            "field": {
-                "user_id": request.session['user_id'],
-                "session_id": request.session['session_id'],
-                'title': data['title'],
-                'refId': data['refId'],
-                'profileKey': data['profileKey'],
-                "eventId": event_id,
-
-            },
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
             "update_field": {
-                "aryshare_details": {
-
-
-
-                }
-
-
+                "order_nos": 21
             },
             "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
         }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        print(response.json())
+        # profile = request.session['operations_right']
 
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
-        print(data)
-        messages.success(request, "Social media profile created...")
-    return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+        post = json.loads(response.json())
 
+        for posts in post['data']:
+            if posts['user_id'] == request.session['user_id']:
+                key = posts['profileKey']
+                print(key)
+        with open(r'C:\Users\HP 250\Desktop\code\100007-Social-Media-Automation\dowellresearch.key') as f:
+            privateKey = f.read()
 
-@csrf_exempt
-@xframe_options_exempt
-def link_media_channels(request):
-    session_id = request.GET.get("session_id", None)
-    url = "http://uxlivinglab.pythonanywhere.com/"
-    headers = {'content-type': 'application/json'}
+        payload = {'domain': 'dowellresearch',
+                   'privateKey': privateKey,
+                   'profileKey': key,
+                   'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
+                   }
+        headers = {'Content-Type': 'application/json',
+                   'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
-    payload = {
-        "cluster": "socialmedia",
-        "database": "socialmedia",
-        "collection": "ayrshare_info",
-        "document": "ayrshare_info",
-        "team_member_ID": "100007001",
-        "function_ID": "ABCDE",
-        "command": "fetch",
-        "field": {"user_id": request.session['user_id']},
-        "update_field": {
-            "order_nos": 21
-        },
-        "platform": "bangalore"
-    }
-    data = json.dumps(payload)
-    response = requests.request("POST", url, headers=headers, data=data)
-    print(response.json())
-    # profile = request.session['operations_right']
-
-    post = json.loads(response.json())
-
-    for posts in post['data']:
-        if posts['user_id'] == request.session['user_id']:
-            key = posts['profileKey']
-            print(key)
-    with open(r'/home/100007/dowellresearch.key') as f:
-        privateKey = f.read()
-
-    payload = {'domain': 'dowellresearch',
-               'privateKey': privateKey,
-               'profileKey': key,
-               'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
-               }
-    headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
-                      json=payload,
-                      headers=headers)
-    link = r.json()
-    print(link)
-    return redirect(link['url'])
+        r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
+                          json=payload,
+                          headers=headers)
+        link = r.json()
+        print(link)
+        return redirect(link['url'])
 
 
 @method_decorator(csrf_exempt, name='dispatch')
