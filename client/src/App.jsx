@@ -129,7 +129,7 @@ function App() {
         <Routes>
           <Route index element={<Home close={handleCloseSideBar} />} />
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
-          <Route path='/rank' element={<Rank show={handleCloseSideBar} />} />
+          <Route path='/rank' element={<Rank show={handleOpenSideBar} />} />
           <Route
             path='/article'
             element={<Article show={handleOpenSideBar} />}
