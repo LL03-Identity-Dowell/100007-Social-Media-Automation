@@ -19,10 +19,7 @@ function Comment({ show }) {
                 placeholder="Type your comments"
               />
             </form>
-            <div
-              id="display-comments"
-              className=" p-2 mt-4 flex flex-row"
-            >
+            <div id="display-comments" className=" p-2 mt-4 flex flex-row">
               <div className="border rounded-full h-12 w-12 "></div>
               <div className="ml-2 px-2 w-full">
                 <p>
@@ -31,7 +28,6 @@ function Comment({ show }) {
                   ex aut ad perspiciatis adipisci dolorem?
                 </p>
               </div>
-              {/*  */}
             </div>
           </div>
         </div>
