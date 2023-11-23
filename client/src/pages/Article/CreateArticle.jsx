@@ -22,7 +22,7 @@ const CreateArticle = ({ show }) => {
           // Handle the response here
           const data = response.data.topics;
           setTopics(data);
-          console.log(data);
+          // console.log(data);
         })
         .catch((error) => {
           // Handle any errors
@@ -120,44 +120,8 @@ const CreateArticle = ({ show }) => {
         toast.error(error?.message);
       });
   };
-
-  // const tabledata = Array(10)
-  //   .fill(" ")
-  //   .map((item, index) => (
-  //     <tr
-  //       key="index"
-  //       class="border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
-  //     >
-  //       <td class="whitespace-nowrap px-6 py-4 font-medium">{index + 1}</td>
-  //       <td class="whitespace-nowrap px-6 py-4">
-  //         The UX living Lab was testing digital documentation
-  //       </td>
-  //       <td class="whitespace-nowrap px-6 py-4">Noble Chinonso</td>
-  //       <td class="whitespace-nowrap px-6 py-4">
-  //         <button
-  //           className="bg-[#999999] text-white text-xs mx-3 rounded p-2 w-auto"
-  //           onClick={callGenerateArticleAI}
-  //         >
-  //           AiWriter
-  //         </button>
-
-  //         <button
-  //           className="bg-[#0866FF] text-white text-xs mx-3 rounded p-2 w-auto"
-  //           onClick={callGenerateArticleWiki}
-  //         >
-  //           Wikipedia
-  //         </button>
-
-  //         <button
-  //           className="bg-[#333333] text-white text-xs mx-3 rounded p-2 w-auto"
-  //           onClick={callGenerateArticleWriteYourself}
-  //         >
-  //           Write Yourself
-  //         </button>
-  //       </td>
-  //     </tr>
-  //   ));
-  return (
+  
+return (
     <div className="flex flex-col justify-center items-center article-container relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
       {loading && <Loading />}
       {/* <ToastContainer /> */}
