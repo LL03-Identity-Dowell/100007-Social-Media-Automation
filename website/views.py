@@ -818,8 +818,11 @@ class SelectedResultAPIView(generics.CreateAPIView):
                     }
                 }
             }
-
-        data_dictionary = request.data.dict()
+        try:
+            data_dictionary = request.data.dict()
+        except Exception as e:
+            print(e)
+            data_dictionary = request.data
         data_dictionary['client_admin_id'] = request.session['userinfo']['client_admin_id']
 
         request.session['data_dictionary'] = {
