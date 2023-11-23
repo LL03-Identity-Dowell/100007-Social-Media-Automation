@@ -457,16 +457,6 @@ class GenerateArticleView(AuthenticatedBaseView):
                 return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 RESEARCH_QUERY = request.data.get("title")
-                subject = request.data.get("subject")
-                verb = request.data.get("verb")
-                target_industry = request.data.get("target_industry")
-                qualitative_categorization = request.data.get(
-                    "qualitative_categorization")
-                targeted_for = request.data.get("targeted_for")
-                designed_for = request.data.get("designed_for")
-                targeted_category = request.data.get("targeted_category")
-                image = request.data.get("image")
-
                 user_selected_cities = []
                 hashtags = []
                 user_tags_mentions = []
@@ -496,7 +486,7 @@ class GenerateArticleView(AuthenticatedBaseView):
 
                 # Modify the prompt to include the formatted user data
                 prompt = (
-                    f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
+                    f"Write an article about {RESEARCH_QUERY}"
                     f" Generate only 2 paragraphs."
                     f" Include the following at the end of the article {formatted_hashtags}."
                     f" Also, append {formatted_cities} to the end of the article ."
@@ -541,16 +531,9 @@ class GenerateArticleView(AuthenticatedBaseView):
                                 "eventId": event_id,
                                 'client_admin_id': client_admin_id,
                                 "title": RESEARCH_QUERY,
-                                "target_industry": target_industry,
-                                "qualitative_categorization": qualitative_categorization,
-                                "targeted_for": targeted_for,
-                                "designed_for": designed_for,
-                                "targeted_category": targeted_category,
                                 "source": sources,
-                                "image": image,
                                 "paragraph": article_str,
                                 "citation_and_url": sources,
-                                "subject": subject,
 
                             }
                             save_data('step3_data', 'step3_data',
@@ -562,10 +545,8 @@ class GenerateArticleView(AuthenticatedBaseView):
                                 "eventId": event_id,
                                 'client_admin_id': client_admin_id,
                                 "title": RESEARCH_QUERY,
-                                "target_industry": target_industry,
                                 "paragraph": article_str,
                                 "source": sources,
-                                "subject": subject,
                                 "citation_and_url": sources,
                             }
                             save_data('step2_data', 'step2_data',
