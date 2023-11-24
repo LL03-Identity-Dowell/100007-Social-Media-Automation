@@ -13,7 +13,7 @@ function Navbar() {
     setUserName(user?.userinfo?.username);
     setUserEmail(user?.userinfo?.email);
 
-  }, [username, userEmail]);
+  });
 
   return (
     <nav className='sticky top-0 z-20 w-full text-white border-b border-gray-200 bg-customBlue dark:bg-gray-900 dark:border-gray-600'>
