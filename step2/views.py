@@ -648,73 +648,38 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
 
 
 class WriteYourselfView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
-        if 'session_id' and 'username' in request.session:
-            if request.method != "POST":
-                return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
-            form = VerifyArticleForm(request.POST)
-
-            if form.is_valid():
-                title = request.POST.get("title")
-
-                response_data = {
-                    'title': title,
-                    'form_data': form.cleaned_data  # Serialize form data, not the form instance
-                }
-
-                return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
-            else:
-                return Response({'error': 'Form validation failed', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-class VerifyArticle(AuthenticatedBaseView):
-    def pot(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
             if request.method != "POST":
-                return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
             else:
                 title = request.data.get("title")
-                # dowellclock = get_dowellclock()
-                article = request.data.get("articletextarea")
+                article_text_area = request.data.get("articletextarea")
                 source = request.data.get("url")
-                form = VerifyArticleForm(request.data)
-
-                if not form.is_valid():
-                    response_data = {
-                        'title': title,
-                        'form': form
-                    }
-                    return Response({'error': 'Please fix the errors below', 'data': response_data}, status=status.HTTP_400_BAD_REQUEST)
+                response_data = {
+                    'title': title,
+                    'articletextarea': article_text_area,
+                    'url': source,
+                }
                 headers = {
                     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
                 try:
                     response = requests.get(source, headers=headers)
                 except Exception as e:
                     print(str(e))
-                    response_data = {
-                        'title': title,
-                        'form': form
-                    }
                     return Response({'error': 'The url of the article has not been authorized!', 'data': response_data}, status=status.HTTP_400_BAD_REQUEST)
-
                 if response.status_code == 403:
-                    response_data = {
-                        'title': title,
-                        'source': source,
-                        'article': article,
-                    }
-                    return Response({'error': 'Error code 403 Forbidden: Website does not allow to verify the article.', 'data': response_data}, status=status.HTTP_403_FORBIDDEN)
-
+                    return Response({'error': 'Error code 403 Forbidden: Website does not allow verification of the article!', 'data': response_data}, status=status.HTTP_403_FORBIDDEN)
                 else:
                     text_from_page_space = text_from_html(response.text)
                     text_from_page = text_from_page_space.replace(" ", "")
                     text_from_page = text_from_page.replace("\xa0", "")
-                    print(article)
-                    paragraph = article.split("\r\n")
-
+                    print(article_text_area)
+                    paragraph = article_text_area.split("\r\n")
                     message = "Article Verified, "
                     for i in range(len(paragraph)):
                         if paragraph[i] == "":
@@ -729,20 +694,20 @@ class VerifyArticle(AuthenticatedBaseView):
                             "source": source,
                             # 'dowelltime': dowellclock
                         }, '34567897799')
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
-                                                           "session_id": session_id,
-                                                           "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo'][
-                        'client_admin_id'],
-                        "title": title,
-                        "paragraph": article,
-                        "source": source,
-                        # 'dowelltime': dowellclock
-                    }, "9992828281")
+                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                            'client_admin_id'],
+                            "title": title,
+                            "paragraph": article_text_area,
+                            "source": source,
+                            # 'dowelltime': dowellclock
+                        }, "9992828281")
 
-                    # credit_handler = CreditHandler()
-                    # credit_handler.consume_step_2_credit(request)
-                    return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
+                        # credit_handler = CreditHandler()
+                        # credit_handler.consume_step_2_credit(request)
+                        return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -3253,15 +3218,9 @@ class UserApprovalView(APIView):
             headers = {
                 'Content-Type': 'application/json'
             }
-<<<<<<< HEAD
-            print("I have", payload)
-            # Use the json parameter to send JSON data
-            response = requests.post(url, headers=headers, json=payload)
-=======
 
             data = json.dumps(payload)
             response = requests.post(url, headers=headers, data=data)
->>>>>>> 56d367704e958f28e3b9930d6b53747daa95d449
             print(response.text)
             return Response({
                 'message': 'Approvals updated successfully',
