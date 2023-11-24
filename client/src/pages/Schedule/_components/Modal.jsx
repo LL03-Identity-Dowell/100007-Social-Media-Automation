@@ -11,6 +11,7 @@ export const PostModal = ({
   setError,
   setLoading,
   setSuccessMessage,
+  socialArr,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -44,6 +45,7 @@ export const PostModal = ({
             setLoading={setLoading}
             setSuccessMessage={setSuccessMessage}
             setOpen={setOpen}
+            socialArr={socialArr}
           />
         </Dialog.Content>
       </Dialog.Portal>
@@ -56,6 +58,7 @@ export const ScheduleModal = ({
   setError,
   setLoading,
   setSuccessMessage,
+  socialArr,
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -89,6 +92,7 @@ export const ScheduleModal = ({
             setLoading={setLoading}
             setSuccessMessage={setSuccessMessage}
             setOpen={setOpen}
+            socialArr={socialArr}
           />
         </Dialog.Content>
       </Dialog.Portal>

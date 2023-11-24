@@ -7,6 +7,7 @@ import { PostModal, ScheduleModal } from "./Modal";
 
 const UnscheduledPage = () => {
   const [unscheduledPost, setUnscheduledPost] = useState([]);
+  const [socialArr, setSocialArr] = useState([]);
   const [sucessMessage, setSuccessMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState();
@@ -19,12 +20,24 @@ const UnscheduledPage = () => {
   const [showMorePages, setShowMorePages] = useState(false);
   // const [readMore, setReadMore] = useState(true);
 
+  console.log(error);
+
   useEffect(() => {
     setLoading(true);
     //Load unscheduled data from API
     const url = `http://127.0.0.1:8000/api/v1/unscheduled-json/?page=${
       page + 1
     }&order=newest`;
+
+    const linkedAcc = "http://127.0.0.1:8000/api/v1/linked-account/";
+    const fetchLinkedAcc = async () => {
+      const res = await axios.get(linkedAcc, {
+        withCredentials: true,
+      });
+
+      setSocialArr(res.data.response);
+    };
+
     const fetchUnscheduled = async () => {
       await axios
         .get(url, {
@@ -50,6 +63,7 @@ const UnscheduledPage = () => {
         });
     };
     fetchUnscheduled();
+    fetchLinkedAcc();
   }, [page]);
 
   const handlePageClick = (data) => {
@@ -127,12 +141,14 @@ const UnscheduledPage = () => {
                   setError={setError}
                   setLoading={setLoading}
                   setSuccessMessage={setSuccessMessage}
+                  socialArr={socialArr}
                 />
                 <ScheduleModal
                   article={item}
                   setError={setError}
                   setLoading={setLoading}
                   setSuccessMessage={setSuccessMessage}
+                  socialArr={socialArr}
                 ></ScheduleModal>
               </div>
             </div>
