@@ -232,7 +232,7 @@ def check_if_user_has_social_media_profile_in_aryshare(username):
 def check_connected_accounts(username):
     headers = {'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
     r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
-    socials = ['hello']
+    socials = []
     try:
         for name in r.json()['profiles']:
             if name['title'] == username:
