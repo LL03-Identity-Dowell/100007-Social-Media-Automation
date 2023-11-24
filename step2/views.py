@@ -642,7 +642,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     # credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
                 elif page.exists() == False:
-                    return Response({'message': f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"}, status=status.HTTP_404_NOT_FOUND)
+                    return Response({'message': f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"})
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 

@@ -33,6 +33,8 @@ import Rank from "./pages/RankPage/Rank";
 import axios from "axios";
 import Loading from "./components/Loading";
 import PortfolioError from "./pages/NotFound/PortfolioError";
+import Wikipidia from "./pages/Article/Wikipidia";
+import WriteYourSelf from "./pages/Article/WriteYourSelf";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -251,6 +253,14 @@ function App() {
           <Route
             path="/createarticle"
             element={<CreateArticle show={handleOpenSideBar} />}
+          />
+          <Route
+            path="/article/Wikipidia/"
+            element={<Wikipidia close={handleCloseSideBar} />}
+          />
+          <Route
+            path="/article/write_yourself/"
+            element={<WriteYourSelf close={handleCloseSideBar} />}
           />
           <Route
             path="/portfolio_check"
