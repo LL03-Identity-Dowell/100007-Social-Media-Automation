@@ -116,7 +116,7 @@ const Home = ({ close }) => {
             <Link to="/post-list">
               <img src={step3} alt="post" className="" title="Post" />
             </Link>
-            <Link to="/scheduled">
+            <Link to="/unscheduled">
               <img src={step4} alt="schedule" className="" title="Schedule" />
             </Link>
             <Link to="/comment">

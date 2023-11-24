@@ -102,7 +102,7 @@ const CategoriesTopic = ({ close }) => {
 
     // setLoading(true);
     const data = {
-      category_list: checkedCategories.join(","),
+      name: checkedCategories.join(","),
       //topics_list: checkedTopics.join(","),
     };
 
