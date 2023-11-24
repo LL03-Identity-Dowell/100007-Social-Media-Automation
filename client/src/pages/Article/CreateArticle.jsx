@@ -60,7 +60,7 @@ const CreateArticle = ({ show }) => {
   };
 
   const callGenerateArticleAI = (item) => {
-    console.log(item);
+    // console.log(item);
     const data = {
       title: item,
     };
@@ -71,11 +71,13 @@ const CreateArticle = ({ show }) => {
         withCredentials: true,
       })
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         setLoading(false);
         // Handle the response here
-        setSuccess("Topic created successfully...!");
-        navigate("/article");
+        setSuccess("Articles created successfully...!");
+        setTimeout(()=>{
+          navigate("/article");
+        }, 2000)
       })
       .catch((error) => {
         setSuccess(null);
@@ -85,33 +87,28 @@ const CreateArticle = ({ show }) => {
       });
   };
 
-  const callGenerateArticleWiki = () => {
+  const callGenerateArticleWiki = (item) => {
     // Make an API request to GenerateArticleView
-
-    const payload = {
-      title: "social",
-      subject: "Technology",
-      verb: "improves",
-      target_industry: "Healthcare",
-      qualitative_categorization: "Research Article",
-      targeted_for: "Medical Professionals",
-      designed_for: "Information Sharing",
-      targeted_category: "Medical Technology",
-      image: "https://example.com/sample-image.jpg",
+    const data = {
+      title: item,
     };
+    
     axios
-      .post("http://127.0.0.1:8000/api/v1/article/wiki/", payload, {
+      .post("http://127.0.0.1:8000/api/v1/article/wiki/", data, {
         withCredentials: true,
       })
       .then((response) => {
         // Handle the response here
-        console.log(response.data);
-        toast.success(response?.data?.message);
+        setLoading(false);
+        // Handle the response here
+        setSuccess("Topic created successfully...!");
+        setTimeout(()=>{
+          navigate("/article");
+        }, 2000)
       })
       .catch((error) => {
-        // Handle any errors
-        console.error(error);
-        toast.error(error?.message);
+        setSuccess(null);
+        setError("Error Fetching Data, Please try again");
       });
   };
 
@@ -205,7 +202,7 @@ const CreateArticle = ({ show }) => {
 
                             <button
                               className="bg-[#0866FF] text-white text-xs mx-3 rounded p-2 w-auto"
-                              onClick={callGenerateArticleWiki}
+                              onClick={()=> callGenerateArticleWiki(item.sentence)}
                             >
                               Wikipedia
                             </button>
