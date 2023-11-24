@@ -29,7 +29,7 @@ const CategoriesTopic = ({ close }) => {
     e.preventDefault();
 
     if (inputCategoryText) {
-      setinputCategoryList([...inputCategoryList, "#" + inputCategoryText]);
+      setinputCategoryList([...inputCategoryList, " " + inputCategoryText]);
       setinputCategoryText("");
       setcheckedCategoryList([...checkedCategoryList, false]);
     }
@@ -62,7 +62,7 @@ const CategoriesTopic = ({ close }) => {
     e.preventDefault();
 
     if (inputTopicsText) {
-      setinputTopicsList([...inputTopicsList, "@" + inputTopicsText]);
+      setinputTopicsList([...inputTopicsList, " " + inputTopicsText]);
       setinputTopicsText("");
       setcheckedTopicsList([...checkedTopicsList, false]);
     }
@@ -216,7 +216,7 @@ const CategoriesTopic = ({ close }) => {
                   </ul>
                 </div>
               </div>
-              <div className="text-center w-full">
+              <div className="text-center w-full ">
                 <label
                   htmlFor="topic"
                   className="text-customBlue text-lg font-bold"
