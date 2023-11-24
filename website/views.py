@@ -1,7 +1,6 @@
 import json
-from datetime import datetime
-
 import requests
+from datetime import datetime
 from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseRedirect
@@ -787,6 +786,10 @@ class SelectedResultAPIView(generics.CreateAPIView):
         userid = request.session['user_id']
         topic = get_client_approval(userid)
         sentence_ids = request.session.get('result_ids')
+
+        if not sentence_ids:
+            return Response({'message': 'The user does not have generated sentences in the session. Please generate '
+                                        'sentences again.'}, status=HTTP_400_BAD_REQUEST)
 
         loop_counter = 1
         for sentence_id in sentence_ids:
