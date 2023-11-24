@@ -448,6 +448,8 @@ class IndexView(AuthenticatedBaseView):
 
 
 class GenerateArticleView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
     def post(self, request):
         start_datetime = datetime.now()
         session_id = request.GET.get('session_id', None)
@@ -982,6 +984,9 @@ class PostListView(AuthenticatedBaseView):
 
 
 class PostDetailView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -1071,6 +1076,9 @@ class PostDetailView(AuthenticatedBaseView):
 
 
 class SavePostView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1214,6 +1222,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
     else:
         for warnings in r1.json()['warnings']:
             messages.error(request, warnings['message'])
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AryshareProfileView(APIView):
