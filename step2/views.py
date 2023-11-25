@@ -781,6 +781,15 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
 class WriteYourselfView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return Response(credit_response, status=HTTP_400_BAD_REQUEST)
+
             if request.method != "POST":
                 return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
             form = VerifyArticleForm(request.POST)
