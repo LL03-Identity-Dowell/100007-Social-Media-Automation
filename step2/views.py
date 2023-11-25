@@ -722,8 +722,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                        }, '34567897799')
                                 print("\n")
 
-                        # credit_handler = CreditHandler()
-                        # credit_handler.consume_step_2_credit(request)
+                        credit_handler = CreditHandler()
+                        credit_handler.consume_step_2_credit(request)
                         if 'article_sub_verb' in locals():
                             return Response({'message': 'Article using verb and subject saved Successfully'}, status=status.HTTP_201_CREATED)
                         else:
