@@ -611,6 +611,16 @@ class GenerateArticleView(AuthenticatedBaseView):
 
 class GenerateArticleWikiView(AuthenticatedBaseView):
     def post(self, request):
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_2_SUB_SERVICE_ID,
+            request=request,
+        )
+
+        if not credit_response.get('success'):
+            return Response(credit_response, status=HTTP_400_BAD_REQUEST)
+
+
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
             if request.method != "POST":
@@ -761,8 +771,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                    }, '34567897799')
                             print("step-3 data saved")
                         break
-                    # credit_handler = CreditHandler()
-                    # credit_handler.consume_step_2_credit(request)
+                    credit_handler = CreditHandler()
+                    credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
