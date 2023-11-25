@@ -765,7 +765,7 @@ def link_media_channels(request):
         if posts['user_id'] == request.session['user_id']:
             key = posts['profileKey']
             print(key)
-    with open(r'/home/100007/dowellresearch.key') as f:
+    with open(r'C:\Users\HP 250\Desktop\code\100007-Social-Media-Automation\dowellresearch.key') as f:
         privateKey = f.read()
 
     payload = {'domain': 'dowellresearch',
@@ -3095,6 +3095,33 @@ def post_detail(request):
         #     sub_service_id=STEP_3_SUB_SERVICE_ID,
         #     request=request,
         # )
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        ayrshare_info = json.loads(response.json())
+        print("here we have", ayrshare_info)
+        for data in ayrshare_info['data']:
+            social_platforms = data['aryshare_details']
+            for key, value in social_platforms.items():
+                handles = value
+                print(handles)
+            break
 
         url = "http://uxlivinglab.pythonanywhere.com"
         payload = json.dumps({
@@ -3165,7 +3192,7 @@ def post_detail(request):
         print(profile)
         messages.info(
             request, 'You are limited to use only images from Samanta AI due to security and privacy policy')
-        return render(request, 'post_detail.html', {'post': post, 'categories': categories, 'images': images, 'profile': profile})
+        return render(request, 'post_detail.html', {'post': post, 'categories': categories, 'images': images, 'profile': profile, 'handles': handles})
     else:
         return render(request, 'error.html')
 
