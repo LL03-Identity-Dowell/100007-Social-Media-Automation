@@ -213,7 +213,7 @@ function Topic({ show }) {
                 Product/Services <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                What is the Product/Services you provide.
+                What is the Product/Services you provide?
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
@@ -235,8 +235,7 @@ function Topic({ show }) {
                 Topic <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                Specify your Topic from the drop down and input your discritive
-                topic in the input feild below
+                Specify your Topic from the drop down.
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
@@ -278,10 +277,10 @@ function Topic({ show }) {
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px]">
               <label htmlFor="category" className="text-lg font-semibold">
-                Article <span className="text-red-600">*</span>
+                Article (optional) <span className="text-red-600"></span>
               </label>
               <p className="md:text-lg">
-                Choose the article you want to use for your title
+                Choose the article you want to use for your title.
               </p>
             </div>
             <div className=" w-[90%] md:w-[50%] xl:w-[40%] flex gap-8">
@@ -341,10 +340,10 @@ function Topic({ show }) {
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px]">
               <label htmlFor="category" className="text-lg font-semibold">
-                Theme <span className="text-red-600">*</span>
+                Theme (optional) <span className="text-red-600"></span>
               </label>
               <p className="md:text-lg">
-                Choose whether your topic should be in singular or plural
+                Choose whether your topic should be in singular or plural.
               </p>
             </div>
             <div className="w-[90%] md:w-[50%] xl:w-[40%] flex gap-8">
@@ -392,8 +391,7 @@ function Topic({ show }) {
                 Purpose <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                Specify your purpose from the drop down and iunput your
-                discriptive purpose in the input field below. (e.g, Digital
+                Input your descriptive purpose in the input field below. (e.g, Digital
                 Documentation)
               </p>
             </div>
@@ -437,11 +435,10 @@ function Topic({ show }) {
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px]">
               <label htmlFor="category" className="text-lg font-semibold">
-                Adjectives <span className="text-red-600">*</span>
+                Adjectives (optional) <span className="text-red-600"></span>
               </label>
               <p className="md:text-lg">
-                Input adjectives (e.g, Optimise,
-                inform)
+                Specify an adjective modifying the object.
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">

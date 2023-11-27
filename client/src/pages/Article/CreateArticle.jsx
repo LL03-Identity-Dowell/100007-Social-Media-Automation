@@ -4,7 +4,8 @@ import ReactPaginate from "react-paginate";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import "react-toastify/dist/ReactToastify.css";
 import Loading from "../../components/Loading";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Wikipidia from "./Wikipidia";
 
 const CreateArticle = ({ show }) => {
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,8 @@ const CreateArticle = ({ show }) => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
+  const [wikipida, setWikipida] = useState(null);
+  // const [showWikipida, setShowWikipida] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -92,54 +95,33 @@ const CreateArticle = ({ show }) => {
     const data = {
       title: item,
     };
-    
+    setLoading(true);
     axios
       .post("http://127.0.0.1:8000/api/v1/article/wiki/", data, {
         withCredentials: true,
       })
       .then((response) => {
         // Handle the response here
-        setLoading(false);
-        // Handle the response here
-        setSuccess("Topic created successfully...!");
-        setTimeout(()=>{
-          navigate("/article");
-        }, 2000)
+        const data = response.data.message
+          setLoading(false);
+          setWikipida(data)
+          navigate("/article/Wikipidia/", { state: { data } })
+          // setShowWikipida(true)
+          // setSuccess(data); 
       })
       .catch((error) => {
+        setLoading(false);
         setSuccess(null);
+        console.log(error);
         setError("Error Fetching Data, Please try again");
       });
   };
 
-  const callGenerateArticleWriteYourself = () => {
-    // Make an API request to GenerateArticleView
-
-    const session_id = localStorage.getItem("session_id");
-    const payload = {
-      title: "title",
-      subject: "subject",
-      verb: "verb",
-      target_industry: "target_industry",
+  const callGenerateArticleWriteYourself = (item) => {
+    const data = {
+      title: item,
     };
-    axios
-      .post(
-        `http://127.0.0.1:8000/api/v1/article/write_yourself/?session_id=${session_id}`,
-        payload,
-        {
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        // Handle the response here
-        console.log(response.data);
-        toast.success(response?.data?.message);
-      })
-      .catch((error) => {
-        // Handle any errors
-        console.error(error);
-        toast.error(error?.message);
-      });
+    navigate("/article/write_yourself/", { state: { data } })
   };
 
   return (
@@ -209,10 +191,11 @@ const CreateArticle = ({ show }) => {
 
                             <button
                               className="bg-[#333333] text-white text-xs mx-3 rounded p-2 w-auto"
-                              onClick={callGenerateArticleWriteYourself}
+                              onClick={()=> callGenerateArticleWriteYourself(item.sentence)}
                             >
                               Write Yourself
                             </button>
+                            
                           </td>
                         </tr>
                       ))}
@@ -243,6 +226,8 @@ const CreateArticle = ({ show }) => {
         breakClassName="p-2"
         activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
       />
+
+      {/* {wikipida && <Wikipidia wikipida={wikipida}/>} */}
     </div>
   );
 };
