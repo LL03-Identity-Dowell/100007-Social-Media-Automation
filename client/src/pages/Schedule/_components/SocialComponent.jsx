@@ -9,13 +9,18 @@ export const SocialComponentForPost = ({
   setLoading,
   setSuccessMessage,
   setOpen,
-  // socialArr,
+  socialArr,
 }) => {
-  const socialArr = ["twitter", "facebook"];
   const navigate = useNavigate();
   const onSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
+
+    const paragraph = Array.isArray(article.paragraph)
+      ? article.paragraph.join(" ")
+      : article.paragraph;
+
+    const editedArticle = { ...article, paragraph };
 
     const formData = new FormData(e.currentTarget);
     const socialArray = Array.from(formData.entries())
@@ -44,23 +49,13 @@ export const SocialComponentForPost = ({
     );
 
     const mergedData = {
-      title:
-        "The workflow ai invoice creation process was tested by the livinglab clients.",
-      paragraph:
-        "The Livinglab clients recently tested the workflow AI invoice creation process. The process was designed to reduce the time and effort it takes to create invoices, thus making the process more efficient and cost-effective. The results of the testing were positive and the clients were satisfied with the results. The process was found to be user-friendly and able to create invoices quickly and accurately. #jkajsjkas #Jacksonville #Jakarta",
-      Date: "2023-11-24 00:00:00",
-      image:
-        "http://dowellfileuploader.uxlivinglab.online/camera_component_images/pexels-photo-4125665.jpeg",
-      source: null,
-      PK: "656062d1a611590a22c768e5",
-      time: "2023-11-24 08:46:04.933400+00:00",
-      social: [],
-      special: [],
+      ...editedArticle,
+      social: filteredSocial,
+      special: specialArray,
     };
 
     const url = "http://127.0.0.1:8000/api/v1/media_post/";
 
-    console.log(mergedData);
     await axios
       .post(url, mergedData, {
         withCredentials: true,
@@ -69,7 +64,6 @@ export const SocialComponentForPost = ({
         setError(null);
         setLoading(false);
         setSuccessMessage("Successfully submit for post");
-        console.log(res);
 
         setTimeout(() => {
           navigate("/recent");
@@ -185,13 +179,21 @@ export const SocialComponentForSchedule = ({
   setLoading,
   setSuccessMessage,
   setOpen,
-  socialArr,
+  // socialArr,
 }) => {
+  const socialArr = ["twitter"];
   const navigate = useNavigate();
   const onSubmit = async (e) => {
     setLoading(true);
 
     e.preventDefault();
+
+    const paragraph = Array.isArray(article.paragraph)
+      ? article.paragraph.join(" ")
+      : article.paragraph;
+
+    const editedArticle = { ...article, paragraph };
+
     const formData = new FormData(e.currentTarget);
     const socialArray = Array.from(formData.entries())
       .filter(([key, value]) => value === "on")
@@ -210,25 +212,23 @@ export const SocialComponentForSchedule = ({
       setError(`${missingItems.join(", ")} not linked`);
     }
 
-    const filteredSocial = Object.keys(socialArray).filter(
+    const filteredSocial = socialArray.filter(
       (social) => social !== "twitter" && social !== "pinterest"
     );
 
-    const specialArray = ["twitter", "pinterest"].filter(
-      (social) => socialArray[social]
+    const specialArray = ["twitter", "pinterest"].filter((social) =>
+      socialArray.includes(social)
     );
 
     const datetimeInput = formData.get("datetime");
 
     const mergedData = {
-      ...article,
+      ...editedArticle,
       time: datetimeInput,
       social: filteredSocial,
       special: specialArray,
       schedule: "11/23/2023 21:27:00",
     };
-
-    console.log(mergedData);
 
     const url = "http://127.0.0.1:8000/api/v1/media_schedule/";
 
