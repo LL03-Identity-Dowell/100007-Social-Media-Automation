@@ -6,7 +6,7 @@ import time
 import traceback
 import urllib
 import urllib.parse
-from datetime import datetime, date
+from datetime import datetime
 # image resizing
 from io import BytesIO
 
@@ -155,8 +155,11 @@ def register(request):
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
+
         session_id = request.session.get(
             "session_id") or request.GET.get('session_id')
+        if not session_id:
+            session_id = request.META.get('HTTP_AUTHORIZATION').split(' ')[:-1]
         if session_id:
             user_map = {}
             redirect_to_living_lab = True
