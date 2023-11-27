@@ -1188,8 +1188,8 @@ class SavePostView(AuthenticatedBaseView):
                     "POST", url, headers=headers, data=payload)
                 print("data:", response.json())
                 # make sure to alert the user that the article has been saved sucesfully. (frontend)
-                # credit_handler = CreditHandler()
-                # credit_handler.consume_step_3_credit(request)
+                credit_handler = CreditHandler()
+                credit_handler.consume_step_3_credit(request)
                 response_data = {
                     "message": "Post saved successfully",
                     # Redirect to step-4
@@ -1223,8 +1223,8 @@ def api_call(postes, platforms, key, image, request, post_id):
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
         messages.success(
             request, 'post have been sucessfully posted')
-        # credit_handler = CreditHandler()
-        # credit_handler.consume_step_4_credit(request)
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
 
     else:
@@ -1254,8 +1254,8 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
         messages.success(
             request, 'post have been sucessfully posted')
-        # credit_handler = CreditHandler()
-        # credit_handler.consume_step_4_credit(request)
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
 
     else:
