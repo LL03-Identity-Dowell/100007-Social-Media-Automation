@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
-import { FaCheck } from "react-icons/fa";
-import { FaTimes } from "react-icons/fa";
+import {useEffect, useState} from "react";
+import {FaCheck, FaTimes} from "react-icons/fa";
 import axios from "axios";
 import Loading from "../../components/Loading";
-import { SuccessMessages } from "../../components/Messages";
-import { ErrorMessages } from "../../components/Messages";
+import {ErrorMessages, SuccessMessages} from "../../components/Messages";
 
 const HashtagsMentions = ({ close }) => {
   const [inputHashtagText, setinputHashtagText] = useState("");
@@ -34,7 +32,7 @@ const HashtagsMentions = ({ close }) => {
 
     if (inputHashtagText) {
       setinputHashtagList([...inputHashtagList, "#" + inputHashtagText]);
-      //console.log("from hashtaglist", inputHashtagList);
+        // console.log("from hashtaglist", inputHashtagList);
       setinputHashtagText("");
       setcheckedHashtagList([...checkedHashtagList, false]);
     }
@@ -119,7 +117,7 @@ const HashtagsMentions = ({ close }) => {
         mentions_list: checkedMentions.join(","),
       };
 
-      console.log("from update", data);
+        //console.log("from update", data);
       await axios
         .put(
           "http://127.0.0.1:8000/api/v1/update-hash-tags-and-mentions/",
@@ -226,7 +224,7 @@ const HashtagsMentions = ({ close }) => {
                             type="checkbox"
                             checked={checkedHashtagList[index]}
                             onChange={() => handleCheckboxHashtagChange(index)}
-                            className="mr-2"
+                            className=" w-4 h-4 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mr-2"
                           />
                           {name}
                           <button

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
+import {Link, useNavigate} from 'react-router-dom';
 
 import Loading from "../../components/Loading";
-import { ErrorMessages, SuccessMessages } from "../../components/Messages";
-import  CSRFToken  from "../../components/CSRFToken";
+import {ErrorMessages, SuccessMessages} from "../../components/Messages";
 
 function Topic({ show }) {
   const [error, setError] = useState("");
@@ -23,6 +23,8 @@ function Topic({ show }) {
     adjective: "",
   });
 
+    const navigate = useNavigate();
+
   useEffect(() => {
     show();
     fetchCategoryTopic();
@@ -38,15 +40,12 @@ function Topic({ show }) {
       .then(([categoryRes, topicRes]) => {
         setUserCategory(categoryRes.data);
         setUserTopic(topicRes.data);
-        console.log(categoryRes.data)
-        console.log(topicRes.data)
       })
       .catch(error => {
         console.error('Error retrieving Category or Topic:', error);
       });
   }
 
-  // console.log(userCategory);
 
   const handelChange = (e) => {
     const { name, value } = e.target;
@@ -60,8 +59,6 @@ function Topic({ show }) {
     var selectedOption = yourTopicElement.options[yourTopicElement.selectedIndex];
     var yourTopic = selectedOption.text;
     setTopicName(yourTopic);
-    // const obj = e.target
-    // console.log(obj);
   };
 
   function capitalizeFirstLetter(word) {
@@ -82,7 +79,7 @@ function Topic({ show }) {
       setError("Required field(s) missing please fill");
       setTimeout(() => {
         setError("");
-        return;
+
       }, 4000);
 
     } else {
@@ -98,7 +95,6 @@ function Topic({ show }) {
         object_determinant: inputs.article,
         subject_number: inputs.theme,
       };
-      console.log(data);
 
       axios
         .post(`http://127.0.0.1:8000/website/api/v1`, data, {
@@ -107,23 +103,16 @@ function Topic({ show }) {
         .then((response) => {
           setLoading(false)
           let resData = response.data;
-          console.log(resData);
-
-          setSuccess("Topic created successful..!");
+            setSuccess("Topics created successfully!");
+            setTimeout(() => {
+                handleSentenceNavigate(resData)
+            }, 2000);
         })
         .catch((error) => {
           setLoading(false);
-          setError("Error creating topic..!");
-          console.error("Error creating topic:", error);
+            setError("Error creating topics..!");
+            console.error("Error creating topics:", error);
         });
-
-
-      // setInputs({
-      //   ...inputs,
-      //   success: "Topic created successful..!",
-      //   // error: "Error creating topic..!",
-      //   loading: true
-      // });
 
       setTimeout(() => {
         setError("");
@@ -131,8 +120,15 @@ function Topic({ show }) {
 
     }
 
-
   };
+
+
+    // handle navigation to Ramk page with sentence data
+    const handleSentenceNavigate = (sentenceData) => {
+        navigate('/rank', {state: {data: sentenceData}});
+    }
+
+
 
   return (
     <div>
@@ -164,6 +160,7 @@ function Topic({ show }) {
         >
           {/* <CSRFToken/> */}
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
+
             <div className="w-full md:w-[300px] ">
               <label htmlFor="category" className="text-lg font-semibold">
                 Category <span className="text-red-600">*</span>
@@ -172,8 +169,9 @@ function Topic({ show }) {
                 Please select the category that suits you.
               </p>
             </div>
+
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none ">
+                <div className="absolute bottom-8 left-0 flex items-center pl-3 pointer-events-none">
                 <span className="w-[65px] border-r border-gray-300 py-4">
                   Choose
                 </span>
@@ -192,11 +190,20 @@ function Topic({ show }) {
                     <option value={category.id} key={index}>{category.name}</option>
                   ))
                 }
-
-                {/* <option value="list2">List2</option>
-                <option value="list3">List3</option> */}
               </select>
+
+                <div className="flex flex-row-reverse pt-2">
+                    <Link
+                        to="/settings/categoriesandtopic"
+                        className="bg-blue-100 hover:bg-blue-200 text-blue-800 text-xs font-semibold me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400 items-center justify-center"
+                    >
+                        Add more
+                    </Link>
+                </div>
+
+
             </div>
+
           </div>
 
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
@@ -205,7 +212,7 @@ function Topic({ show }) {
                 Product/Services <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                What is the Product/Services you provide.
+                  What is the Product/Services you provide?
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
@@ -227,12 +234,11 @@ function Topic({ show }) {
                 Topic <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                Specify your Topic from the drop down and input your discritive
-                topic in the input feild below
+                  Specify your Topic from the drop down.
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none ">
+                <div className="absolute bottom-8 left-0 flex items-center pl-3 pointer-events-none ">
                 <span className="w-[65px] border-r border-gray-300 py-4">
                   Choose
                 </span>
@@ -253,20 +259,27 @@ function Topic({ show }) {
                   ))
                 }
 
-                {/* <option value="list1">List1</option>
-                <option value="list2">List2</option>
-                <option value="list3">List3</option> */}
               </select>
+
+                <div className="flex flex-row-reverse pt-2">
+                    <Link
+                        to="/settings/categoriesandtopic"
+                        className="bg-blue-100 hover:bg-blue-200 text-blue-800 text-xs font-semibold me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400 items-center justify-center"
+                    >
+                        Add more
+                    </Link>
+                </div>
+
             </div>
           </div>
 
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px]">
               <label htmlFor="category" className="text-lg font-semibold">
-                Article <span className="text-red-600">*</span>
+                  Article (optional) <span className="text-red-600"></span>
               </label>
               <p className="md:text-lg">
-                Choose the article you want to use for your title
+                  Choose the article you want to use for your title.
               </p>
             </div>
             <div className=" w-[90%] md:w-[50%] xl:w-[40%] flex gap-8">
@@ -326,10 +339,10 @@ function Topic({ show }) {
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px]">
               <label htmlFor="category" className="text-lg font-semibold">
-                Theme <span className="text-red-600">*</span>
+                  Theme (optional) <span className="text-red-600"></span>
               </label>
               <p className="md:text-lg">
-                Choose whether your topic should be in singular or plural
+                  Choose whether your topic should be in singular or plural.
               </p>
             </div>
             <div className="w-[90%] md:w-[50%] xl:w-[40%] flex gap-8">
@@ -377,8 +390,7 @@ function Topic({ show }) {
                 Purpose <span className="text-red-600">*</span>
               </label>
               <p className="md:text-lg">
-                Specify your purpose from the drop down and iunput your
-                discriptive purpose in the input field below. (e.g, Digital
+                  Input your descriptive purpose in the input field below. (e.g, Digital
                 Documentation)
               </p>
             </div>
@@ -422,11 +434,10 @@ function Topic({ show }) {
           <div className="flex justify-center md:items-center gap-2 md:gap-8 flex-col md:flex-row mr-6 md:mr-0 w-full ">
             <div className="w-full md:w-[300px]">
               <label htmlFor="category" className="text-lg font-semibold">
-                Adjectives <span className="text-red-600">*</span>
+                  Adjectives (optional) <span className="text-red-600"></span>
               </label>
               <p className="md:text-lg">
-                Input adjectives (e.g, Optimise,
-                inform)
+                  Specify an adjective modifying the object.
               </p>
             </div>
             <div className="relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden">

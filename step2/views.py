@@ -6,7 +6,7 @@ import time
 import traceback
 import urllib
 import urllib.parse
-from datetime import datetime, date
+from datetime import datetime
 # image resizing
 from io import BytesIO
 
@@ -158,11 +158,13 @@ def register(request):
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-        if request.session.get("session_id"):
+        session_id = request.session.get(
+            "session_id") or request.GET.get('session_id')
+        if session_id:
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-            session_id = request.session["session_id"]
+
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
@@ -304,6 +306,9 @@ class ListArticleView(AuthenticatedBaseView):
 
 
 class ArticleDetailView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             profile = request.session['operations_right']
@@ -424,10 +429,6 @@ class IndexView(AuthenticatedBaseView):
                     topics = paginator.page(1)
                 except EmptyPage:
                     topics = paginator.page(paginator.num_pages)
-                # if len(topics):
-                #     total_pages=math.ceil(len(topics)/number_of_items_per_page)
-                # total_pages=0
-                # topics=topics[start_number:end_number]
             except Exception as e:
                 print('this is the error that has occured')
                 traceback.print_exc()
@@ -440,13 +441,22 @@ class IndexView(AuthenticatedBaseView):
             serialized_data = RankedTopicListSerializer(
                 topics_data, many=True).data
 
-            return Response({'topics': serialized_data, 'profile': profile, 'page': page})
+            return Response({
+                'topics': serialized_data,
+                'profile': profile,
+                'page': topics.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
+            })
 
         else:
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class GenerateArticleView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
 
         credit_handler = CreditHandler()
@@ -466,16 +476,6 @@ class GenerateArticleView(AuthenticatedBaseView):
                 return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 RESEARCH_QUERY = request.data.get("title")
-                subject = request.data.get("subject")
-                verb = request.data.get("verb")
-                target_industry = request.data.get("target_industry")
-                qualitative_categorization = request.data.get(
-                    "qualitative_categorization")
-                targeted_for = request.data.get("targeted_for")
-                designed_for = request.data.get("designed_for")
-                targeted_category = request.data.get("targeted_category")
-                image = request.data.get("image")
-
                 user_selected_cities = []
                 hashtags = []
                 user_tags_mentions = []
@@ -505,7 +505,7 @@ class GenerateArticleView(AuthenticatedBaseView):
 
                 # Modify the prompt to include the formatted user data
                 prompt = (
-                    f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
+                        f"Write an article about {RESEARCH_QUERY}"
                     f" Generate only 2 paragraphs."
                     f" Include the following at the end of the article {formatted_hashtags}."
                     f" Also, append {formatted_cities} to the end of the article ."
@@ -550,16 +550,9 @@ class GenerateArticleView(AuthenticatedBaseView):
                                 "eventId": event_id,
                                 'client_admin_id': client_admin_id,
                                 "title": RESEARCH_QUERY,
-                                "target_industry": target_industry,
-                                "qualitative_categorization": qualitative_categorization,
-                                "targeted_for": targeted_for,
-                                "designed_for": designed_for,
-                                "targeted_category": targeted_category,
                                 "source": sources,
-                                "image": image,
                                 "paragraph": article_str,
                                 "citation_and_url": sources,
-                                "subject": subject,
 
                             }
                             save_data('step3_data', 'step3_data',
@@ -571,10 +564,8 @@ class GenerateArticleView(AuthenticatedBaseView):
                                 "eventId": event_id,
                                 'client_admin_id': client_admin_id,
                                 "title": RESEARCH_QUERY,
-                                "target_industry": target_industry,
                                 "paragraph": article_str,
                                 "source": sources,
-                                "subject": subject,
                                 "citation_and_url": sources,
                             }
                             save_data('step2_data', 'step2_data',
@@ -610,6 +601,9 @@ class GenerateArticleView(AuthenticatedBaseView):
 
 
 class GenerateArticleWikiView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
         credit_handler = CreditHandler()
         credit_response = credit_handler.check_if_user_has_enough_credits(
@@ -627,19 +621,10 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                 return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 title = request.data.get("title")
-                subject = request.data.get("subject")
-                verb = request.data.get("verb")
-                target_industry = request.data.get("target_industry")
-                qualitative_categorization = request.data.get(
-                    "qualitative_categorization")
-                targeted_for = request.data.get("targeted_for")
-                designed_for = request.data.get("designed_for")
-                targeted_category = request.data.get("targeted_category")
-                image = request.data.get("image")
-
                 wiki_language = wikipediaapi.Wikipedia(
                     language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
                 page = wiki_language.page(title)
+                if page.exists():
                 page_exists = page.exists()
 
                 if page_exists is False:
@@ -741,10 +726,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                    "eventId": create_event()['event_id'],
                                                                    'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                    "title": title,
-                                                                   "target_industry": target_industry,
                                                                    "paragraph": article[0],
                                                                    "source": page.fullurl,
-                                                                   'subject': subject,
                                                                    # 'dowelltime': dowellclock
                                                                    }, "9992828281")
                             print("step-2 data saved")
@@ -758,15 +741,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                    "eventId": create_event()['event_id'],
                                                                    'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                    "title": title,
-                                                                   "target_industry": target_industry,
-                                                                   "qualitative_categorization": qualitative_categorization,
-                                                                   "targeted_for": targeted_for,
-                                                                   "designed_for": designed_for,
-                                                                   "targeted_category": targeted_category,
-                                                                   "image": image,
                                                                    "paragraph": para_list[i],
                                                                    "citation_and_url": page.fullurl,
-                                                                   'subject': subject,
                                                                    # 'dowelltime': dowellclock
                                                                    }, '34567897799')
                             print("step-3 data saved")
@@ -774,11 +750,15 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     credit_handler = CreditHandler()
                     credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
+                elif page.exists() == False:
+                return Response({
+                                    'message': f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"},
+                                status=status.HTTP_404_NOT_FOUND)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class WriteYourselfView(AuthenticatedBaseView):
+class WriteYourselfView(APIView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             credit_handler = CreditHandler()
@@ -796,15 +776,9 @@ class WriteYourselfView(AuthenticatedBaseView):
 
             if form.is_valid():
                 title = request.POST.get("title")
-                subject = request.POST.get("subject")
-                verb = request.POST.get("verb")
-                target_industry = request.POST.get("target_industry")
 
                 response_data = {
                     'title': title,
-                    'subject': subject,
-                    'verb': verb,
-                    'target_industry': target_industry,
                     'form_data': form.cleaned_data  # Serialize form data, not the form instance
                 }
 
@@ -823,15 +797,6 @@ class VerifyArticle(AuthenticatedBaseView):
                 return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 title = request.data.get("title")
-                subject = request.data.get("subject")
-                verb = request.data.get("verb")
-                target_industry = request.data.get("target_industry")
-                qualitative_categorization = request.data.get(
-                    "qualitative_categorization")
-                targeted_for = request.data.get("targeted_for")
-                designed_for = request.data.get("designed_for")
-                targeted_category = request.data.get("targeted_category")
-                image = request.data.get("image")
                 # dowellclock = get_dowellclock()
                 article = request.data.get("articletextarea")
                 source = request.data.get("url")
@@ -840,9 +805,6 @@ class VerifyArticle(AuthenticatedBaseView):
                 if not form.is_valid():
                     response_data = {
                         'title': title,
-                        'subject': subject,
-                        'verb': verb,
-                        'target_industry': target_industry,
                         'form': form
                     }
                     return Response({'error': 'Please fix the errors below', 'data': response_data}, status=status.HTTP_400_BAD_REQUEST)
@@ -854,15 +816,11 @@ class VerifyArticle(AuthenticatedBaseView):
                     print(str(e))
                     response_data = {
                         'title': title,
-                        'subject': subject,
-                        'verb': verb,
-                        'target_industry': target_industry,
                         'form': form
                     }
                     return Response({'error': 'The url of the article has not been authorized!', 'data': response_data}, status=status.HTTP_400_BAD_REQUEST)
 
                 if response.status_code == 403:
-                    message = "Error code 403 Forbidden: Website does not allow to verify the article."
                     response_data = {
                         'title': title,
                         'source': source,
@@ -887,51 +845,24 @@ class VerifyArticle(AuthenticatedBaseView):
                                                                'client_admin_id': request.session['userinfo'][
                             'client_admin_id'],
                             "title": title,
-                            "target_industry": target_industry,
-                            "qualitative_categorization": qualitative_categorization,
-                            "targeted_for": targeted_for,
-                            "designed_for": designed_for,
-                            "targeted_category": targeted_category,
-                            "image": image,
                             "paragraph": paragraph[i],
                             "source": source,
-                            'subject': subject,
                             # 'dowelltime': dowellclock
                         }, '34567897799')
-                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo'][
-                            'client_admin_id'],
-                            "title": title,
-                            "qualitative_categorization": qualitative_categorization,
-                            "targeted_for": targeted_for,
-                            "designed_for": designed_for,
-                            "targeted_category": targeted_category,
-                            "image": image,
-                            "paragraph": paragraph,
-                            "source": source,
-                            "date": str(date),
-                            "time": str(time),
-                        }, '34567897799')
-
                     save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo'][
                         'client_admin_id'],
                         "title": title,
-                        "target_industry": target_industry,
                         "paragraph": article,
                         "source": source,
-                        'subject': subject,
                         # 'dowelltime': dowellclock
                     }, "9992828281")
 
                     # credit_handler = CreditHandler()
                     # credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
-
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -1029,6 +960,9 @@ class PostListView(AuthenticatedBaseView):
 
 
 class PostDetailView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -1108,16 +1042,18 @@ class PostDetailView(AuthenticatedBaseView):
                 return redirect(reverse('generate_article:article-list'))
             images = output[1]
             print(profile)
-            messages.info(
-                request, 'You are limited to use only images from Samanta AI due to security and privacy policy')
             response_data = {'post': post, 'categories': categories,
-                             'images': images, 'profile': profile}
+                             'images': images, 'profile': profile,
+                             "message": "You are limited to use only images from Samanta AI due to security and privacy policy"}
             return Response(response_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class SavePostView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1263,115 +1199,113 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
             messages.error(request, warnings['message'])
 
 
-@csrf_exempt
-@xframe_options_exempt
-def aryshare_profile(request):
-    event_id = create_event()['event_id']
-    user = request.session['username']
-    payload = {'title': user}
-    headers = {'Content-Type': 'application/json',
-               'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
+@method_decorator(csrf_exempt, name='dispatch')
+class AryshareProfileView(APIView):
+    def get(self, request, *args, **kwargs):
+        event_id = create_event()['event_id']
+        user = request.session['username']
+        payload = {'title': user}
+        headers = {'Content-Type': 'application/json',
+                   'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
 
-    r = requests.post('https://app.ayrshare.com/api/profiles/profile',
-                      json=payload,
-                      headers=headers)
-    data = r.json()
-    print(data)
-    if data['status'] == 'error':
-        messages.error(request, data['message'])
-    else:
+        r = requests.post('https://app.ayrshare.com/api/profiles/profile',
+                          json=payload,
+                          headers=headers)
+        data = r.json()
+        print(data)
+        if data['status'] == 'error':
+            messages.error(request, data['message'])
+        else:
 
-        url = "http://uxlivinglab.pythonanywhere.com"
-        test_date = str(localdate())
+            url = "http://uxlivinglab.pythonanywhere.com"
+            test_date = str(localdate())
 
-        payload = json.dumps({
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "ayrshare_info",
+                "document": "ayrshare_info",
+                "team_member_ID": "100007001",
+                "function_ID": "ABCDE",
+                "command": "insert",
+                "field": {
+                    "user_id": request.session['user_id'],
+                    "session_id": request.session['session_id'],
+                    'title': data['title'],
+                    'refId': data['refId'],
+                    'profileKey': data['profileKey'],
+                    "eventId": event_id,
+
+                },
+                "update_field": {
+                    "aryshare_details": {
+
+                    }
+
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.request(
+                "POST", url, headers=headers, data=payload)
+            print(response.text)
+            print(data)
+            return Response("Social media profile created")
+        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class LinkMediaChannelsView(APIView):
+    def get(self, request, *args, **kwargs):
+        session_id = request.GET.get("session_id", None)
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
             "collection": "ayrshare_info",
             "document": "ayrshare_info",
             "team_member_ID": "100007001",
             "function_ID": "ABCDE",
-            "command": "insert",
-            "field": {
-                "user_id": request.session['user_id'],
-                "session_id": request.session['session_id'],
-                'title': data['title'],
-                'refId': data['refId'],
-                'profileKey': data['profileKey'],
-                "eventId": event_id,
-
-            },
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
             "update_field": {
-                "aryshare_details": {
-
-
-
-                }
-
-
+                "order_nos": 21
             },
             "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
         }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        print(response.json())
+        # profile = request.session['operations_right']
 
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.text)
-        print(data)
-        messages.success(request, "Social media profile created...")
-    return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+        post = json.loads(response.json())
 
+        for posts in post['data']:
+            if posts['user_id'] == request.session['user_id']:
+                key = posts['profileKey']
+                print(key)
+        with open(r'C:\Users\HP 250\Desktop\code\100007-Social-Media-Automation\dowellresearch.key') as f:
+            privateKey = f.read()
 
-@csrf_exempt
-@xframe_options_exempt
-def link_media_channels(request):
-    session_id = request.GET.get("session_id", None)
-    url = "http://uxlivinglab.pythonanywhere.com/"
-    headers = {'content-type': 'application/json'}
+        payload = {'domain': 'dowellresearch',
+                   'privateKey': privateKey,
+                   'profileKey': key,
+                   'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
+                   }
+        headers = {'Content-Type': 'application/json',
+                   'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
 
-    payload = {
-        "cluster": "socialmedia",
-        "database": "socialmedia",
-        "collection": "ayrshare_info",
-        "document": "ayrshare_info",
-        "team_member_ID": "100007001",
-        "function_ID": "ABCDE",
-        "command": "fetch",
-        "field": {"user_id": request.session['user_id']},
-        "update_field": {
-            "order_nos": 21
-        },
-        "platform": "bangalore"
-    }
-    data = json.dumps(payload)
-    response = requests.request("POST", url, headers=headers, data=data)
-    print(response.json())
-    # profile = request.session['operations_right']
-
-    post = json.loads(response.json())
-
-    for posts in post['data']:
-        if posts['user_id'] == request.session['user_id']:
-            key = posts['profileKey']
-            print(key)
-    with open(r'/home/100007/dowellresearch.key') as f:
-        privateKey = f.read()
-
-    payload = {'domain': 'dowellresearch',
-               'privateKey': privateKey,
-               'profileKey': key,
-               'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
-               }
-    headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
-                      json=payload,
-                      headers=headers)
-    link = r.json()
-    print(link)
-    return redirect(link['url'])
+        r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
+                          json=payload,
+                          headers=headers)
+        link = r.json()
+        print(link)
+        return redirect(link['url'])
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1674,6 +1608,9 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaPostView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1747,6 +1684,9 @@ class MediaPostView(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaScheduleView(AuthenticatedBaseView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -2327,7 +2267,6 @@ def comments_emojis(request):
 
 
 class FacebookFormAPI(AuthenticatedBaseView):
-
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:

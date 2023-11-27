@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import ExtraSmallBtn from "../../components/ExtraSmallBtn/ExtraSmallBtn";
 import axios from "axios";
 import Loading from "../../components/Loading";
-import { ErrorMessages } from "../../components/Messages";
-import SpecificArticle from "./SpecificArticle";
+import {ErrorMessages} from "../../components/Messages";
 
 const Article = ({ show }) => {
   const [articleData, setArticleData] = useState();
@@ -43,7 +42,7 @@ const Article = ({ show }) => {
         setError(null);
         setLoading(false);
         let data = response.data;
-        console.log(data);
+          // console.log(data);
         setArticleData(data.Articles);
         setCount(data.total_items);
         setPageCount(Math.ceil(data.total_items / perPage));

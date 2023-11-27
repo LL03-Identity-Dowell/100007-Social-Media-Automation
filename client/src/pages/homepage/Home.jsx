@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
+import React, {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
+import {LadyPixel, step1, step2, step3, step4, step5} from "../../assets";
 import Loading from "../../components/Loading";
 
 const Home = ({ close }) => {
@@ -116,7 +116,7 @@ const Home = ({ close }) => {
             <Link to="/post-list">
               <img src={step3} alt="post" className="" title="Post" />
             </Link>
-            <Link to="/scheduled">
+              <Link to="/unscheduled">
               <img src={step4} alt="schedule" className="" title="Schedule" />
             </Link>
             <Link to="/comment">

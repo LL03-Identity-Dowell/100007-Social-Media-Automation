@@ -11,7 +11,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, VerifyArticle, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
-                    )
+                    LinkMediaChannelsView, AryshareProfileView)
 
 app_name = 'generate_article'
 
@@ -26,8 +26,6 @@ urlpatterns = [
     path('confirm/reset/password/', views.confirm_reset_password,
          name='confirm-reset-password'),
     path('forget_password/', views.forget_password, name='forget_password'),
-    path('link/linkusers/', views.aryshare_profile, name='aryshare'),
-    path('link_social_media/', views.link_media_channels, name='link_social_media'),
     path('topics/', views.topics, name='topics'),
     path('signup/', views.register, name='register'),
     path('user/info/', views.User_Info_ListView, name='user-info'),
@@ -98,5 +96,10 @@ urlpatterns = [
          LinkedAccountsJson.as_view(), name='linked-account'),
     path('api/v1/can-post/',
          CanPostOnSocialMedia.as_view(), name='can-post'),
+    path('api/v1/link/linkusers/', AryshareProfileView.as_view(), name='can-post'),
+    path('api/v1/link/', LinkMediaChannelsView.as_view(), name='can-post'),
+
+
+
 
 ]

@@ -1,12 +1,13 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import ReactPaginate from "react-paginate";
 import Loading from "../../../components/Loading";
-import { ErrorMessages } from "../../../components/Messages";
+import {ErrorMessages, SuccessMessages} from "../../../components/Messages";
 
 const MostRecent = () => {
   const [articles, setArticles] = useState();
   const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState();
   const [error, setError] = useState();
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
@@ -32,15 +33,17 @@ const MostRecent = () => {
         .then((response) => {
           setError(null);
           setLoading(false);
+            setSuccess('Successfully fetched posts')
           let data = response.data.MostRecentPosts.response;
           setArticles(data);
-          console.log(response.data);
+            // console.log(response.data);
           setCount(response.data.total_items);
           setPageCount(Math.ceil(response.data.total_items / perPage));
           setShowMorePages(pageCount > pagesToDisplay);
           window.scrollTo(0, 0);
         })
         .catch((error) => {
+            setSuccess(null)
           setLoading(false);
           setError("Server error, Please try again later");
           console.error("Error fetching article:", error);
@@ -49,26 +52,57 @@ const MostRecent = () => {
     fetch();
   }, [page]);
 
-  
-
   // console.log(articles);
   const handlePageClick = (data) => {
     setPage(data.selected);
   };
 
-  // const loadMorePages = () => {
-  //   if (pageCount > pagesToDisplay) {
-  //     const nextPagesToDisplay = Math.min(pageCount - page, pagesToDisplay);
-  //     setShowMorePages(nextPagesToDisplay + page < pageCount);
-  //     setPage(page + nextPagesToDisplay);
-  //   }
-  // };
+    const ReadMoreParagraph = ({text}) => {
+        const [readMore, setReadMore] = useState(false);
+
+        const [isOverflowed, setIsOverflowed] = useState(false);
+        const paragraphRef = useRef(null);
+
+        useEffect(() => {
+            const paragraphElement = paragraphRef.current;
+
+            // Check if the paragraph content overflows the container
+            setIsOverflowed(
+                paragraphElement.scrollHeight > paragraphElement.clientHeight
+            );
+        }, [text]);
+
+        const handleReadMore = () => {
+            setReadMore(!readMore);
+        };
+
+        return (
+            <div>
+                <p
+                    ref={paragraphRef}
+                    className={`lg:pt-4 lg:px-6 px-2 text-md lg:text-lg text-gray-600 ${
+                        readMore ? "" : "line-clamp-4"
+                    } lg:w-[920px]`}
+                >
+                    {text}
+                </p>
+                {isOverflowed && (
+                    <span
+                        onClick={handleReadMore}
+                        className="text-md lg:text-lg lg:px-6 text-customTextBlue cursor-pointer font-semibold px-2"
+                    >
+          {readMore ? "Read Less..." : "Read More..."}
+        </span>
+                )}
+            </div>
+        );
+    };
 
   return (
     <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
-
+        {success && <SuccessMessages>{success}</SuccessMessages>}
       <p className="px-6 py-2 italic">Total article count: {count}</p>
 
       <div>
@@ -89,9 +123,7 @@ const MostRecent = () => {
                         {article.title}
                       </p>
 
-                      <p className="lg:px-6 lg:pt-4 px-2 text-md lg:text-lg text-gray-600 line-clamp-4 lg:w-[920px] ">
-                        {article.paragraph}
-                      </p>
+                        <ReadMoreParagraph text={article.paragraph}/>
                     </div>
 
                     <div className="mr-4 lg:mr-8">

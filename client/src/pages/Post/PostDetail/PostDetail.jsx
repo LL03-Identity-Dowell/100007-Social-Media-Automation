@@ -1,13 +1,11 @@
-import { useState, useEffect, Fragment } from "react";
-import { Link } from "react-router-dom";
-import { Menu, Transition } from "@headlessui/react";
+import {Fragment, useEffect, useState} from "react";
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import {Menu, Transition} from "@headlessui/react";
 import axios from "axios";
 
-import { UnstyledButton } from "../../../components/UnstyledBtn";
+import {UnstyledButton} from "../../../components/UnstyledBtn";
 import Loading from "../../../components/Loading";
-import { ErrorMessages, SuccessMessages } from "../../../components/Messages";
-
-import { useLocation, useNavigate } from 'react-router-dom';
+import {ErrorMessages, SuccessMessages} from "../../../components/Messages";
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
@@ -360,7 +358,12 @@ function PostDetail({ show }) {
                             onChange={handelChange}
                             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                         >
-                            <option value='Category'>Category</option>
+                            {/* <option value='Category'>Category</option> */}
+                            <option value="Valuable">Valuable</option>
+                            <option value="Aspirational">Aspirational</option>
+                            <option value="Lifecycle">Lifecycle</option>
+                            <option value="Unique">Unique</option>
+                            <option value="Evergreen">Evergreen</option>
                         </select>
                     </div>
 
