@@ -12,7 +12,6 @@ export const SocialComponentForPost = ({
   socialArr,
 }) => {
   const navigate = useNavigate();
-
   const onSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
@@ -93,7 +92,11 @@ export const SocialComponentForPost = ({
             htmlFor='twitter'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/twitter.svg' className='w-20 h-20' alt='twitter' />
+            <img
+              src='/square-x-twitter.svg'
+              className='w-20 h-20'
+              alt='twitter'
+            />
             <input
               name='twitter'
               className='w-3 h-3'
@@ -259,7 +262,11 @@ export const SocialComponentForSchedule = ({
             htmlFor='twitter'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/twitter.svg' className='w-20 h-20' alt='twitter' />
+            <img
+              src='/square-x-twitter.svg'
+              className='w-20 h-20'
+              alt='twitter'
+            />
             <input
               name='twitter'
               className='w-3 h-3'
@@ -322,7 +329,7 @@ export const SocialComponentForSchedule = ({
           <Dialog.Close asChild>
             <button
               type='button'
-              className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-[#5c6388]'
+              className='px-7 py-2.5 text-base font-medium text-white rounded-md bg-[#464646] hover:opacity-95'
             >
               Remove
             </button>

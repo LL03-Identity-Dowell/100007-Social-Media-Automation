@@ -199,7 +199,9 @@ class UserCategoriesAPIView(generics.ListCreateAPIView):
     """
 
     """
-    permission_classes = (HasBeenAuthenticated,)
+    # permission_classes = (HasBeenAuthenticated,)
+    permission_classes = ()
+    authentication_classes = ()
     serializer_class = CategorySerializer
 
     def get_queryset(self):
@@ -217,7 +219,9 @@ class UserTopicAPIView(generics.ListCreateAPIView):
     """
 
     """
-    permission_classes = (HasBeenAuthenticated,)
+    # permission_classes = (HasBeenAuthenticated,)
+    permission_classes = ()
+    authentication_classes = ()
     serializer_class = UserTopicSerializer
 
     def get_queryset(self):
