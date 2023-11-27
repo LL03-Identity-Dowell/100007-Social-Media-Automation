@@ -15,7 +15,8 @@ const CategoriesTopic = ({ close }) => {
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [checkedCategories, setCheckedCategories] = useState([]);
   const [checkedTopics, setCheckedTopics] = useState([]);
-  const [getStatus, setGetStatus] = useState();
+  const [categoryStatus, setCategoryStatus] = useState();
+  const [topicStatus, setTopicStatus] = useState();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState();
@@ -29,7 +30,7 @@ const CategoriesTopic = ({ close }) => {
     e.preventDefault();
 
     if (inputCategoryText) {
-      setinputCategoryList([...inputCategoryList, "#" + inputCategoryText]);
+      setinputCategoryList([...inputCategoryList, " " + inputCategoryText]);
       setinputCategoryText("");
       setcheckedCategoryList([...checkedCategoryList, false]);
     }
@@ -62,7 +63,7 @@ const CategoriesTopic = ({ close }) => {
     e.preventDefault();
 
     if (inputTopicsText) {
-      setinputTopicsList([...inputTopicsList, "@" + inputTopicsText]);
+      setinputTopicsList([...inputTopicsList, " " + inputTopicsText]);
       setinputTopicsText("");
       setcheckedTopicsList([...checkedTopicsList, false]);
     }
@@ -94,65 +95,74 @@ const CategoriesTopic = ({ close }) => {
     setIsSaveDisabled(!areAnyChecked);
   };
 
+  const fetchCategories = async () => {
+    const response = await axios.get(
+      "http://127.0.0.1:8000/website/api/v1/category/"
+    );
+    //console.log("categories", response.data);
+    setCategoryStatus(response.data);
+  };
+
+  const fetchTopics = async () => {
+    const response = await axios.get(
+      "http://127.0.0.1:8000/website/api/v1/topic/"
+    );
+    console.log("topics", response.data);
+    setTopicStatus(response.data);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    //console.log("checkedCategories", checkedCategories);
-    //console.log("Join", checkedCategories.join(','))
-
-    // setLoading(true);
-    const data = {
-      category_list: checkedCategories.join(","),
-      //topics_list: checkedTopics.join(","),
-    };
-
-    await axios
-      .post(
-        "http://127.0.0.1:8000/website/api/v1/category/",
-        data,
-
-        {
+    if (categoryStatus) {
+      setLoading(true);
+      const data = {
+        name: checkedCategories.join(","),
+      };
+      await axios
+        .post("http://127.0.0.1:8000/website/api/v1/category/", data, {
           withCredentials: true,
-        }
-      )
-      .then((response) => {
-        console.log("response", response);
-        // setLoading(false);
-        // setSuccess(null);
-        // setTimeout(() => {
-        //   setSuccess("Categories and Topics are updated...!");
-        // }, 1);
-      })
-      .catch((error) => {
-        setLoading(false);
-        setError("Error making the request. Please try again later.");
-      });
+        })
+        .then((response) => {
+          setLoading(false);
+          setSuccess(null);
+          setTimeout(() => {
+            setSuccess("Saved successfully!");
+          }, 1);
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Error making the request. Please try again later.");
+        });
+    }
 
-      // await axios
-      // .post(
-      //   "http://127.0.0.1:8000/website/api/v1/topic/",
-      //   data,
-
-      //   {
-      //     withCredentials: true,
-      //   }
-      // )
-      // .then((response) => {
-      //   console.log(response);
-      //   setLoading(false);
-      //   setSuccess(null);
-      //   setTimeout(() => {
-      //     setSuccess("Categories and Topics are updated...!");
-      //   }, 1);
-      // })
-      // .catch((error) => {
-      //   setLoading(false);
-      //   setError("Error making the request. Please try again later.");
-      // });
+    if (topicStatus) {
+      setLoading(true);
+      const data = {
+        name: checkedTopics.join(","),
+      };
+      await axios
+        .post("http://127.0.0.1:8000/website/api/v1/topic/", data, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          setLoading(false);
+          setSuccess(null);
+          setTimeout(() => {
+            setSuccess("Saved successfully!");
+          }, 1);
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Error making the request. Please try again later.");
+        });
+    }
   };
 
   useEffect(() => {
     close();
+    fetchCategories();
+    fetchTopics();
   }, []);
 
   return (
@@ -216,7 +226,7 @@ const CategoriesTopic = ({ close }) => {
                   </ul>
                 </div>
               </div>
-              <div className="text-center w-full">
+              <div className="text-center w-full ">
                 <label
                   htmlFor="topic"
                   className="text-customBlue text-lg font-bold"

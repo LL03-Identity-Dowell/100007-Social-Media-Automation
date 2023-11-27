@@ -9,17 +9,43 @@ export const SocialComponentForPost = ({
   setLoading,
   setSuccessMessage,
   setOpen,
+  socialArr,
 }) => {
   const navigate = useNavigate();
-
   const onSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
-    const socialArray = Object.fromEntries(new FormData(e.currentTarget));
+
+    const formData = new FormData(e.currentTarget);
+    const socialArray = Array.from(formData.entries())
+      .filter(([key, value]) => value === "on")
+      .map(([key]) => key);
+
+    if (socialArr.length === 0) {
+      setError("No social channel linked! Please link atleast one.");
+      setOpen(false);
+      return;
+    }
+    const missingItems = socialArray.filter(
+      (item) => !socialArr.includes(item)
+    );
+
+    if (missingItems.length > 0) {
+      setError(`${missingItems.join(", ")} not linked`);
+    }
+
+    const filteredSocial = Object.keys(socialArray).filter(
+      (social) => social !== "twitter" && social !== "pinterest"
+    );
+
+    const specialArray = ["twitter", "pinterest"].filter(
+      (social) => socialArray[social]
+    );
+
     const mergedData = {
       ...article,
-      social: Object.keys(socialArray),
-      special: [],
+      social: filteredSocial,
+      special: specialArray,
     };
 
     const url = "http://127.0.0.1:8000/api/v1/media_post/";
@@ -35,7 +61,7 @@ export const SocialComponentForPost = ({
 
         setTimeout(() => {
           navigate("/recent");
-        }, 1000);
+        }, 700);
       })
       .catch((error) => {
         setLoading(false);
@@ -66,7 +92,11 @@ export const SocialComponentForPost = ({
             htmlFor='twitter'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/twitter.svg' className='w-20 h-20' alt='twitter' />
+            <img
+              src='/square-x-twitter.svg'
+              className='w-20 h-20'
+              alt='twitter'
+            />
             <input
               name='twitter'
               className='w-3 h-3'
@@ -143,6 +173,7 @@ export const SocialComponentForSchedule = ({
   setLoading,
   setSuccessMessage,
   setOpen,
+  socialArr,
 }) => {
   const navigate = useNavigate();
   const onSubmit = async (e) => {
@@ -154,15 +185,38 @@ export const SocialComponentForSchedule = ({
       .filter(([key, value]) => value === "on")
       .map(([key]) => key);
 
+    if (socialArr.length === 0) {
+      setError("No social channel linked! Please link atleast one.");
+      setOpen(false);
+      return;
+    }
+    const missingItems = socialArray.filter(
+      (item) => !socialArr.includes(item)
+    );
+
+    if (missingItems.length > 0) {
+      setError(`${missingItems.join(", ")} not linked`);
+    }
+
+    const filteredSocial = Object.keys(socialArray).filter(
+      (social) => social !== "twitter" && social !== "pinterest"
+    );
+
+    const specialArray = ["twitter", "pinterest"].filter(
+      (social) => socialArray[social]
+    );
+
     const datetimeInput = formData.get("datetime");
 
     const mergedData = {
       ...article,
       time: datetimeInput,
-      social: socialArray,
-      special: [],
+      social: filteredSocial,
+      special: specialArray,
       schedule: "11/23/2023 21:27:00",
     };
+
+    console.log(mergedData);
 
     const url = "http://127.0.0.1:8000/api/v1/media_schedule/";
 
@@ -208,7 +262,11 @@ export const SocialComponentForSchedule = ({
             htmlFor='twitter'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/twitter.svg' className='w-20 h-20' alt='twitter' />
+            <img
+              src='/square-x-twitter.svg'
+              className='w-20 h-20'
+              alt='twitter'
+            />
             <input
               name='twitter'
               className='w-3 h-3'
@@ -271,7 +329,7 @@ export const SocialComponentForSchedule = ({
           <Dialog.Close asChild>
             <button
               type='button'
-              className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-[#5c6388]'
+              className='px-7 py-2.5 text-base font-medium text-white rounded-md bg-[#464646] hover:opacity-95'
             >
               Remove
             </button>
