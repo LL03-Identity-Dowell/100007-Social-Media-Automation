@@ -101,7 +101,7 @@ const CategoriesTopic = ({ close }) => {
     //console.log("Join", checkedCategories.join(','))
 
     // setLoading(true);
-    const data = {
+    const payload = {
       name: checkedCategories.join(","),
       //topics_list: checkedTopics.join(","),
     };
@@ -109,7 +109,7 @@ const CategoriesTopic = ({ close }) => {
     await axios
       .post(
         "http://127.0.0.1:8000/website/api/v1/category/",
-        data,
+        payload,
 
         {
           withCredentials: true,
