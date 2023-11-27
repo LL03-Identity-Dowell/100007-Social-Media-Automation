@@ -1,15 +1,21 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import Loading from "../../components/Loading";
+import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 
 const WriteYourSelf = ({ close }) => {
   const [inputs, setInputs] = useState({
     article: "",
     source: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
   const location = useLocation();
   const { state } = location;
   const { data } = state;
+  const navigate = useNavigate();
 
   const handelChange = (e) => {
     const { name, value } = e.target;
@@ -22,12 +28,12 @@ const WriteYourSelf = ({ close }) => {
 
   const handelSubmit = (e) => {
     e.preventDefault();
+    setLoading(true)
     const payload = {
         title: data,
         articletextarea: inputs.article,
         url: inputs.source,
     }
-    console.log(payload);
 
     axios
       .post(
@@ -38,10 +44,16 @@ const WriteYourSelf = ({ close }) => {
         }
       )
       .then((response) => {
-        // Handle the response here
         console.log(response.data);
+        setLoading(false)
+        setSuccess("Articles created successfully...!");
+        setTimeout(()=>{
+          navigate("/article");
+        }, 2000)
       })
       .catch((error) => {
+        setSuccess(null);
+        setError("Error Sending Article, Please try again");
         // Handle any errors
         console.error(error);
       });
@@ -55,6 +67,9 @@ const WriteYourSelf = ({ close }) => {
 
   return (
     <div className="max-w-7xl mx-auto lg:w-[900px] w-full h-[95vh] flex justify-center items-start px-4 mt-6 md:mt-12 ">
+      {loading && <Loading />}
+      {error && <ErrorMessages>{error}</ErrorMessages>}
+      {success && <SuccessMessages>{success}</SuccessMessages>}
       <div className="w-full ">
         <h1 className="text-3xl lg:text-4xl font-bold text-customGray text-center">
           Write Article

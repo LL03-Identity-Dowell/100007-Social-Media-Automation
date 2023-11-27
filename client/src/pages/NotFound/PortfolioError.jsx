@@ -3,7 +3,7 @@ import React from "react";
 const PortfolioError = () => {
   return (
     
-        <div className="fixed flex flex-col justify-center items-center z-100 top-0 bottom-0 left-0 right-0 h-screen border border-red-500">
+        <div className="fixed flex flex-col justify-center items-center z-100 top-0 bottom-0 left-0 right-0 h-screen">
       <div className="flex flex-col md:flex-row items-center " >
           <div className="flex flex-col justify-center items-center ">
               <img src="https://media.discordapp.net/attachments/1078589105207787581/1113098637795393567/Social_media_automation.png?width=431&height=431" alt="Social Media" className="w-[70%] "/>
