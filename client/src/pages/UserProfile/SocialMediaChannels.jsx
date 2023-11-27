@@ -8,8 +8,33 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import UserWrapper from "./UserWrapper";
+import axios from "axios";
 
 const SocialMediaChannels = () => {
+
+axios.get(`http://127.0.0.1:8000/api/v1/social_media_channels/`, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          // setLoading(false)
+          let resData = response.data;
+          console.log(resData)
+          // setSuccess("Topics created successfully!");
+          // setTimeout(() => {
+          //   handleSentenceNavigate(resData)
+          // }, 2000);
+        })
+        .catch((error) => {
+          // setLoading(false);
+          // setError("Error creating topics..!");
+          console.error("Error fetching Social Media:", error);
+        });
+
+      // setTimeout(() => {
+      //   setError("");
+      // }, 4000)
+
+
   return (
     <UserWrapper>
       <div className='flex flex-col items-center justify-center w-full h-full'>
