@@ -15,6 +15,13 @@ function Navbar() {
 
   });
 
+  const dowellLogoutUrl =
+  "https://100014.pythonanywhere.com/sign-out?redirect_url=" +
+  window.location.origin;
+  const handleLogout = ()=>{
+    window.location.replace(dowellLogoutUrl)
+  }
+
   return (
     <nav className='sticky top-0 z-20 w-full text-white border-b border-gray-200 bg-customBlue dark:bg-gray-900 dark:border-gray-600'>
       <div className='flex flex-wrap items-center justify-between w-full p-4 '>
@@ -164,12 +171,12 @@ function Navbar() {
                 </li>
               </ul>
               <div>
-                <Link
-                  to='/sign-out'
+                <button
+                  onClick={handleLogout}
                   className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                 >
                   Sign out
-                </Link>
+                </button>
               </div>
             </div>
           </div>

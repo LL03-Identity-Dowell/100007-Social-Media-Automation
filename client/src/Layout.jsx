@@ -19,6 +19,7 @@ const Layout = ({ children, side, show, isUser }) => {
   axios.defaults.withCredentials = true;
   const clearLocalStorage = () => {
     localStorage.clear();
+    sessionStorage.clear();
   };
 
   // Set a timeout to clear local storage after 24 hours
@@ -45,6 +46,7 @@ const Layout = ({ children, side, show, isUser }) => {
 
   useEffect(() => {
     const fetchAndRemoveSessionId = async () => {
+      console.log("mounted");
       const urlParams = new URLSearchParams(window.location.search);
       const session_id = urlParams.get("session_id");
 
@@ -75,7 +77,7 @@ const Layout = ({ children, side, show, isUser }) => {
     ) {
       fetchAndRemoveSessionId();
     }
-  });
+  },[]);
 
   useEffect(() => {
     const checkSession = async () => {
