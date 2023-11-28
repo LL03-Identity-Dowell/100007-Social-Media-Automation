@@ -11,7 +11,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
-                    LinkMediaChannelsView, AryshareProfileView)
+                    LinkMediaChannelsView, AryshareProfileView, LogoutUser)
 
 app_name = 'generate_article'
 
@@ -96,6 +96,7 @@ urlpatterns = [
          CanPostOnSocialMedia.as_view(), name='can-post'),
     path('api/v1/link/linkusers/', AryshareProfileView.as_view(), name='can-post'),
     path('api/v1/link/', LinkMediaChannelsView.as_view(), name='can-post'),
+    path('api/v1/logout/', LogoutUser.as_view(), name='logout'),
 
 
 
