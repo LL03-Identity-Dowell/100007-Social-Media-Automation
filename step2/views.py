@@ -126,6 +126,19 @@ def Logout(request):
         return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
 
 
+class LogoutUser(APIView):
+    def get(self, request):
+        session_id = request.session.get("session_id")
+        if session_id:
+            try:
+                del request.session["session_id"]
+                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+            except:
+                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+        else:
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+
+
 @csrf_exempt
 @xframe_options_exempt
 def logout(request):
@@ -155,7 +168,6 @@ def register(request):
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-
         session_id = request.session.get(
             "session_id") or request.GET.get('session_id')
         if not session_id:
