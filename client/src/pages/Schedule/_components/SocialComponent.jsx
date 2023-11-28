@@ -16,6 +16,12 @@ export const SocialComponentForPost = ({
     setLoading(true);
     e.preventDefault();
 
+    const paragraph = Array.isArray(article.paragraph)
+      ? article.paragraph.join(" ")
+      : article.paragraph;
+
+    const editedArticle = { ...article, paragraph };
+
     const formData = new FormData(e.currentTarget);
     const socialArray = Array.from(formData.entries())
       .filter(([key, value]) => value === "on")
@@ -34,21 +40,22 @@ export const SocialComponentForPost = ({
       setError(`${missingItems.join(", ")} not linked`);
     }
 
-    const filteredSocial = Object.keys(socialArray).filter(
+    const filteredSocial = socialArray.filter(
       (social) => social !== "twitter" && social !== "pinterest"
     );
 
-    const specialArray = ["twitter", "pinterest"].filter(
-      (social) => socialArray[social]
+    const specialArray = ["twitter", "pinterest"].filter((social) =>
+      socialArray.includes(social)
     );
 
     const mergedData = {
-      ...article,
+      ...editedArticle,
       social: filteredSocial,
       special: specialArray,
     };
 
     const url = "http://127.0.0.1:8000/api/v1/media_post/";
+
     await axios
       .post(url, mergedData, {
         withCredentials: true,
@@ -57,7 +64,6 @@ export const SocialComponentForPost = ({
         setError(null);
         setLoading(false);
         setSuccessMessage("Successfully submit for post");
-        console.log(res);
 
         setTimeout(() => {
           navigate("/recent");
@@ -173,13 +179,21 @@ export const SocialComponentForSchedule = ({
   setLoading,
   setSuccessMessage,
   setOpen,
-  socialArr,
+  // socialArr,
 }) => {
+  const socialArr = ["twitter"];
   const navigate = useNavigate();
   const onSubmit = async (e) => {
     setLoading(true);
 
     e.preventDefault();
+
+    const paragraph = Array.isArray(article.paragraph)
+      ? article.paragraph.join(" ")
+      : article.paragraph;
+
+    const editedArticle = { ...article, paragraph };
+
     const formData = new FormData(e.currentTarget);
     const socialArray = Array.from(formData.entries())
       .filter(([key, value]) => value === "on")
@@ -198,25 +212,23 @@ export const SocialComponentForSchedule = ({
       setError(`${missingItems.join(", ")} not linked`);
     }
 
-    const filteredSocial = Object.keys(socialArray).filter(
+    const filteredSocial = socialArray.filter(
       (social) => social !== "twitter" && social !== "pinterest"
     );
 
-    const specialArray = ["twitter", "pinterest"].filter(
-      (social) => socialArray[social]
+    const specialArray = ["twitter", "pinterest"].filter((social) =>
+      socialArray.includes(social)
     );
 
     const datetimeInput = formData.get("datetime");
 
     const mergedData = {
-      ...article,
+      ...editedArticle,
       time: datetimeInput,
       social: filteredSocial,
       special: specialArray,
       schedule: "11/23/2023 21:27:00",
     };
-
-    console.log(mergedData);
 
     const url = "http://127.0.0.1:8000/api/v1/media_schedule/";
 
