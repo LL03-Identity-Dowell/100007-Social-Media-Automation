@@ -13,7 +13,6 @@ export const SocialComponentForPost = ({
 }) => {
   const navigate = useNavigate();
   const onSubmit = async (e) => {
-    setLoading(true);
     e.preventDefault();
 
     const paragraph = Array.isArray(article.paragraph)
@@ -38,6 +37,7 @@ export const SocialComponentForPost = ({
 
     if (missingItems.length > 0) {
       setError(`${missingItems.join(", ")} not linked`);
+      return;
     }
 
     const filteredSocial = socialArray.filter(
@@ -55,6 +55,7 @@ export const SocialComponentForPost = ({
     };
 
     const url = "http://127.0.0.1:8000/api/v1/media_post/";
+    setLoading(true);
 
     await axios
       .post(url, mergedData, {
@@ -81,7 +82,7 @@ export const SocialComponentForPost = ({
   return (
     <>
       <form className='form' onSubmit={onSubmit}>
-        <div className='flex justify-around'>
+        <div className='flex justify-between mb-6'>
           <label
             htmlFor='facebook'
             className='flex flex-row-reverse items-center'
@@ -160,10 +161,10 @@ export const SocialComponentForPost = ({
             />
           </label>
         </div>
-        <div className='mt-[25px] flex justify-center '>
+        <div className='flex justify-center mt-8'>
           <button
             type='submit'
-            className='px-7 py-2.5 text-base font-medium text-white rounded-md bg-customBlue hover:opacity-95'
+            className='text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95'
           >
             Done
           </button>
@@ -184,8 +185,6 @@ export const SocialComponentForSchedule = ({
   const socialArr = ["twitter"];
   const navigate = useNavigate();
   const onSubmit = async (e) => {
-    setLoading(true);
-
     e.preventDefault();
 
     const paragraph = Array.isArray(article.paragraph)
@@ -210,6 +209,7 @@ export const SocialComponentForSchedule = ({
 
     if (missingItems.length > 0) {
       setError(`${missingItems.join(", ")} not linked`);
+      return;
     }
 
     const filteredSocial = socialArray.filter(
@@ -231,6 +231,8 @@ export const SocialComponentForSchedule = ({
     };
 
     const url = "http://127.0.0.1:8000/api/v1/media_schedule/";
+
+    setLoading(true);
 
     await axios
       .post(url, mergedData, {
@@ -257,7 +259,7 @@ export const SocialComponentForSchedule = ({
   return (
     <>
       <form className='form' onSubmit={onSubmit}>
-        <div className='flex justify-around'>
+        <div className='flex justify-between mb-6'>
           <label
             htmlFor='facebook'
             className='flex flex-row-reverse items-center'
@@ -336,12 +338,12 @@ export const SocialComponentForSchedule = ({
             />
           </label>
         </div>
-        <div className='mt-[25px] flex justify-center space-x-6'>
+        <div className='flex justify-center mt-8 space-x-6'>
           <input type='datetime-local' name='datetime' />
           <Dialog.Close asChild>
             <button
               type='button'
-              className='px-7 py-2.5 text-base font-medium text-white rounded-md bg-[#464646] hover:opacity-95'
+              className='w-28 h-[46px] rounded-lg text-base font-medium text-white bg-[#464646] hover:opacity-95'
             >
               Remove
             </button>
@@ -349,7 +351,7 @@ export const SocialComponentForSchedule = ({
 
           <button
             type='submit'
-            className='px-7 py-2.5 text-base font-medium text-white rounded-md bg-customBlue hover:opacity-95'
+            className='text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95'
           >
             Done
           </button>
