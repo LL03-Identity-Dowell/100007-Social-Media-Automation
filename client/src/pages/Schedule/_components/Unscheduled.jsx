@@ -29,11 +29,14 @@ const UnscheduledPage = () => {
 
     const linkedAcc = "http://127.0.0.1:8000/api/v1/linked-account/";
     const fetchLinkedAcc = async () => {
-      const res = await axios.get(linkedAcc, {
-        withCredentials: true,
-      });
-
-      setSocialArr(res.data.response);
+      try {
+        const res = await axios.get(linkedAcc, {
+          withCredentials: true,
+        });
+        setSocialArr(res.data.response);
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     const fetchUnscheduled = async () => {
@@ -44,7 +47,7 @@ const UnscheduledPage = () => {
         .then((response) => {
           setError(null);
           setLoading(false);
-          setSuccess("Successfully fetched posts")
+          setSuccess("Successfully fetched posts");
           let unscheduledData = response.data.Unscheduled_Posts.response;
           setUnscheduledPost(unscheduledData);
           setCount(response.data.total_items);
@@ -53,7 +56,7 @@ const UnscheduledPage = () => {
           window.scrollTo(0, 0);
         })
         .catch((error) => {
-          setSuccess(null)
+          setSuccess(null);
           setLoading(false);
           setError("Server error, Please try again later");
 
@@ -115,7 +118,6 @@ const UnscheduledPage = () => {
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {sucessMessage && <SuccessMessages>{sucessMessage}</SuccessMessages>}
-
 
       <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
       <ul className='overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10 '>
