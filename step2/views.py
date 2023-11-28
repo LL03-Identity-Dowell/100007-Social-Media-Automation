@@ -1074,6 +1074,7 @@ class AryshareProfileView(APIView):
         print(data)
         if data['status'] == 'error':
             messages.error(request, data['message'])
+            return Response(data['message'], status=status.HTTP_400_BAD_REQUEST)
         else:
 
             url = "http://uxlivinglab.pythonanywhere.com"
@@ -1116,7 +1117,6 @@ class AryshareProfileView(APIView):
             print(response.text)
             print(data)
             return Response("Social media profile created")
-        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
 
 
 @method_decorator(csrf_exempt, name='dispatch')
