@@ -20,8 +20,6 @@ const UnscheduledPage = () => {
   const [showMorePages, setShowMorePages] = useState(false);
   // const [readMore, setReadMore] = useState(true);
 
-  console.log(error);
-
   useEffect(() => {
     setLoading(true);
     //Load unscheduled data from API
