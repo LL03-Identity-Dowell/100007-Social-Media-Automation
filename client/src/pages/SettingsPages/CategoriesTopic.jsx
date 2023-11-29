@@ -124,6 +124,7 @@ const CategoriesTopic = ({ close }) => {
           withCredentials: true,
         })
         .then((response) => {
+          // console.log(response);
           setLoading(false);
           setSuccess(null);
           setTimeout(() => {

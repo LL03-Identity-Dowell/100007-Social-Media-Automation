@@ -9,9 +9,9 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
                     ClientProfileFormView, ListArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
-                    GenerateArticleWikiView, WriteYourselfView, VerifyArticle, MediaScheduleView,
+                    GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
-                    LinkMediaChannelsView, AryshareProfileView)
+                    LinkMediaChannelsView, AryshareProfileView, LogoutUser)
 
 app_name = 'generate_article'
 
@@ -75,8 +75,6 @@ urlpatterns = [
          name='submit-title-wiki'),
     path('api/v1/article/write_yourself/',
          WriteYourselfView.as_view(), name='write_yourself'),
-    path('api/v1/verify/article/',
-         VerifyArticle.as_view(), name='verify-article'),
     path('api/v1/post_list/', PostListView.as_view(), name='submit-title'),
     path('api/v1/post-detail/', PostDetailView.as_view(), name='post-detail'),
     path('api/v1/save_post/', SavePostView.as_view(), name='save-post'),
@@ -98,6 +96,7 @@ urlpatterns = [
          CanPostOnSocialMedia.as_view(), name='can-post'),
     path('api/v1/link/linkusers/', AryshareProfileView.as_view(), name='can-post'),
     path('api/v1/link/', LinkMediaChannelsView.as_view(), name='can-post'),
+    path('api/v1/logout/', LogoutUser.as_view(), name='logout'),
 
 
 
