@@ -40,7 +40,7 @@ from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key)
+                     update_aryshare, get_key, get_most_recent_posts)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -3292,3 +3292,17 @@ def User_DetailView(request, id):
     collection = db['user_info']
     user = collection.find_one({'_id': ObjectId(id)})
     return render(request, 'step2/user_info_detail.html', {'user': user})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Comments(AuthenticatedBaseView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            user_id = request.session['user_id']
+            recent_posts = get_most_recent_posts(user_id=user_id)
+            response_data = {
+                'recent_posts': recent_posts,
+            }
+            return Response(response_data)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
