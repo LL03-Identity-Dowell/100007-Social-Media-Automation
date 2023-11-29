@@ -40,7 +40,7 @@ from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key, get_most_recent_posts)
+                     update_aryshare, get_key, get_most_recent_posts, get_post_comments)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -170,7 +170,7 @@ class MainAPIView(APIView):
         session_id = request.session.get(
             "session_id") or request.GET.get('session_id')
         if not session_id:
-            session_id = request.META.get('HTTP_AUTHORIZATION').split(' ')[:-1]
+            session_id = request.META.get('HTTP_AUTHORIZATION').split(' ')[-1]
         if session_id:
             user_map = {}
             redirect_to_living_lab = True
@@ -216,6 +216,7 @@ class MainAPIView(APIView):
                 else:
                     request.session['operations_right'] = 'member'
                     request.session['org_id'] = info['org_id'] if info else ''
+
 
             username = user_map.get(request.session['user_id'], None)
 
@@ -1485,6 +1486,7 @@ class MediaPostView(AuthenticatedBaseView):
 
             # if not credit_response.get('success'):
             #     return JsonResponse('credit_error', safe=False)
+
             start_datetime = datetime.now()
             data = json.loads(request.body.decode("utf-8"))
             title = data['title']
@@ -3302,6 +3304,20 @@ class Comments(AuthenticatedBaseView):
             recent_posts = get_most_recent_posts(user_id=user_id)
             response_data = {
                 'recent_posts': recent_posts,
+            }
+            return Response(response_data)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PostComments(AuthenticatedBaseView):
+    def get(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+
+            comments = get_post_comments(post_id=post_id)
+            response_data = {
+                'comments': comments,
             }
             return Response(response_data)
         else:
