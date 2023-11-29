@@ -33,7 +33,7 @@ function Topic({ show }) {
 
 
   const fetchCategoryTopic = () => {
-    // Create two Axios GET requests
+    // /Create two Axios GET requests
     const categoryReq = axios.get("http://127.0.0.1:8000/website/api/v1/category/", { withCredentials: true, });
     const topicReq = axios.get("http://127.0.0.1:8000/website/api/v1/topic/", { withCredentials: true, });
 
