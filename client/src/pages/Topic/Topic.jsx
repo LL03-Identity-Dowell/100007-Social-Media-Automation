@@ -288,7 +288,6 @@ function Topic({ show }) {
                 <input
                   value="a"
                   onChange={handelChange}
-                  required
                   id="article"
                   type="radio"
                   name="article"
@@ -305,7 +304,6 @@ function Topic({ show }) {
                 <input
                   value="an"
                   onChange={handelChange}
-                  required
                   id="article"
                   type="radio"
                   name="article"
@@ -351,7 +349,6 @@ function Topic({ show }) {
                 <input
                   value="singular"
                   onChange={handelChange}
-                  required
                   id="theme"
                   type="radio"
                   name="theme"
@@ -446,7 +443,6 @@ function Topic({ show }) {
                 value={inputs.adjective}
                 onChange={handelChange}
                 name="adjective"
-                required
                 type="text"
                 className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4"
                 placeholder="Type your adjectives here.."
