@@ -42,7 +42,6 @@ from helpers import (download_and_upload_image,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key)
 from website.models import Sentences, SentenceResults
-from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           MostRecentJsonSerializer)
@@ -1269,10 +1268,12 @@ class MostRecentJSON(AuthenticatedBaseView):
 
             try:
                 for row in posts['data']:
+
                     if user_id == str(row['user_id']):
                         try:
                             if status == row['status']:
                                 data = {
+                                    'article_id': row['_id'],
                                     'title': row['title'],
                                     'paragraph': row['paragraph'],
                                     'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
