@@ -155,13 +155,13 @@ def register(request):
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-        session_id = request.session.get(
-            "session_id") or request.GET.get('session_id')
-        if session_id:
+        # session_id = request.session.get(
+        #     "session_id") or request.GET.get('session_id')
+        if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-
+            session_id = request.session["session_id"]
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
@@ -1171,7 +1171,7 @@ class LinkMediaChannelsView(APIView):
             if posts['user_id'] == request.session['user_id']:
                 key = posts['profileKey']
                 print(key)
-        with open(r'C:\Users\HP 250\Desktop\code\100007-Social-Media-Automation\dowellresearch.key') as f:
+        with open(r'C:\Users\dell\Documents\Dowell Research\Dowell_social_media_automation\100007-Social-Media-Automation\dowellresearch.key') as f:
             privateKey = f.read()
 
         payload = {'domain': 'dowellresearch',
