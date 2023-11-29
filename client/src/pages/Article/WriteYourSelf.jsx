@@ -29,8 +29,9 @@ const WriteYourSelf = ({ close }) => {
   const handelSubmit = (e) => {
     e.preventDefault();
     setLoading(true)
+    
     const payload = {
-        title: data,
+        title: data.title,
         articletextarea: inputs.article,
         url: inputs.source,
     }

@@ -170,6 +170,7 @@ class MainAPIView(APIView):
     def get(self, request):
         # session_id = request.session.get(
         #     "session_id") or request.GET.get('session_id')
+
         if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
