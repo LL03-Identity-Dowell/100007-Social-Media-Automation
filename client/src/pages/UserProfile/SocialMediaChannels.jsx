@@ -64,7 +64,7 @@ const SocialMediaChannels = () => {
           withCredentials: true,
         })
         .then((response) => {
-          // setLoading(false)
+          /// setLoading(false)
           let resData = response.data;
           console.log(resData)
         })
