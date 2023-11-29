@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 import ExtraSmallBtn from "../../components/ExtraSmallBtn/ExtraSmallBtn";
 
 import { DummyData } from "./Data";
@@ -27,9 +28,11 @@ function Comment({ show }) {
                   {item.text}
                 </p>
               </div>
+              <Link to={`/comment/${item.id}`}>
               <div className=" lg:pt-2 flex justify-end md:mr-6 mt-2 md:mt-0 ">
                 <ExtraSmallBtn title={"View Comments"} />
               </div>
+              </Link>
             </div>
           ))}
         </div>
