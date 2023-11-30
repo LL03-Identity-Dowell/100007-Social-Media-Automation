@@ -833,30 +833,6 @@ class PostDetailView(AuthenticatedBaseView):
             #     return redirect(reverse('credit_error_view'))
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
-
-            payload = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "ayrshare_info",
-                "document": "ayrshare_info",
-                "team_member_ID": "100007001",
-                "function_ID": "ABCDE",
-                "command": "fetch",
-                "field": {"user_id": request.session['user_id']},
-                "update_field": {
-                    "order_nos": 21
-                },
-                "platform": "bangalore"
-            }
-            data = json.dumps(payload)
-            response = requests.request(
-                "POST", url, headers=headers, data=data)
-            ayrshare_info = json.loads(response.json())
-            for data in ayrshare_info['data']:
-                social_platforms = data['aryshare_details']
-                for key, value in social_platforms.items():
-                    handles = value
-                break
             payload = json.dumps({
                 "cluster": "socialmedia",
                 "database": "socialmedia",
@@ -906,7 +882,7 @@ class PostDetailView(AuthenticatedBaseView):
                     "paragraph": paragraph,
                     # "source": source
                 }
-            a = random.randint(1, 100)
+            a = random.randint(1, 9)
             query = title
             output = []
             api = API(PEXELS_API_KEY)
@@ -924,7 +900,9 @@ class PostDetailView(AuthenticatedBaseView):
                 return Response({'message': 'No images found please try again!'}, status=status.HTTP_404_NOT_FOUND)
             images = output[1]
             print(profile)
-            response_data = {'post': post, 'categories': categories, 'Social_Media_Platforms': handles,
+            username = request.session['username']
+            linked_accounts = check_connected_accounts(username)
+            response_data = {'post': post, 'categories': categories, 'linked_accounts': linked_accounts,
                              'images': images, 'profile': profile, "message": "You are limited to use only images from Samanta AI due to security and privacy policy"}
             return Response(response_data)
         else:
@@ -1166,14 +1144,12 @@ class LinkMediaChannelsView(APIView):
         response = requests.request("POST", url, headers=headers, data=data)
         print(response.json())
         # profile = request.session['operations_right']
-
         post = json.loads(response.json())
-
         for posts in post['data']:
             if posts['user_id'] == request.session['user_id']:
                 key = posts['profileKey']
                 print(key)
-        with open(r'C:\Users\dell\Documents\Dowell Research\Dowell_social_media_automation\100007-Social-Media-Automation\dowellresearch.key') as f:
+        with open(r'C:\Users\HP 250\Desktop\code\100007-Social-Media-Automation\dowellresearch.key') as f:
             privateKey = f.read()
 
         payload = {'domain': 'dowellresearch',
@@ -3249,7 +3225,8 @@ class UserApprovalView(APIView):
                 'post': post,
                 'schedule': schedule
             }, status=status.HTTP_200_OK)
-            
+
+
 class PostDetailDropdownView(APIView):
     permission_classes = ()
     authentication_classes = ()
