@@ -170,9 +170,6 @@ class MainAPIView(APIView):
     def get(self, request):
         # session_id = request.session.get(
         #     "session_id") or request.GET.get('session_id')
-        # if not session_id:
-        #     session_id = request.META.get('HTTP_AUTHORIZATION').split(' ')[:-1]
-        # if session_id:
         if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
@@ -1176,7 +1173,7 @@ class LinkMediaChannelsView(APIView):
             if posts['user_id'] == request.session['user_id']:
                 key = posts['profileKey']
                 print(key)
-        with open(r'C:\Users\HP 250\Desktop\code\100007-Social-Media-Automation\dowellresearch.key') as f:
+        with open(r'C:\Users\dell\Documents\Dowell Research\Dowell_social_media_automation\100007-Social-Media-Automation\dowellresearch.key') as f:
             privateKey = f.read()
 
         payload = {'domain': 'dowellresearch',

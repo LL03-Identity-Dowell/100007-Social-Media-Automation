@@ -7,6 +7,7 @@ import Article from "./pages/Article/Article";
 import PostList from "./pages/Post/PostList/PostList";
 import ScheduleSection from "./pages/Schedule/Schedule";
 import Comment from "./pages/Comment/Comment";
+import ViewComments from "./pages/Comment/ViewComments";
 import NotFound from "./pages/NotFound/NotFound";
 import MyPlan from "./pages/Statistics/MyPlan";
 import MyTeam from "./pages/Statistics/MyTeam";
@@ -179,6 +180,10 @@ function App() {
           <Route
             path="/comment"
             element={<Comment show={handleOpenSideBar} />}
+          />
+          <Route
+            path="/comment/:id"
+            element={<ViewComments show={handleOpenSideBar} />}
           />
           <Route
             path="/address"
