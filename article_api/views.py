@@ -1,21 +1,19 @@
 import requests
 from django.db import transaction
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
+from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
-from step2.views import create_event
+from rest_framework.views import APIView
 
 from article_api.permissions import HasBeenAuthenticated
 from article_api.serializers import GenerateArticleSerializer, IndustrySerializer, SentenceSerializer
 from create_article import settings
+from step2.views import create_event
 from website.models import User, Sentences, SentenceResults
-
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.exceptions import AuthenticationFailed
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -132,7 +130,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         industry.save()
 
         object = sentence_serializer.validated_data['object'].lower()
-        subject = sentence_serializer.validated_data['subject']
+        subject = sentence_serializer.validated_data['topic'].name
         verb = sentence_serializer.validated_data['verb']
         objdet = sentence_serializer.validated_data['object_determinant']
         adjective = sentence_serializer.validated_data['adjective']
@@ -203,7 +201,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         sentence_grammar = Sentences.objects.create(
             user=user,
             object=object,
-            subject=subject,
+            topic=sentence_serializer.validated_data['topic'],
             verb=verb,
             adjective=adjective,
         )
