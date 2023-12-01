@@ -417,3 +417,28 @@ def get_aryshare_profile_id(user_id):
     }
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
+
+
+def save_profile_key_to_post(profile_key, post_id):
+    url = "http://uxlivinglab.pythonanywhere.com"
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step3_data",
+        "document": "step3_data",
+        "team_member_ID": "34567897799",
+        "function_ID": "ABCDE",
+        "command": "update",
+        "field": {
+            "_id": post_id,
+        },
+        "update_field": {
+            "profile_key": profile_key,
+        },
+        "platform": "bangalore"
+    }
+
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, headers=headers, json=payload)
+    return response.json()

@@ -290,6 +290,7 @@ class ListArticleView(AuthenticatedBaseView):
                         'title': article.get('title'),
                         'paragraph': article.get('paragraph'),
                         'source': article.get('source'),
+                        'profile_key': article.get('profile_key'),
                     }
                     user_articles.append(articles)
             user_articles = list(reversed(user_articles))
@@ -778,6 +779,7 @@ class PostListView(AuthenticatedBaseView):
                         'title': article.get('title'),
                         'paragraph': article.get('paragraph'),
                         'source': article.get('source'),
+                        'profile_key': article.get('profile_key'),
                     }
                     posts.append(articles)
             posts = list(reversed(posts))
@@ -801,7 +803,8 @@ class PostListView(AuthenticatedBaseView):
                     'post_id': post['post_id'],
                     'title': post['title'],
                     'paragraph': post['paragraph'],
-                    'source': post['source']
+                    'source': post['source'],
+                    'profile_key': post['profile_key'],
                 }
                 for post in page_post_data
             ]
