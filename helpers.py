@@ -335,7 +335,11 @@ def get_post_comments(post_id: str):
     """
     This function returns comments for a particular post
     """
-    headers = {'Authorization': f'Bearer {str(ARYSHARE_KEY)}'}
+    headers = {
+        'Content-Type': 'application/json',
+        'Profile-Key': '4X7NFN3-CXEMCJB-JCBX228-YT2GE74',
+        'Authorization': f'Bearer {str(ARYSHARE_KEY)}'
+    }
     url = f'https://app.ayrshare.com/api/comments/{str(post_id)}'
     r = requests.get(url, headers=headers)
 
@@ -391,3 +395,25 @@ def get_most_recent_posts(user_id):
 
     user_post = list(reversed(user_post))
     return user_post
+
+
+def get_aryshare_profile_id(user_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "ayrshare_info",
+        "document": "ayrshare_info",
+        "team_member_ID": "100007001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
