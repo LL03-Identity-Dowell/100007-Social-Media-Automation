@@ -387,7 +387,9 @@ def get_most_recent_posts(user_id):
                         'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
                         'image': row['image'],
                         'source': row['source'],
-                        'time': row['time']
+                        'time': row['time'],
+                        'profile_key': row.get('profile_key'),
+                        'post_response': row.get('post_response'),
                     }
                     user_post.append(data)
             except:
@@ -419,15 +421,15 @@ def get_aryshare_profile_id(user_id):
     response = requests.request("POST", url, headers=headers, data=data)
 
 
-def save_profile_key_to_post(profile_key, post_id):
+def save_profile_key_to_post(profile_key, post_id, post_response):
     url = "http://uxlivinglab.pythonanywhere.com"
 
     payload = {
         "cluster": "socialmedia",
         "database": "socialmedia",
-        "collection": "step3_data",
-        "document": "step3_data",
-        "team_member_ID": "34567897799",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
         "function_ID": "ABCDE",
         "command": "update",
         "field": {
@@ -435,10 +437,13 @@ def save_profile_key_to_post(profile_key, post_id):
         },
         "update_field": {
             "profile_key": profile_key,
+            "post_response": post_response,
         },
         "platform": "bangalore"
     }
 
     headers = {'Content-Type': 'application/json'}
     response = requests.post(url, headers=headers, json=payload)
+    print('This is running')
+    print(response.json())
     return response.json()

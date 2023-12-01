@@ -40,7 +40,7 @@ from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key, get_most_recent_posts, get_post_comments)
+                     update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -1020,10 +1020,12 @@ def api_call(postes, platforms, key, image, request, post_id):
         messages.error(request, 'error in posting')
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
         messages.success(
-            request, 'post have been sucessfully posted')
+            request, 'post have been successfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
+
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1055,6 +1057,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1435,6 +1438,7 @@ def api_call(postes, platforms, key, image, request, post_id):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1466,6 +1470,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_schedule(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
