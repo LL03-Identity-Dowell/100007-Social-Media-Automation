@@ -8,11 +8,9 @@ function Navbar() {
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
-    
     let user = JSON.parse(localStorage.getItem("userInfo"));
     setUserName(user?.userinfo?.username);
     setUserEmail(user?.userinfo?.email);
-
   });
 
   return (
@@ -276,6 +274,14 @@ function Navbar() {
                       className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
                     >
                       Categories & Topic
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to='/settings/postdetaildropdowns'
+                      className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
+                    >
+                      Post Detail Dropdown
                     </Link>
                   </li>
                 </ul>
