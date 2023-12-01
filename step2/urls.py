@@ -11,7 +11,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
-                    LinkMediaChannelsView, AryshareProfileView, LogoutUser)
+                    LinkMediaChannelsView, AryshareProfileView, LogoutUser, PostDetailDropdownView)
 
 app_name = 'generate_article'
 
@@ -64,6 +64,9 @@ urlpatterns = [
          name='pinterest-form-api'),
     path('api/v1/client-form/',  ClientProfileFormView.as_view(),
          name='client-form-api'),
+    path('api/v1/post-detail-dropdowns/',  PostDetailDropdownView.as_view(),
+         name='post-detail-dropdowns-api'),
+
     path('api/v1/list-articles/', ListArticleView.as_view(), name='list-articles'),
     path('api/v1/article-detail/',
          ArticleDetailView.as_view(), name='article-detail'),
