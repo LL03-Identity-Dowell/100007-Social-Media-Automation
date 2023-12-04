@@ -32,6 +32,7 @@ from pexels_api import API
 from pymongo import MongoClient
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 # rest(React endpoints)
 from rest_framework.views import APIView
 
@@ -40,11 +41,12 @@ from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post)
+                     update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
+                     get_post_by_id, post_comment_to_social_media)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          MostRecentJsonSerializer)
+                          MostRecentJsonSerializer, PostCommentSerializer)
 
 global PEXELS_API_KEY
 
@@ -3303,6 +3305,33 @@ def User_DetailView(request, id):
     user = collection.find_one({'_id': ObjectId(id)})
     return render(request, 'step2/user_info_detail.html', {'user': user})
 
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreatePostComments(AuthenticatedBaseView):
+
+    def post(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+            serializer_data = PostCommentSerializer(data=request.data)
+            if not serializer_data.is_valid():
+                return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            profile_key = post_data.get('profile_key')
+
+            if not post_data.get('post_response'):
+                return Response({'message': 'The post does not have arryshare ID'}, status=HTTP_400_BAD_REQUEST)
+            platforms = list(serializer_data.validated_data.get('platforms'))
+            comment = serializer_data.validated_data.get('comment')
+            aryshare_post_id = post_data.get('post_response').get('posts')[0].get('id')
+            response = post_comment_to_social_media(
+                platforms=platforms,
+                id=aryshare_post_id,
+                comment=comment,
+                profile_key=profile_key
+            )
+            return Response(response)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class Comments(AuthenticatedBaseView):
