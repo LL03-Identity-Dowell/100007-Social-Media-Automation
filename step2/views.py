@@ -3319,7 +3319,7 @@ class CreatePostComments(AuthenticatedBaseView):
             profile_key = post_data.get('profile_key')
 
             if not post_data.get('post_response'):
-                return Response({'message': 'The post does not have arryshare ID'}, status=HTTP_400_BAD_REQUEST)
+                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
             platforms = list(serializer_data.validated_data.get('platforms'))
             comment = serializer_data.validated_data.get('comment')
             aryshare_post_id = post_data.get('post_response').get('posts')[0].get('id')
@@ -3351,11 +3351,15 @@ class Comments(AuthenticatedBaseView):
 class PostComments(AuthenticatedBaseView):
     def get(self, request, post_id):
         if 'session_id' and 'username' in request.session:
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            profile_key = post_data.get('profile_key')
 
-            comments = get_post_comments(post_id=post_id)
-            response_data = {
-                'comments': comments,
-            }
-            return Response(response_data)
+            if not post_data.get('post_response'):
+                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
+            aryshare_post_id = post_data.get('post_response').get('posts')[0].get('id')
+            comments = get_post_comments(post_id=aryshare_post_id, profile_key=profile_key)
+
+            return Response(comments)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)

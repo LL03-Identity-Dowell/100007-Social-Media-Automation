@@ -332,13 +332,13 @@ def post_comment_to_social_media(platforms: list[str], id: str, comment: str, pr
     return response.json()
 
 
-def get_post_comments(post_id: str):
+def get_post_comments(post_id: str, profile_key: str):
     """
     This function returns comments for a particular post
     """
     headers = {
         'Content-Type': 'application/json',
-        'Profile-Key': '4X7NFN3-CXEMCJB-JCBX228-YT2GE74',
+        'Profile-Key': profile_key,
         'Authorization': f'Bearer {str(ARYSHARE_KEY)}'
     }
     url = f'https://app.ayrshare.com/api/comments/{str(post_id)}'

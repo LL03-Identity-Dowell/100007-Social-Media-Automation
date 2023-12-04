@@ -99,7 +99,7 @@ urlpatterns = [
     #  path('api/v1/logout/', LogoutUser.as_view(), name='logout'),
     path('api/v1/comments/', Comments.as_view(), name='comments-endpoint'),
     path('api/v1/comments/create/<str:post_id>/', CreatePostComments.as_view(), name='create-comments-endpoint'),
-    path('api/v1/comments/post/<str:post_id>/', PostComments.as_view(), name='post-comments-endpoint'),
+    path('api/v1/comments/get-post-comments/<str:post_id>/', PostComments.as_view(), name='post-comments-endpoint'),
 
 
 
