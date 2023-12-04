@@ -32,6 +32,7 @@ from pexels_api import API
 from pymongo import MongoClient
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 # rest(React endpoints)
 from rest_framework.views import APIView
 
@@ -40,12 +41,12 @@ from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key)
+                     update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
+                     get_post_by_id, post_comment_to_social_media)
 from website.models import Sentences, SentenceResults
-from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          MostRecentJsonSerializer)
+                          MostRecentJsonSerializer, PostCommentSerializer)
 
 global PEXELS_API_KEY
 
@@ -168,13 +169,16 @@ def register(request):
 @method_decorator(csrf_exempt, name='dispatch')
 class MainAPIView(APIView):
     def get(self, request):
-        # session_id = request.session.get(
-        #     "session_id") or request.GET.get('session_id')
-        if request.session.get("session_id"):
+        session_id = request.session.get(
+            "session_id") or request.GET.get('session_id')
+
+        if not session_id:
+            session_id = request.META.get('HTTP_AUTHORIZATION').split(' ')[-1]
+        if session_id:
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-            session_id = request.session["session_id"]
+
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
@@ -215,6 +219,7 @@ class MainAPIView(APIView):
                 else:
                     request.session['operations_right'] = 'member'
                     request.session['org_id'] = info['org_id'] if info else ''
+
 
             username = user_map.get(request.session['user_id'], None)
 
@@ -1017,10 +1022,12 @@ def api_call(postes, platforms, key, image, request, post_id):
         messages.error(request, 'error in posting')
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
         messages.success(
-            request, 'post have been sucessfully posted')
+            request, 'post have been successfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
+
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1052,6 +1059,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1250,10 +1258,12 @@ class MostRecentJSON(AuthenticatedBaseView):
 
             try:
                 for row in posts['data']:
+
                     if user_id == str(row['user_id']):
                         try:
                             if status == row['status']:
                                 data = {
+                                    'article_id': row['_id'],
                                     'title': row['title'],
                                     'paragraph': row['paragraph'],
                                     'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
@@ -1411,6 +1421,7 @@ def api_call(postes, platforms, key, image, request, post_id):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1442,6 +1453,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_schedule(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1465,6 +1477,7 @@ class MediaPostView(AuthenticatedBaseView):
 
             # if not credit_response.get('success'):
             #     return JsonResponse('credit_error', safe=False)
+
             start_datetime = datetime.now()
             data = json.loads(request.body.decode("utf-8"))
             title = data['title']
@@ -3423,3 +3436,62 @@ def User_DetailView(request, id):
     collection = db['user_info']
     user = collection.find_one({'_id': ObjectId(id)})
     return render(request, 'step2/user_info_detail.html', {'user': user})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreatePostComments(AuthenticatedBaseView):
+
+    def post(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+            serializer_data = PostCommentSerializer(data=request.data)
+            if not serializer_data.is_valid():
+                return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            profile_key = post_data.get('profile_key')
+
+            if not post_data.get('post_response'):
+                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
+            platforms = list(serializer_data.validated_data.get('platforms'))
+            comment = serializer_data.validated_data.get('comment')
+            aryshare_post_id = post_data.get('post_response').get('posts')[0].get('id')
+            response = post_comment_to_social_media(
+                platforms=platforms,
+                id=aryshare_post_id,
+                comment=comment,
+                profile_key=profile_key
+            )
+            return Response(response)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Comments(AuthenticatedBaseView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            user_id = request.session['user_id']
+            recent_posts = get_most_recent_posts(user_id=user_id)
+            response_data = {
+                'recent_posts': recent_posts,
+            }
+            return Response(response_data)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PostComments(AuthenticatedBaseView):
+    def get(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            profile_key = post_data.get('profile_key')
+
+            if not post_data.get('post_response'):
+                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
+            aryshare_post_id = post_data.get('post_response').get('posts')[0].get('id')
+            comments = get_post_comments(post_id=aryshare_post_id, profile_key=profile_key)
+
+            return Response(comments)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)

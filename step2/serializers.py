@@ -60,6 +60,7 @@ class RankedTopicListSerializer(serializers.Serializer):
 
 
 class PostCommentSerializer(serializers.Serializer):
-    id = serializers.CharField(required=True)
     platforms = serializers.MultipleChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
     comment = serializers.CharField(required=True)
+
+
