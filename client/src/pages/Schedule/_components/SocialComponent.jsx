@@ -13,7 +13,6 @@ export const SocialComponentForPost = ({
 }) => {
   const navigate = useNavigate();
   const onSubmit = async (e) => {
-    setLoading(true);
     e.preventDefault();
 
     const paragraph = Array.isArray(article.paragraph)
@@ -38,6 +37,7 @@ export const SocialComponentForPost = ({
 
     if (missingItems.length > 0) {
       setError(`${missingItems.join(", ")} not linked`);
+      return;
     }
 
     const filteredSocial = socialArray.filter(
@@ -55,6 +55,7 @@ export const SocialComponentForPost = ({
     };
 
     const url = "http://127.0.0.1:8000/api/v1/media_post/";
+    setLoading(true);
 
     await axios
       .post(url, mergedData, {
@@ -81,12 +82,16 @@ export const SocialComponentForPost = ({
   return (
     <>
       <form className='form' onSubmit={onSubmit}>
-        <div className='flex justify-around'>
+        <div className='flex justify-between mb-6'>
           <label
             htmlFor='facebook'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/facebook.svg' className='w-20 h-20' alt='facebook' />
+            <img
+              src='/facebook.svg'
+              className='w-20 h-[90px] ml-1 p-6 rounded-2xl bg-customBlue'
+              alt='facebook'
+            />
             <input
               name='facebook'
               className='w-3 h-3'
@@ -99,8 +104,8 @@ export const SocialComponentForPost = ({
             className='flex flex-row-reverse items-center'
           >
             <img
-              src='/square-x-twitter.svg'
-              className='w-20 h-20'
+              src='/x-twitter.svg'
+              className='w-20 h-[90px] ml-1 p-5 rounded-2xl bg-black'
               alt='twitter'
             />
             <input
@@ -114,7 +119,11 @@ export const SocialComponentForPost = ({
             htmlFor='instagram'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/instagram.svg' className='w-20 h-20' alt='facebook' />
+            <img
+              src='/instagram.svg'
+              className='w-20 h-[90px] ml-1 p-4 rounded-2xl bg-[#b003c7]'
+              alt='facebook'
+            />
             <input
               name='instagram'
               className='w-3 h-3'
@@ -126,7 +135,11 @@ export const SocialComponentForPost = ({
             htmlFor='linkedin'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/linkedin.svg' className='w-20 h-20' alt='linkedin' />
+            <img
+              src='/linkedin.svg'
+              className='w-20 h-[90px] ml-1 p-4 rounded-2xl bg-[#0000ff]'
+              alt='linkedin'
+            />
             <input
               name='linkedin'
               className='w-3 h-3'
@@ -139,7 +152,7 @@ export const SocialComponentForPost = ({
             htmlFor='youtube'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/youtube.svg' className='w-20 h-20' alt='youtube' />
+            <div className='icons8-youtube-logo '></div>
             <input
               name='youtube'
               className='w-3 h-3'
@@ -151,7 +164,11 @@ export const SocialComponentForPost = ({
             htmlFor='pinterest'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/pinterest.svg' className='w-20 h-20' alt='pinterest' />
+            <img
+              src='/pinterest.svg'
+              className='w-20 h-[90px] ml-1 p-3 rounded-2xl bg-[#e60023]'
+              alt='pinterest'
+            />
             <input
               name='pinterest'
               className='w-3 h-3'
@@ -160,10 +177,10 @@ export const SocialComponentForPost = ({
             />
           </label>
         </div>
-        <div className='mt-[25px] flex justify-center '>
+        <div className='flex justify-center mt-8'>
           <button
             type='submit'
-            className='px-7 py-2.5 text-base font-medium text-white rounded-md bg-customBlue hover:opacity-95'
+            className='text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95'
           >
             Done
           </button>
@@ -184,8 +201,6 @@ export const SocialComponentForSchedule = ({
   const socialArr = ["twitter"];
   const navigate = useNavigate();
   const onSubmit = async (e) => {
-    setLoading(true);
-
     e.preventDefault();
 
     const paragraph = Array.isArray(article.paragraph)
@@ -210,6 +225,7 @@ export const SocialComponentForSchedule = ({
 
     if (missingItems.length > 0) {
       setError(`${missingItems.join(", ")} not linked`);
+      return;
     }
 
     const filteredSocial = socialArray.filter(
@@ -231,6 +247,8 @@ export const SocialComponentForSchedule = ({
     };
 
     const url = "http://127.0.0.1:8000/api/v1/media_schedule/";
+
+    setLoading(true);
 
     await axios
       .post(url, mergedData, {
@@ -257,12 +275,16 @@ export const SocialComponentForSchedule = ({
   return (
     <>
       <form className='form' onSubmit={onSubmit}>
-        <div className='flex justify-around'>
+        <div className='flex justify-between mb-6'>
           <label
             htmlFor='facebook'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/facebook.svg' className='w-20 h-20' alt='facebook' />
+            <img
+              src='/facebook.svg'
+              className='w-20 h-[90px] ml-1 p-6 rounded-2xl bg-customBlue'
+              alt='facebook'
+            />
             <input
               name='facebook'
               className='w-3 h-3'
@@ -275,8 +297,8 @@ export const SocialComponentForSchedule = ({
             className='flex flex-row-reverse items-center'
           >
             <img
-              src='/square-x-twitter.svg'
-              className='w-20 h-20'
+              src='/x-twitter.svg'
+              className='w-20 h-[90px] ml-1 p-5 rounded-2xl bg-black'
               alt='twitter'
             />
             <input
@@ -290,7 +312,11 @@ export const SocialComponentForSchedule = ({
             htmlFor='instagram'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/instagram.svg' className='w-20 h-20' alt='facebook' />
+            <img
+              src='/instagram.svg'
+              className='w-20 h-[90px] ml-1 p-4 rounded-2xl bg-[#b003c7]'
+              alt='facebook'
+            />
             <input
               name='instagram'
               className='w-3 h-3'
@@ -302,7 +328,11 @@ export const SocialComponentForSchedule = ({
             htmlFor='linkedin'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/linkedin.svg' className='w-20 h-20' alt='linkedin' />
+            <img
+              src='/linkedin.svg'
+              className='w-20 h-[90px] ml-1 p-4 rounded-2xl bg-[#0000ff]'
+              alt='linkedin'
+            />
             <input
               name='linkedin'
               className='w-3 h-3'
@@ -315,7 +345,7 @@ export const SocialComponentForSchedule = ({
             htmlFor='youtube'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/youtube.svg' className='w-20 h-20' alt='youtube' />
+            <div className='icons8-youtube-logo '></div>
             <input
               name='youtube'
               className='w-3 h-3'
@@ -327,7 +357,11 @@ export const SocialComponentForSchedule = ({
             htmlFor='pinterest'
             className='flex flex-row-reverse items-center'
           >
-            <img src='/pinterest.svg' className='w-20 h-20' alt='pinterest' />
+            <img
+              src='/pinterest.svg'
+              className='w-20 h-[90px] ml-1 p-3 rounded-2xl bg-[#e60023]'
+              alt='pinterest'
+            />
             <input
               name='pinterest'
               className='w-3 h-3'
@@ -336,12 +370,12 @@ export const SocialComponentForSchedule = ({
             />
           </label>
         </div>
-        <div className='mt-[25px] flex justify-center space-x-6'>
+        <div className='flex justify-center mt-8 space-x-6'>
           <input type='datetime-local' name='datetime' />
           <Dialog.Close asChild>
             <button
               type='button'
-              className='px-7 py-2.5 text-base font-medium text-white rounded-md bg-[#464646] hover:opacity-95'
+              className='w-28 h-[46px] rounded-lg text-base font-medium text-white bg-[#464646] hover:opacity-95'
             >
               Remove
             </button>
@@ -349,7 +383,7 @@ export const SocialComponentForSchedule = ({
 
           <button
             type='submit'
-            className='px-7 py-2.5 text-base font-medium text-white rounded-md bg-customBlue hover:opacity-95'
+            className='text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95'
           >
             Done
           </button>

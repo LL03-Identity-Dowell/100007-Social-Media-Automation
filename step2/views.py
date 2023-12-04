@@ -171,6 +171,7 @@ class MainAPIView(APIView):
     def get(self, request):
         session_id = request.session.get(
             "session_id") or request.GET.get('session_id')
+
         if not session_id:
             session_id = request.META.get('HTTP_AUTHORIZATION').split(' ')[-1]
         if session_id:
@@ -292,7 +293,6 @@ class ListArticleView(AuthenticatedBaseView):
                         'title': article.get('title'),
                         'paragraph': article.get('paragraph'),
                         'source': article.get('source'),
-                        'profile_key': article.get('profile_key'),
                     }
                     user_articles.append(articles)
             user_articles = list(reversed(user_articles))
@@ -781,7 +781,6 @@ class PostListView(AuthenticatedBaseView):
                         'title': article.get('title'),
                         'paragraph': article.get('paragraph'),
                         'source': article.get('source'),
-                        'profile_key': article.get('profile_key'),
                     }
                     posts.append(articles)
             posts = list(reversed(posts))
@@ -805,8 +804,7 @@ class PostListView(AuthenticatedBaseView):
                     'post_id': post['post_id'],
                     'title': post['title'],
                     'paragraph': post['paragraph'],
-                    'source': post['source'],
-                    'profile_key': post['profile_key'],
+                    'source': post['source']
                 }
                 for post in page_post_data
             ]
@@ -838,7 +836,8 @@ class PostDetailView(AuthenticatedBaseView):
 
             # if not credit_response.get('success'):
             #     return redirect(reverse('credit_error_view'))
-            url = "http://uxlivinglab.pythonanywhere.com"
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
             payload = json.dumps({
                 "cluster": "socialmedia",
                 "database": "socialmedia",
@@ -903,11 +902,12 @@ class PostDetailView(AuthenticatedBaseView):
                 if wit[0] >= width:
                     output.append(pictures)
             if len(output) == 0:
-                messages.error(request, 'No images found!')
-                return redirect(reverse('generate_article:article-list'))
+                return Response({'message': 'No images found please try again!'}, status=status.HTTP_404_NOT_FOUND)
             images = output[1]
             print(profile)
-            response_data = {'post': post, 'categories': categories,
+            username = request.session['username']
+            linked_accounts = check_connected_accounts(username)
+            response_data = {'post': post, 'categories': categories, 'linked_accounts': linked_accounts,
                              'images': images, 'profile': profile, "message": "You are limited to use only images from Samanta AI due to security and privacy policy"}
             return Response(response_data)
         else:
@@ -1152,9 +1152,7 @@ class LinkMediaChannelsView(APIView):
         response = requests.request("POST", url, headers=headers, data=data)
         print(response.json())
         # profile = request.session['operations_right']
-
         post = json.loads(response.json())
-
         for posts in post['data']:
             if posts['user_id'] == request.session['user_id']:
                 key = posts['profileKey']
@@ -1192,23 +1190,6 @@ class SocialMediaChannelsView(APIView):
         }
 
         return Response(response_data)
-
-
-def can_post_on_social_media(request):
-    """
-    This function check of a user can post an article on social media sites
-    """
-    portfolio_info = request.session.get('portfolio_info')
-    if not portfolio_info:
-        return False
-    if not isinstance(portfolio_info, list):
-        return False
-    portfolio_info = portfolio_info[0]
-    if portfolio_info.get('member_type') == 'owner' and portfolio_info.get('username') == 'socialmedia':
-        return True
-    elif portfolio_info.get('member_type') == 'member_type' and portfolio_info.get('username') == 'socialmedia':
-        return True
-    return False
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -3256,6 +3237,157 @@ class UserApprovalView(APIView):
                 'article': article,
                 'post': post,
                 'schedule': schedule
+            }, status=status.HTTP_200_OK)
+
+
+class PostDetailDropdownView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request):
+        session_id = request.GET.get("session_id", None)
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+
+        print(response)
+        response_data_json = json.loads(response.json())
+        print("Here we have data from this page", response_data_json)
+        user_id = str(request.session['user_id'])
+        if len(response_data_json['data']) == 0:
+            status = 'insert'
+        else:
+            status = 'update'
+
+        return Response({'status': status})
+
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = request.data  # Use request.data to access JSON data
+            qualitative_categorization = data.get("qualitative_categorization")
+            targeted_for = data.get("targeted")
+            targeted_category = data.get("targeted_category")
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "eventId": event_id,
+                "command": "insert",
+
+                "field": {
+                    "user_id": request.session['user_id'],
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted_for": targeted_for,
+                    "artictargeted_category": targeted_category,
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    "date": date,
+                    "time": str(time),
+                },
+                "update_field": {
+                    "approvals": {
+                        "qualitative_categorization": qualitative_categorization,
+                        "targeted_for": targeted_for,
+                        "artictargeted_category": targeted_category,
+                    },
+                },
+                "platform": "bangalore"
+            }
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
+            print(response.text)
+            messages.success(request, ".")
+
+            return Response({
+                'message': 'Details inserted successfully',
+                "qualitative_categorization": qualitative_categorization,
+                "targeted_for": targeted_for,
+                "artictargeted_category": targeted_category,
+            }, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "PUT":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = request.data  # Use request.data to access JSON data
+            qualitative_categorization = data.get("qualitative_categorization")
+            targeted_for = data.get("targeted")
+            targeted_category = data.get("targeted_category")
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    'user_id': request.session['user_id']
+                },
+                "update_field": {
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted_for": targeted_for,
+                    "artictargeted_category": targeted_category,
+                },
+                "platform": "bangalore"
+            }
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            data = json.dumps(payload)
+            response = requests.post(url, headers=headers, data=data)
+            print(response.text)
+            return Response({
+                'message': 'Details updated successfully',
+                "qualitative_categorization": qualitative_categorization,
+                "targeted_for": targeted_for,
+                "artictargeted_category": targeted_category,
             }, status=status.HTTP_200_OK)
 
 
