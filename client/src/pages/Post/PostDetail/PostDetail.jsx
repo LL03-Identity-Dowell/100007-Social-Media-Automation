@@ -20,6 +20,7 @@ function PostDetail({ show }) {
     const [hashCount, setHashCount] = useState(0);
     const [postDetailData, setPostDetailData] = useState();
     const [newParagraphs, setNewParagraphs] = useState([]);
+    const [designedFor, setDesignedFor] = useState([])
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -139,6 +140,8 @@ function PostDetail({ show }) {
                     setError(null);
                     setLoading(false);
                     let data = response.data;
+                    setSuccess(data.message);
+                    setDesignedFor(data.linked_accounts);
                     console.log(data);
                     setPostDetailData(data);
                     let paragraph = data.post.paragraph[0]
@@ -163,9 +166,6 @@ function PostDetail({ show }) {
         }
 
     };
-
-
-
 
 
     const editPost = () => {
@@ -499,33 +499,14 @@ function PostDetail({ show }) {
                             name='designed_for'
                             className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                         >
-                            <option value='Twitter-uxlivinglab'>Twitter-uxlivinglab</option>
-                            <option value="Linkdin-uxliving">Linkdin-uxliving</option>
-                            <option value="Facebook-Customer stories">Facebook-Customer stories</option>
-                            <option value="Instagram-Livinglabstories">Instagram-Livinglabstories</option>
-                            <option value="Youtube-Dowell True Moments UX Living Lab">Youtube-Dowell True Moments UX Living Lab</option>
-                            <option value="Tiktok">Tiktok</option>
-                            <option value="Vimeo-(Brand)">Vimeo-(Brand)</option>
-                            <option value="Spotify podcast">Spotify podcast</option>
-                            <option value="Second life">Second life</option>
-                            <option value="Twitter-dowellresearch">Twitter-dowellresearch</option>
-                            <option value="Linkdin-dowellresearch">Linkedin-dowellresearch</option>
-                            <option value="Linkdin-Company page-Germany">Linkedin-Company page-Germany</option>
-                            <option value="Linkdin-Company page-Singapore">Linkedin-Company page-Singapore</option>
-                            <option value="Linkedin-Company page-UK">Linkedin-Company page-UK</option>
-                            <option value="Linkedin-Company page-Scandinavia">Linkedin-Company page-Scandinavia</option>
-                            <option value="Facebook-DoWell Research">Facebook-DoWell Research</option>
-                            <option value="Youtube-Dowell Research">Youtube-Dowell Research</option>
-                            <option value="Twitter-seeuser">Twitter-seeuser</option>
-                            <option value="Linkedin-Intership">Linkedin-Intership</option>
-                            <option value="Facebook-uxlivinglab team">Facebook-uxlivinglab team</option>
-                            <option value="Instagram-uxlivinglab team">Instagram-uxlivinglab team</option>
-                            <option value="Youtube-Team playlist">Youtube-Team playlist</option>
-                            <option value="Twitter-unpacandwin">Twitter-unpacandwin</option>
-                            <option value="Linkedin-unpacandwin">Linkedin-unpacandwin</option>
-                            <option value="Facebook-unpacandwin">Facebook-unpacandwin</option>
-                            <option value="Instagram-unpacandwin">Instagram-unpacandwin</option>
-                            <option value="Youtube-unpacandwin">Youtube-unpacandwin</option>
+
+                            {
+                                designedFor && designedFor.map((socialMedia, index) => (
+                                    <option value={socialMedia} key={index}>{socialMedia}</option>
+                                ))
+
+                            }
+                       
                         </select>
                     </div>
 

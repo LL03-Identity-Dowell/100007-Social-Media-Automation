@@ -36,6 +36,7 @@ import Loading from "./components/Loading";
 import PortfolioError from "./pages/NotFound/PortfolioError";
 import Wikipidia from "./pages/Article/Wikipidia";
 import WriteYourSelf from "./pages/Article/WriteYourSelf";
+import PostDetailDropdown from "./pages/UserProfile/PostDetailDropdown";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -139,22 +140,22 @@ function App() {
       <Layout side={showSidebar} show={handleOpenSideBar}>
         <Routes>
           <Route index element={<Home close={handleCloseSideBar} />} />
-          <Route path="/topic" element={<Topic show={handleOpenSideBar} />} />
-          <Route path="/rank" element={<Rank show={handleCloseSideBar} />} />
+          <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
+          <Route path='/rank' element={<Rank show={handleCloseSideBar} />} />
           <Route
-            path="/article"
+            path='/article'
             element={<Article show={handleOpenSideBar} />}
           />
           <Route
-            path="/createArticle"
+            path='/createArticle'
             element={<CreateArticle show={handleOpenSideBar} />}
           />
           <Route
-            path="/post-list"
+            path='/post-list'
             element={<PostList show={handleOpenSideBar} />}
           />
           <Route
-            path="/article-detail"
+            path='/article-detail'
             element={<SpecificArticle show={handleOpenSideBar} />}
           />
           {/* <Route
@@ -162,113 +163,117 @@ function App() {
             element={<SpecificPost show={handleOpenSideBar} />}
           /> */}
           <Route
-            path="/post-detail"
+            path='/post-detail'
             element={<PostDetail show={handleOpenSideBar} />}
           />
           <Route
-            path="/scheduled"
+            path='/scheduled'
             element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
-            path="/unscheduled"
+            path='/unscheduled'
             element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
-            path="/recent"
+            path='/recent'
             element={<ScheduleSection show={handleOpenSideBar} />}
           />
           <Route
-            path="/comment"
+            path='/comment'
             element={<Comment show={handleOpenSideBar} />}
           />
           <Route
-            path="/comment/:id"
+            path='/comment/:id'
             element={<ViewComments show={handleOpenSideBar} />}
           />
           <Route
-            path="/address"
+            path='/address'
             element={<Address close={handleCloseSideBar} />}
           />
           <Route
-            path="/user-profile"
+            path='/user-profile'
             element={<UserProfile close={handleCloseSideBar} />}
           />
           <Route
-            path="/client-profile"
+            path='/client-profile'
             element={<ClientProfile close={handleCloseSideBar} />}
           />
           <Route
-            path="/social-media-channels"
+            path='/social-media-channels'
             element={<SocialMediaChannels close={handleCloseSideBar} />}
           />
           <Route
-            path="/social-media-channels/facebook"
+            path='/social-media-channels/facebook'
             element={<Fackbook close={handleCloseSideBar} />}
           />
           <Route
-            path="/social-media-channels/instagram"
+            path='/social-media-channels/instagram'
             element={<Instagram close={handleCloseSideBar} />}
           />
           <Route
-            path="/social-media-channels/twitter"
+            path='/social-media-channels/twitter'
             element={<Twitter close={handleCloseSideBar} />}
           />
           <Route
-            path="/social-media-channels/linkedin"
+            path='/social-media-channels/linkedin'
             element={<Linkedin close={handleCloseSideBar} />}
           />
           <Route
-            path="/social-media-channels/youtube"
+            path='/social-media-channels/youtube'
             element={<Youtube close={handleCloseSideBar} />}
           />
           <Route
-            path="/social-media-channels/pinterest"
+            path='/social-media-channels/pinterest'
             element={<Pinterest close={handleCloseSideBar} />}
           />
 
           <Route
-            path="/user-approval"
+            path='/user-approval'
             element={<ApprovalByClient close={handleCloseSideBar} />}
           />
-          <Route path="*" element={<NotFound close={handleCloseSideBar} />} />
+          <Route path='*' element={<NotFound close={handleCloseSideBar} />} />
           <Route
-            path="/statistics/my-plan"
+            path='/statistics/my-plan'
             element={<MyPlan close={handleCloseSideBar} />}
           />
           <Route
-            path="/statistics/my-team"
+            path='/statistics/my-team'
             element={<MyTeam close={handleCloseSideBar} />}
           />
           <Route
-            path="/statistics/my-usage"
+            path='/statistics/my-usage'
             element={<MyUsage close={handleCloseSideBar} />}
           />
           <Route
-            path="/settings/hastagsandmentions"
+            path='/settings/hastagsandmentions'
             element={<HashtagsMentions close={handleCloseSideBar} />}
           />
           <Route
-            path="/settings/categoriesandtopic"
+            path='/settings/categoriesandtopic'
             element={<CategoriesTopic close={handleCloseSideBar} />}
           />
           <Route
-            path="/target-cities"
+            path='/settings/postdetaildropdowns'
+            element={<PostDetailDropdown close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/target-cities'
             element={<TargetCities close={handleCloseSideBar} />}
           />
           <Route
-            path="/createarticle"
+            path='/createarticle'
             element={<CreateArticle show={handleOpenSideBar} />}
           />
           <Route
-            path="/article/Wikipidia/"
+            path='/article/Wikipidia/'
             element={<Wikipidia close={handleCloseSideBar} />}
           />
           <Route
-            path="/article/write_yourself/"
+            path='/article/write_yourself/'
             element={<WriteYourSelf close={handleCloseSideBar} />}
           />
           <Route
-            path="/portfolio_check"
+            path='/portfolio_check'
             element={<PortfolioError close={handleCloseSideBar} />}
           />
         </Routes>
