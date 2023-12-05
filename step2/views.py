@@ -1621,9 +1621,9 @@ class MediaScheduleView(AuthenticatedBaseView):
                 end_datetime = datetime.now()
                 time_taken = end_datetime - start_datetime
                 print(f"Total time taken: {time_taken}")
-            return Response('scheduled', safe=False)
+            return Response('scheduled')
         else:
-            return Response('social_media_channels', safe=False)
+            return Response('social_media_channels')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
