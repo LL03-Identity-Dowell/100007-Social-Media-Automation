@@ -399,6 +399,53 @@ def get_most_recent_posts(user_id):
     return user_post
 
 
+def get_scheduled_posts(user_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request(
+        "POST", url, headers=headers, data=data)
+    posts = json.loads(response.json())
+
+    status = 'scheduled'
+    post_data = []
+
+    for row in posts['data']:
+        if user_id == str(row['user_id']):
+            try:
+                if status == row['status']:
+                    data = {
+                        'title': row['title'],
+                        'paragraph': row['paragraph'],
+                        'image': row['image'],
+                        'pk': row['_id'],
+                        'source': row['source'],
+                        'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                        'time': row['time']
+                    }
+                    post_data.append(data)
+
+            except:
+                pass
+    post_data = list(reversed(post_data))
+    return post_data
+
+
 def get_post_by_id(post_id, user_id):
     """
     This function returns the most recent posts made by a user
@@ -494,30 +541,3 @@ def save_profile_key_to_post(profile_key, post_id, post_response):
     response = requests.post(url, headers=headers, json=payload)
 
     return response.json()
-
-
-data = {
-    "profile_key": "4X7NFN3-CXEMCJB-JCBX228-YT2GE74",
-    "post_response": {
-        "status": "success",
-        "posts": [
-            {
-                "status": "success",
-                "errors": [],
-                "postIds": [
-                    {
-                        "status": "success",
-                        "id": "1730605721492816027",
-                        "postUrl": "https://twitter.com/Wilf72291/status/1730605721492816027",
-                        "platform": "twitter"
-                    }
-                ],
-                "id": "QZvB3oE25mBLtYr5Tdbr",
-                "refId": "1122a0b6e1531b019bd2185d734bbc17a096d3d2",
-                "profileTitle": "wilfex",
-                "post": "Social media automation has become an increasingly popular tool in the industry, allowing businesses to streamline their online presence with minimal effort.  Automation tools allow businesses to schedule posts, track analytics, a\n\nCreated and posted by #samanta #uxlivinglab."
-            }
-        ],
-        "validate": True
-    }
-}

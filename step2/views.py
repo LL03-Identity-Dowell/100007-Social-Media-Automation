@@ -42,7 +42,7 @@ from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
-                     get_post_by_id, post_comment_to_social_media)
+                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -3475,8 +3475,10 @@ class Comments(AuthenticatedBaseView):
         if 'session_id' and 'username' in request.session:
             user_id = request.session['user_id']
             recent_posts = get_most_recent_posts(user_id=user_id)
+            scheduled_post = get_scheduled_posts(user_id=user_id)
             response_data = {
                 'recent_posts': recent_posts,
+                'scheduled_post': scheduled_post,
             }
             return Response(response_data)
         else:
