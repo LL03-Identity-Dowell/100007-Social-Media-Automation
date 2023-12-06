@@ -26,11 +26,12 @@ class IndustrySerializer(serializers.ModelSerializer):
 
 class SentenceSerializer(serializers.ModelSerializer):
     NUMBERS = (
+        ('', 'Choose'),
         ('singular', 'singular'),
         ('plural', 'plural'),
     )
     subject_number = serializers.ChoiceField(
-        choices=NUMBERS, default='singular')
+        choices=NUMBERS, default='')
     object_number = serializers.ChoiceField(
         choices=NUMBERS, default='singular')
 
