@@ -215,7 +215,6 @@ class MainAPIView(AuthenticatedBaseView):
                     request.session['operations_right'] = 'member'
                     request.session['org_id'] = info['org_id'] if info else ''
 
-
             username = user_map.get(request.session['user_id'], None)
 
             request.session['session_id'] = session_id
@@ -1000,8 +999,8 @@ def api_call(postes, platforms, key, image, request, post_id):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
-        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
-
+        save_profile_key_to_post(
+            profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1033,7 +1032,8 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
-        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
+        save_profile_key_to_post(
+            profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1394,8 +1394,9 @@ def api_call(postes, platforms, key, image, request, post_id):
             request, 'post have been sucessfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
-        update = update_most_recent(post_id)
-        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
+        update_most_recent(post_id)
+        save_profile_key_to_post(
+            profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1426,8 +1427,9 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
             request, 'post have been sucessfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
-        update = update_schedule(post_id)
-        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
+        update_schedule(post_id)
+        save_profile_key_to_post(
+            profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1503,9 +1505,9 @@ class MediaPostView(AuthenticatedBaseView):
                 end_datetime = datetime.now()
                 time_taken = end_datetime - start_datetime
                 print(f"Total time taken: {time_taken}")
-            return JsonResponse('most_recent', safe=False)
+            return Response('most_recent')
         else:
-            return JsonResponse('social_media_channels', safe=False)
+            return Response('social_media_channels')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1587,9 +1589,9 @@ class MediaScheduleView(AuthenticatedBaseView):
                 end_datetime = datetime.now()
                 time_taken = end_datetime - start_datetime
                 print(f"Total time taken: {time_taken}")
-            return JsonResponse('scheduled', safe=False)
+            return Response('scheduled')
         else:
-            return JsonResponse('social_media_channels', safe=False)
+            return Response('social_media_channels')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -3265,7 +3267,7 @@ class PostDetailDropdownView(APIView):
                     "user_id": request.session['user_id'],
                     "qualitative_categorization": qualitative_categorization,
                     "targeted_for": targeted_for,
-                    "artictargeted_category": targeted_category,
+                    "targeted_category": targeted_category,
                     "session_id": session_id,
                     "eventId": event_id,
                     'client_admin_id': request.session['userinfo']['client_admin_id'],
@@ -3410,7 +3412,8 @@ class CreatePostComments(AuthenticatedBaseView):
                 return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
             platforms = list(serializer_data.validated_data.get('platforms'))
             comment = serializer_data.validated_data.get('comment')
-            aryshare_post_id = post_data.get('post_response').get('posts')[0].get('id')
+            aryshare_post_id = post_data.get(
+                'post_response').get('posts')[0].get('id')
             response = post_comment_to_social_media(
                 platforms=platforms,
                 id=aryshare_post_id,
@@ -3420,6 +3423,7 @@ class CreatePostComments(AuthenticatedBaseView):
             return Response(response)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class Comments(AuthenticatedBaseView):
@@ -3445,8 +3449,10 @@ class PostComments(AuthenticatedBaseView):
 
             if not post_data.get('post_response'):
                 return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
-            aryshare_post_id = post_data.get('post_response').get('posts')[0].get('id')
-            comments = get_post_comments(post_id=aryshare_post_id, profile_key=profile_key)
+            aryshare_post_id = post_data.get(
+                'post_response').get('posts')[0].get('id')
+            comments = get_post_comments(
+                post_id=aryshare_post_id, profile_key=profile_key)
 
             return Response(comments)
         else:
