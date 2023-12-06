@@ -26,10 +26,18 @@ const Article = ({ show }) => {
 
   useEffect(() => {
     show();
-    const session_id = localStorage.getItem("session_id");
-    setSessionId(session_id)
     fetch();
   }, [page]);
+
+  useEffect(() => {
+    const session_id = localStorage.getItem("session_id");
+    setSessionId(session_id)
+
+  });
+
+
+
+  console.log(sessionId);
 
   const fetch = () => {
     setLoading(true);
