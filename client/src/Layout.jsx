@@ -85,55 +85,28 @@ const Layout = ({ children, side, show, isUser }) => {
   //   }
   // },[]);
 
-  // useEffect(() => {
-  //   const checkSession = async () => {
-  //     const session_id = localStorage.getItem("session_id");
-  //     console.log(session_id);
-  //     if (!sessionCheckPerformed && session_id) {
-  //       setSessionCheckPerformed(true);
+  useEffect(() => {
+    const checkSession = async () => {
+      const session_id = localStorage.getItem("session_id");
+          axios
+            .get("http://127.0.0.1:8000/api/v1/main/", {
+              headers: {
+                Authorization: `Bearer ${session_id}`,
+              },
+              withCredentials: true
+            })
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => {
+            
+              console.error("Error fetching data:", err);
+            });
+        
+    };
 
-  //       try {
-  //         setLoading(true);
-  //         axios
-  //           .get("http://127.0.0.1:8000/api/v1/main/", {
-  //             headers: {
-  //               Authorization: `Bearer ${session_id}`,
-  //             },
-  //             withCredentials: true
-  //           })
-  //           .then((res) => {
-  //             const data = res.data;
-  //             const saveUserInfo = JSON.stringify(data);
-  //             localStorage.setItem("userInfo", saveUserInfo);
-  //             const userProducts = data.portfolio_info;
-  //             // Check if any product is "Social Media Automation"
-  //             const hasSocialMediaAutomation = userProducts.some(
-  //               (product) => product.product === "Social Media Automation"
-  //             );
-
-  //             if (!hasSocialMediaAutomation) {
-  //               setLoading(false);
-  //               setProduct(false);
-  //               console.log("You do not have a portfolio", userProducts);
-  //               navigate("/portfolio_check");
-  //             }
-
-  //             setLoading(false);
-  //           })
-  //           .catch((err) => {
-  //             setLoading(false);
-  //             console.error("Error fetching data:", err);
-  //           });
-  //       } catch (error) {
-  //         setLoading(false);
-  //         console.error("Error fetching data:", error);
-  //         // Handle error, e.g., redirect to an error page
-  //       }
-  //     }
-  //   };
-
-  //   checkSession();
-  // }, [navigate, sessionCheckPerformed]);
+    checkSession();
+  }, []);
 
   return (
     <div className="w-full ">
