@@ -37,7 +37,7 @@ const Article = ({ show }) => {
 
 
 
-  console.log(sessionId);
+  // console.log(sessionId);
 
   const fetch = () => {
     setLoading(true);
