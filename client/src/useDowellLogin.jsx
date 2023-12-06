@@ -23,35 +23,7 @@ const dowellLoginUrl =
 //   sessionStorage.setItem("userInfo", JSON.stringify(res.data));
 // };
 
-const getUserInfo = async (session_id) => {
-  const session = {
-    session_id,
-  };
 
-  const res = await axios({
-    method: "post",
-    url: "https://100014.pythonanywhere.com/api/userinfo/",
-    data: session,
-  });
-  //   console.log(res);
-  const data = res.data;
-  const saveUserInfo = JSON.stringify(data);
-  localStorage.setItem("userInfo", saveUserInfo);
-  const userProducts = data.portfolio_info;
-  // Check if any product is "Social Media Automation"
-  const hasSocialMediaAutomation = userProducts.some(
-    (product) => product.product === "Social Media Automation"
-  );
-
-  if (!hasSocialMediaAutomation) {
-    setLoading(false);
-    setProduct(false);
-    console.log("You do not have a portfolio", userProducts);
-    navigate("/portfolio_check");
-  }
-  return data;
-  //   sessionStorage.setItem("userInfo", JSON.stringify(res.data));
-};
 
 export default function useDowellLogin() {
   const [loading, setLoading] = useState(false);

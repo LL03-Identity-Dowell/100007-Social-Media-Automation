@@ -20,17 +20,17 @@ function Navbar() {
   window.location.origin;
 
   const handleLogout = ()=>{
-    axios
-    .get("http://127.0.0.1:8000/api/v1/logout/", {
-      withCredentials: true,
-    })
-    .then(res=>{
-      console.log(res);
-      window.location.replace(dowellLogoutUrl)
-    }).catch(err=>{
-      console.log(err);
+    window.location.replace(dowellLogoutUrl)
+    // axios
+    // .get("http://127.0.0.1:8000/api/v1/logout/", {
+    //   withCredentials: true,
+    // })
+    // .then(res=>{
+    //   console.log(res);
+    // }).catch(err=>{
+    //   console.log(err);
       
-    })
+    // })
   }
 
   return (
