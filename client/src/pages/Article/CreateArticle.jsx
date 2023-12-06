@@ -42,6 +42,7 @@ const CreateArticle = ({ show }) => {
           setSuccess("Topics Fetched Successfully...!");
           // Handle the response here
           const data = response.data.topics;
+          console.log(data);
           setTopics(data);
           setCount(response.data.total_items);
           setPageCount(Math.ceil(response.data.total_items / perPage));

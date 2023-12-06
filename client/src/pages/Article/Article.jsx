@@ -42,10 +42,6 @@ const Article = ({ show }) => {
         `http://127.0.0.1:8000/api/v1/list-articles/?page=${page + 1
         }&order=newest`,
         {
-          headers: {
-            Authorization: `Bearer ${session_id}`,
-          },
-
           withCredentials: true,
         }
       )

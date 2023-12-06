@@ -96,7 +96,7 @@ const Layout = ({ children, side, show, isUser }) => {
               withCredentials: true
             })
             .then((res) => {
-              console.log(res);
+              // console.log(res);
             })
             .catch((err) => {
             
