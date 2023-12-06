@@ -32,6 +32,7 @@ from pexels_api import API
 from pymongo import MongoClient
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 # rest(React endpoints)
 from rest_framework.views import APIView
 
@@ -40,12 +41,12 @@ from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key)
+                     update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
+                     get_post_by_id, post_comment_to_social_media)
 from website.models import Sentences, SentenceResults
-from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          MostRecentJsonSerializer)
+                          MostRecentJsonSerializer, PostCommentSerializer)
 
 global PEXELS_API_KEY
 
@@ -172,7 +173,7 @@ class MainAPIView(AuthenticatedBaseView):
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-            session_id = request.session["session_id"]
+
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
@@ -213,6 +214,7 @@ class MainAPIView(AuthenticatedBaseView):
                 else:
                     request.session['operations_right'] = 'member'
                     request.session['org_id'] = info['org_id'] if info else ''
+
 
             username = user_map.get(request.session['user_id'], None)
 
@@ -811,7 +813,8 @@ class PostDetailView(AuthenticatedBaseView):
 
             # if not credit_response.get('success'):
             #     return redirect(reverse('credit_error_view'))
-            url = "http://uxlivinglab.pythonanywhere.com"
+            url = "http://uxlivinglab.pythonanywhere.com/"
+            headers = {'content-type': 'application/json'}
             payload = json.dumps({
                 "cluster": "socialmedia",
                 "database": "socialmedia",
@@ -876,11 +879,12 @@ class PostDetailView(AuthenticatedBaseView):
                 if wit[0] >= width:
                     output.append(pictures)
             if len(output) == 0:
-                messages.error(request, 'No images found!')
-                return redirect(reverse('generate_article:article-list'))
+                return Response({'message': 'No images found please try again!'}, status=status.HTTP_404_NOT_FOUND)
             images = output[1]
             print(profile)
-            response_data = {'post': post, 'categories': categories,
+            username = request.session['username']
+            linked_accounts = check_connected_accounts(username)
+            response_data = {'post': post, 'categories': categories, 'linked_accounts': linked_accounts,
                              'images': images, 'profile': profile, "message": "You are limited to use only images from Samanta AI due to security and privacy policy"}
             return Response(response_data)
         else:
@@ -992,10 +996,12 @@ def api_call(postes, platforms, key, image, request, post_id):
         messages.error(request, 'error in posting')
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
         messages.success(
-            request, 'post have been sucessfully posted')
+            request, 'post have been successfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
+
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1027,6 +1033,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1119,14 +1126,12 @@ class LinkMediaChannelsView(APIView):
         response = requests.request("POST", url, headers=headers, data=data)
         print(response.json())
         # profile = request.session['operations_right']
-
         post = json.loads(response.json())
-
         for posts in post['data']:
             if posts['user_id'] == request.session['user_id']:
                 key = posts['profileKey']
                 print(key)
-        with open(r'C:\Users\dell\Documents\Dowell Research\Dowell_social_media_automation\100007-Social-Media-Automation\dowellresearch.key') as f:
+        with open(r'C:\Users\HP 250\Desktop\code\100007-Social-Media-Automation\dowellresearch.key') as f:
             privateKey = f.read()
 
         payload = {'domain': 'dowellresearch',
@@ -1159,23 +1164,6 @@ class SocialMediaChannelsView(APIView):
         }
 
         return Response(response_data)
-
-
-def can_post_on_social_media(request):
-    """
-    This function check of a user can post an article on social media sites
-    """
-    portfolio_info = request.session.get('portfolio_info')
-    if not portfolio_info:
-        return False
-    if not isinstance(portfolio_info, list):
-        return False
-    portfolio_info = portfolio_info[0]
-    if portfolio_info.get('member_type') == 'owner' and portfolio_info.get('username') == 'socialmedia':
-        return True
-    elif portfolio_info.get('member_type') == 'member_type' and portfolio_info.get('username') == 'socialmedia':
-        return True
-    return False
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1244,10 +1232,12 @@ class MostRecentJSON(AuthenticatedBaseView):
 
             try:
                 for row in posts['data']:
+
                     if user_id == str(row['user_id']):
                         try:
                             if status == row['status']:
                                 data = {
+                                    'article_id': row['_id'],
                                     'title': row['title'],
                                     'paragraph': row['paragraph'],
                                     'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
@@ -1405,6 +1395,7 @@ def api_call(postes, platforms, key, image, request, post_id):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_most_recent(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1436,6 +1427,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update = update_schedule(post_id)
+        save_profile_key_to_post(profile_key=key, post_id=post_id, post_response=r1.json())
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1456,6 +1448,7 @@ class MediaPostView(AuthenticatedBaseView):
 
             # if not credit_response.get('success'):
             #     return JsonResponse('credit_error', safe=False)
+
             start_datetime = datetime.now()
             data = json.loads(request.body.decode("utf-8"))
             title = data['title']
@@ -3203,6 +3196,157 @@ class UserApprovalView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+class PostDetailDropdownView(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
+    def get(self, request):
+        session_id = request.GET.get("session_id", None)
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+
+        print(response)
+        response_data_json = json.loads(response.json())
+        print("Here we have data from this page", response_data_json)
+        user_id = str(request.session['user_id'])
+        if len(response_data_json['data']) == 0:
+            status = 'insert'
+        else:
+            status = 'update'
+
+        return Response({'status': status})
+
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "POST":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = request.data  # Use request.data to access JSON data
+            qualitative_categorization = data.get("qualitative_categorization")
+            targeted_for = data.get("targeted")
+            targeted_category = data.get("targeted_category")
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "eventId": event_id,
+                "command": "insert",
+
+                "field": {
+                    "user_id": request.session['user_id'],
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted_for": targeted_for,
+                    "artictargeted_category": targeted_category,
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': request.session['userinfo']['client_admin_id'],
+                    "date": date,
+                    "time": str(time),
+                },
+                "update_field": {
+                    "approvals": {
+                        "qualitative_categorization": qualitative_categorization,
+                        "targeted_for": targeted_for,
+                        "artictargeted_category": targeted_category,
+                    },
+                },
+                "platform": "bangalore"
+            }
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            # Use the json parameter to send JSON data
+            response = requests.post(url, headers=headers, json=payload)
+            print(response.text)
+            messages.success(request, ".")
+
+            return Response({
+                'message': 'Details inserted successfully',
+                "qualitative_categorization": qualitative_categorization,
+                "targeted_for": targeted_for,
+                "artictargeted_category": targeted_category,
+            }, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        if request.method != "PUT":
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            data = request.data  # Use request.data to access JSON data
+            qualitative_categorization = data.get("qualitative_categorization")
+            targeted_for = data.get("targeted")
+            targeted_category = data.get("targeted_category")
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+                "field": {
+                    'user_id': request.session['user_id']
+                },
+                "update_field": {
+                    "qualitative_categorization": qualitative_categorization,
+                    "targeted_for": targeted_for,
+                    "artictargeted_category": targeted_category,
+                },
+                "platform": "bangalore"
+            }
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            data = json.dumps(payload)
+            response = requests.post(url, headers=headers, data=data)
+            print(response.text)
+            return Response({
+                'message': 'Details updated successfully',
+                "qualitative_categorization": qualitative_categorization,
+                "targeted_for": targeted_for,
+                "artictargeted_category": targeted_category,
+            }, status=status.HTTP_200_OK)
+
+
 '''user settings ends here'''
 
 
@@ -3248,3 +3392,62 @@ def User_DetailView(request, id):
     collection = db['user_info']
     user = collection.find_one({'_id': ObjectId(id)})
     return render(request, 'step2/user_info_detail.html', {'user': user})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreatePostComments(AuthenticatedBaseView):
+
+    def post(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+            serializer_data = PostCommentSerializer(data=request.data)
+            if not serializer_data.is_valid():
+                return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            profile_key = post_data.get('profile_key')
+
+            if not post_data.get('post_response'):
+                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
+            platforms = list(serializer_data.validated_data.get('platforms'))
+            comment = serializer_data.validated_data.get('comment')
+            aryshare_post_id = post_data.get('post_response').get('posts')[0].get('id')
+            response = post_comment_to_social_media(
+                platforms=platforms,
+                id=aryshare_post_id,
+                comment=comment,
+                profile_key=profile_key
+            )
+            return Response(response)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Comments(AuthenticatedBaseView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            user_id = request.session['user_id']
+            recent_posts = get_most_recent_posts(user_id=user_id)
+            response_data = {
+                'recent_posts': recent_posts,
+            }
+            return Response(response_data)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PostComments(AuthenticatedBaseView):
+    def get(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            profile_key = post_data.get('profile_key')
+
+            if not post_data.get('post_response'):
+                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
+            aryshare_post_id = post_data.get('post_response').get('posts')[0].get('id')
+            comments = get_post_comments(post_id=aryshare_post_id, profile_key=profile_key)
+
+            return Response(comments)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)

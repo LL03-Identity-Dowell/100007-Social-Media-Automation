@@ -313,7 +313,7 @@ def get_key(user_id):
     return key
 
 
-def post_comment_to_social_media(platforms: list[str], id: str, comment: str):
+def post_comment_to_social_media(platforms: list[str], id: str, comment: str, profile_key: str):
     """
     This method posts a comment to a social media post
     """
@@ -323,6 +323,7 @@ def post_comment_to_social_media(platforms: list[str], id: str, comment: str):
         'comment': comment
     }
     headers = {'Content-Type': 'application/json',
+               'Profile-Key': profile_key,
                'Authorization': f'Bearer {str(ARYSHARE_KEY)}'}
 
     response = requests.post('https://app.ayrshare.com/api/comments',
@@ -331,12 +332,192 @@ def post_comment_to_social_media(platforms: list[str], id: str, comment: str):
     return response.json()
 
 
-def get_post_comments(post_id: str):
+def get_post_comments(post_id: str, profile_key: str):
     """
     This function returns comments for a particular post
     """
-    headers = {'Authorization': f'Bearer {str(ARYSHARE_KEY)}'}
+    headers = {
+        'Content-Type': 'application/json',
+        'Profile-Key': profile_key,
+        'Authorization': f'Bearer {str(ARYSHARE_KEY)}'
+    }
     url = f'https://app.ayrshare.com/api/comments/{str(post_id)}'
     r = requests.get(url, headers=headers)
 
     return r.json()
+
+
+def get_most_recent_posts(user_id):
+    """
+    This function returns the most recent posts made by a user
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request(
+        "POST", url, headers=headers, data=data)
+    posts = json.loads(response.json())
+
+    status = 'posted'
+    user_post = []
+
+    for row in posts['data']:
+
+        if user_id == str(row['user_id']):
+            try:
+                if status == row['status']:
+                    data = {
+                        'article_id': row['_id'],
+                        'title': row['title'],
+                        'paragraph': row['paragraph'],
+                        'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                        'image': row['image'],
+                        'source': row['source'],
+                        'time': row['time'],
+                        'post_response': row.get('post_response'),
+                    }
+                    user_post.append(data)
+            except:
+                pass
+
+    user_post = list(reversed(user_post))
+    return user_post
+
+
+def get_post_by_id(post_id, user_id):
+    """
+    This function returns the most recent posts made by a user
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request(
+        "POST", url, headers=headers, data=data)
+    posts = json.loads(response.json())
+
+    status = 'posted'
+
+    for row in posts['data']:
+
+        if user_id == str(row['user_id']):
+            try:
+                if status == row['status'] and row['_id'] == post_id:
+                    return {
+                        'article_id': row['_id'],
+                        'title': row['title'],
+                        'paragraph': row['paragraph'],
+                        'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                        'image': row['image'],
+                        'source': row['source'],
+                        'time': row['time'],
+                        'profile_key': row.get('profile_key'),
+                        'post_response': row.get('post_response'),
+                    }
+
+            except:
+                pass
+
+def get_aryshare_profile_id(user_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "ayrshare_info",
+        "document": "ayrshare_info",
+        "team_member_ID": "100007001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+
+
+def save_profile_key_to_post(profile_key, post_id, post_response):
+    url = "http://uxlivinglab.pythonanywhere.com"
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "update",
+        "field": {
+            "_id": post_id,
+        },
+        "update_field": {
+            "profile_key": profile_key,
+            "post_response": post_response,
+        },
+        "platform": "bangalore"
+    }
+
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, headers=headers, json=payload)
+
+    return response.json()
+
+
+data = {
+    "profile_key": "4X7NFN3-CXEMCJB-JCBX228-YT2GE74",
+    "post_response": {
+        "status": "success",
+        "posts": [
+            {
+                "status": "success",
+                "errors": [],
+                "postIds": [
+                    {
+                        "status": "success",
+                        "id": "1730605721492816027",
+                        "postUrl": "https://twitter.com/Wilf72291/status/1730605721492816027",
+                        "platform": "twitter"
+                    }
+                ],
+                "id": "QZvB3oE25mBLtYr5Tdbr",
+                "refId": "1122a0b6e1531b019bd2185d734bbc17a096d3d2",
+                "profileTitle": "wilfex",
+                "post": "Social media automation has become an increasingly popular tool in the industry, allowing businesses to streamline their online presence with minimal effort.  Automation tools allow businesses to schedule posts, track analytics, a\n\nCreated and posted by #samanta #uxlivinglab."
+            }
+        ],
+        "validate": True
+    }
+}

@@ -126,7 +126,7 @@ const CreateArticle = ({ show }) => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center article-container relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-visible ">
+    <div className="lg:flex lg:flex-col lg:justify-center lg:items-center lg:article-container lg:relative  lg:max-w-7xl lg:mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-visible ">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
@@ -135,11 +135,11 @@ const CreateArticle = ({ show }) => {
         Create An Article
       </h1>
       <p className="">Select a topic</p>
-      <div className="overflow-y-scroll lg:overflow-y-visible h-[70vh] lg:h-auto grid gap-6 lg:gap-10 pb-6 ">
+      <div className=" ">
         <div className="flex flex-col max-w-6xl content-center">
           <div className="overflow-x-auto lg:overflow-hidden sm:-mx-6 lg:-mx-8 ">
             <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-              <div className="overflow-hidden ">
+              <div className="overflow-hidden">
                 <table className=" text-left text-sm font-light w-auto">
                   <thead className="border-y font-medium dark:border-black">
                     <tr>
@@ -164,16 +164,16 @@ const CreateArticle = ({ show }) => {
                           key={index}
                           className="border-b transition duration-300 ease-in-out text-md lg:text-lg text-gray-600 font-normal hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
                         >
-                          <td className="whitespace-nowrap px-6 py-4 font-medium">
+                          <td className="lg:whitespace-nowrap md:whitespace-nowrap px-6 py-4 font-medium">
                             {item.ranks}
                           </td>
-                          <td className="whitespace-nowrap px-6 py-4">
+                          <td className="lg:whitespace-nowrap md:whitespace-nowrap px-6 py-4">
                             {item.sentence}
                           </td>
-                          <td className="whitespace-nowrap px-6 py-4">
+                          <td className="lg:whitespace-nowrap md:whitespace-nowrap px-6 py-4">
                             {item.created_by}
                           </td>
-                          <td className="whitespace-nowrap px-6 py-4">
+                          <td className="lg:whitespace-nowrap md:whitespace-nowrap px-6 py-4">
                             <button
                               className="bg-[#999999] text-white text-xs mx-3 rounded p-2 w-auto"
                               onClick={() =>
