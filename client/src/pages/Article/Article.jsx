@@ -17,7 +17,6 @@ const Article = ({ show }) => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
-  const [session_id, setSessionId] = useState();
 
 
   const [buttonClicked, setButtonClicked] = useState(false);
@@ -29,11 +28,6 @@ const Article = ({ show }) => {
     fetch();
   }, [page]);
 
-  useEffect(() => {
-    const session_id = localStorage.getItem("session_id");
-    setSessionId(session_id)
-
-  });
 
 
 
@@ -41,6 +35,7 @@ const Article = ({ show }) => {
 
   const fetch = () => {
     setLoading(true);
+    const session_id = localStorage.getItem("session_id");
     // Make a GET request to the API endpoint with the session_id
     axios
       .get(
