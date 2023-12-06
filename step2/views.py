@@ -166,11 +166,8 @@ def register(request):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MainAPIView(APIView):
+class MainAPIView(AuthenticatedBaseView):
     def get(self, request):
-        # session_id = request.session.get(
-        #     "session_id") or request.GET.get('session_id')
-
         if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
@@ -250,9 +247,6 @@ step-2 starts here
 
 
 class ListArticleView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -320,9 +314,6 @@ class ListArticleView(AuthenticatedBaseView):
 
 
 class ArticleDetailView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             profile = request.session['operations_right']
@@ -468,9 +459,6 @@ class IndexView(AuthenticatedBaseView):
 
 
 class GenerateArticleView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request):
         start_datetime = datetime.now()
         session_id = request.GET.get('session_id', None)
@@ -606,9 +594,6 @@ class GenerateArticleView(AuthenticatedBaseView):
 
 
 class GenerateArticleWikiView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -662,9 +647,6 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
 
 
 class WriteYourselfView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -819,9 +801,6 @@ class PostListView(AuthenticatedBaseView):
 
 
 class PostDetailView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -909,9 +888,6 @@ class PostDetailView(AuthenticatedBaseView):
 
 
 class SavePostView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1469,9 +1445,6 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaPostView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1545,9 +1518,6 @@ class MediaPostView(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaScheduleView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -2439,8 +2409,6 @@ class XFormAPI(AuthenticatedBaseView):
 
 
 class LinkedInFormAPI(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2546,8 +2514,6 @@ class LinkedInFormAPI(AuthenticatedBaseView):
 
 
 class YoutubeFormView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2655,8 +2621,6 @@ class YoutubeFormView(AuthenticatedBaseView):
 
 
 class PinterestFormView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2943,8 +2907,6 @@ class TargetedCitiesCreateView(APIView):
 
 
 class TargetedCitiesUpdateView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def put(self, request):
         session_id = request.GET.get("session_id", None)
@@ -3044,8 +3006,6 @@ class HashMentionView(APIView):
 
 
 class HashMentionUpdateView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def put(self, request):
         session_id = request.GET.get("session_id", None)
@@ -3087,8 +3047,6 @@ class HashMentionUpdateView(APIView):
 
 
 class UserApprovalView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def get(self, request):
         session_id = request.GET.get("session_id", None)
