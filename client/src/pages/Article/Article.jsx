@@ -17,6 +17,8 @@ const Article = ({ show }) => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
+  const [sessionId, setSessionId] = useState();
+
 
   const [buttonClicked, setButtonClicked] = useState(false);
   const [clickedPost, setClickedPost] = useState(null);
@@ -24,7 +26,8 @@ const Article = ({ show }) => {
 
   useEffect(() => {
     show();
-
+    const session_id = localStorage.getItem("session_id");
+    setSessionId(session_id)
     fetch();
   }, [page]);
 
@@ -37,9 +40,9 @@ const Article = ({ show }) => {
         }&order=newest`,
         {
           headers: {
-            Authorization: `Bearer ${session_id}`,
+            Authorization: `Bearer ${sessionId}`,
           },
-          
+
           withCredentials: true,
         }
       )
