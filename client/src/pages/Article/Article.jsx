@@ -17,7 +17,7 @@ const Article = ({ show }) => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(7);
   const [showMorePages, setShowMorePages] = useState(false);
-  const [sessionId, setSessionId] = useState();
+  const [session_id, setSessionId] = useState();
 
 
   const [buttonClicked, setButtonClicked] = useState(false);
@@ -48,7 +48,7 @@ const Article = ({ show }) => {
         }&order=newest`,
         {
           headers: {
-            Authorization: `Bearer ${sessionId}`,
+            Authorization: `Bearer ${session_id}`,
           },
 
           withCredentials: true,
