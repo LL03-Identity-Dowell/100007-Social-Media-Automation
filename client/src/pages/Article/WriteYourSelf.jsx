@@ -94,12 +94,11 @@ const WriteYourSelf = ({ close }) => {
               Source of Article
             </label>
             <input
-            required
               type="url"
               id="source"
               name="source"
               onChange={handelChange}
-              placeholder="Enter source url of the article.."
+              placeholder="Enter source url of the article.. (Optional)"
               className="p-4 my-2 border border-gray-200 rounded-md"
             />
           </div>

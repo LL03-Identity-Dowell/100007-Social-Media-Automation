@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import Searchbar from "../Searchbar/Searchbar";
 import { FaUser } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import Cookies from 'js-cookie';
+import axios from "axios";
 
 function Navbar() {
   const [username, setUserName] = useState(null);
@@ -18,8 +20,19 @@ function Navbar() {
   const dowellLogoutUrl =
   "https://100014.pythonanywhere.com/sign-out?redirect_url=" +
   window.location.origin;
+
   const handleLogout = ()=>{
-    window.location.replace(dowellLogoutUrl)
+    axios
+    .get("http://127.0.0.1:8000/api/v1/logout/", {
+      withCredentials: true,
+    })
+    .then(res=>{
+      console.log(res);
+      window.location.replace(dowellLogoutUrl)
+    }).catch(err=>{
+      console.log(err);
+      
+    })
   }
 
   return (

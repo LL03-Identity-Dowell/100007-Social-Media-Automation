@@ -132,11 +132,11 @@ class LogoutUser(APIView):
         if session_id:
             try:
                 del request.session["session_id"]
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
             except:
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
         else:
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
 
 
 @csrf_exempt
