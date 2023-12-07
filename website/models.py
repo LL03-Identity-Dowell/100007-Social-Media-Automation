@@ -113,12 +113,13 @@ class Sentences(models.Model):
     # subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
     topic = models.ForeignKey(UserTopic, on_delete=models.PROTECT, null=True, blank=True,
                               related_name='sentence')
-    subject_number = models.CharField(max_length=100, blank=False)
-    object_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS, default=DETERMINANTS[0][0])
+    subject_number = models.CharField(max_length=100, blank=True, null=True)
+    object_determinant = models.CharField(max_length=100, blank=True, null=True, choices=DETERMINANTS,
+                                          default=DETERMINANTS[0][0])
     object = models.CharField(max_length=100, blank=False)
     object_number = models.CharField(max_length=100, blank=False)
-    verb = models.CharField(max_length=100, blank=False)
-    adjective = models.CharField(max_length=100, blank=False)
+    verb = models.CharField(max_length=100, blank=True, null=True)
+    adjective = models.CharField(max_length=100, blank=True, null=True)
 
     # sentence = models.TextField(max_length=400)# single sentence got from database
     #     for part two of the Modelform

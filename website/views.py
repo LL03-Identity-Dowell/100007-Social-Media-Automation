@@ -29,9 +29,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
     """
 
     """
-    # permission_classes = (HasBeenAuthenticated,)
-    permission_classes = ()
-    authentication_classes = ()
+    permission_classes = (HasBeenAuthenticated,)
     serializer_class = SentenceSerializer
 
     def get_serializer(self):
@@ -195,7 +193,6 @@ class UserCategoriesAPIView(generics.ListCreateAPIView):
 
     """
     permission_classes = (HasBeenAuthenticated,)
-    authentication_classes = ()
     serializer_class = CategorySerializer
 
     def get_queryset(self):
@@ -227,9 +224,7 @@ class UserTopicAPIView(generics.ListCreateAPIView):
     """
 
     """
-    # permission_classes = (HasBeenAuthenticated,)
-    permission_classes = ()
-    authentication_classes = ()
+    permission_classes = (HasBeenAuthenticated,)
     serializer_class = UserTopicSerializer
 
     def get_queryset(self):
@@ -432,9 +427,7 @@ class SelectedResultAPIView(generics.CreateAPIView):
     """
 
     """
-    # permission_classes = (HasBeenAuthenticated,)
-    permission_classes = ()
-    authentication_classes = ()
+    permission_classes = (HasBeenAuthenticated,)
     serializer_class = SelectedResultSerializer
 
     def post(self, request, *args, **kwargs):

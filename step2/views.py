@@ -42,7 +42,7 @@ from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
-                     get_post_by_id, post_comment_to_social_media)
+                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -167,36 +167,28 @@ def register(request):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MainAPIView(APIView):
+class MainAPIView(AuthenticatedBaseView):
     def get(self, request):
-        session_id = request.session.get(
-            "session_id") or request.GET.get('session_id')
-
-        if not session_id:
-            session_id = request.META.get('HTTP_AUTHORIZATION').split(' ')[-1]
-        if session_id:
+        if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-
+            session_id = request.session["session_id"]
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
                 user_map[profile_details['userinfo']['userID']
                          ] = profile_details['userinfo']['username']
-
             else:
                 url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
                 response_2 = requests.post(
                     url_2, data={"session_id": session_id})
-
                 if response_2.status_code == 200 and "portfolio_info" in response_2.json():
                     profile_details = response_2.json()
                     request.session['portfolio_info'] = profile_details['portfolio_info']
                     user_map[profile_details['userinfo']['userID']
                              ] = profile_details['userinfo']['username']
-
                 else:
                     profile_details = {}
                     request.session['portfolio_info'] = []
@@ -253,8 +245,6 @@ step-2 starts here
 
 
 class ListArticleView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
@@ -323,8 +313,6 @@ class ListArticleView(AuthenticatedBaseView):
 
 
 class ArticleDetailView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def post(self, request):
         if 'session_id' and 'username' in request.session:
@@ -471,8 +459,6 @@ class IndexView(AuthenticatedBaseView):
 
 
 class GenerateArticleView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def post(self, request):
         start_datetime = datetime.now()
@@ -609,8 +595,6 @@ class GenerateArticleView(AuthenticatedBaseView):
 
 
 class GenerateArticleWikiView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def post(self, request):
         session_id = request.GET.get('session_id', None)
@@ -664,9 +648,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class WriteYourselfView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class WriteYourselfView(AuthenticatedBaseView):
 
     def post(self, request):
         session_id = request.GET.get('session_id', None)
@@ -822,8 +804,6 @@ class PostListView(AuthenticatedBaseView):
 
 
 class PostDetailView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def post(self, request):
         if 'session_id' and 'username' in request.session:
@@ -914,8 +894,6 @@ class PostDetailView(AuthenticatedBaseView):
 
 
 class SavePostView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
@@ -1067,7 +1045,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class AryshareProfileView(APIView):
+class AryshareProfileView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         event_id = create_event()['event_id']
         user = request.session['username']
@@ -1128,7 +1106,7 @@ class AryshareProfileView(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class LinkMediaChannelsView(APIView):
+class LinkMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         session_id = request.GET.get("session_id", None)
         url = "http://uxlivinglab.pythonanywhere.com/"
@@ -1177,7 +1155,7 @@ class LinkMediaChannelsView(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class SocialMediaChannelsView(APIView):
+class SocialMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         username = request.session['username']
         user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
@@ -1193,7 +1171,7 @@ class SocialMediaChannelsView(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class CanPostOnSocialMedia(APIView):
+class CanPostOnSocialMedia(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         """
         This function check of a user can post an article on social media sites
@@ -1212,7 +1190,7 @@ class CanPostOnSocialMedia(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class LinkedAccountsJson(APIView):
+class LinkedAccountsJson(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         username = request.session['username']
         linked_accounts = check_connected_accounts(username)
@@ -1465,8 +1443,6 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaPostView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
@@ -1542,8 +1518,6 @@ class MediaPostView(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaScheduleView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
@@ -2436,8 +2410,6 @@ class XFormAPI(AuthenticatedBaseView):
 
 
 class LinkedInFormAPI(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2543,8 +2515,6 @@ class LinkedInFormAPI(AuthenticatedBaseView):
 
 
 class YoutubeFormView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2652,8 +2622,6 @@ class YoutubeFormView(AuthenticatedBaseView):
 
 
 class PinterestFormView(AuthenticatedBaseView):
-    permission_classes = ()
-    authentication_classes = ()
 
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
@@ -2762,7 +2730,7 @@ class PinterestFormView(AuthenticatedBaseView):
                 return Response({'error': 'Failed to update Pinterest details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class ClientProfileFormView(APIView):
+class ClientProfileFormView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
             user_data = fetch_user_info(request)
@@ -2865,7 +2833,7 @@ class ClientProfileFormView(APIView):
                 return Response({'error': 'Failed to update Client details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class TargetedCitiesListView(APIView):
+class TargetedCitiesListView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
             url = 'http://100074.pythonanywhere.com/regions/johnDoe123/haikalsb1234/100074/'
@@ -2891,7 +2859,7 @@ class TargetedCitiesListView(APIView):
             return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class TargetedCitiesCreateView(APIView):
+class TargetedCitiesCreateView(AuthenticatedBaseView):
     def post(self, request):
         session_id = request.GET.get("session_id", None)
         if request.method != "POST":
@@ -2939,9 +2907,7 @@ class TargetedCitiesCreateView(APIView):
             return Response({'detail': 'Targeted cities saved successfully'}, status=status.HTTP_201_CREATED)
 
 
-class TargetedCitiesUpdateView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class TargetedCitiesUpdateView(AuthenticatedBaseView):
 
     def put(self, request):
         session_id = request.GET.get("session_id", None)
@@ -2981,7 +2947,7 @@ class TargetedCitiesUpdateView(APIView):
             return Response({'detail': 'Targeted cities updated successfully'}, status=status.HTTP_200_OK)
 
 
-class HashMentionView(APIView):
+class HashMentionView(AuthenticatedBaseView):
     def get(self, request):
         session_id = request.GET.get("session_id", None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -3040,9 +3006,7 @@ class HashMentionView(APIView):
             return Response({'detail': 'Hashtags and Mentions created successfully'}, status=status.HTTP_201_CREATED)
 
 
-class HashMentionUpdateView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class HashMentionUpdateView(AuthenticatedBaseView):
 
     def put(self, request):
         session_id = request.GET.get("session_id", None)
@@ -3083,9 +3047,7 @@ class HashMentionUpdateView(APIView):
                 return Response({'detail': 'Hashtags and Mentions updated successfully'}, status=status.HTTP_200_OK)
 
 
-class UserApprovalView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class UserApprovalView(AuthenticatedBaseView):
 
     def get(self, request):
         session_id = request.GET.get("session_id", None)
@@ -3242,9 +3204,7 @@ class UserApprovalView(APIView):
             }, status=status.HTTP_200_OK)
 
 
-class PostDetailDropdownView(APIView):
-    permission_classes = ()
-    authentication_classes = ()
+class PostDetailDropdownView(AuthenticatedBaseView):
 
     def get(self, request):
         session_id = request.GET.get("session_id", None)
@@ -3475,8 +3435,10 @@ class Comments(AuthenticatedBaseView):
         if 'session_id' and 'username' in request.session:
             user_id = request.session['user_id']
             recent_posts = get_most_recent_posts(user_id=user_id)
+            scheduled_post = get_scheduled_posts(user_id=user_id)
             response_data = {
                 'recent_posts': recent_posts,
+                'scheduled_post': scheduled_post,
             }
             return Response(response_data)
         else:
