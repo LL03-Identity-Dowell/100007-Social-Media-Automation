@@ -1,70 +1,207 @@
-import React, { useEffect } from "react";
-
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { ErrorMessages, SuccessMessages } from "../../components/Messages";
+import Loading from "../../components/Loading";
+import { getDate } from "./utils/getDate";
 function ViewComments({ show }) {
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [comments, setComments] = useState({});
+
+  const { id } = useParams();
+
   useEffect(() => {
     show();
   }, []);
 
-  return (
-    <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
-      <div className="w-[90%] m-auto p-4  text-left text-gray-500 dark:text-gray-400 ">
-        <div className="text-3xl md:text-4xl text-center text-customTextBlue">
-          Comments
-        </div>
-        <div className="mt-4 p-2 flex flex-row">
-          <img src="" className="border rounded-full h-12 w-12" alt="" />
-          <div className="py-4 pl-1 pr-2 ml-1 w-full ">
-            <p>
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magni,
-              repellendus adipisci! Fugiat consequatur repellat optio deleniti
-              explicabo modi repudiandae eveniet voluptate aliquam eligendi
-              veritatis, est dolor quos laboriosam ipsa recusandae!explicabo
-              modi repudiandae eveniet voluptate aliquam eligendi veritatis, est
-              dolor quos laboriosam ipsa recusandae!
-            </p>
+  useEffect(() => {
+    setLoading(true);
+    const fetchComments = async () => {
+      const url = `http://127.0.0.1:8000/api/v1/comments/get-post-comments/${id}/`;
+      await axios
+        .get(url, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          const { data } = response;
+          setComments(data);
+          setSuccess("Comments fetched successfully");
+          setError("");
+        })
+        .catch(() => {
+          setError("Server error, Please try again later");
+          setSuccess("");
+        });
+      setLoading(false);
+    };
+    fetchComments();
+  }, [id]);
 
-            <div id="display-comments" className=" p-2 mt-4 flex flex-row">
-              <img src="" className="border rounded-full h-8 w-8" alt="" />
-              <div className="ml-2 px-2 w-full">
-                <p>
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim
-                  quos a eum? Nobis, id beatae. Expedita maiores dolorum porro
-                  ex aut ad perspiciatis adipisci dolorem?
-                </p>
-              </div>
+  return (
+    <div className='relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto'>
+      {error && <ErrorMessages>{error}</ErrorMessages>}
+      {success && <SuccessMessages>{success}</SuccessMessages>}
+      {loading && <Loading />}
+
+      <div className='w-[90%] m-auto p-4  text-left text-gray-500 dark:text-gray-400 '>
+        <h1 className='text-3xl text-center md:text-4xl text-customTextBlue'>
+          Comments
+        </h1>
+        {comments?.twitter && (
+          <div>
+            <div className='flex items-center gap-4 mt-8'>
+              <img
+                src='/x-twitter.svg'
+                className='w-12 h-12 p-1 bg-black border rounded-full '
+                alt=''
+              />
+              <h2 className='text-2xl font-bold'>Twitter</h2>
             </div>
-            <div id="display-comments" className=" p-2 mt-4 flex flex-row">
-              <img src="" className="border rounded-full h-8 w-8" alt="" />
-              <div className="ml-2 px-2 w-full">
-                <p>
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim
-                  quos a eum? Nobis, id beatae. Expedita maiores dolorum porro
-                  ex aut ad perspiciatis adipisci dolorem?
-                </p>
-              </div>
-            </div>
-            <div id="display-comments" className=" p-2 mt-4 flex flex-row">
-              <img src="" className="border rounded-full h-8 w-8" alt="" />
-              <div className="ml-2 px-2 w-full">
-                <p>
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim
-                  quos a eum? Nobis, id beatae. Expedita maiores dolorum porro
-                  ex aut ad perspiciatis adipisci dolorem?
-                </p>
-              </div>
-            </div>
-            <div id="display-comments" className=" p-2 mt-4 flex flex-row">
-              <img src="" className="border rounded-full h-8 w-8" alt="" />
-              <div className="ml-2 px-2 w-full">
-                <p>
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim
-                  quos a eum? Nobis, id beatae. Expedita maiores dolorum porro
-                  ex aut ad perspiciatis adipisci dolorem?
-                </p>
-              </div>
-            </div>
+            <ol className='pl-20 space-y-4 mt-7'>
+              {comments.twitter.map((t, i) => {
+                const date = getDate(t.created);
+                return (
+                  <li className='flex gap-6' key={t.commentId}>
+                    <h4 className='mt-1'>{i + 1}.</h4>
+                    <div>
+                      <p className='text-xl'>{t.comment}</p>
+                      <span className='text-sm'>{date}</span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
           </div>
-        </div>
+        )}
+        {comments?.pinterest && (
+          <div>
+            <div className='flex items-center gap-4 mt-8'>
+              <img
+                src='/pinterest.svg'
+                className='w-12 h-12 p-1 bg-[#e60023] border rounded-full '
+                alt=''
+              />
+              <h2 className='text-2xl font-bold'>Pinterest</h2>
+            </div>
+            <ol className='pl-20 space-y-4 mt-7'>
+              {comments.pinterest.map((t, i) => {
+                const date = getDate(t.created);
+                return (
+                  <li className='flex gap-6' key={t.commentId}>
+                    <h4 className='mt-1'>{i + 1}.</h4>
+                    <div>
+                      <p className='text-xl'>{t.comment}</p>
+                      <span className='text-sm'>{date}</span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
+        {comments?.facebook && (
+          <div>
+            <div className='flex items-center gap-4 mt-8'>
+              <img
+                src='/facebook.svg'
+                className='w-12 h-12 p-1 border rounded-full bg-customBlue '
+                alt=''
+              />
+              <h2 className='text-2xl font-bold'>Facebook</h2>
+            </div>
+            <ol className='pl-20 space-y-4 mt-7'>
+              {comments.facebook.map((t, i) => {
+                const date = getDate(t.created);
+                return (
+                  <li className='flex gap-6' key={t.commentId}>
+                    <h4 className='mt-1'>{i + 1}.</h4>
+                    <div>
+                      <p className='text-xl'>{t.comment}</p>
+                      <span className='text-sm'>{date}</span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
+        {comments?.youtube && (
+          <div>
+            <div className='flex items-center gap-4 mt-8'>
+              <div className='custom-youtube-logo '></div>
+              <h2 className='text-2xl font-bold'>Youtube</h2>
+            </div>
+            <ol className='pl-20 space-y-4 mt-7'>
+              {comments.youtube.map((t, i) => {
+                const date = getDate(t.created);
+                return (
+                  <li className='flex gap-6' key={t.commentId}>
+                    <h4 className='mt-1'>{i + 1}.</h4>
+                    <div>
+                      <p className='text-xl'>{t.comment}</p>
+                      <span className='text-sm'>{date}</span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
+        {comments?.instagram && (
+          <div>
+            <div className='flex items-center gap-4 mt-8'>
+              <img
+                src='/instagram.svg'
+                className='w-12 h-12 p-1 border rounded-full bg-[#b003c7] '
+                alt=''
+              />
+              <h2 className='text-2xl font-bold'>Instagram</h2>
+            </div>
+            <ol className='pl-20 space-y-4 mt-7'>
+              {comments.instagram.map((t, i) => {
+                const date = getDate(t.created);
+                return (
+                  <li className='flex gap-6' key={t.commentId}>
+                    <h4 className='mt-1'>{i + 1}.</h4>
+                    <div>
+                      <p className='text-xl'>{t.comment}</p>
+                      <span className='text-sm'>{date}</span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
+        {comments?.linkedin && (
+          <div>
+            <div className='flex items-center gap-4 mt-8'>
+              <img
+                src='/linkedin.svg'
+                className='w-12 h-12 p-1 border rounded-full bg-[#0000ff] '
+                alt=''
+              />
+              <h2 className='text-2xl font-bold'>Linkedin</h2>
+            </div>
+            <ol className='pl-20 space-y-4 mt-7'>
+              {comments.linkedin.map((t, i) => {
+                const date = getDate(t.created);
+                return (
+                  <li className='flex gap-6' key={t.commentId}>
+                    <h4 className='mt-1'>{i + 1}.</h4>
+                    <div>
+                      <p className='text-xl'>{t.comment}</p>
+                      <span className='text-sm'>{date}</span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        )}
       </div>
     </div>
   );
