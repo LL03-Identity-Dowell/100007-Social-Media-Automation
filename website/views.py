@@ -212,8 +212,13 @@ class UserCategoriesAPIView(generics.ListCreateAPIView):
         category_serializer = CategorySerializer(data=request.data)
         if category_serializer.is_valid():
             validated_data = category_serializer.validated_data
-            category_list = [{'name': name, 'user': request.user, 'created_by': request.session.get('username')} for
-                             name in validated_data.split(',')]
+            email = request.session['userinfo']['email']
+
+            category_list = validated_data.get('name').split(',')
+            WebsiteManager().create_user_categories_from_list(
+                {'category_list': category_list, 'email': email, 'created_by': email})
+            return Response({'message': 'Categories created successfully'})
+
         else:
             return Response(category_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -236,6 +241,20 @@ class UserTopicAPIView(generics.ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = UserTopicSerializer(queryset, many=True)
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        user_topic_serializer = UserTopicSerializer(data=request.data)
+        if user_topic_serializer.is_valid():
+            validated_data = user_topic_serializer.validated_data
+            email = request.session['userinfo']['email']
+            topic_list = validated_data.get('name').split(',')
+            WebsiteManager().create_user_topics_from_list(
+                {'topic_list': topic_list, 'email': email, 'created_by': email})
+            return Response({'message': 'User Topics created successfully'})
+
+        else:
+            return Response(user_topic_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 def get_event_id():
