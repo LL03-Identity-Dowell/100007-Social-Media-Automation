@@ -1,21 +1,16 @@
 import json
-import requests
 from datetime import datetime
-from django.contrib import messages
+
+import requests
 from django.db import transaction
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
 from django_q.tasks import async_task
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
 from step2.views import create_event
-from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
 from website.permissions import HasBeenAuthenticated
@@ -199,8 +194,7 @@ class UserCategoriesAPIView(generics.ListCreateAPIView):
     """
 
     """
-    # permission_classes = (HasBeenAuthenticated,)
-    permission_classes = ()
+    permission_classes = (HasBeenAuthenticated,)
     authentication_classes = ()
     serializer_class = CategorySerializer
 
@@ -213,6 +207,15 @@ class UserCategoriesAPIView(generics.ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = CategorySerializer(queryset, many=True)
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        category_serializer = CategorySerializer(data=request.data)
+        if category_serializer.is_valid():
+            validated_data = category_serializer.validated_data
+            category_list = [{'name': name, 'user': request.user, 'created_by': request.session.get('username')} for
+                             name in validated_data.split(',')]
+        else:
+            return Response(category_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserTopicAPIView(generics.ListCreateAPIView):
