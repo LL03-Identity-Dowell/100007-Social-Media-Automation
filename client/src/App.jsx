@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Route, Routes, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Route, Routes } from "react-router-dom";
 import Home from "./pages/homepage/Home";
 import Layout from "./Layout";
 import Topic from "./pages/Topic/Topic";
@@ -31,8 +31,6 @@ import Pinterest from "./pages/UserProfile/_components/pinterest";
 import Linkedin from "./pages/UserProfile/_components/linkedin";
 import CreateArticle from "./pages/Article/CreateArticle";
 import Rank from "./pages/RankPage/Rank";
-import axios from "axios";
-import Loading from "./components/Loading";
 import PortfolioError from "./pages/NotFound/PortfolioError";
 import Wikipidia from "./pages/Article/Wikipidia";
 import WriteYourSelf from "./pages/Article/WriteYourSelf";
