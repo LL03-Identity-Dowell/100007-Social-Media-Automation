@@ -133,11 +133,11 @@ class LogoutUser(APIView):
         if session_id:
             try:
                 del request.session["session_id"]
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
             except:
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
         else:
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
 
 
 @csrf_exempt
@@ -239,13 +239,13 @@ class MainAPIView(AuthenticatedBaseView):
             # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+
 '''
 step-2 starts here
 '''
 
 
 class ListArticleView(AuthenticatedBaseView):
-
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -313,7 +313,6 @@ class ListArticleView(AuthenticatedBaseView):
 
 
 class ArticleDetailView(AuthenticatedBaseView):
-
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             profile = request.session['operations_right']
@@ -459,7 +458,6 @@ class IndexView(AuthenticatedBaseView):
 
 
 class GenerateArticleView(AuthenticatedBaseView):
-
     def post(self, request):
         start_datetime = datetime.now()
         session_id = request.GET.get('session_id', None)
@@ -595,7 +593,6 @@ class GenerateArticleView(AuthenticatedBaseView):
 
 
 class GenerateArticleWikiView(AuthenticatedBaseView):
-
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -804,7 +801,6 @@ class PostListView(AuthenticatedBaseView):
 
 
 class PostDetailView(AuthenticatedBaseView):
-
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -894,7 +890,6 @@ class PostDetailView(AuthenticatedBaseView):
 
 
 class SavePostView(AuthenticatedBaseView):
-
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1002,7 +997,7 @@ def api_call(postes, platforms, key, image, request, post_id):
             request, 'post have been successfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
-        update = update_most_recent(post_id)
+        update_most_recent(post_id)
         save_profile_key_to_post(
             profile_key=key, post_id=post_id, post_response=r1.json())
 
@@ -1035,7 +1030,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
             request, 'post have been sucessfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
-        update = update_most_recent(post_id)
+        update_most_recent(post_id)
         save_profile_key_to_post(
             profile_key=key, post_id=post_id, post_response=r1.json())
 
@@ -1199,7 +1194,10 @@ class LinkedAccountsJson(AuthenticatedBaseView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MostRecentJSON(AuthenticatedBaseView):
+class MostRecentJSON(APIView):
+    permission_classes = ()
+    authentication_classes = ()
+
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -1227,8 +1225,8 @@ class MostRecentJSON(AuthenticatedBaseView):
             status = 'posted'
             post = []
 
-            response_data = {  # Initialize the response_data here
-                'Most Recent Posts': [],
+            response_data = {
+                'MostRecentPosts': [],
                 'page': 1,
                 'total_pages': 1,
                 'total_items': 0,
@@ -1241,7 +1239,7 @@ class MostRecentJSON(AuthenticatedBaseView):
                         try:
                             if status == row['status']:
                                 data = {
-                                    'article_id': row['_id'],
+                                    'pk': row['_id'],
                                     'title': row['title'],
                                     'paragraph': row['paragraph'],
                                     'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
@@ -1443,7 +1441,6 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaPostView(AuthenticatedBaseView):
-
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1518,7 +1515,6 @@ class MediaPostView(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaScheduleView(AuthenticatedBaseView):
-
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1612,7 +1608,6 @@ class UnScheduledView(AuthenticatedBaseView):
             return Response({'profile': profile})
         else:
             return Response({'detail': 'Unauthorized'}, status=401)
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
