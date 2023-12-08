@@ -246,10 +246,6 @@ step-2 starts here
 
 
 class ListArticleView(AuthenticatedBaseView):
-<<<<<<< HEAD
-
-=======
->>>>>>> 7bceb0ccc38c60996903a81bf6b9b4c30c1aea5f
     def get(self, request, *args, **kwargs):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -317,10 +313,6 @@ class ListArticleView(AuthenticatedBaseView):
 
 
 class ArticleDetailView(AuthenticatedBaseView):
-<<<<<<< HEAD
-
-=======
->>>>>>> 7bceb0ccc38c60996903a81bf6b9b4c30c1aea5f
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             profile = request.session['operations_right']
@@ -466,10 +458,6 @@ class IndexView(AuthenticatedBaseView):
 
 
 class GenerateArticleView(AuthenticatedBaseView):
-<<<<<<< HEAD
-
-=======
->>>>>>> 7bceb0ccc38c60996903a81bf6b9b4c30c1aea5f
     def post(self, request):
         start_datetime = datetime.now()
         session_id = request.GET.get('session_id', None)
@@ -605,10 +593,6 @@ class GenerateArticleView(AuthenticatedBaseView):
 
 
 class GenerateArticleWikiView(AuthenticatedBaseView):
-<<<<<<< HEAD
-
-=======
->>>>>>> 7bceb0ccc38c60996903a81bf6b9b4c30c1aea5f
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -661,12 +645,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-<<<<<<< HEAD
 class WriteYourselfView(AuthenticatedBaseView):
 
-=======
-class WriteYourselfView(APIView):
->>>>>>> 7bceb0ccc38c60996903a81bf6b9b4c30c1aea5f
     def post(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -821,10 +801,6 @@ class PostListView(AuthenticatedBaseView):
 
 
 class PostDetailView(AuthenticatedBaseView):
-<<<<<<< HEAD
-
-=======
->>>>>>> 7bceb0ccc38c60996903a81bf6b9b4c30c1aea5f
     def post(self, request):
         if 'session_id' and 'username' in request.session:
             # credit_handler = CreditHandler()
@@ -914,10 +890,6 @@ class PostDetailView(AuthenticatedBaseView):
 
 
 class SavePostView(AuthenticatedBaseView):
-<<<<<<< HEAD
-
-=======
->>>>>>> 7bceb0ccc38c60996903a81bf6b9b4c30c1aea5f
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1469,10 +1441,6 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaPostView(AuthenticatedBaseView):
-<<<<<<< HEAD
-
-=======
->>>>>>> 7bceb0ccc38c60996903a81bf6b9b4c30c1aea5f
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1547,10 +1515,6 @@ class MediaPostView(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class MediaScheduleView(AuthenticatedBaseView):
-<<<<<<< HEAD
-
-=======
->>>>>>> 7bceb0ccc38c60996903a81bf6b9b4c30c1aea5f
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
@@ -1644,7 +1608,6 @@ class UnScheduledView(AuthenticatedBaseView):
             return Response({'profile': profile})
         else:
             return Response({'detail': 'Unauthorized'}, status=401)
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
