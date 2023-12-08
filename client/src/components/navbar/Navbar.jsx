@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import Searchbar from "../Searchbar/Searchbar";
 import { FaUser } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import Cookies from 'js-cookie';
+import axios from "axios";
 
 function Navbar() {
   const [username, setUserName] = useState(null);
@@ -12,6 +14,24 @@ function Navbar() {
     setUserName(user?.userinfo?.username);
     setUserEmail(user?.userinfo?.email);
   });
+
+  const dowellLogoutUrl =
+  "https://100014.pythonanywhere.com/sign-out?redirect_url=" +
+  window.location.origin;
+
+  const handleLogout = ()=>{
+    window.location.replace(dowellLogoutUrl)
+    // axios
+    // .get("http://127.0.0.1:8000/api/v1/logout/", {
+    //   withCredentials: true,
+    // })
+    // .then(res=>{
+    //   console.log(res);
+    // }).catch(err=>{
+    //   console.log(err);
+      
+    // })
+  }
 
   return (
     <nav className='sticky top-0 z-20 w-full text-white border-b border-gray-200 bg-customBlue dark:bg-gray-900 dark:border-gray-600'>
@@ -152,22 +172,22 @@ function Navbar() {
                   </Link>
                 </li>
 
-                <li>
+                {/* <li>
                   <Link
                     to='/reset-password'
                     className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                   >
                     Reset password
                   </Link>
-                </li>
+                </li> */}
               </ul>
               <div>
-                <Link
-                  to='/sign-out'
-                  className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
+                <button
+                  onClick={handleLogout}
+                  className='w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                 >
                   Sign out
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -390,22 +410,22 @@ function Navbar() {
                     </Link>
                   </li>
 
-                  <li>
+                  {/* <li>
                     <Link
                       to='/reset-password'
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                     >
                       Reset password
                     </Link>
-                  </li>
+                  </li> */}
                 </ul>
                 <div>
-                  <Link
-                    to='/sign-out'
-                    className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
-                  >
-                    Sign out
-                  </Link>
+                <button
+                  onClick={handleLogout}
+                  className='w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
+                >
+                  Sign out
+                </button>
                 </div>
               </div>
             </li>
