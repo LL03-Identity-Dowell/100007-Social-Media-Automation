@@ -347,6 +347,21 @@ def get_post_comments(post_id: str, profile_key: str):
     return r.json()
 
 
+def delete_post_comment(comment_id: str, profile_key: str):
+    """
+    This function returns comments for a particular post
+    """
+    headers = {
+        'Content-Type': 'application/json',
+        'Profile-Key': profile_key,
+        'Authorization': f'Bearer {str(ARYSHARE_KEY)}'
+    }
+    url = f'https://app.ayrshare.com/api/comments/{str(comment_id)}'
+    r = requests.delete(url, headers=headers)
+
+    return r.json()
+
+
 def get_most_recent_posts(user_id):
     """
     This function returns the most recent posts made by a user

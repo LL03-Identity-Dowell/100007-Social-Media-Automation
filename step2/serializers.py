@@ -64,3 +64,6 @@ class PostCommentSerializer(serializers.Serializer):
     comment = serializers.CharField(required=True)
 
 
+class DeletePostCommentSerializer(serializers.Serializer):
+    platform = serializers.ChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
+    comment_id = serializers.CharField(required=True)
