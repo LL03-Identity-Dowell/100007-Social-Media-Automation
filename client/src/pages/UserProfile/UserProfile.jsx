@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   FaMailBulk,
   FaMap,
@@ -10,8 +10,11 @@ import { Link } from "react-router-dom";
 import UserWrapper from "./UserWrapper";
 
 const UserProfile = ({ close }) => {
+  const [username, setUserName] = useState(null);
   useEffect(() => {
     close();
+    let user = JSON.parse(localStorage.getItem("userInfo"));
+    setUserName(user?.userinfo?.username);
   }, []);
   return (
     <UserWrapper>
@@ -21,7 +24,7 @@ const UserProfile = ({ close }) => {
             Welcome!
           </h2>
           <h4 className='pb-6 text-2xl font-semibold text-customBlue xl:text-3xl'>
-            UserName
+            {username}
           </h4>
         </div>
         <div className='flex flex-wrap items-center justify-center gap-4 mt-6 md:flex-row md:mt-10 md:gap-8 xl:gap-12 '>
@@ -61,13 +64,13 @@ const UserProfile = ({ close }) => {
               Approval by clients
             </h5>
           </Link>
-          <Link
+          {/* <Link
             to='/'
             className='flex flex-col items-center text-customBlue hover:text-customTextBlue'
           >
             <FaUser className='text-6xl md:text-[100px]' />
             <h5 className='pt-4 text-sm font-bold md:text-lg'>View Team</h5>
-          </Link>
+          </Link> */}
         </div>
       </div>
     </UserWrapper>
