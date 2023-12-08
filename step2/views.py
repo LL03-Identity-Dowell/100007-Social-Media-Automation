@@ -2083,7 +2083,8 @@ def index(request):
         #     sub_service_id=STEP_2_SUB_SERVICE_ID,
         #     request=request,
         # )
-
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2439,16 +2440,18 @@ def generate_article(request):
             # Set your OpenAI API key here
             openai.api_key = settings.OPENAI_KEY
 
+            min_characters = 250
+
             # Build prompt
             prompt_limit = 280
 
             # Modify the prompt to include the formatted user data
             prompt = (
                 f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
-                f" Generate only 2 paragraphs."
+                f" Generate only 3 paragraphs."
                 f" Include  {formatted_hashtags} at the end of the article."
-                # f" Include the following at the end of the article {formatted_hashtags}."
                 f" Also, append {formatted_cities} to the end of the article ."
+                f" Ensure that the generated content is a minimum of {min_characters} characters in length."
                 [:prompt_limit]
                 + "..."
             )
