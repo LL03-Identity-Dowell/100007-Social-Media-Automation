@@ -173,7 +173,7 @@ class MainAPIView(AuthenticatedBaseView):
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-
+            session_id = request.session["session_id"]
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
@@ -240,6 +240,7 @@ class MainAPIView(AuthenticatedBaseView):
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
             # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 '''
