@@ -5,8 +5,6 @@ import axios from "axios";
 import Loading from "/src/components/Loading.jsx";
 import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
 
-const url = "http://127.0.0.1:8000/api/v1/targeted_cities/";
-
 const TargetCities = () => {
   const [cityList, setCityList] = useState([]);
   const [filteredCityList, setFilteredCityList] = useState([]);
@@ -28,52 +26,51 @@ const TargetCities = () => {
 
     setLoading(true);
     if (status === "update") {
-      try {
-        const res = await axios.put(
-          `http://127.0.0.1:8000/api/v1/targeted_cities/update/`,
-          citiesArray,
-          {
-            withCredentials: true,
-          }
-        );
+      const res = await axios.put(
+        `http://127.0.0.1:8000/api/v1/targeted_cities/update/`,
+        citiesArray,
+        {
+          withCredentials: true,
+        }
+      );
 
-        const data = await res.json();
-
-        setSuccess(data.detail);
-        setError("");
-        formRef.current.reset();
-      } catch (error) {
+      if (res.status !== 200) {
         setError("Error updating the cities");
         setSuccess("");
-      } finally {
-        setLoading(false);
+        return;
       }
+      const { data } = res;
+      setSuccess(data.detail);
+      setError("");
+      formRef.current.reset();
     } else if (status === "insert") {
-      try {
-        const res = await axios.post(
-          `http://127.0.0.1:8000/api/v1/targeted_cities/create/`,
-          citiesArray,
-          {
-            withCredentials: true,
-          }
-        );
+      const res = await axios.post(
+        `http://127.0.0.1:8000/api/v1/targeted_cities/create/`,
+        citiesArray,
+        {
+          withCredentials: true,
+        }
+      );
 
-        const data = await res.json();
-
-        setSuccess(data.detail);
-        setError("");
-        formRef.current.reset();
-      } catch (error) {
+      if (res.status !== 200) {
         setError("Error inserting the cities");
         setSuccess("");
-      } finally {
-        setLoading(false);
+        return;
       }
+      const { data } = res;
+      setSuccess(data.detail);
+      setError("");
+
+      formRef.current.reset();
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
     const fetchComments = async () => {
+      setLoading(true);
+      const url = "http://127.0.0.1:8000/api/v1/targeted_cities/";
       await axios
         .get(url, {
           withCredentials: true,
@@ -93,6 +90,13 @@ const TargetCities = () => {
 
     fetchComments();
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setSuccess("");
+      setError("");
+    }, 2000);
+  }, [success, error]);
 
   const onChange = (e) => {
     setInputValue(e.target.value);
