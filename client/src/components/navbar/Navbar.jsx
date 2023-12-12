@@ -304,6 +304,25 @@ function Navbar() {
                       Post Detail Dropdown
                     </Link>
                   </li>
+                  <li>
+                    <Link
+                      to='/social-media-channels'
+                      className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
+                    >
+                      Social Media Channels
+                    </Link>
+                    
+                  </li>
+                  <li>
+                    <Link
+                      to='/target-cities'
+                      className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
+                    >
+                      Targeted Cities
+                    </Link>
+                    
+                  </li>
+                  
                 </ul>
                 {/* <div className="py-1">
 

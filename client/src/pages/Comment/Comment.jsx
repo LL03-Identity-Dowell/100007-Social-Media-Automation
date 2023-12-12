@@ -22,7 +22,8 @@ function Comment({ show }) {
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
-      const url = "http://127.0.0.1:8000/api/v1/comments/";
+      const url = `http://127.0.0.1:8000/api/v1/comments/?page=${page + 1
+    }&order=newest`;
       await axios
         .get(url, {
           withCredentials: true,

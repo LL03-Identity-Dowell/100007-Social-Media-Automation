@@ -38,15 +38,18 @@ import PostDetailDropdown from "./pages/UserProfile/PostDetailDropdown";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showBottombar, setShowBottombar] = useState(false);
   // const [product, setProduct] = useState(true);
   // const [loading, setLoading] = useState(false);
   // const navigate = useNavigate()
 
   const handleOpenSideBar = () => {
     setShowSidebar(true);
+    setShowBottombar(true);
   };
   const handleCloseSideBar = () => {
     setShowSidebar(false);
+    setShowBottombar(false);
   };
 
   //   axios.defaults.withCredentials = true;
