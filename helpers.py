@@ -347,7 +347,7 @@ def get_post_comments(post_id: str, profile_key: str):
     return r.json()
 
 
-def delete_post_comment(comment_id: str, profile_key: str):
+def delete_post_comment(comment_id: str, profile_key: str, platform: str):
     """
     This function returns comments for a particular post
     """
@@ -356,8 +356,15 @@ def delete_post_comment(comment_id: str, profile_key: str):
         'Profile-Key': profile_key,
         'Authorization': f'Bearer {str(ARYSHARE_KEY)}'
     }
-    url = f'https://app.ayrshare.com/api/comments/{str(comment_id)}'
-    r = requests.delete(url, headers=headers)
+
+    payload = {
+        'platform': platform,
+    }
+
+    data = json.dumps(payload)
+
+    url = f'https://app.ayrshare.com/api/comments/{str(comment_id)}/'
+    r = requests.delete(url, headers=headers, data=data)
 
     return r.json()
 

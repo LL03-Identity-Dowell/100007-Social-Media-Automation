@@ -3470,9 +3470,12 @@ class DeletePostComment(AuthenticatedBaseView):
             user_id = request.session.get('user_id')
             post_data = get_post_by_id(post_id=post_id, user_id=user_id)
             profile_key = post_data.get('profile_key')
-
+            platform = serializer_data.validated_data.get('platform')
             response = delete_post_comment(
-                comment_id=serializer_data.validated_data.get('comment_id'), profile_key=profile_key)
+                comment_id=serializer_data.validated_data.get('comment_id'),
+                profile_key=profile_key,
+                platform=platform,
+            )
 
             return Response(response)
         else:
