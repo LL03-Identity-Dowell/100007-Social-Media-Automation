@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Loading from "./components/Loading";
 import axios from "axios";
 import useDowellLogin from "./useDowellLogin";
+import BottomBar from "./components/Bottombar/BottomBar";
 
 const Layout = ({ children, side, show, isUser }) => {
   // const [product, setProduct] = useState(true);
@@ -118,14 +119,18 @@ const Layout = ({ children, side, show, isUser }) => {
         }
       >
         {product && (
-          <div className={show && "col-span-1"}>{side && <Sidebar />}</div>
+          <>
+          <div className={show && "col-auto md:col-span-1 hidden md:block"}>{side && <Sidebar />}</div>
+          <div className={show && "md:hidden  absolute"}>{side && <BottomBar />}</div>
+          </>
+          
         )}
 
         <main
           className={
             !side
-              ? "grid w-full"
-              : "col-span-9 py-8 2xl:col-span-11 ml-8 md:ml-16 lg:ml-0 "
+              ? "grid w-full "
+              : "col-span-12 md:col-span-9 pt-2 pb-12 px-4 md:px-0 md:py-8 2xl:col-span-11  md:ml-16 lg:ml-0 "
           }
         >
           {children}

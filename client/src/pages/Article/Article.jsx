@@ -95,7 +95,7 @@ const Article = ({ show }) => {
   };
 
   return (
-    <div className="relative h-[90vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
+    <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto ">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="text-center text-customTextBlue font-semibold py-2 lg:py-6">
@@ -103,7 +103,7 @@ const Article = ({ show }) => {
       </div>
 
       <div className="count-article flex justify-between pt-0 pb-2 items-center">
-        <p className="px-6 py-3 italic">Total posts count: {count}</p>
+        <p className="md:px-6 py-3 italic">Total posts count: {count}</p>
 
         <Link to="/createarticle">
           <div className="lg:w-[140px] lg:pt-2">
@@ -156,9 +156,9 @@ const Article = ({ show }) => {
           pageRangeDisplayed={pagesToDisplay}
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
-          previousLabel={<span className="text-black">{page > 0 ? "Previous" : ""}</span>}
-          nextLabel={<span className="text-black">{page < pageCount - 1 ? "Next" : " "}</span>}
-          containerClassName="flex justify-center items-center my-4 space-x-2"
+          previousLabel={<span className="text-black text-xs md:text-md">{page > 0 ? "Previous" : ""}</span>}
+          nextLabel={<span className="text-black text-xs md:text-md">{page < pageCount - 1 ? "Next" : " "}</span>}
+          containerClassName="flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll "
           pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
           previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
           nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"

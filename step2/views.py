@@ -1,3 +1,4 @@
+from itertools import chain
 import concurrent.futures
 import datetime
 import json
@@ -237,7 +238,6 @@ class MainAPIView(AuthenticatedBaseView):
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
             # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
 
 
 '''
@@ -1608,6 +1608,7 @@ class UnScheduledView(AuthenticatedBaseView):
             return Response({'profile': profile})
         else:
             return Response({'detail': 'Unauthorized'}, status=401)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
@@ -3431,10 +3432,27 @@ class Comments(AuthenticatedBaseView):
             user_id = request.session['user_id']
             recent_posts = get_most_recent_posts(user_id=user_id)
             scheduled_post = get_scheduled_posts(user_id=user_id)
+            all_posts = list(chain(recent_posts, scheduled_post))
+            number_of_items_per_page = 5
+            page = request.GET.get('page', 1)
+            paginator = Paginator(all_posts, number_of_items_per_page)
+
+            try:
+                comments_page = paginator.page(page)
+            except PageNotAnInteger:
+                comments_page = paginator.page(1)
+            except EmptyPage:
+                comments_page = paginator.page(paginator.num_pages)
+
+            paginated_posts = comments_page.object_list
+
             response_data = {
-                'recent_posts': recent_posts,
-                'scheduled_post': scheduled_post,
+                'paginated_posts': paginated_posts,
+                'page': comments_page.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
             }
+
             return Response(response_data)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
