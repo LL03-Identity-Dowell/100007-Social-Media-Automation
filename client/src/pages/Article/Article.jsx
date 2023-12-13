@@ -15,7 +15,7 @@ const Article = ({ show }) => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
-  const [pagesToDisplay] = useState(7);
+  const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
 
 
@@ -106,7 +106,7 @@ const Article = ({ show }) => {
         <p className="md:px-6 py-3 italic">Total posts count: {count}</p>
 
         <Link to="/createarticle">
-          <div className="lg:w-[140px] lg:pt-2">
+          <div className="lg:w-[140px] lg:pt-2 md:mr-6 ">
             <ExtraSmallBtn title={"Create Article"} />
           </div>
         </Link>
@@ -156,8 +156,8 @@ const Article = ({ show }) => {
           pageRangeDisplayed={pagesToDisplay}
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
-          previousLabel={<span className="text-black text-xs md:text-md">{page > 0 ? "Previous" : ""}</span>}
-          nextLabel={<span className="text-black text-xs md:text-md">{page < pageCount - 1 ? "Next" : " "}</span>}
+          previousLabel={<span className="text-black text-xs md:text-lg">{page > 0 ? "Previous" : ""}</span>}
+          nextLabel={<span className="text-black text-xs md:text-lg">{page < pageCount - 1 ? "Next" : " "}</span>}
           containerClassName="flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll "
           pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
           previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"

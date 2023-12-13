@@ -15,7 +15,7 @@ const PostList = ({ show }) => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
-  const [pagesToDisplay] = useState(7);
+  const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
 
   const [buttonClicked, setButtonClicked] = useState(false);

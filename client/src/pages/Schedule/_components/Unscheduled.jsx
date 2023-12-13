@@ -16,7 +16,7 @@ const UnscheduledPage = () => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
-  const [pagesToDisplay] = useState(7);
+  const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
   // const [readMore, setReadMore] = useState(true);
 
@@ -134,7 +134,13 @@ const UnscheduledPage = () => {
               </p>
 
               <ReadMoreParagraph text={item.paragraph} />
-
+              <div className="mr-4 lg:mr-8 block md:hidden">
+                      <img
+                        className="w-full h-50 rounded-lg mt-6 md:mt-20 "
+                        src={item.image}
+                        alt="image"
+                      />
+                    </div>
               <div className='self-end space-x-8'>
                 <PostModal
                   article={item}
@@ -152,7 +158,7 @@ const UnscheduledPage = () => {
                 ></ScheduleModal>
               </div>
             </div>
-            <div className="mr-4 lg:mr-8">
+            <div className="mr-4 lg:mr-8 hidden md:block">
                       <img
                         className="w-50 h-40 rounded-lg mt-6 md:mt-20 "
                         src={item.image}
@@ -173,10 +179,10 @@ const UnscheduledPage = () => {
         marginPagesDisplayed={2}
         onPageChange={handlePageClick}
         previousLabel={
-          <span className='text-black text-xs md:text-md'>{page > 0 ? "Previous" : ""}</span>
+          <span className='text-black text-xs md:text-lg'>{page > 0 ? "Previous" : ""}</span>
         }
         nextLabel={
-          <span className='text-black text-xs md:text-md'>
+          <span className='text-black text-xs md:text-lg'>
             {page < pageCount - 1 ? "Next" : " "}
           </span>
         }

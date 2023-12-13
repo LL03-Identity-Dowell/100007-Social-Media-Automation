@@ -13,7 +13,7 @@ const MostRecent = () => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
-  const [pagesToDisplay] = useState(7);
+  const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
 
   useEffect(() => {
@@ -128,7 +128,7 @@ const MostRecent = () => {
 
                     <div className="mr-4 lg:mr-8">
                       <img
-                        className="w-50 h-40 rounded-lg"
+                        className="w-full md:w-50 md:h-40 h-50 rounded-lg"
                         src={article.image}
                         alt="image"
                       />
@@ -145,8 +145,8 @@ const MostRecent = () => {
           pageRangeDisplayed={pagesToDisplay}
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
-          previousLabel={<span className="text-black overflow-x-scroll ">{page > 0 ? "Previous" : ""}</span>}
-          nextLabel={<span className="text-black overflow-x-scroll ">{page < pageCount - 1 ? "Next" : " "}</span>}
+          previousLabel={<span className="text-black overflow-x-scroll text-xs md:text-lg">{page > 0 ? "Previous" : ""}</span>}
+          nextLabel={<span className="text-black overflow-x-scroll text-xs md:text-lg">{page < pageCount - 1 ? "Next" : " "}</span>}
           containerClassName="flex justify-center items-center my-4 md:space-x-2"
           pageClassName="p-2 rounded-full cursor-pointer md:text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
           previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
