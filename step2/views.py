@@ -42,11 +42,11 @@ from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
-                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts)
+                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          MostRecentJsonSerializer, PostCommentSerializer)
+                          MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer)
 
 global PEXELS_API_KEY
 
@@ -3456,5 +3456,27 @@ class PostComments(AuthenticatedBaseView):
                 post_id=aryshare_post_id, profile_key=profile_key)
 
             return Response(comments)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DeletePostComment(AuthenticatedBaseView):
+    def post(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+            serializer_data = DeletePostCommentSerializer(data=request.data)
+            if not serializer_data.is_valid():
+                return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            profile_key = post_data.get('profile_key')
+            platform = serializer_data.validated_data.get('platform')
+            response = delete_post_comment(
+                comment_id=serializer_data.validated_data.get('comment_id'),
+                profile_key=profile_key,
+                platform=platform,
+            )
+
+            return Response(response)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
