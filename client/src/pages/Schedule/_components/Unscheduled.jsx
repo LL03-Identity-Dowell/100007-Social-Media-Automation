@@ -125,9 +125,9 @@ const UnscheduledPage = () => {
           <li
             id={item.PK}
             key={item.PK}
-            className='flex flex-col justify-between md:flex-row gap-x-14'
+            className='flex flex-col justify-between md:flex-row gap-x-14 mt-4'
           >
-            <div className='flex flex-col w-9/12 gap-y-7 '>
+            <div className='flex flex-col md:w-9/12 gap-y-7 '>
               <p className='px-2 lg:py-4 text-md lg:text-lg'>{item.source}</p>
               <p className='px-2 py-0 font-bold text-md lg:text-xl text-customTextBlue dark:text-white'>
                 {item.title}
@@ -152,11 +152,18 @@ const UnscheduledPage = () => {
                 ></ScheduleModal>
               </div>
             </div>
-            <img
-              className='w-40 h-40 mt-20 rounded-lg'
+            <div className="mr-4 lg:mr-8">
+                      <img
+                        className="w-50 h-40 rounded-lg mt-6 md:mt-20 "
+                        src={item.image}
+                        alt="image"
+                      />
+                    </div>
+            {/* <img
+              className='w-40 h-40 mt-6 md:mt-20 rounded-lg'
               src={item.image}
               alt='image'
-            />
+            /> */}
           </li>
         ))}
       </ul>
@@ -166,15 +173,15 @@ const UnscheduledPage = () => {
         marginPagesDisplayed={2}
         onPageChange={handlePageClick}
         previousLabel={
-          <span className='text-black'>{page > 0 ? "Previous" : ""}</span>
+          <span className='text-black text-xs md:text-md'>{page > 0 ? "Previous" : ""}</span>
         }
         nextLabel={
-          <span className='text-black'>
+          <span className='text-black text-xs md:text-md'>
             {page < pageCount - 1 ? "Next" : " "}
           </span>
         }
-        containerClassName='flex justify-center items-center my-4 space-x-2'
-        pageClassName='p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
+        containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll '
+        pageClassName='p-2 rounded-full cursor-pointer md:text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
         previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
         nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
         breakClassName='p-2'

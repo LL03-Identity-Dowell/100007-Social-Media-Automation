@@ -20,7 +20,7 @@ function ScheduleSection({ show }) {
   }, [url, show]);
   return (
     <div className='flex flex-col items-center w-full h-full gap-10'>
-      <div className='flex items-center md:gap-20 md:px-20 md:mt-10 '>
+      <div className='flex items-center gap-1 md:gap-20 md:px-20 md:mt-10 '>
         <ScheduledCustomLink pathname={pathname} to='/recent'>
           Most Recent
         </ScheduledCustomLink>

@@ -1,5 +1,7 @@
 from django.db import models, transaction
 from django.db.models import Q
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 class BaseModel(models.Model):
@@ -36,6 +38,11 @@ class Category(BaseModel):
         return self.name
 
 
+@receiver(pre_save, sender=Category)
+def validate_category_save(sender, instance, **kwargs):
+    if not instance.user and instance.is_default == False:
+        raise ValueError('A category which is not default has to be assigned to a user!')
+
 class UserTopic(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='user_topic')
     name = models.CharField(max_length=1000, blank=False, null=False)
@@ -44,6 +51,11 @@ class UserTopic(BaseModel):
     def __str__(self):
         return self.name
 
+
+@receiver(pre_save, sender=UserTopic)
+def validate_category_save(sender, instance, **kwargs):
+    if not instance.user and instance.is_default == False:
+        raise ValueError('A category which is not default has to be assigned to a user!')
 
 class IndustryData(BaseModel):
     CHOICES = (
