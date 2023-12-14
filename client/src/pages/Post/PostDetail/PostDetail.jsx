@@ -307,7 +307,7 @@ function PostDetail({ show }) {
                 {
                     postDetailData && newParagraphs.map((paragraph, index) => (
                         <div className='text-base post-paragraph' key={index}>
-                            {index > 0 && paragraph}
+                            {index >= 0 && paragraph}
                         </div>
                     ))
                 }
