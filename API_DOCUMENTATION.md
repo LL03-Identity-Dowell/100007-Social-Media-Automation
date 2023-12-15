@@ -642,7 +642,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 - **Description:** Updates Post Detail Dropdown form data.
 - **Usage:**
   ```bash
-  curl -X PUT -H "Authorization: Bearer YOUR_TOKEN" -d "page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no" https://example.com/api/v1/post-detail-dropdowns/
+  curl -X PUT -H "Authorization: Bearer YOUR_TOKEN" -d "qualitative_categorization=your_qualitative_categorization&targeted_for=your_targeted_for&targeted_category=your_targeted_category" https://example.com/api/v1/post-detail-dropdowns/
 
 #### Response
 - **Status 200 OK**
@@ -664,7 +664,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 - **Description:** Creates Post Detail Dropdown form data.
 - **Usage:**
   ```bash
-    curl -X POST -H "Authorization: Bearer YOUR_TOKEN" -d "page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no" https://example.com/api/v1/post-detail-dropdowns/
+  curl -X PUT -H "Authorization: Bearer YOUR_TOKEN" -d "qualitative_categorization=your_qualitative_categorization&targeted_for=your_targeted_for&targeted_category=your_targeted_category" https://example.com/api/v1/post-detail-dropdowns/
 
 #### Response
 - **Status 200 OK**
