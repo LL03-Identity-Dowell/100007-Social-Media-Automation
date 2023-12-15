@@ -119,7 +119,7 @@ const Home = ({ close }) => {
                 Fill in the required details to generate accurate and meaningful topics.
                 Once the form is complete, submit your information for topics to be generated.
                 Review the generated topics, rank them based on relevance or importance, submit, and proceed to the next step.
-                <div class="tooltip-arrow" data-popper-arrow></div>
+                <div className="tooltip-arrow" data-popper-arrow></div>
               </div>
               <img src={step1} alt="Topic" className="" />
             </Link>

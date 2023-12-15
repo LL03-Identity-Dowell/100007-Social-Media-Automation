@@ -51,11 +51,11 @@ function Navbar() {
           {/* <img src={logoImage} className="h-8 mr-3" alt="Dowell Logo" /> */}
           <span
             className='self-center text-2xl font-bold whitespace-nowrap dark:text-white'
-            data-tooltip-target="tooltip-defaultA"
+            data-tooltip-target="tooltip-default"
               data-tooltip-placement="bottom"
           >
              <div
-                id="tooltip-defaultA"
+                id="tooltip-default"
                 role="tooltip"
                 className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-customGray rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
               >
@@ -256,16 +256,8 @@ function Navbar() {
                 to='/'
                 onClick={handleLinkClick}
                 className='block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700'
-                data-tooltip-target="tooltip-defaultA"
-              data-tooltip-placement="bottom">
-                <div
-                id="tooltip-defaultA"
-                role="tooltip"
-                className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-customGray rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-              >
-                Vist Home
-                <div class="tooltip-arrow" data-popper-arrow></div>
-              </div>
+                >
+               
                 Home
               </Link>
             </li>
