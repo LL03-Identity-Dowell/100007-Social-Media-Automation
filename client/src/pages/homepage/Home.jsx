@@ -115,20 +115,26 @@ const Home = ({ close }) => {
                 role="tooltip"
                 className="w-[300px] absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-customGray rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
               >
-                Generate Topics for your article by filling the form accordingly
+                Click here to start generating new topics for your content.
+                Fill in the required details to generate accurate and meaningful topics.
+                Once the form is complete, submit your information for topics to be generated.
+                Review the generated topics, rank them based on relevance or importance, submit, and proceed to the next step.
                 <div class="tooltip-arrow" data-popper-arrow></div>
               </div>
-              <img src={step1} alt="Topic" className=""/>
+              <img src={step1} alt="Topic" className="" />
             </Link>
 
             <Link to="/article" data-tooltip-target="tooltip-defaultA"
               data-tooltip-placement="bottom">
-                <div
+              <div
                 id="tooltip-defaultA"
                 role="tooltip"
                 className="w-[300px] absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-customGray rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
               >
-                After generating and ranking Topics, create the article by cliking the create article and choose how you want to create your article with the option we have.
+                Choose an Option: 1. AIWriter, 2. Wikipedia,
+                3. Manual(Text area is provided for you to manually enter the contents of your article),
+                to generate an article based on the topic selected.
+                Once the article has been created, you can proceed to the next step.
                 <div class="tooltip-arrow" data-popper-arrow></div>
               </div>
               <img
@@ -139,12 +145,15 @@ const Home = ({ close }) => {
             </Link>
             <Link to="/post-list" data-tooltip-target="tooltip-defaultP"
               data-tooltip-placement="bottom">
-                <div
+              <div
                 id="tooltip-defaultP"
                 role="tooltip"
                 className="w-[300px] absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-customGray rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
               >
-                After creating Article, select the post you want to post by clicking on the view posts and send. You canaslo make any neccessary changes like editing the article and images.
+                The article will be broken down into paragraphs based on its structure.
+                Click on 'View Post' to view the post with the attached image.
+                You can also choose to edit the image and post content by clicking on 'Edit' button.
+                Finally, click on 'Next' to save the content of the post and proceed to the Next step
                 <div class="tooltip-arrow" data-popper-arrow></div>
               </div>
               <img
@@ -155,12 +164,13 @@ const Home = ({ close }) => {
             </Link>
             <Link to="/unscheduled" data-tooltip-target="tooltip-defaultS"
               data-tooltip-placement="bottom">
-            <div
+              <div
                 id="tooltip-defaultS"
                 role="tooltip"
                 className="w-[300px] absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-customGray rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-              >
-                After sending the artcile from the post details page, You can now see the article here, then you can either choose to post or schedule. Select the social media account you want to publish the post then send.
+              >Select the social media channels to send the post from the previous step to. Make sure your accounts are connected here: "Add a link".
+                'Post' Send the post immediately to the selected social media channels.The page then redirects to Most Recent page if the process is successful.
+                'Schedule' Choose the time and date to schedule the post. The page then redirects to the Schedule page if the process is successful.
                 <div class="tooltip-arrow" data-popper-arrow></div>
               </div>
               <img
@@ -172,12 +182,13 @@ const Home = ({ close }) => {
             </Link>
             <Link to="/comment" data-tooltip-target="tooltip-defaultC"
               data-tooltip-placement="bottom">
-            <div
+              <div
                 id="tooltip-defaultC"
                 role="tooltip"
                 className="w-[300px] absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-customGray rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
               >
-                Get the list of all the posts you have and alos the list of comments from each and every posts
+                Share your thoughts on a post and manage all the comments in a given post.
+                You have the option to post a comment based on the post or delete a comment under the post.
                 <div class="tooltip-arrow" data-popper-arrow></div>
               </div>
               <img
