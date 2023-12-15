@@ -12,6 +12,7 @@ function Comment({ show }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
 
   const [commentList, setCommentList] = useState([]);
 
