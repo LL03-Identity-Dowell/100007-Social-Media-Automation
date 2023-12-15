@@ -11,8 +11,8 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
-                    LinkMediaChannelsView, AryshareProfileView, Comments, PostComments, CreatePostComments,
-                    LinkMediaChannelsView, AryshareProfileView, LogoutUser, PostDetailDropdownView)
+                    Comments, PostComments, CreatePostComments,
+                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment)
 
 app_name = 'generate_article'
 
@@ -104,6 +104,8 @@ urlpatterns = [
     path('api/v1/comments/', Comments.as_view(), name='comments-endpoint'),
     path('api/v1/comments/create/<str:post_id>/', CreatePostComments.as_view(), name='create-comments-endpoint'),
     path('api/v1/comments/get-post-comments/<str:post_id>/', PostComments.as_view(), name='post-comments-endpoint'),
+    path('api/v1/comments/delete-comment/<str:post_id>/', DeletePostComment.as_view(),
+         name='delete-post-comments-endpoint'),
 
 
 
