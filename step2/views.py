@@ -733,6 +733,7 @@ class PostListView(AuthenticatedBaseView):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
+            org_id = request.session.get('org_id')
 
             payload = {
                 "cluster": "socialmedia",
@@ -742,7 +743,7 @@ class PostListView(AuthenticatedBaseView):
                 "team_member_ID": "34567897799",
                 "function_ID": "ABCDE",
                 "command": "fetch",
-                "field": {"user_id": request.session['user_id']},
+                "field": {"org_id": org_id},
                 "update_field": {
                     "order_nos": 21
                 },
@@ -764,7 +765,7 @@ class PostListView(AuthenticatedBaseView):
 
             for article in article_detail_list:
 
-                if article.get('user_id') == user_id:
+                if article.get('org_id') == org_id:
                     articles = {
                         'post_id': article.get('_id'),
                         'title': article.get('title'),
@@ -990,78 +991,6 @@ class SavePostView(AuthenticatedBaseView):
 '''step-4 starts here'''
 
 
-def api_call(postes, platforms, key, image, request, post_id):
-
-    payload = {'post': postes,
-               'platforms': platforms,
-               'profileKey': key,
-               'mediaUrls': [image],
-               }
-    headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r1 = requests.post('https://app.ayrshare.com/api/post',
-                       json=payload,
-                       headers=headers)
-    print(r1.json())
-    org_id = request.session.get('org_id')
-    if r1.json()['status'] == 'error':
-        messages.error(request, 'error in posting')
-    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-        messages.success(
-            request, 'post have been successfully posted')
-        # credit_handler = CreditHandler()
-        # credit_handler.consume_step_4_credit(request)
-        update_most_recent(post_id)
-        save_profile_key_to_post(
-            profile_key=key,
-            post_id=post_id,
-            post_response=r1.json(),
-            org_id=org_id,
-        )
-
-    else:
-        for warnings in r1.json()['warnings']:
-            messages.error(request, warnings['message'])
-
-
-def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
-
-    payload = {'post': postes,
-               'platforms': platforms,
-               'profileKey': key,
-               'mediaUrls': [image],
-               'scheduleDate': str(formart),
-               }
-    headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r1 = requests.post('https://app.ayrshare.com/api/post',
-                       json=payload,
-                       headers=headers)
-    print(r1.json())
-    org_id = request.session.get('org_id')
-    if r1.json()['status'] == 'error':
-        for error in r1.json()['posts']:
-            for message in error['errors']:
-                messages.error(request, message['message'][:62])
-    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-        messages.success(
-            request, 'post have been sucessfully posted')
-        # credit_handler = CreditHandler()
-        # credit_handler.consume_step_4_credit(request)
-        update_most_recent(post_id)
-        save_profile_key_to_post(
-            profile_key=key,
-            post_id=post_id,
-            post_response=r1.json(),
-            org_id=org_id,
-        )
-
-    else:
-        for warnings in r1.json()['warnings']:
-            messages.error(request, warnings['message'])
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AryshareProfileView(AuthenticatedBaseView):
@@ -1227,6 +1156,8 @@ class MostRecentJSON(APIView):
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
 
+            org_id = request.session.get('org_id')
+
             payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
@@ -1235,7 +1166,7 @@ class MostRecentJSON(APIView):
                 "team_member_ID": "1163",
                 "function_ID": "ABCDE",
                 "command": "fetch",
-                "field": {"user_id": request.session['user_id']},
+                "field": {"org_id": org_id},
                 "update_field": {
                     "order_nos": 21
                 },
@@ -1259,7 +1190,7 @@ class MostRecentJSON(APIView):
             try:
                 for row in posts['data']:
 
-                    if user_id == str(row['user_id']):
+                    if org_id == str(row['org_id']):
                         try:
                             if status == row['status']:
                                 data = {
@@ -1284,7 +1215,7 @@ class MostRecentJSON(APIView):
                 except PageNotAnInteger:
                     page_article = paginator.page(1)
                 except EmptyPage:
-                    page_article = paginator.page(paginator.num_page)
+                    page_article = paginator.page(paginator.num_pages)
                 serializer = MostRecentJsonSerializer(
                     {'response': page_article})
 
@@ -1414,6 +1345,12 @@ def api_call(postes, platforms, key, image, request, post_id):
                        headers=headers)
     print(r1.json())
     org_id = request.session.get('org_id')
+    save_profile_key_to_post(
+        profile_key=key,
+        post_id=post_id,
+        post_response=r1.json(),
+        org_id=org_id,
+    )
     if r1.json()['status'] == 'error':
         messages.error(request, 'error in posting')
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
@@ -1422,12 +1359,7 @@ def api_call(postes, platforms, key, image, request, post_id):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update_most_recent(post_id)
-        save_profile_key_to_post(
-            profile_key=key,
-            post_id=post_id,
-            post_response=r1.json(),
-            org_id=org_id,
-        )
+
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1450,6 +1382,12 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
                        headers=headers)
     print(r1.json())
     org_id = request.session.get('org_id')
+    save_profile_key_to_post(
+        profile_key=key,
+        post_id=post_id,
+        post_response=r1.json(),
+        org_id=org_id,
+    )
     if r1.json()['status'] == 'error':
         for error in r1.json()['posts']:
             for message in error['errors']:
@@ -1460,12 +1398,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update_schedule(post_id)
-        save_profile_key_to_post(
-            profile_key=key,
-            post_id=post_id,
-            post_response=r1.json(),
-            org_id=org_id,
-        )
+
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1652,6 +1585,8 @@ class UnScheduledJsonView(AuthenticatedBaseView):
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
 
+            org_id = request.session.get('org_id')
+
             payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
@@ -1660,7 +1595,7 @@ class UnScheduledJsonView(AuthenticatedBaseView):
                 "team_member_ID": "1163",
                 "function_ID": "ABCDE",
                 "command": "fetch",
-                "field": {"user_id": request.session['user_id']},
+                "field": {"org_id": org_id},
                 "update_field": {
                     "order_nos": 21
                 },
@@ -1762,6 +1697,8 @@ class ScheduledJsonView(AuthenticatedBaseView):
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
 
+            org_id = request.session.get('org_id')
+
             payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
@@ -1770,7 +1707,7 @@ class ScheduledJsonView(AuthenticatedBaseView):
                 "team_member_ID": "1163",
                 "function_ID": "ABCDE",
                 "command": "fetch",
-                "field": {"user_id": request.session['user_id']},
+                "field": {"org_id": org_id},
                 "update_field": {
                     "order_nos": 21
                 },
@@ -1785,7 +1722,7 @@ class ScheduledJsonView(AuthenticatedBaseView):
             post_data = []
             try:
                 for row in posts['data']:
-                    if user_id == str(row['user_id']):
+                    if org_id == str(row['org_id']):
                         try:
                             if status == row['status']:
                                 data = {
