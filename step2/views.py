@@ -1,4 +1,3 @@
-from itertools import chain
 import concurrent.futures
 import datetime
 import json
@@ -10,6 +9,7 @@ import urllib.parse
 from datetime import datetime
 # image resizing
 from io import BytesIO
+from itertools import chain
 
 # from website.views import get_client_approval
 import openai
@@ -168,7 +168,7 @@ def register(request):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MainAPIView(AuthenticatedBaseView):
+class MainAPIView(APIView):
     def get(self, request):
         session_id = request.session.get('session_id', None) or request.GET.get('session_id')
         if session_id:
@@ -260,7 +260,7 @@ class ListArticleView(AuthenticatedBaseView):
                 "team_member_ID": "9992828281",
                 "function_ID": "ABCDE",
                 "command": "fetch",
-                "field": {"user_id": request.session['user_id']},
+                "field": {"org_id": request.session['org_id']},
                 "update_field": {
                     "order_nos": 21
                 },
@@ -274,6 +274,8 @@ class ListArticleView(AuthenticatedBaseView):
 
             user_id = str(request.session['user_id'])
             article_detail_list = response_data_json.get('data', [])
+            import pdb
+            pdb.set_trace()
 
             user_articles = []
             for article in article_detail_list:
@@ -365,7 +367,7 @@ class IndexView(AuthenticatedBaseView):
                 "team_member_ID": "345678977",
                 "function_ID": "ABCDE",
                 "command": "fetch",
-                "field": {"username": request.session['username']},
+                "field": {"org_id": request.session['org_id']},
                 "update_field": {
                     "order_nos": 21
                 },
@@ -467,6 +469,7 @@ class GenerateArticleView(AuthenticatedBaseView):
             if request.method != "POST":
                 return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
             else:
+                org_id = request.session.get('org_id')
                 RESEARCH_QUERY = request.data.get("title")
                 user_selected_cities = []
                 hashtags = []
@@ -539,6 +542,7 @@ class GenerateArticleView(AuthenticatedBaseView):
                             # Save data for step 3
                             step3_data = {
                                 "user_id": user_id,
+                                "org_id": org_id,
                                 "session_id": session_id,
                                 "eventId": event_id,
                                 'client_admin_id': client_admin_id,
@@ -554,6 +558,7 @@ class GenerateArticleView(AuthenticatedBaseView):
                             step2_data = {
                                 "user_id": user_id,
                                 "session_id": session_id,
+                                "org_id": org_id,
                                 "eventId": event_id,
                                 'client_admin_id': client_admin_id,
                                 "title": RESEARCH_QUERY,
@@ -601,6 +606,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                 return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 title = request.data.get("title")
+                org_id = request.session.get('org_id')
                 wiki_language = wikipediaapi.Wikipedia(
                     language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
                 page = wiki_language.page(title)
@@ -616,6 +622,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                    "eventId": create_event()['event_id'],
                                                                    'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                    "title": title,
+                                                                   "org_id": org_id,
                                                                    "paragraph": article[0],
                                                                    "source": page.fullurl,
                                                                    # 'dowelltime': dowellclock
@@ -655,6 +662,7 @@ class WriteYourselfView(AuthenticatedBaseView):
                 return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
             else:
                 title = request.data.get("title")
+                org_id = request.session.get('org_id')
                 article_text_area = request.data.get("articletextarea")
                 source = request.data.get("url")
                 response_data = {
@@ -683,6 +691,7 @@ class WriteYourselfView(AuthenticatedBaseView):
                             continue
                         save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                                "session_id": session_id,
+                                                               "org_id": org_id,
                                                                "eventId": create_event()['event_id'],
                                                                'client_admin_id': request.session['userinfo'][
                             'client_admin_id'],
@@ -693,6 +702,7 @@ class WriteYourselfView(AuthenticatedBaseView):
                         }, '34567897799')
                         save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                                "session_id": session_id,
+                                                               "org_id": org_id,
                                                                "eventId": create_event()['event_id'],
                                                                'client_admin_id': request.session['userinfo'][
                             'client_admin_id'],
