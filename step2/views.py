@@ -252,6 +252,8 @@ class ListArticleView(AuthenticatedBaseView):
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
 
+            org_id = request.session['org_id']
+
             payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
@@ -260,7 +262,7 @@ class ListArticleView(AuthenticatedBaseView):
                 "team_member_ID": "9992828281",
                 "function_ID": "ABCDE",
                 "command": "fetch",
-                "field": {"org_id": request.session['org_id']},
+                "field": {"org_id": org_id},
                 "update_field": {
                     "order_nos": 21
                 },
@@ -274,12 +276,10 @@ class ListArticleView(AuthenticatedBaseView):
 
             user_id = str(request.session['user_id'])
             article_detail_list = response_data_json.get('data', [])
-            import pdb
-            pdb.set_trace()
 
             user_articles = []
             for article in article_detail_list:
-                if article.get('user_id') == user_id:
+                if org_id == org_id:
                     articles = {
                         'article_id': article.get('_id'),
                         'title': article.get('title'),
