@@ -538,7 +538,7 @@ def get_aryshare_profile_id(user_id):
     response = requests.request("POST", url, headers=headers, data=data)
 
 
-def save_profile_key_to_post(profile_key, post_id, post_response):
+def save_profile_key_to_post(profile_key, post_id, post_response, org_id):
     url = "http://uxlivinglab.pythonanywhere.com"
 
     payload = {
@@ -555,6 +555,7 @@ def save_profile_key_to_post(profile_key, post_id, post_response):
         "update_field": {
             "profile_key": profile_key,
             "post_response": post_response,
+            "org_id": org_id,
         },
         "platform": "bangalore"
     }

@@ -929,6 +929,8 @@ class SavePostView(AuthenticatedBaseView):
 
                 image = uploaded_image.get('file_url')
 
+                org_id = request.session.get('org_id')
+
                 payload = json.dumps({
                     "cluster": "socialmedia",
                     "database": "socialmedia",
@@ -946,6 +948,7 @@ class SavePostView(AuthenticatedBaseView):
                         'client_admin_id': request.session['userinfo']['client_admin_id'],
                         "title": title,
                         "paragraph": paragraphs,
+                        "org_id": org_id,
                         "source": source,
                         "qualitative_categorization": qualitative_categorization,
                         "targeted_for": targeted_for,
@@ -1001,6 +1004,7 @@ def api_call(postes, platforms, key, image, request, post_id):
                        json=payload,
                        headers=headers)
     print(r1.json())
+    org_id = request.session.get('org_id')
     if r1.json()['status'] == 'error':
         messages.error(request, 'error in posting')
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
@@ -1010,7 +1014,11 @@ def api_call(postes, platforms, key, image, request, post_id):
         # credit_handler.consume_step_4_credit(request)
         update_most_recent(post_id)
         save_profile_key_to_post(
-            profile_key=key, post_id=post_id, post_response=r1.json())
+            profile_key=key,
+            post_id=post_id,
+            post_response=r1.json(),
+            org_id=org_id,
+        )
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1032,6 +1040,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
                        json=payload,
                        headers=headers)
     print(r1.json())
+    org_id = request.session.get('org_id')
     if r1.json()['status'] == 'error':
         for error in r1.json()['posts']:
             for message in error['errors']:
@@ -1043,7 +1052,11 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler.consume_step_4_credit(request)
         update_most_recent(post_id)
         save_profile_key_to_post(
-            profile_key=key, post_id=post_id, post_response=r1.json())
+            profile_key=key,
+            post_id=post_id,
+            post_response=r1.json(),
+            org_id=org_id,
+        )
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1400,6 +1413,7 @@ def api_call(postes, platforms, key, image, request, post_id):
                        json=payload,
                        headers=headers)
     print(r1.json())
+    org_id = request.session.get('org_id')
     if r1.json()['status'] == 'error':
         messages.error(request, 'error in posting')
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
@@ -1409,7 +1423,11 @@ def api_call(postes, platforms, key, image, request, post_id):
         # credit_handler.consume_step_4_credit(request)
         update_most_recent(post_id)
         save_profile_key_to_post(
-            profile_key=key, post_id=post_id, post_response=r1.json())
+            profile_key=key,
+            post_id=post_id,
+            post_response=r1.json(),
+            org_id=org_id,
+        )
 
     else:
         for warnings in r1.json()['warnings']:
@@ -1431,18 +1449,23 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
                        json=payload,
                        headers=headers)
     print(r1.json())
+    org_id = request.session.get('org_id')
     if r1.json()['status'] == 'error':
         for error in r1.json()['posts']:
             for message in error['errors']:
                 messages.error(request, message['message'][:62])
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
         messages.success(
-            request, 'post have been sucessfully posted')
+            request, 'post have been successfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update_schedule(post_id)
         save_profile_key_to_post(
-            profile_key=key, post_id=post_id, post_response=r1.json())
+            profile_key=key,
+            post_id=post_id,
+            post_response=r1.json(),
+            org_id=org_id,
+        )
 
     else:
         for warnings in r1.json()['warnings']:
