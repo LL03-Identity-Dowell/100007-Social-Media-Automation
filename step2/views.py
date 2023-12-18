@@ -1,4 +1,3 @@
-from django.shortcuts import render, redirect
 import concurrent.futures
 import datetime
 import json
@@ -687,6 +686,9 @@ def aryshare_profile(request):
                       headers=headers)
     data = r.json()
     print(data)
+
+    org_id = request.session.get('org_id')
+
     if data['status'] == 'error':
         messages.error(request, data['message'])
     else:
@@ -705,6 +707,7 @@ def aryshare_profile(request):
             "field": {
                 "user_id": request.session['user_id'],
                 "session_id": request.session['session_id'],
+                "org_id": org_id,
                 'title': data['title'],
                 'refId': data['refId'],
                 'profileKey': data['profileKey'],
@@ -1926,7 +1929,7 @@ def unscheduled_json(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
-
+        org_id = request.session.get('org_id')
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -1935,7 +1938,7 @@ def unscheduled_json(request):
             "team_member_ID": "1163",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -1954,7 +1957,9 @@ def unscheduled_json(request):
 
         posts = post['data']
 
+
         post = []
+        respond = []
         try:
             for row in posts:
                 if row['status'] == '':
@@ -1964,7 +1969,8 @@ def unscheduled_json(request):
                     post = list(reversed(post))
                     respond = json.dumps(post)
 
-        except:
+        except Exception as e:
+            print(str(e))
             pass
         # post = list(reversed(post))  # Reverse the order of the posts list
 
@@ -2035,7 +2041,7 @@ def scheduled_json(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
-
+        org_id = request.session.get('org_id')
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2044,7 +2050,7 @@ def scheduled_json(request):
             "team_member_ID": "1163",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -2058,7 +2064,7 @@ def scheduled_json(request):
         post = []
         try:
             for row in posts['data']:
-                if user_id == str(row['user_id']):
+                if org_id == str(row['org_id']):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
@@ -2085,6 +2091,9 @@ def index(request):
         # )
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
+
+        org_id = request.session['org_id']
+
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2093,7 +2102,7 @@ def index(request):
             "team_member_ID": "345678977",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"username": request.session['username']},
+            "field": {"org_id": org_id},
             "update_field": {
                 "order_nos": 21
             },
@@ -2127,7 +2136,7 @@ def index(request):
                     # Get the org_id from the question data
                     org_id = row.get('org_id')
                     # Filter the question data with the org_ids from the user's portfolio
-                    if org_id in user_org_id_list and row.get('username'):
+                    if org_id in user_org_id_list:
 
                         array.append(row)
                 except Exception as e:
@@ -2406,6 +2415,7 @@ def generate_article(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("generate_article:main-view"))
         else:
+            org_id = request.session.get('org_id')
             RESEARCH_QUERY = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2492,6 +2502,7 @@ def generate_article(request):
                         step3_data = {
                             "user_id": user_id,
                             "session_id": session_id,
+                            "org_id": org_id,
                             "eventId": event_id,
                             'client_admin_id': client_admin_id,
                             "title": RESEARCH_QUERY,
@@ -2512,6 +2523,7 @@ def generate_article(request):
                         step2_data = {
                             "user_id": user_id,
                             "session_id": session_id,
+                            "org_id": org_id,
                             "eventId": event_id,
                             'client_admin_id': client_admin_id,
                             "title": RESEARCH_QUERY,
@@ -2567,6 +2579,7 @@ def generate_article_wiki(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("main-view"))
         else:
+            org_id = request.session.get('org_id')
             user_id = request.session['user_id']
             approval = get_client_approval(user_id)
             title = request.POST.get("title")
@@ -2597,6 +2610,7 @@ def generate_article_wiki(request):
                     article_sub_verb = article_sub_verb.split("See also")
                     save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
+                                                           "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                            "title": title_sub_verb,
@@ -2612,6 +2626,7 @@ def generate_article_wiki(request):
                         if para_list[i] != '':
                             save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                                    "session_id": session_id,
+                                                                   "org_id": org_id,
                                                                    "eventId": create_event()['event_id'],
                                                                    'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                    "title": title,
@@ -2640,6 +2655,7 @@ def generate_article_wiki(request):
                     article_subject = article_subject.split("See also")
                     save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
+                                                           "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                            "title": subject,
@@ -2655,6 +2671,7 @@ def generate_article_wiki(request):
                             print(para_list[i])
                             save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                                    "session_id": session_id,
+                                                                   "org_id": org_id,
                                                                    "eventId": create_event()['event_id'],
                                                                    'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                    "title": title,
@@ -2693,6 +2710,7 @@ def generate_article_wiki(request):
                 article = article.split("See also")
                 save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                        "session_id": session_id,
+                                                       "org_id": org_id,
                                                        "eventId": create_event()['event_id'],
                                                        'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                        "title": title,
@@ -2710,6 +2728,7 @@ def generate_article_wiki(request):
                                                                "eventId": create_event()['event_id'],
                                                                'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                "title": title,
+                                                               "org_id": org_id,
                                                                "target_industry": target_industry,
                                                                "qualitative_categorization": qualitative_categorization,
                                                                "targeted_for": targeted_for,
@@ -2816,6 +2835,7 @@ def verify_article(request):
                     # saving paragraphs in article
                     save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
+                                                           "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo'][
                                                                'client_admin_id'],
@@ -2833,6 +2853,7 @@ def verify_article(request):
                                                            }, '34567897799')
                     save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
+                                                           "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo'][
                                                                'client_admin_id'],
@@ -2851,6 +2872,7 @@ def verify_article(request):
                 # saving article
                 save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                        "session_id": session_id,
+                                                       "org_id": org_id,
                                                        "eventId": create_event()['event_id'],
                                                        'client_admin_id': request.session['userinfo'][
                                                            'client_admin_id'],
@@ -2879,6 +2901,8 @@ def post_list(request):
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
+        org_id = request.session.get('org_id')
+
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2887,7 +2911,7 @@ def post_list(request):
             "team_member_ID": "34567897799",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -2914,7 +2938,7 @@ def post_list(request):
 
         for article in article_detail_list:
 
-            if article.get('user_id') == user_id:
+            if article.get('org_id') == org_id:
                 articles = {
                     'title': article.get('title'),
                     'paragraph': article.get('paragraph'),
@@ -2952,6 +2976,8 @@ def list_article_view(request):
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
+        org_id = request.session.get('org_id')
+
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2960,7 +2986,7 @@ def list_article_view(request):
             "team_member_ID": "9992828281",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -2979,7 +3005,7 @@ def list_article_view(request):
         user_articles = []
         for article in article_detail_list:
 
-            if article.get('user_id') == user_id:
+            if article.get('org_id') == org_id:
                 articles = {
                     'title': article.get('title'),
                     'paragraph': article.get('paragraph'),
@@ -3101,6 +3127,8 @@ def post_detail(request):
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
+        org_id = request.session.get('org_id')
+
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -3109,7 +3137,7 @@ def post_detail(request):
             "team_member_ID": "100007001",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"user_id": request.session.get('user_id'), },
             "update_field": {
                 "order_nos": 21
             },
@@ -3119,6 +3147,7 @@ def post_detail(request):
         response = requests.request("POST", url, headers=headers, data=data)
         ayrshare_info = json.loads(response.json())
         print("here we have", ayrshare_info)
+
         for data in ayrshare_info['data']:
             social_platforms = data['aryshare_details']
             for key, value in social_platforms.items():
@@ -3209,6 +3238,7 @@ def Save_Post(request):
         # date = datetime.now()
         # time=dd.strftime("%d:%m:%Y,%H:%M:%S")
         time = localtime()
+        org_id = request.session.get('org_id')
         test_date = str(localdate())
         date_obj = datetime.strptime(test_date, '%Y-%m-%d')
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
@@ -3263,6 +3293,7 @@ def Save_Post(request):
                 "field": {
                     "user_id": request.session['user_id'],
                     "session_id": session_id,
+                    "org_id": org_id,
                     "eventId": eventId,
                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                     "title": title,
@@ -3350,7 +3381,9 @@ def most_recent_json(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
-
+        org_id = request.session.get('org_id')
+        print('this is org _id')
+        print(org_id)
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -3359,7 +3392,7 @@ def most_recent_json(request):
             "team_member_ID": "1163",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -3370,10 +3403,11 @@ def most_recent_json(request):
         posts = json.loads(response.json())
         user_id = str(request.session['user_id'])
         status = 'posted'
+
         post = []
         try:
             for row in posts['data']:
-                if user_id == str(row['user_id']):
+                if org_id == str(row['org_id']):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
