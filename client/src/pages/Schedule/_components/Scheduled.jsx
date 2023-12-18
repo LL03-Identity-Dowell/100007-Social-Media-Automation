@@ -46,7 +46,6 @@ const ScheduledPage = () => {
     fetchData();
   }, [pageNumber]);
 
-
   const ReadMoreParagraph = ({ text }) => {
     const [readMore, setReadMore] = useState(false);
 
@@ -65,71 +64,70 @@ const ScheduledPage = () => {
     const handleReadMore = () => {
       setReadMore(!readMore);
     };
-  
+
     return (
       <div>
-         <p
-        ref={paragraphRef}
-        className={`lg:pt-4 px-2 text-md lg:text-lg text-gray-600 ${
-          readMore ? "" : "line-clamp-4"
-        } lg:w-[920px]`}
-      >
-        {text}
-      </p>
-        {isOverflowed && (
-        <span
-          onClick={handleReadMore}
-          className="text-md lg:text-lg text-customTextBlue cursor-pointer font-semibold px-2"
+        <p
+          ref={paragraphRef}
+          className={`lg:pt-4 pr-0 text-md lg:text-lg text-gray-600 ${
+            readMore ? "" : "line-clamp-4"
+          } lg:w-[920px]`}
         >
-          {readMore ? "Read Less..." : "Read More..."}
-        </span>
-      )}
+          {text}
+        </p>
+        {isOverflowed && (
+          <span
+            onClick={handleReadMore}
+            className='pr-0 font-semibold cursor-pointer text-md lg:text-lg text-customTextBlue'
+          >
+            {readMore ? "Read Less..." : "Read More..."}
+          </span>
+        )}
       </div>
     );
-  }; 
-
+  };
 
   return (
-    <div className='px-6'>
-      <h4 className='ml-5 italic'>Total posts count: {articles?.totalPosts}</h4>
-      <ul className='space-y-4 '>
-        {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
-        {success !== "" && <SuccessMessages>{success}</SuccessMessages>}
-        {loading ? (
-          <Loading />
-        ) : (
-          articles?.list?.map((item) => (
-            <li
-              id={item?.PK}
-              key={item?.PK}
-              className='flex flex-col justify-between md:flex-row'
-            >
-              <div className='flex flex-col w-full md:w-9/12 gap-y-3 '>
-                <span className='text-base text-[#0000007c] ml-5'>
-                  {item?.source}
-                </span>
-                <p className=' py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold lg:w-[1000px]'>
-                  {item?.title}
-                </p>
-                {/* <p className='lg:pt-4 text-md lg:text-lg line-clamp-4 leading-loose lg:w-[980px] text-gray-500'>
-                  {item?.paragraph}
-                </p> */}
-                <ReadMoreParagraph text={item.paragraph} />
-                <span className='flex items-center self-end mt-3 gap-x-2'>
-                  <div className='icons8-clock'></div>
-                  <p className='text-[#333] text-sm'>{item?.Date}</p>
-                </span>
-              </div>
+    <div className='relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto overflow-x-hidden'>
+      {loading && <Loading />}
+      {error && <ErrorMessages>{error}</ErrorMessages>}
+      {success && <SuccessMessages>{success}</SuccessMessages>}
+      {SuccessMessages && <SuccessMessages>{SuccessMessages}</SuccessMessages>}
+
+      <h3 className='px-4 py-3 pr-0 italic'>
+        Total posts count: {articles?.totalPosts}
+      </h3>
+      <ul className='overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10 px-0 md:px-2'>
+        {articles?.list?.map((item) => (
+          <li
+            id={item?.PK}
+            key={item?.PK}
+            className='flex flex-col justify-between mt-4 md:flex-row gap-x-14'
+          >
+            <div className='flex flex-col w-full md:w-9/12 gap-y-3 '>
+              <p className='text-[15px]  lg:py-4 lg:text-lg'>{item.source}</p>
+              <p className='py-0 pr-0 text-base font-bold lg:text-xl text-customTextBlue dark:text-white'>
+                {item.title}
+              </p>
+
+              <ReadMoreParagraph text={item.paragraph} />
+
+              <span className='flex items-center self-end mt-3 gap-x-2'>
+                <div className='icons8-clock'></div>
+                <p className='text-[#333] text-sm'>{item?.Date}</p>
+              </span>
+            </div>
+            <div className='mr-4 lg:mr-8'>
               <img
-                className='w-full mt-6 rounded-lg md:w-40 aspect-square md:mt-20'
-                src={item?.image}
+                className='h-40 mt-6 rounded-lg w-50 md:mt-20 '
+                src={item.image}
                 alt='image'
               />
-            </li>
-          ))
-        )}
+            </div>
+          </li>
+        ))}
       </ul>
-      <div className='flex p-0 md:justify-center justify-normal md:w-full md:pr-24 md:mt-14'>
+      <div className='flex w-full p-0 md:justify-center md:w-full md:pr-24 md:mt-14'>
         <Pagination
           currentPage={pageNumber}
           setPageNumber={setPageNumber}

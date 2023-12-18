@@ -23,9 +23,11 @@ export const Pagination = ({ currentPage, setPageNumber, totalPage }) => {
   };
 
   return (
-    <div className='flex items-center w-4/6 gap-x-1 md:max-w-max'>
+    <div className='flex justify-center w-full mt-8'>
       <button
-        className='hover:bg-[#333]/20  p-2 rounded-full md:text-base text-xs'
+        className={`hover:bg-[#333]/20  p-2 rounded-full md:text-base text-xs ${
+          currentPage === 1 && "hidden"
+        }`}
         onClick={prevPage}
       >
         Previous
@@ -52,7 +54,9 @@ export const Pagination = ({ currentPage, setPageNumber, totalPage }) => {
 
         <button
           onClick={nextPage}
-          className='hover:bg-[#333]/20  p-2 rounded-full md:text-base text-xs'
+          className={`hover:bg-[#333]/20  p-2 rounded-full md:text-base text-xs ${
+            currentPage === totalPage && "hidden"
+          }`}
         >
           Next
         </button>
