@@ -15,7 +15,7 @@ const PostList = ({ show }) => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
-  const [pagesToDisplay] = useState(7);
+  const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
 
   const [buttonClicked, setButtonClicked] = useState(false);
@@ -91,7 +91,7 @@ const PostList = ({ show }) => {
   };
 
   return (
-    <div className='relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto'>
+    <div className='relative  max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto mb-6'>
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className='py-2 font-semibold text-center text-customTextBlue lg:py-6'>
@@ -108,8 +108,8 @@ const PostList = ({ show }) => {
         </Link> */}
       </div>
 
-      <div>
-        <div className='overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:gap-10 pb-10'>
+      <div className="mb-6">
+        <div className=' lg:h-auto grid gap-6 lg:gap-10 pb-10'>
           <div className='w-full text-sm text-left text-gray-500 dark:text-gray-400 '>
             <div className='articles'>
               {postData &&
@@ -155,7 +155,7 @@ const PostList = ({ show }) => {
           onPageChange={handlePageClick}
           previousLabel={<span className="text-black text-xs md:text-md">{page > 0 ? "Previous" : ""}</span>}
           nextLabel={<span className="text-black text-xs md:text-md">{page < pageCount - 1 ? "Next" : " "}</span>}
-          containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll '
+          containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-x-auto'
           pageClassName='p-2 rounded-full cursor-pointer md:text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
           previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
           nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
