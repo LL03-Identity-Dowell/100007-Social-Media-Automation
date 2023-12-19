@@ -723,20 +723,33 @@ class PostListView(AuthenticatedBaseView):
             user_id = str(request.session['user_id'])
             article_detail_list = response_data_json.get('data', [])
 
-            datas = article_detail_list
-
             posts = []
+            unique_articles = set()
 
             for article in article_detail_list:
-
                 if article.get('user_id') == user_id:
-                    articles = {
-                        'post_id': article.get('_id'),
-                        'title': article.get('title'),
-                        'paragraph': article.get('paragraph'),
-                        'source': article.get('source'),
-                    }
-                    posts.append(articles)
+                    title = article.get('title')
+                    paragraph = article.get('paragraph')
+                    source = article.get('source')
+                    article_content = article.get('article', ' ')
+                    post_id = article.get('_id')
+
+                    if article_content not in unique_articles:
+                        unique_articles.add(article_content)
+                        posts.append({
+                            'post_id': post_id,
+                            'title': title,
+                            'paragraph': paragraph,
+                            'source': source,
+                            'article': article_content,
+                        })
+                    else:
+                        posts.append({
+                            'post_id': post_id,
+                            'title': title,
+                            'paragraph': paragraph,
+                            'source': source,
+                        })
             posts = list(reversed(posts))
 
             # Pagination
@@ -753,15 +766,25 @@ class PostListView(AuthenticatedBaseView):
 
             # Serialize page_post to JSON-serializable format
             page_post_data = list(page_post)
-            serialized_page_post = [
-                {
+            serialized_page_post = []
+
+            for post in page_post_data:
+                paragraph_post = {
                     'post_id': post['post_id'],
                     'title': post['title'],
-                    'paragraph': post['paragraph'],
-                    'source': post['source']
+                    'paragraphs': post['paragraph'],
+                    'source': post['source'],
                 }
-                for post in page_post_data
-            ]
+                serialized_page_post.append(paragraph_post)
+
+                if 'article' in post:
+                    article_post = {
+                        'post_id': post['post_id'],
+                        'title': post['title'],
+                        'article': post['article'],
+                        'source': post['source'],
+                    }
+                    serialized_page_post.append(article_post)
 
             response_data = {
                 'posts': serialized_page_post,
@@ -826,18 +849,29 @@ class PostDetailView(AuthenticatedBaseView):
                 data = request.data
                 post_id = data.get('post_id')
                 title = data.get("title")
-                paragraph = data.get("paragraph")
-                paragraph = paragraph.split('\r\n')
-                source = data.get("source")
-                # if "\r\n" in source:
-                #     source = source.split('\r\n')
+                source = data.get('source')
 
-                post = {
-                    "_id": post_id,
-                    "title": title,
-                    "paragraph": paragraph,
-                    # "source": source
-                }
+                if 'paragraph' in data:
+                    paragraph = data.get('paragraph')
+                    paragraph = paragraph.split('\r\n')
+
+                    post = {
+                        "_id": post_id,
+                        "title": title,
+                        "paragraph": paragraph,
+                        # "source": source
+                    }
+                elif 'article' in data:
+                    article = data.get("article")
+
+                    post = {
+                        "_id": post_id,
+                        "title": title,
+                        "article": article,
+                        # "source": source
+                    }
+                else:
+                    return Response({'error': 'Invalid data format'}, status=400)
             a = random.randint(1, 9)
             query = title
             output = []
