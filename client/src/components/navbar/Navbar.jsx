@@ -8,6 +8,7 @@ import axios from "axios";
 function Navbar() {
   const [username, setUserName] = useState(null);
   const [userEmail, setUserEmail] = useState("");
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     let user = JSON.parse(localStorage.getItem("userInfo"));
@@ -20,6 +21,7 @@ function Navbar() {
   window.location.origin;
 
   const handleLogout = ()=>{
+    localStorage.clear()
     window.location.replace(dowellLogoutUrl)
     // axios
     // .get("http://127.0.0.1:8000/api/v1/logout/", {
@@ -33,6 +35,15 @@ function Navbar() {
     // })
   }
 
+  const handleToggleDropdown = () => {
+    setDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleLinkClick = () => {
+    // Close the dropdown when a link is clicked
+    setDropdownOpen(false);
+  };
+
   return (
     <nav className='sticky top-0 z-20 w-full text-white border-b border-gray-200 bg-customBlue dark:bg-gray-900 dark:border-gray-600'>
       <div className='flex flex-wrap items-center justify-between w-full p-4 '>
@@ -40,8 +51,17 @@ function Navbar() {
           {/* <img src={logoImage} className="h-8 mr-3" alt="Dowell Logo" /> */}
           <span
             className='self-center text-2xl font-bold whitespace-nowrap dark:text-white'
-            title='Vist Home'
+            data-tooltip-target="tooltip-default"
+              data-tooltip-placement="bottom"
           >
+             <div
+                id="tooltip-default"
+                role="tooltip"
+                className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-customGray rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+              >
+                Vist Home
+                <div class="tooltip-arrow" data-popper-arrow></div>
+              </div>
             Samanta
           </span>
         </Link>
@@ -197,7 +217,9 @@ function Navbar() {
             type='button'
             className='inline-flex items-center justify-center w-10 h-10 p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600'
             aria-controls='navbar-search'
-            aria-expanded='false'
+            // aria-expanded='false'
+            aria-expanded={isDropdownOpen ? 'true' : 'false'}
+            onClick={handleToggleDropdown}
           >
             <span className='sr-only'>Open main menu</span>
             <svg
@@ -217,20 +239,25 @@ function Navbar() {
             </svg>
           </button>
         </div>
+        
         <div
-          className='items-center justify-between hidden w-full md:flex md:w-auto md:order-1'
+          // className='items-center justify-between hidden w-full md:flex md:w-auto md:order-1'
+          className={`${
+            isDropdownOpen ? 'block' : 'hidden'
+          }  mt-2 items-center justify-between w-full md:flex md:w-auto`}
           id='navbar-search'
         >
-          <div className='relative mt-3 md:hidden'>
+          <div className='relative mt-3 md:hidden '>
             <Searchbar />
           </div>
           <ul className='flex flex-col p-4 mt-4 font-medium text-white border border-gray-100 rounded-lg md:p-0 md:flex-row md:space-x-8 md:mt-0 md:border-0 dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700'>
             <li>
               <Link
                 to='/'
+                onClick={handleLinkClick}
                 className='block py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700'
-                title='Vist Home'
-              >
+                >
+               
                 Home
               </Link>
             </li>
@@ -280,9 +307,11 @@ function Navbar() {
                   className='py-2 text-sm text-gray-700 dark:text-gray-400'
                   aria-labelledby='dropdownLargeButton'
                 >
-                  <li>
+                  <li >
+                  
                     <Link
                       to='/settings/hastagsandmentions'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
                     >
                       Hashtags & Mentions
@@ -291,6 +320,7 @@ function Navbar() {
                   <li>
                     <Link
                       to='/settings/categoriesandtopic'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
                     >
                       Categories & Topic
@@ -299,6 +329,7 @@ function Navbar() {
                   <li>
                     <Link
                       to='/settings/postdetaildropdowns'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
                     >
                       Post Detail Dropdown
@@ -307,6 +338,7 @@ function Navbar() {
                   <li>
                     <Link
                       to='/social-media-channels'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
                     >
                       Social Media Channels
@@ -316,11 +348,30 @@ function Navbar() {
                   <li>
                     <Link
                       to='/target-cities'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
                     >
                       Targeted Cities
                     </Link>
                     
+                  </li>
+                  <li>
+                    <Link
+                      to='/client-profile'
+                      onClick={handleLinkClick}
+                      className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
+                    >
+                      View Client's Profile
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to='/user-approval'
+                      onClick={handleLinkClick}
+                      className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
+                    >
+                      Approval By Clients
+                    </Link>
                   </li>
                   
                 </ul>
@@ -337,7 +388,7 @@ function Navbar() {
                 data-tooltip-target='user-tooltip'
                 data-tooltip-placement='right'
                 type='button'
-                className='relative flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 '
+                className='relative flex ml-3 mt-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 '
                 id='user-menu-button'
                 aria-expanded='false'
                 data-dropdown-toggle='user-dropdown'
@@ -388,6 +439,7 @@ function Navbar() {
                   <li>
                     <Link
                       to='/user-profile'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-customGray dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                     >
                       User Profile
@@ -396,6 +448,7 @@ function Navbar() {
                   <li>
                     <Link
                       to='/statistics/my-plan'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                       title='View Plan'
                     >
@@ -405,6 +458,7 @@ function Navbar() {
                   <li>
                     <Link
                       to='/statistics/my-team'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                       title='View Team'
                     >
@@ -414,6 +468,7 @@ function Navbar() {
                   <li>
                     <Link
                       to='/statistics/my-usage'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                       title='View Usage'
                     >
@@ -423,6 +478,7 @@ function Navbar() {
                   <li>
                     <Link
                       to='/address'
+                      onClick={handleLinkClick}
                       className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                     >
                       Addresses
