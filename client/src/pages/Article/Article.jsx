@@ -86,16 +86,8 @@ const Article = ({ show }) => {
     setPage(data.selected);
   };
 
-  const loadMorePages = () => {
-    if (pageCount > pagesToDisplay) {
-      const nextPagesToDisplay = Math.min(pageCount - page, pagesToDisplay);
-      setShowMorePages(nextPagesToDisplay + page < pageCount);
-      setPage(page + nextPagesToDisplay);
-    }
-  };
-
   return (
-    <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto ">
+    <div className="relative mb-6 max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto ">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="text-center text-customTextBlue font-semibold py-2 lg:py-6">
@@ -112,8 +104,8 @@ const Article = ({ show }) => {
         </Link>
       </div>
 
-      <div>
-        <div className="overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:gap-10 pb-10">
+      <div className="mb-6">
+        <div className=" lg:h-auto grid gap-6 lg:gap-10 pb-10">
           <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
             <div className="articles">
               {articleData &&

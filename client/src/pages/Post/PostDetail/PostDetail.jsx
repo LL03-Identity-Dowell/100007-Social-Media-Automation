@@ -197,7 +197,7 @@ function PostDetail({ show }) {
 
 
     return (
-        <div className='m-4 lg:m-8'>
+        <div className='m-4 lg:m-8 mb-8'>
             {loading && <Loading />}
             {error && <ErrorMessages>{error}</ErrorMessages>}
             {success && <SuccessMessages>{success}</SuccessMessages>}

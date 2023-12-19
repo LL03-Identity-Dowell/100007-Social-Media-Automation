@@ -113,14 +113,14 @@ const UnscheduledPage = () => {
   };
 
   return (
-    <div className='relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto'>
+    <div className='relative max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto mb-6'>
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {sucessMessage && <SuccessMessages>{sucessMessage}</SuccessMessages>}
 
       <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
-      <ul className='overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10 '>
+      <ul className=' lg:h-auto grid gap-6 lg:mb-10 mb-6 '>
         {unscheduledPost.map((item) => (
           <li
             id={item.PK}
@@ -186,7 +186,7 @@ const UnscheduledPage = () => {
             {page < pageCount - 1 ? "Next" : " "}
           </span>
         }
-        containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll '
+        containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-x-auto'
         pageClassName='p-2 rounded-full cursor-pointer md:text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
         previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
         nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
