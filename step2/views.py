@@ -3779,12 +3779,11 @@ def social_media_channels(request):
         return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
     else:
         step_2_manager = Step2Manager()
-        username = request.session['username']
-        session = request.session['session_id']
-        print(session)
+
+        title = request.session['portfolio_info'][0]['owner_name']
         user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
-            username)
-        linked_accounts = check_connected_accounts(username)
+            title)
+        linked_accounts = check_connected_accounts(title)
         context_data = {'user_has_social_media_profile': user_has_social_media_profile,
                         'linked_accounts': linked_accounts}
         username = request.session['username']
