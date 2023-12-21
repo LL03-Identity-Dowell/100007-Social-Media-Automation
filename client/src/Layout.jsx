@@ -97,7 +97,19 @@ const Layout = ({ children, side, show, isUser }) => {
               withCredentials: true
             })
             .then((res) => {
-              // console.log(res);
+              const data = res.data;
+          // const saveUserInfo = JSON.stringify(data);
+          // localStorage.setItem("userInfo", saveUserInfo);
+        //   const userProducts = data.portfolio_info;
+        //   // Check if any product is "Social Media Automation"
+        //   const hasSocialMediaAutomation = userProducts.some(
+        //     (product) => product.product === "Social Media Automation"
+        //   );
+        //   if (!hasSocialMediaAutomation) {
+            
+        //     console.log("You do not have a portfolio", userProducts);
+        //     navigate("/portfolio_check");
+        // }
             })
             .catch((err) => {
             

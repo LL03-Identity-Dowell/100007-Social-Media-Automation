@@ -13,7 +13,7 @@ const MostRecent = () => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
-  const [pagesToDisplay] = useState(7);
+  const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ const MostRecent = () => {
         ref={paragraphRef}
         className={`lg:pt-4 lg:px-6 px-2 text-md lg:text-lg text-gray-600 ${
           readMore ? "" : "line-clamp-4"
-        } lg:w-[920px]`}
+        } lg:w-[920px] `}
       >
         {text}
       </p>
@@ -99,15 +99,15 @@ const MostRecent = () => {
   }; 
 
   return (
-    <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
+    <div className="relative max-w-7xl mx-auto lg:h-auto  lg:overflow-y-auto mb-6">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       <p className="px-6 py-2 italic">Total article count: {count}</p>
 
-      <div>
-        <div className="overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10">
-          <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
+      {/* <div> */}
+        {/* <div className=" grid gap-6 lg:mb-10 border border-green-700"> */}
+          <div className=" text-sm text-left text-gray-500 dark:text-gray-400 ">
             <div className="">
               {articles &&
                 articles.map((article, index) => (
@@ -128,7 +128,7 @@ const MostRecent = () => {
 
                     <div className="mr-4 lg:mr-8">
                       <img
-                        className="w-50 h-40 rounded-lg"
+                        className="w-[90%] md:w-50 md:h-40 h-50 rounded-lg"
                         src={article.image}
                         alt="image"
                       />
@@ -138,16 +138,16 @@ const MostRecent = () => {
                 ))}
             </div>
           </div>
-        </div>
+        {/* </div> */}
 
         <ReactPaginate
           pageCount={pageCount}
           pageRangeDisplayed={pagesToDisplay}
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
-          previousLabel={<span className="text-black overflow-x-scroll ">{page > 0 ? "Previous" : ""}</span>}
-          nextLabel={<span className="text-black overflow-x-scroll ">{page < pageCount - 1 ? "Next" : " "}</span>}
-          containerClassName="flex justify-center items-center my-4 md:space-x-2"
+          previousLabel={<span className="text-black overflow-x-scroll text-xs md:text-lg">{page > 0 ? "Previous" : ""}</span>}
+          nextLabel={<span className="text-black overflow-x-scroll text-xs md:text-lg">{page < pageCount - 1 ? "Next" : " "}</span>}
+          containerClassName="flex justify-center items-center my-4 md:space-x-2 md:overflow-x-auto"
           pageClassName="p-2 rounded-full cursor-pointer md:text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
           previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
           nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
@@ -155,7 +155,7 @@ const MostRecent = () => {
           activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
         />
         
-      </div>
+      {/* </div> */}
     </div>
   );
 };

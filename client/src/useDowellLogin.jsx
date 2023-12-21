@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 const dowellLoginUrl =
@@ -31,6 +31,7 @@ export default function useDowellLogin() {
   const [sessionCheckPerformed, setSessionCheckPerformed] = useState(false);
   const urlParams = new URLSearchParams(window.location.search);
   const session_id = urlParams.get("session_id");
+  const navigate = useNavigate()
 
   //   const localSession = sessionStorage.getItem("session_id")
   //     ? JSON.parse(sessionStorage.getItem("session_id"))
@@ -89,7 +90,7 @@ export default function useDowellLogin() {
     ) {
       window.location.replace(dowellLoginUrl);
     }
-  }, []);
+  }, [navigate]);
 
   return {loading, product}
 }
