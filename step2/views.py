@@ -743,6 +743,8 @@ def link_media_channels(request):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
+    org_id = request.session.get('org_id')
+
     payload = {
         "cluster": "socialmedia",
         "database": "socialmedia",
@@ -751,7 +753,7 @@ def link_media_channels(request):
         "team_member_ID": "100007001",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {"user_id": request.session['user_id']},
+        "field": {"org_id": org_id},
         "update_field": {
             "order_nos": 21
         },
@@ -1863,7 +1865,7 @@ def topics(request):
     return render(request, 'topics.html')
 
 
-def update_aryshare(username, userid):
+def update_aryshare(username, org_id):
     headers = {'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
     r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
     socials = ['No account linked']
@@ -1883,7 +1885,7 @@ def update_aryshare(username, userid):
                     "command": "update",
                     "field": {
 
-                        'user_id': userid
+                        'org_id': org_id
                     },
                     "update_field": {
                         "aryshare_details": {
@@ -1915,9 +1917,12 @@ def update_aryshare(username, userid):
 def unscheduled(request):
     if 'session_id' and 'username' in request.session:
         profile = request.session['operations_right']
-        username = request.session['username']
+        username = request.session['portfolio_info'][0]['owner_name']
         userid = request.session['user_id']
-        update_aryshare(username, userid)
+        org_id = request.session.get('org_id')
+
+        update_aryshare(username, org_id)
+
         return render(request, 'unscheduled.html', {'profile': profile})
     else:
         return render(request, 'error.html')
@@ -3137,7 +3142,7 @@ def post_detail(request):
             "team_member_ID": "100007001",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session.get('user_id'), },
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -3514,7 +3519,7 @@ def update_schedule(pk):
     return ('scheduled')
 
 
-def get_key(user_id):
+def get_key(title):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
@@ -3526,7 +3531,7 @@ def get_key(user_id):
         "team_member_ID": "100007001",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {"user_id": user_id},
+        "field": {"title": title},
         "update_field": {
             "order_nos": 21
         },
@@ -3535,6 +3540,7 @@ def get_key(user_id):
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
     post = json.loads(response.json())
+
     for article in post['data']:
         key = article['profileKey']
     return key
@@ -3647,7 +3653,8 @@ def Media_Post(request):
         except:
             pass
         user_id = request.session['user_id']
-        key = get_key(user_id)
+        owner_name = request.session['portfolio_info'][0]['owner_name']
+        key = get_key(owner_name)
         if len(splited) == 0:
             arguments = (
                 (postes, platforms, key, image, request, post_id),
@@ -3730,7 +3737,8 @@ def Media_schedule(request):
             string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
 
         user_id = request.session['user_id']
-        key = get_key(user_id)
+        owner_name = request.session['portfolio_info'][0]['owner_name']
+        key = get_key(owner_name)
         if len(splited) == 0:
             arguments = (
                 (postes, platforms, key, image, request, post_id, formart),
@@ -3764,6 +3772,11 @@ def social_media_channels(request):
     if request.method == "POST":
         step_2_manager = Step2Manager()
         username = request.session['username']
+        owner_name = request.session['portfolio_info'][0]['owner_name']
+        if username != owner_name:
+            messages.error(request, 'You are permitted to perform this action!')
+            messages.error(request, 'Only the owner of the organization can connect to social media channels')
+            return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
         email = request.session['userinfo']['email']
         name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
         org_id = request.session['org_id']
@@ -3790,7 +3803,7 @@ def social_media_channels(request):
         org_id = request.session['org_id']
 
         data = {
-            'username': username,
+            'username': title,
             'org_id': org_id,
         }
         social_media_request = step_2_manager.get_approved_user_social_media_request(
