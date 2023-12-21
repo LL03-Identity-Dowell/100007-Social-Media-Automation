@@ -743,6 +743,13 @@ def link_media_channels(request):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
+    owner_name = request.session['portfolio_info'][0]['owner_name']
+    username = request.session.get('username')
+    if owner_name != username:
+        messages.error(request, 'You are permitted to perform this action!')
+        messages.error(request, 'Only the owner of the organization can connect to social media channels')
+        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+
     org_id = request.session.get('org_id')
 
     payload = {
