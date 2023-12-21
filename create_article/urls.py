@@ -22,9 +22,6 @@ from server import serverReports
 
 from step2 import views as step2_views
 
-handler404 = step2_views.handler404
-handler500 = step2_views.handler500
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('step2.urls')),
