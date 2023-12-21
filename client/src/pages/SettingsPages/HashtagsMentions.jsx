@@ -34,7 +34,7 @@ const HashtagsMentions = ({ close }) => {
 
     if (inputHashtagText) {
       setinputHashtagList([...inputHashtagList, "#" + inputHashtagText]);
-    // console.log("from hashtaglist", inputHashtagList);
+      // console.log("from hashtaglist", inputHashtagList);
       setinputHashtagText("");
       setcheckedHashtagList([...checkedHashtagList, false]);
     }
@@ -115,7 +115,7 @@ const HashtagsMentions = ({ close }) => {
     if (getStatus === "update") {
       setLoading(true);
       const data = {
-        hashtag_list: checkedHashtags.join(","),  
+        hashtag_list: checkedHashtags.join(","),
         mentions_list: checkedMentions.join(","),
       };
 
@@ -178,60 +178,60 @@ const HashtagsMentions = ({ close }) => {
   }, []);
 
   return (
-    <div className="bg-pens bg-cover bg-center h-[90vh]">
+    <div className='bg-pens bg-cover bg-center h-[90vh]'>
       {loading && <Loading />}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {error && <ErrorMessages>{error}</ErrorMessages>}
-      <div className="bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400">
-        <div className="flex justify-center items-center flex-col h-full w-full">
+      <div className='bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400'>
+        <div className='flex flex-col items-center justify-center w-full h-full'>
           <div>
-            <h2 className="text-customBlue font-bold text-2xl xl:text-3xl pb-12">
+            <h2 className='pb-12 text-2xl font-bold text-customBlue xl:text-3xl'>
               Hashtags and Mentions
             </h2>
           </div>
-          <form className="w-full px-6" onSubmit={handleSubmit}>
-            <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 w-full">
-              <div className="text-center w-full">
+          <form className='w-full px-6' onSubmit={handleSubmit}>
+            <div className='flex flex-col w-full gap-6 lg:flex-row lg:gap-10'>
+              <div className='w-full text-center'>
                 <label
-                  htmlFor="hashtags"
-                  className="text-customBlue text-lg font-bold"
+                  htmlFor='hashtags'
+                  className='text-lg font-bold text-customBlue'
                 >
                   Hashtags
                 </label>
-                <div className="mt-4 w-full border flex">
-                  <span className="bg-gray-400 p-2 text-lg text-gray-600 rounded-l-md">
+                <div className='flex w-full mt-4 border'>
+                  <span className='p-2 text-lg text-gray-600 bg-gray-400 rounded-l-md'>
                     #
                   </span>
                   <input
-                    type="text"
-                    id="hashtags"
+                    type='text'
+                    id='hashtags'
                     value={inputHashtagText}
                     onChange={handleHashtagInputChange}
-                    placeholder="Enter Hashtags.."
-                    className="border-none bg-white w-full outline-2 outline-blue-400 "
+                    placeholder='Enter Hashtags..'
+                    className='w-full bg-white border-none outline-2 outline-blue-400 '
                   />
                   <button
-                    className="bg-customTextBlue text-white rounded-r-2xl px-2"
+                    className='px-2 py-0 text-white bg-customBlue rounded-r-2xl'
                     onClick={handleAddHashtagInput}
                   >
                     Add
                   </button>
                 </div>
-                <div className="mt-3">
-                  <ul className="flex flex-wrap">
+                <div className='mt-3'>
+                  <ul className='flex flex-wrap'>
                     {inputHashtagList.map((name, index) => (
-                      <li key={index} className="mb-4 mr-4">
-                        <div className="flex items-center">
+                      <li key={index} className='mb-4 mr-4'>
+                        <div className='flex items-center'>
                           <input
-                            type="checkbox"
+                            type='checkbox'
                             checked={checkedHashtagList[index]}
                             onChange={() => handleCheckboxHashtagChange(index)}
-                            className=" w-4 h-4 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mr-2"
+                            className='w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                           />
                           {name}
                           <button
                             onClick={() => handleRemoveHashtagInput(index)}
-                            className="ml-8 text-gray-600"
+                            className='ml-8 text-gray-600'
                           >
                             <FaTimes />
                           </button>
@@ -241,45 +241,45 @@ const HashtagsMentions = ({ close }) => {
                   </ul>
                 </div>
               </div>
-              <div className="text-center w-full">
+              <div className='w-full text-center'>
                 <label
-                  htmlFor="mentions"
-                  className="text-customBlue text-lg font-bold"
+                  htmlFor='mentions'
+                  className='text-lg font-bold text-customBlue'
                 >
                   Mentions
                 </label>
-                <div className="mt-4 w-full border flex">
-                  <span className="bg-gray-400 p-2 text-lg text-gray-600 rounded-l-md">
+                <div className='flex w-full mt-4 border'>
+                  <span className='p-2 text-lg text-gray-600 bg-gray-400 rounded-l-md'>
                     @
                   </span>
                   <input
-                    type="text"
-                    id="mentions"
+                    type='text'
+                    id='mentions'
                     value={inputMentionsText}
                     onChange={handleMentionsInputChange}
-                    placeholder="Enter Mentions.."
-                    className="border-none bg-white w-full"
+                    placeholder='Enter Mentions..'
+                    className='w-full bg-white border-none'
                   />
                   <button
-                    className="bg-customTextBlue text-white rounded-r-2xl px-2"
+                    className='px-2 text-white bg-customBlue rounded-r-2xl'
                     onClick={handleAddMentionsInput}
                   >
                     Add
                   </button>
                 </div>
-                <div className="mt-3">
-                  <ul className="flex flex-wrap">
+                <div className='mt-3'>
+                  <ul className='flex flex-wrap'>
                     {inputMentionsList.map((name, index) => (
-                      <li key={index} className="mb-4 mr-4">
+                      <li key={index} className='mb-4 mr-4'>
                         <input
-                          type="checkbox"
+                          type='checkbox'
                           checked={checkedMentionsList[index]}
                           onChange={() => handleCheckboxMentionsChange(index)}
                         />{" "}
                         {name}
                         <button
                           onClick={() => handleRemoveMentionsInput(index)}
-                          className="ml-8 text-gray-600"
+                          className='ml-8 text-gray-600'
                         >
                           <FaTimes />
                         </button>
@@ -290,12 +290,14 @@ const HashtagsMentions = ({ close }) => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-center items-center mt-6 md:mt-16">
+            <div className='flex items-center justify-center mt-6 md:mt-16'>
               <button
-                type="submit"
+                type='submit'
                 className={`${
-                  isSaveDisabled ? "bg-blue-300 cursor-not-allowed" : ""
-                }bg-blue-800 px-10 py-1 text-white rounded-3xl flex items-center gap-3   `}
+                  isSaveDisabled
+                    ? "bg-customBlue cursor-not-allowed opacity-90"
+                    : ""
+                }bg-customBlue px-8 py-2 text-white rounded-xl flex items-center gap-3   `}
                 disabled={isSaveDisabled}
               >
                 Save <FaCheck />
@@ -304,7 +306,7 @@ const HashtagsMentions = ({ close }) => {
           </form>
         </div>
       </div>
-      {/* className="bg-customTextBlue px-4 py-2 text-white rounded-md flex items-center gap-3" */}
+      {/* className="flex items-center gap-3 px-4 py-2 text-white rounded-md bg-customTextBlue" */}
     </div>
   );
 };
