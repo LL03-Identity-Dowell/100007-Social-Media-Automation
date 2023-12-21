@@ -7,20 +7,27 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import CommentModal from "./_components/CommentModal";
 import PostedTo from "./_components/PostedTo";
 import Loading from "../../components/Loading";
-
-const page = 1;
+import ReactPaginate from "react-paginate";
 
 function Comment({ show }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+
+  const [pagesToDisplay] = useState(4);
+  const [showMorePages, setShowMorePages] = useState(false);
 
   const [comments, setComments] = useState({
     paginatedPosts: [],
-    page: 2,
-    totalPages: 32,
-    totalItems: 156,
+    page: page,
+    totalPages: 0,
+    totalItems: 0,
   });
+
+  console.log(comments);
+
+  const count = comments.totalItems;
 
   useEffect(() => {
     show();
@@ -37,16 +44,18 @@ function Comment({ show }) {
           withCredentials: true,
         })
         .then((response) => {
-          const { paginated_posts, page, totalPages, totalItems } =
+          const { paginated_posts, page, total_pages, total_items } =
             response.data;
           setComments({
             paginatedPosts: paginated_posts,
             page,
-            totalPages,
-            totalItems,
+            totalPages: total_pages,
+            totalItems: total_items,
           });
           setSuccess("successfully fetch the comments");
           setError("");
+          setShowMorePages(comments.totalPages > pagesToDisplay);
+          window.scrollTo(0, 0);
         })
         .catch(() => {
           setError("Server error, Please try again later");
@@ -55,21 +64,26 @@ function Comment({ show }) {
       setLoading(false);
     };
     fetchComments();
-  }, []);
+  }, [page]);
+
+  const handlePageClick = (data) => {
+    setPage(data.selected);
+  };
 
   return (
     <>
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {loading && <Loading />}
-      <div className='relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto'>
-        <div className='w-full text-sm text-left text-gray-500 dark:text-gray-400 '>
+      <div className='relative mx-auto mb-6 overflow-y-hidden max-w-7xl lg:h-auto lg:overflow-y-auto'>
+        <div className='w-full mb-6 text-sm text-left text-gray-500 dark:text-gray-400'>
           <div className='py-2 font-semibold text-center text-customTextBlue lg:py-6'>
             <h2 className='text-3xl md:text-4xl '>Comments</h2>
           </div>
-          <ul className='space-y-12'>
-            {comments.paginatedPosts.map((item) => (
-              <li className='w-[90%] m-auto list-none' key={item.article_id}>
+          <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
+          <ul className='mt-6 space-y-12'>
+            {comments.paginatedPosts?.map((item) => (
+              <li className='m-auto list-none ' key={item.article_id}>
                 <div className='flex items-center justify-between'>
                   <p className='px-2 py-0 font-bold lg:px-6 text-md lg:text-xl text-customTextBlue dark:text-white '>
                     {item.title}
@@ -98,6 +112,28 @@ function Comment({ show }) {
             ))}
           </ul>
         </div>
+        <ReactPaginate
+          pageCount={comments.totalPages}
+          pageRangeDisplayed={pagesToDisplay}
+          marginPagesDisplayed={2}
+          onPageChange={handlePageClick}
+          previousLabel={
+            <span className='text-xs text-black md:text-lg'>
+              {page > 0 ? "Previous" : ""}
+            </span>
+          }
+          nextLabel={
+            <span className='text-xs text-black md:text-lg'>
+              {page < comments.totalPages - 1 ? "Next" : " "}
+            </span>
+          }
+          containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-x-auto'
+          pageClassName='p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
+          previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
+          nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
+          breakClassName='p-2'
+          activeClassName='bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 '
+        />
       </div>
     </>
   );
