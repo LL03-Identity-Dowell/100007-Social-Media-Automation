@@ -1,4 +1,3 @@
-from django.shortcuts import render, redirect
 import concurrent.futures
 import datetime
 import json
@@ -687,6 +686,9 @@ def aryshare_profile(request):
                       headers=headers)
     data = r.json()
     print(data)
+
+    org_id = request.session.get('org_id')
+
     if data['status'] == 'error':
         messages.error(request, data['message'])
     else:
@@ -705,6 +707,7 @@ def aryshare_profile(request):
             "field": {
                 "user_id": request.session['user_id'],
                 "session_id": request.session['session_id'],
+                "org_id": org_id,
                 'title': data['title'],
                 'refId': data['refId'],
                 'profileKey': data['profileKey'],
@@ -740,6 +743,15 @@ def link_media_channels(request):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
+    owner_name = request.session['portfolio_info'][0]['owner_name']
+    username = request.session.get('username')
+    if owner_name != username:
+        messages.error(request, 'You are permitted to perform this action!')
+        messages.error(request, 'Only the owner of the organization can connect to social media channels')
+        return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
+
+    org_id = request.session.get('org_id')
+
     payload = {
         "cluster": "socialmedia",
         "database": "socialmedia",
@@ -748,7 +760,7 @@ def link_media_channels(request):
         "team_member_ID": "100007001",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {"user_id": request.session['user_id']},
+        "field": {"org_id": org_id},
         "update_field": {
             "order_nos": 21
         },
@@ -1860,7 +1872,7 @@ def topics(request):
     return render(request, 'topics.html')
 
 
-def update_aryshare(username, userid):
+def update_aryshare(username, org_id):
     headers = {'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
     r = requests.get('https://app.ayrshare.com/api/profiles', headers=headers)
     socials = ['No account linked']
@@ -1880,7 +1892,7 @@ def update_aryshare(username, userid):
                     "command": "update",
                     "field": {
 
-                        'user_id': userid
+                        'org_id': org_id
                     },
                     "update_field": {
                         "aryshare_details": {
@@ -1912,9 +1924,12 @@ def update_aryshare(username, userid):
 def unscheduled(request):
     if 'session_id' and 'username' in request.session:
         profile = request.session['operations_right']
-        username = request.session['username']
+        username = request.session['portfolio_info'][0]['owner_name']
         userid = request.session['user_id']
-        update_aryshare(username, userid)
+        org_id = request.session.get('org_id')
+
+        update_aryshare(username, org_id)
+
         return render(request, 'unscheduled.html', {'profile': profile})
     else:
         return render(request, 'error.html')
@@ -1926,7 +1941,7 @@ def unscheduled_json(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
-
+        org_id = request.session.get('org_id')
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -1935,7 +1950,7 @@ def unscheduled_json(request):
             "team_member_ID": "1163",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -1954,7 +1969,9 @@ def unscheduled_json(request):
 
         posts = post['data']
 
+
         post = []
+        respond = []
         try:
             for row in posts:
                 if row['status'] == '':
@@ -1964,7 +1981,8 @@ def unscheduled_json(request):
                     post = list(reversed(post))
                     respond = json.dumps(post)
 
-        except:
+        except Exception as e:
+            print(str(e))
             pass
         # post = list(reversed(post))  # Reverse the order of the posts list
 
@@ -2035,7 +2053,7 @@ def scheduled_json(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
-
+        org_id = request.session.get('org_id')
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2044,7 +2062,7 @@ def scheduled_json(request):
             "team_member_ID": "1163",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -2058,7 +2076,7 @@ def scheduled_json(request):
         post = []
         try:
             for row in posts['data']:
-                if user_id == str(row['user_id']):
+                if org_id == str(row['org_id']):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
@@ -2085,6 +2103,9 @@ def index(request):
         # )
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
+
+        org_id = request.session['org_id']
+
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2093,7 +2114,7 @@ def index(request):
             "team_member_ID": "345678977",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"username": request.session['username']},
+            "field": {"org_id": org_id},
             "update_field": {
                 "order_nos": 21
             },
@@ -2127,7 +2148,7 @@ def index(request):
                     # Get the org_id from the question data
                     org_id = row.get('org_id')
                     # Filter the question data with the org_ids from the user's portfolio
-                    if org_id in user_org_id_list and row.get('username'):
+                    if org_id in user_org_id_list:
 
                         array.append(row)
                 except Exception as e:
@@ -2406,6 +2427,7 @@ def generate_article(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("generate_article:main-view"))
         else:
+            org_id = request.session.get('org_id')
             RESEARCH_QUERY = request.POST.get("title")
             subject = request.POST.get("subject")
             verb = request.POST.get("verb")
@@ -2492,6 +2514,7 @@ def generate_article(request):
                         step3_data = {
                             "user_id": user_id,
                             "session_id": session_id,
+                            "org_id": org_id,
                             "eventId": event_id,
                             'client_admin_id': client_admin_id,
                             "title": RESEARCH_QUERY,
@@ -2512,6 +2535,7 @@ def generate_article(request):
                         step2_data = {
                             "user_id": user_id,
                             "session_id": session_id,
+                            "org_id": org_id,
                             "eventId": event_id,
                             'client_admin_id': client_admin_id,
                             "title": RESEARCH_QUERY,
@@ -2567,6 +2591,7 @@ def generate_article_wiki(request):
         if request.method != "POST":
             return HttpResponseRedirect(reverse("main-view"))
         else:
+            org_id = request.session.get('org_id')
             user_id = request.session['user_id']
             approval = get_client_approval(user_id)
             title = request.POST.get("title")
@@ -2597,6 +2622,7 @@ def generate_article_wiki(request):
                     article_sub_verb = article_sub_verb.split("See also")
                     save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
+                                                           "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                            "title": title_sub_verb,
@@ -2612,6 +2638,7 @@ def generate_article_wiki(request):
                         if para_list[i] != '':
                             save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                                    "session_id": session_id,
+                                                                   "org_id": org_id,
                                                                    "eventId": create_event()['event_id'],
                                                                    'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                    "title": title,
@@ -2640,6 +2667,7 @@ def generate_article_wiki(request):
                     article_subject = article_subject.split("See also")
                     save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
+                                                           "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                            "title": subject,
@@ -2655,6 +2683,7 @@ def generate_article_wiki(request):
                             print(para_list[i])
                             save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                                    "session_id": session_id,
+                                                                   "org_id": org_id,
                                                                    "eventId": create_event()['event_id'],
                                                                    'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                    "title": title,
@@ -2693,6 +2722,7 @@ def generate_article_wiki(request):
                 article = article.split("See also")
                 save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                        "session_id": session_id,
+                                                       "org_id": org_id,
                                                        "eventId": create_event()['event_id'],
                                                        'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                        "title": title,
@@ -2710,6 +2740,7 @@ def generate_article_wiki(request):
                                                                "eventId": create_event()['event_id'],
                                                                'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                "title": title,
+                                                               "org_id": org_id,
                                                                "target_industry": target_industry,
                                                                "qualitative_categorization": qualitative_categorization,
                                                                "targeted_for": targeted_for,
@@ -2816,6 +2847,7 @@ def verify_article(request):
                     # saving paragraphs in article
                     save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
+                                                           "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo'][
                                                                'client_admin_id'],
@@ -2833,6 +2865,7 @@ def verify_article(request):
                                                            }, '34567897799')
                     save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
+                                                           "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo'][
                                                                'client_admin_id'],
@@ -2851,6 +2884,7 @@ def verify_article(request):
                 # saving article
                 save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                        "session_id": session_id,
+                                                       "org_id": org_id,
                                                        "eventId": create_event()['event_id'],
                                                        'client_admin_id': request.session['userinfo'][
                                                            'client_admin_id'],
@@ -2879,6 +2913,8 @@ def post_list(request):
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
+        org_id = request.session.get('org_id')
+
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2887,7 +2923,7 @@ def post_list(request):
             "team_member_ID": "34567897799",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -2914,7 +2950,7 @@ def post_list(request):
 
         for article in article_detail_list:
 
-            if article.get('user_id') == user_id:
+            if article.get('org_id') == org_id:
                 articles = {
                     'title': article.get('title'),
                     'paragraph': article.get('paragraph'),
@@ -2952,6 +2988,8 @@ def list_article_view(request):
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
+        org_id = request.session.get('org_id')
+
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -2960,7 +2998,7 @@ def list_article_view(request):
             "team_member_ID": "9992828281",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -2979,7 +3017,7 @@ def list_article_view(request):
         user_articles = []
         for article in article_detail_list:
 
-            if article.get('user_id') == user_id:
+            if article.get('org_id') == org_id:
                 articles = {
                     'title': article.get('title'),
                     'paragraph': article.get('paragraph'),
@@ -3101,6 +3139,8 @@ def post_detail(request):
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
+        org_id = request.session.get('org_id')
+
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -3109,7 +3149,7 @@ def post_detail(request):
             "team_member_ID": "100007001",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -3119,6 +3159,7 @@ def post_detail(request):
         response = requests.request("POST", url, headers=headers, data=data)
         ayrshare_info = json.loads(response.json())
         print("here we have", ayrshare_info)
+
         for data in ayrshare_info['data']:
             social_platforms = data['aryshare_details']
             for key, value in social_platforms.items():
@@ -3209,6 +3250,7 @@ def Save_Post(request):
         # date = datetime.now()
         # time=dd.strftime("%d:%m:%Y,%H:%M:%S")
         time = localtime()
+        org_id = request.session.get('org_id')
         test_date = str(localdate())
         date_obj = datetime.strptime(test_date, '%Y-%m-%d')
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
@@ -3263,6 +3305,7 @@ def Save_Post(request):
                 "field": {
                     "user_id": request.session['user_id'],
                     "session_id": session_id,
+                    "org_id": org_id,
                     "eventId": eventId,
                     'client_admin_id': request.session['userinfo']['client_admin_id'],
                     "title": title,
@@ -3350,7 +3393,9 @@ def most_recent_json(request):
     if 'session_id' and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
-
+        org_id = request.session.get('org_id')
+        print('this is org _id')
+        print(org_id)
         payload = {
             "cluster": "socialmedia",
             "database": "socialmedia",
@@ -3359,7 +3404,7 @@ def most_recent_json(request):
             "team_member_ID": "1163",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": org_id, },
             "update_field": {
                 "order_nos": 21
             },
@@ -3370,10 +3415,11 @@ def most_recent_json(request):
         posts = json.loads(response.json())
         user_id = str(request.session['user_id'])
         status = 'posted'
+
         post = []
         try:
             for row in posts['data']:
-                if user_id == str(row['user_id']):
+                if org_id == str(row['org_id']):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
@@ -3480,7 +3526,7 @@ def update_schedule(pk):
     return ('scheduled')
 
 
-def get_key(user_id):
+def get_key(title):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
@@ -3492,7 +3538,7 @@ def get_key(user_id):
         "team_member_ID": "100007001",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {"user_id": user_id},
+        "field": {"title": title},
         "update_field": {
             "order_nos": 21
         },
@@ -3501,6 +3547,7 @@ def get_key(user_id):
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
     post = json.loads(response.json())
+
     for article in post['data']:
         key = article['profileKey']
     return key
@@ -3613,7 +3660,8 @@ def Media_Post(request):
         except:
             pass
         user_id = request.session['user_id']
-        key = get_key(user_id)
+        owner_name = request.session['portfolio_info'][0]['owner_name']
+        key = get_key(owner_name)
         if len(splited) == 0:
             arguments = (
                 (postes, platforms, key, image, request, post_id),
@@ -3696,7 +3744,8 @@ def Media_schedule(request):
             string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
 
         user_id = request.session['user_id']
-        key = get_key(user_id)
+        owner_name = request.session['portfolio_info'][0]['owner_name']
+        key = get_key(owner_name)
         if len(splited) == 0:
             arguments = (
                 (postes, platforms, key, image, request, post_id, formart),
@@ -3730,6 +3779,11 @@ def social_media_channels(request):
     if request.method == "POST":
         step_2_manager = Step2Manager()
         username = request.session['username']
+        owner_name = request.session['portfolio_info'][0]['owner_name']
+        if username != owner_name:
+            messages.error(request, 'You are permitted to perform this action!')
+            messages.error(request, 'Only the owner of the organization can connect to social media channels')
+            return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
         email = request.session['userinfo']['email']
         name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
         org_id = request.session['org_id']
@@ -3745,19 +3799,18 @@ def social_media_channels(request):
         return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
     else:
         step_2_manager = Step2Manager()
-        username = request.session['username']
-        session = request.session['session_id']
-        print(session)
+
+        title = request.session['portfolio_info'][0]['owner_name']
         user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
-            username)
-        linked_accounts = check_connected_accounts(username)
+            title)
+        linked_accounts = check_connected_accounts(title)
         context_data = {'user_has_social_media_profile': user_has_social_media_profile,
                         'linked_accounts': linked_accounts}
         username = request.session['username']
         org_id = request.session['org_id']
 
         data = {
-            'username': username,
+            'username': title,
             'org_id': org_id,
         }
         social_media_request = step_2_manager.get_approved_user_social_media_request(
