@@ -16,6 +16,7 @@ const UnscheduledPage = () => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
+  const [isEmpty, setIsEmpty] = useState("");
   const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
   // const [readMore, setReadMore] = useState(true);
@@ -50,6 +51,9 @@ const UnscheduledPage = () => {
           setSuccess("Successfully fetched posts");
           let unscheduledData = response.data.Unscheduled_Posts.response;
           setUnscheduledPost(unscheduledData);
+          if(response.data.total_items <= 0){
+            setIsEmpty("You do not have any post")
+          }
           setCount(response.data.total_items);
           setPageCount(Math.ceil(response.data.total_items / perPage));
           setShowMorePages(pageCount > pagesToDisplay);
@@ -118,6 +122,7 @@ const UnscheduledPage = () => {
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {sucessMessage && <SuccessMessages>{sucessMessage}</SuccessMessages>}
+      <p className="text-red-600 mt-10 text-xl lg:mr-12">{isEmpty}</p>
 
       <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
       <ul className=' lg:h-auto grid gap-6 lg:mb-10 mb-6 '>

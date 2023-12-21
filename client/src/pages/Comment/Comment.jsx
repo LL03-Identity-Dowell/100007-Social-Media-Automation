@@ -17,6 +17,7 @@ function Comment({ show }) {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
+  const [isEmpty, setIsEmpty] = useState("");
   const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
 
@@ -38,6 +39,9 @@ function Comment({ show }) {
         .then((response) => {
           let data = response.data.paginated_posts;
           setCommentList(data);
+          if(data.total_items <= 0){
+            setIsEmpty("You do not have any posts")
+          }
           setSuccess("successfully fetch the comments");
           setError("");
           setCount(response.data.length);
@@ -70,6 +74,8 @@ function Comment({ show }) {
             <h2 className='text-3xl md:text-4xl '>Comments</h2>
           </div>
           <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
+            <p className="text-red-600 mt-10 text-xl lg:mr-12">{isEmpty}</p>
+          
           <ul className='space-y-12 mt-6'>
             {commentList.map((item) => (
               <li className=' m-auto list-none' key={item.article_id}>
