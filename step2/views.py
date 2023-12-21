@@ -53,15 +53,6 @@ global PEXELS_API_KEY
 
 PEXELS_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
 
-# helper functions
-
-
-def under_maintenance(request):
-    context = {
-        'message': "Kindly bear with us and check back in a few.",
-    }
-    return render(request, 'under_maintenance.html', context)
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 def frontend_api_request(request):
@@ -74,39 +65,6 @@ def frontend_api_request(request):
         response_data = {'error': 'API KEY not found', 'status_code': 400}
 
     return JsonResponse(response_data, status=response_data['status_code'])
-
-
-def handler404(request, exception):
-    return render(request, 'errors/404.html', status=404)
-
-
-def handler500(request):
-    return render(request, 'errors/500.html', status=500)
-
-
-def exit_view(request):
-    session_id_from_frontend = request.session.session_key
-    print("frontend", session_id_from_frontend)
-    session_id_from_backend = request.session.get('session_id')
-    print("backend", session_id_from_backend)
-    print("Before flushing:", request.session.get('session_id'))
-    request.session.flush()
-    print("After flushing:", request.session.get('session_id'))
-    # Redirect to another page
-    return redirect("https://100093.pythonanywhere.com/")
-
-
-def dowell_login(request):
-    try:
-        session_id = request.GET.get('session_id', None)
-        request.session["session_id"] = session_id
-        return redirect("http://127.0.0.1:8000/api/v1/main")
-    except:
-        return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
-
-
-def forget_password(request):
-    return render(request, 'main.html')
 
 
 @csrf_exempt
@@ -139,32 +97,6 @@ class LogoutUser(APIView):
                 return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
         else:
             return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
-
-
-@csrf_exempt
-@xframe_options_exempt
-def logout(request):
-    return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def reset_password(request):
-    return render(request, 'reset_password.html')
-    # return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def confirm_reset_password(request):
-    # return render(request, 'login.html')
-    return HttpResponseRedirect(reverse("generate_article:login"))
-
-
-@csrf_exempt
-@xframe_options_exempt
-def register(request):
-    return render(request, 'signup.html')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -3357,50 +3289,6 @@ class PostDetailDropdownView(AuthenticatedBaseView):
 
 
 '''user settings ends here'''
-
-
-@csrf_exempt
-@xframe_options_exempt
-def topics(request):
-    return render(request, 'topics.html')
-
-# Added view function for address page
-
-
-def address(request):
-    return render(request, 'address.html')
-
-
-@login_required(login_url='/admin/login/')
-@user_passes_test(lambda u: u.is_superuser)
-def User_Info_ListView(request):
-    print("User Info")
-    string = 'mongodb+srv://qruser:qr_12345@cluster0.n2ih9.mongodb.net/DB_IMAGE?retryWrites=true&w=majority'
-    connection = MongoClient(string)
-    db = connection['social-media-auto']
-    collection = db['user_info']
-    print(collection.find())
-    user = []
-    for doc in collection.find():
-        print("Document")
-        print(doc)
-        user.append(doc)
-    user.reverse()
-    paginator = Paginator(user, 100)  # Show 100 files per page.
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'step2/user_info_list.html', {'page_obj': page_obj})
-
-
-@login_required(login_url='/admin/login/')
-@user_passes_test(lambda u: u.is_superuser)
-def User_DetailView(request, id):
-    string = 'mongodb+srv://qruser:qr_12345@cluster0.n2ih9.mongodb.net/DB_IMAGE?retryWrites=true&w=majority'
-    connection = MongoClient(string)
-    db = connection['social-media-auto']
-    collection = db['user_info']
-    user = collection.find_one({'_id': ObjectId(id)})
-    return render(request, 'step2/user_info_detail.html', {'user': user})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
