@@ -8,12 +8,19 @@ import CommentModal from "./_components/CommentModal";
 import PostedTo from "./_components/PostedTo";
 import Loading from "../../components/Loading";
 
+const page = 1;
+
 function Comment({ show }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [commentList, setCommentList] = useState([]);
+  const [comments, setComments] = useState({
+    paginatedPosts: [],
+    page: 2,
+    totalPages: 32,
+    totalItems: 156,
+  });
 
   useEffect(() => {
     show();
@@ -22,15 +29,22 @@ function Comment({ show }) {
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
-      const url = `http://127.0.0.1:8000/api/v1/comments/?page=${page + 1
-    }&order=newest`;
+      const url = `http://127.0.0.1:8000/api/v1/comments/?page=${
+        page + 1
+      }&order=newest`;
       await axios
         .get(url, {
           withCredentials: true,
         })
         .then((response) => {
-          let data = response.data.recent_posts;
-          setCommentList(data);
+          const { paginated_posts, page, totalPages, totalItems } =
+            response.data;
+          setComments({
+            paginatedPosts: paginated_posts,
+            page,
+            totalPages,
+            totalItems,
+          });
           setSuccess("successfully fetch the comments");
           setError("");
         })
@@ -54,7 +68,7 @@ function Comment({ show }) {
             <h2 className='text-3xl md:text-4xl '>Comments</h2>
           </div>
           <ul className='space-y-12'>
-            {commentList.map((item) => (
+            {comments.paginatedPosts.map((item) => (
               <li className='w-[90%] m-auto list-none' key={item.article_id}>
                 <div className='flex items-center justify-between'>
                   <p className='px-2 py-0 font-bold lg:px-6 text-md lg:text-xl text-customTextBlue dark:text-white '>

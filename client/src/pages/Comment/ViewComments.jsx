@@ -32,7 +32,7 @@ function ViewComments({ show }) {
           setError("");
         })
         .catch(() => {
-          setError("Server error, Please try again later");
+          setError("The post does not have aryshare ID");
           setSuccess("");
         });
       setLoading(false);
