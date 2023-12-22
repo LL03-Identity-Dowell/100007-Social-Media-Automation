@@ -220,6 +220,10 @@ For example http://127.0.0.1:8000/website/api/v1/category/?session_id=ep0hu5u2ms
 Doing this will create a new session for the user. In subsequent calls to the backend please send the credential headers
 in the request to maintain a user's session
 
+## API Documentation
+See [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for detailed information on backend APIs.
+
+
 ## License
 <http://www.apache.org/licenses/>
 (https://choosealicense.com/licenses/apche/)
