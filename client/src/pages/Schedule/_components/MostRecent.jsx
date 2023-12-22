@@ -13,6 +13,7 @@ const MostRecent = () => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
+  const [isEmpty, setIsEmpty] = useState("");
   const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
 
@@ -37,6 +38,9 @@ const MostRecent = () => {
           let data = response.data.MostRecentPosts.response;
           setArticles(data);
           // console.log(response.data);
+          if(data.total_items <= 0){
+            setIsEmpty("You do not have any recent posts")
+          }
           setCount(response.data.total_items);
           setPageCount(Math.ceil(response.data.total_items / perPage));
           setShowMorePages(pageCount > pagesToDisplay);
@@ -104,7 +108,7 @@ const MostRecent = () => {
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       <p className="px-6 py-2 italic">Total article count: {count}</p>
-
+      <p className="text-red-600 mt-10 text-xl lg:mr-12">{isEmpty}</p>
       {/* <div> */}
         {/* <div className=" grid gap-6 lg:mb-10 border border-green-700"> */}
           <div className=" text-sm text-left text-gray-500 dark:text-gray-400 ">

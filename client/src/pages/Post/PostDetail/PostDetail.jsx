@@ -120,12 +120,12 @@ function PostDetail({ show }) {
 
         if (location.state && location.state.data) {
 
-            const { post_id, title, paragraph, source } = location.state.data;
+            const { post_id, title, paragraph, article, source } = location.state.data;
 
             let payload = {
                 post_id: post_id,
                 title: title,
-                paragraph: paragraph,
+                paragraph: paragraph || article,
                 source: source
             }
 

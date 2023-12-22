@@ -492,94 +492,70 @@ class GenerateArticleView(AuthenticatedBaseView):
                 openai.api_key = settings.OPENAI_KEY
 
                 # Build prompt
-                prompt_limit = 280
+                prompt_limit = 2000
+                min_characters = 500
 
                 # Modify the prompt to include the formatted user data
                 prompt = (
                     f"Write an article about {RESEARCH_QUERY}"
-                    f" Generate only 2 paragraphs."
-                    f" Include the following at the end of the article {formatted_hashtags}."
-                    f" Also, append {formatted_cities} to the end of the article ."
+                    f" Include  {formatted_hashtags} at the end of the article."
+                    f" Also, append {formatted_cities} to the end of the article."
+                    f" Ensure that the generated content is a minimum of {min_characters} characters in length."
                     [:prompt_limit]
                     + "..."
                 )
+                # Generate article using OpenAI's GPT-3
+                response = openai.Completion.create(
+                    engine="text-davinci-003",
+                    prompt=prompt,
+                    temperature=0.5,
+                    max_tokens=1024,
+                    n=1,
+                    stop=None,
+                    timeout=60,
+                )
+                article = response.choices[0].text
+                paragraphs = [p.strip()
+                              for p in article.split("\n\n") if p.strip()]
+                article_str = "\n\n".join(paragraphs)
 
-                # Variables for loop control
-                duration = 4   # Total duration in seconds
-                interval = 0.9  # Interval between generating articles in seconds
-                start_time = time.time()
+                sources = urllib.parse.unquote("")
+                event_id = create_event()['event_id']
+                user_id = request.session['user_id']
+                client_admin_id = request.session['userinfo']['client_admin_id']
+                # approval = get_client_approval(user_id)
+                hashtags_in_last_paragraph = set(
+                    word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
+                for i in range(len(paragraphs) - 1):
+                    paragraphs[i] += " " + " ".join(hashtags_in_last_paragraph)
 
-                def generate_and_save_article():
-                    nonlocal start_time
+                for i in range(len(paragraphs)):
+                    if paragraphs[i] != "":
+                        step3_data = {
+                            "user_id": user_id,
+                            "session_id": session_id,
+                            "eventId": event_id,
+                            'client_admin_id': client_admin_id,
+                            "title": RESEARCH_QUERY,
+                            "source": sources,
+                            "paragraph": paragraphs[i],
+                            "citation_and_url": sources,
 
-                    # Generate article using OpenAI's GPT-3
-                    response = openai.Completion.create(
-                        engine="text-davinci-003",
-                        prompt=prompt,
-                        temperature=0.5,
-                        max_tokens=1024,
-                        n=1,
-                        stop=None,
-                        timeout=60,
-                    )
-                    print("Here we have repsonse from openai", response)
-                    article = response.choices[0].text
-                    paragraphs = article.split("\n\n")
-                    article_str = "\n\n".join(paragraphs)
-
-                    sources = urllib.parse.unquote("")
-
-                    try:
-                        with transaction.atomic():
-                            event_id = create_event()['event_id']
-                            user_id = request.session['user_id']
-                            client_admin_id = request.session['userinfo']['client_admin_id']
-
-                            # Save data for step 3
-                            step3_data = {
-                                "user_id": user_id,
-                                "session_id": session_id,
-                                "eventId": event_id,
-                                'client_admin_id': client_admin_id,
-                                "title": RESEARCH_QUERY,
-                                "source": sources,
-                                "paragraph": article_str,
-                                "citation_and_url": sources,
-
-                            }
-                            save_data('step3_data', 'step3_data',
-                                      step3_data, '34567897799')
-                            # Save data for step 2
-                            step2_data = {
-                                "user_id": user_id,
-                                "session_id": session_id,
-                                "eventId": event_id,
-                                'client_admin_id': client_admin_id,
-                                "title": RESEARCH_QUERY,
-                                "paragraph": article_str,
-                                "source": sources,
-                                "citation_and_url": sources,
-                            }
-                            save_data('step2_data', 'step2_data',
-                                      step2_data, '9992828281')
-
-                    except:
-                        return Response({"message": "Article did not save successfully"}, status=status.HTTP_400_BAD_REQUEST)
-
-                    # Update start_time for the next iteration
-                    start_time = time.time()
-
-                # Create ThreadPoolExecutor
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    while True:
-                        if time.time() - start_time >= duration:
-                            break
-
-                        executor.submit(generate_and_save_article)
-
-                        # Wait before generating the next article
-                        time.sleep(interval)
-
+                        }
+                        save_data('step3_data', 'step3_data',
+                                  step3_data, '34567897799')
+                step2_data = {
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    'client_admin_id': client_admin_id,
+                    "title": RESEARCH_QUERY,
+                    "paragraph": article_str,
+                    "source": sources,
+                    "citation_and_url": sources,
+                }
+                save_data('step2_data', 'step2_data',
+                          step2_data, '9992828281')
                 end_datetime = datetime.now()
                 time_taken = end_datetime - start_datetime
                 print(f"Task started at: {start_datetime}")
@@ -587,7 +563,6 @@ class GenerateArticleView(AuthenticatedBaseView):
                 print(f"Total time taken: {time_taken}")
 
                 return Response({"message": "Article saved successfully"}, status=status.HTTP_200_OK)
-
         else:
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -687,6 +662,7 @@ class WriteYourselfView(AuthenticatedBaseView):
                             'client_admin_id'],
                             "title": title,
                             "paragraph": paragraph[i],
+                            "article": article_text_area,
                             "source": source,
                             # 'dowelltime': dowellclock
                         }, '34567897799')
@@ -747,20 +723,33 @@ class PostListView(AuthenticatedBaseView):
             user_id = str(request.session['user_id'])
             article_detail_list = response_data_json.get('data', [])
 
-            datas = article_detail_list
-
             posts = []
+            unique_articles = set()
 
             for article in article_detail_list:
-
                 if article.get('user_id') == user_id:
-                    articles = {
-                        'post_id': article.get('_id'),
-                        'title': article.get('title'),
-                        'paragraph': article.get('paragraph'),
-                        'source': article.get('source'),
-                    }
-                    posts.append(articles)
+                    title = article.get('title')
+                    paragraph = article.get('paragraph')
+                    source = article.get('source')
+                    article_content = article.get('article', ' ')
+                    post_id = article.get('_id')
+
+                    if article_content not in unique_articles:
+                        unique_articles.add(article_content)
+                        posts.append({
+                            'post_id': post_id,
+                            'title': title,
+                            'paragraph': paragraph,
+                            'source': source,
+                            'article': article_content,
+                        })
+                    else:
+                        posts.append({
+                            'post_id': post_id,
+                            'title': title,
+                            'paragraph': paragraph,
+                            'source': source,
+                        })
             posts = list(reversed(posts))
 
             # Pagination
@@ -777,15 +766,25 @@ class PostListView(AuthenticatedBaseView):
 
             # Serialize page_post to JSON-serializable format
             page_post_data = list(page_post)
-            serialized_page_post = [
-                {
+            serialized_page_post = []
+
+            for post in page_post_data:
+                paragraph_post = {
                     'post_id': post['post_id'],
                     'title': post['title'],
-                    'paragraph': post['paragraph'],
-                    'source': post['source']
+                    'paragraphs': post['paragraph'],
+                    'source': post['source'],
                 }
-                for post in page_post_data
-            ]
+                serialized_page_post.append(paragraph_post)
+
+                if 'article' in post:
+                    article_post = {
+                        'post_id': post['post_id'],
+                        'title': post['title'],
+                        'article': post['article'],
+                        'source': post['source'],
+                    }
+                    serialized_page_post.append(article_post)
 
             response_data = {
                 'posts': serialized_page_post,
@@ -850,18 +849,29 @@ class PostDetailView(AuthenticatedBaseView):
                 data = request.data
                 post_id = data.get('post_id')
                 title = data.get("title")
-                paragraph = data.get("paragraph")
-                paragraph = paragraph.split('\r\n')
-                source = data.get("source")
-                # if "\r\n" in source:
-                #     source = source.split('\r\n')
+                source = data.get('source')
 
-                post = {
-                    "_id": post_id,
-                    "title": title,
-                    "paragraph": paragraph,
-                    # "source": source
-                }
+                if 'paragraph' in data:
+                    paragraph = data.get('paragraph')
+                    paragraph = paragraph.split('\r\n')
+
+                    post = {
+                        "_id": post_id,
+                        "title": title,
+                        "paragraph": paragraph,
+                        # "source": source
+                    }
+                elif 'article' in data:
+                    article = data.get("article")
+
+                    post = {
+                        "_id": post_id,
+                        "title": title,
+                        "article": article,
+                        # "source": source
+                    }
+                else:
+                    return Response({'error': 'Invalid data format'}, status=400)
             a = random.randint(1, 9)
             query = title
             output = []
@@ -1195,9 +1205,6 @@ class LinkedAccountsJson(AuthenticatedBaseView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class MostRecentJSON(APIView):
-    permission_classes = ()
-    authentication_classes = ()
-
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
