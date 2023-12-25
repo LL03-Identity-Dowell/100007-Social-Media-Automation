@@ -1,15 +1,14 @@
-from itertools import chain
 import concurrent.futures
 import datetime
 import json
 import random
-import time
 import traceback
 import urllib
 import urllib.parse
 from datetime import datetime
 # image resizing
 from io import BytesIO
+from itertools import chain
 
 # from website.views import get_client_approval
 import openai
@@ -17,11 +16,8 @@ import pytz
 import requests
 import wikipediaapi
 from PIL import Image
-from bson import ObjectId
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -30,7 +26,6 @@ from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
-from pymongo import MongoClient
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
@@ -43,7 +38,8 @@ from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
-                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment)
+                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
+                     encode_json_data)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -913,6 +909,38 @@ class SavePostView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+class EditPostView(AuthenticatedBaseView):
+    def get(self, request, post_id, *args, **kwargs):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' and 'username' in request.session:
+            post_data = {
+                "product_name": "Social Media Automation",
+                "details": {
+                    "_id": post_id,
+                    "field": {"_id": post_id},
+                    "title": "this is another title",
+                    "database": "socialmedia",
+                    "collection": "step3_data",
+                    "team_member_ID": "34567897799",
+                    "function_ID": "ABCDE",
+                    "cluster": "socialmedia",
+                    "document": "step3_data",
+                    "command": "update",
+                    "flag": "editing",
+                    "name": "Edit Post",
+                    "update_field": {
+                        "order_nos": 21,
+
+                    }
+                }
+            }
+            token = encode_json_data(post_data)
+            response_data = {
+                'redirect_url': f'https://ll04-finance-dowell.github.io/100058-DowellEditor-V2/?token={str(token)}'
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 '''step-3 Ends here'''
 
 '''step-4 starts here'''
