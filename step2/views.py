@@ -3009,7 +3009,6 @@ class UserApprovalView(AuthenticatedBaseView):
 
         print(response)
         response_data_json = json.loads(response.json())
-        print("Here we have data from this page", response_data_json)
         user_id = str(request.session['user_id'])
         if len(response_data_json['data']) == 0:
             status = 'insert'
