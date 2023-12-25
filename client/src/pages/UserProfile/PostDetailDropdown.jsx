@@ -168,7 +168,7 @@ const PostDetailDropdown = ({ close }) => {
                   type='button'
                   disabled={!input1}
                   className={`bg-customBlue text-white p-2.5 px-3 rounded-r-[20px] ${
-                    !input1 && "opacity-80"
+                    !input1 && "opacity-90"
                   }`}
                   onClick={handleBtn1click}
                 >
@@ -219,7 +219,7 @@ const PostDetailDropdown = ({ close }) => {
                   type='button'
                   disabled={!input2}
                   className={`bg-customBlue text-white p-2.5 px-3 rounded-r-[20px] ${
-                    !input2 && "opacity-80"
+                    !input2 && "opacity-90"
                   }`}
                   onClick={handleBtn2click}
                 >
@@ -272,7 +272,7 @@ const PostDetailDropdown = ({ close }) => {
                   type='button'
                   disabled={!input3}
                   className={`bg-customBlue text-white p-2.5 px-3 rounded-r-[20px] ${
-                    !input3 && "opacity-80"
+                    !input3 && "opacity-90"
                   }`}
                   onClick={handleBtn3click}
                 >
@@ -313,7 +313,7 @@ const PostDetailDropdown = ({ close }) => {
           <button
             type='submit'
             className={`px-10 py-2 text-white rounded-xl bg-customBlue ${
-              !atLeastOneCheckboxSelected && "opacity-80"
+              !atLeastOneCheckboxSelected && "opacity-90 cursor-not-allowed"
             } opacity-100`}
             disabled={!atLeastOneCheckboxSelected}
           >

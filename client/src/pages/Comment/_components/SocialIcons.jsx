@@ -1,7 +1,7 @@
 const SocialIcons = ({ socialArray }) => {
   return (
     <ul className='flex justify-center gap-8 mb-4'>
-      {socialArray.map((each) => (
+      {socialArray?.map((each) => (
         <li key={each}>
           {each === "facebook" && (
             <label
