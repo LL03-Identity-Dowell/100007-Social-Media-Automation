@@ -15,6 +15,7 @@ const Article = ({ show }) => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
+  const [isEmpty, setIsEmpty] = useState("");
   const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
 
@@ -50,6 +51,9 @@ const Article = ({ show }) => {
         setLoading(false);
         let data = response.data;
         // console.log(data);
+        if(data.total_items <= 0){
+          setIsEmpty("You do not have any article")
+        }
         setArticleData(data.Articles);
         setCount(data.total_items);
         setPageCount(Math.ceil(data.total_items / perPage));
@@ -103,7 +107,7 @@ const Article = ({ show }) => {
           </div>
         </Link>
       </div>
-
+      <p className="text-red-600 mt-10 text-xl lg:mr-12">{isEmpty}</p>
       <div className="mb-6">
         <div className=" lg:h-auto grid gap-6 lg:gap-10 pb-10">
           <div className="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
