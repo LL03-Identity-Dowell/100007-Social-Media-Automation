@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
@@ -60,6 +60,12 @@ function ViewComments({ show }) {
         <h1 className='text-3xl text-center md:text-4xl text-customTextBlue'>
           Comments
         </h1>
+        <Link
+          to='/comment'
+          className='px-3 py-2 mt-4 text-white rounded-md bg-customGray md:py-3 md:px-8'
+        >
+          Go back
+        </Link>
         {hasComment ? (
           <div>
             {comments?.twitter.length > 0 && (
