@@ -90,7 +90,7 @@ const ScheduledPage = () => {
 
 
   return (
-    <div className='px-6'>
+    <div className='px-6 w-full'>
       <h4 className='ml-5 italic'>Total posts count: {articles?.totalPosts}</h4>
       <ul className='space-y-4 '>
         {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
@@ -115,13 +115,18 @@ const ScheduledPage = () => {
                   {item?.paragraph}
                 </p> */}
                 <ReadMoreParagraph text={item.paragraph} />
+                  <img
+                className='w-full mt-6 rounded-lg md:w-40 aspect-square md:mt-20 md:hidden'
+                src={item?.image}
+                alt='image'
+              />
                 <span className='flex items-center self-end mt-3 gap-x-2'>
                   <div className='icons8-clock'></div>
                   <p className='text-[#333] text-sm'>{item?.Date}</p>
                 </span>
               </div>
               <img
-                className='w-full mt-6 rounded-lg md:w-40 aspect-square md:mt-20'
+                className='w-full mt-6 rounded-lg md:w-40 aspect-square md:mt-20 hidden md:block'
                 src={item?.image}
                 alt='image'
               />

@@ -197,7 +197,7 @@ function PostDetail({ show }) {
 
 
     return (
-        <div className='m-4 lg:m-8'>
+        <div className='m-4 lg:m-8 mb-8'>
             {loading && <Loading />}
             {error && <ErrorMessages>{error}</ErrorMessages>}
             {success && <SuccessMessages>{success}</SuccessMessages>}
@@ -307,7 +307,7 @@ function PostDetail({ show }) {
                 {
                     postDetailData && newParagraphs.map((paragraph, index) => (
                         <div className='text-base post-paragraph' key={index}>
-                            {index > 0 && paragraph}
+                            {index >= 0 && paragraph}
                         </div>
                     ))
                 }

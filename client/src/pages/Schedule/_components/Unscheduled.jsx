@@ -16,7 +16,7 @@ const UnscheduledPage = () => {
   const [page, setPage] = useState(0);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
-  const [pagesToDisplay] = useState(7);
+  const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
   // const [readMore, setReadMore] = useState(true);
 
@@ -113,14 +113,14 @@ const UnscheduledPage = () => {
   };
 
   return (
-    <div className='relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto'>
+    <div className='relative max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto mb-6'>
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {sucessMessage && <SuccessMessages>{sucessMessage}</SuccessMessages>}
 
       <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
-      <ul className='overflow-y-scroll lg:overflow-y-auto h-[70vh] lg:h-auto grid gap-6 lg:mb-10 '>
+      <ul className=' lg:h-auto grid gap-6 lg:mb-10 mb-6 '>
         {unscheduledPost.map((item) => (
           <li
             id={item.PK}
@@ -134,7 +134,13 @@ const UnscheduledPage = () => {
               </p>
 
               <ReadMoreParagraph text={item.paragraph} />
-
+              <div className="mr-4 lg:mr-8 block md:hidden">
+                      <img
+                        className="w-full h-50 rounded-lg mt-6 md:mt-20 "
+                        src={item.image}
+                        alt="image"
+                      />
+                    </div>
               <div className='self-end space-x-8'>
                 <PostModal
                   article={item}
@@ -152,7 +158,7 @@ const UnscheduledPage = () => {
                 ></ScheduleModal>
               </div>
             </div>
-            <div className="mr-4 lg:mr-8">
+            <div className="mr-4 lg:mr-8 hidden md:block">
                       <img
                         className="w-50 h-40 rounded-lg mt-6 md:mt-20 "
                         src={item.image}
@@ -173,14 +179,14 @@ const UnscheduledPage = () => {
         marginPagesDisplayed={2}
         onPageChange={handlePageClick}
         previousLabel={
-          <span className='text-black text-xs md:text-md'>{page > 0 ? "Previous" : ""}</span>
+          <span className='text-black text-xs md:text-lg'>{page > 0 ? "Previous" : ""}</span>
         }
         nextLabel={
-          <span className='text-black text-xs md:text-md'>
+          <span className='text-black text-xs md:text-lg'>
             {page < pageCount - 1 ? "Next" : " "}
           </span>
         }
-        containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll '
+        containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-x-auto'
         pageClassName='p-2 rounded-full cursor-pointer md:text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
         previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
         nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
