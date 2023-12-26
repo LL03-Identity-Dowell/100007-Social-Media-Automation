@@ -638,6 +638,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                    "eventId": create_event()['event_id'],
                                                                    'client_admin_id': request.session['userinfo']['client_admin_id'],
                                                                    "title": title,
+                                                                   "org_id": org_id,
                                                                    "paragraph": para_list[i],
                                                                    "citation_and_url": page.fullurl,
                                                                    # 'dowelltime': dowellclock
