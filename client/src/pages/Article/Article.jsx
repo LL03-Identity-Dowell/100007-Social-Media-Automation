@@ -40,7 +40,7 @@ const Article = ({ show }) => {
     // Make a GET request to the API endpoint with the session_id
     axios
       .get(
-        `/v1/list-articles/?page=${page + 1
+        `${import.meta.env.VITE_APP_BASEURL}/list-articles/?page=${page + 1
         }&order=newest`,
         {
           withCredentials: true,
