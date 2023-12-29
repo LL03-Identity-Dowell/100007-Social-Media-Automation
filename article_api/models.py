@@ -99,3 +99,15 @@ class Sentences(BaseModel):
 
     class Meta:
         verbose_name_plural = 'Sentence grammar'
+
+
+class SentenceResults(BaseModel):
+    sentence_grammar = models.ForeignKey(Sentences, on_delete=models.CASCADE)
+    sentence = models.TextField(max_length=400)
+    sentence_type = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.sentence
+
+    class Meta:
+        verbose_name_plural = 'Sentence results'
