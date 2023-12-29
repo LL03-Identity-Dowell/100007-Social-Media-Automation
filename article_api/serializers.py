@@ -27,6 +27,8 @@ class SentenceSerializer(serializers.ModelSerializer):
     subject_number = serializers.ChoiceField(choices=NUMBERS, default='singular')
     object_number = serializers.ChoiceField(choices=NUMBERS, default='singular')
     subject = serializers.CharField(required=True, max_length=100)
+    verb = serializers.CharField(required=True, max_length=100)
+    adjective = serializers.CharField(required=True, max_length=100)
 
     class Meta:
         model = Sentences

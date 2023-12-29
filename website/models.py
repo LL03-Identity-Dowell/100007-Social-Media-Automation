@@ -19,7 +19,7 @@ class User(models.Model):
     email = models.EmailField(blank=False)
 
     def __str__(self):
-        return self.email
+        return str(self.email)
 
     class Meta:
         verbose_name_plural = 'Users'
@@ -66,7 +66,7 @@ class IndustryData(BaseModel):
     target_product = models.CharField(max_length=100, blank=False)
 
     def __str__(self):
-        return self.user
+        return self.user.email
 
 
 class Sentences(BaseModel):
