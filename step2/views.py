@@ -38,7 +38,8 @@ from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
-                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment)
+                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
+                     encode_json_data)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -908,6 +909,38 @@ class SavePostView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+class EditPostView(AuthenticatedBaseView):
+    def get(self, request, post_id, *args, **kwargs):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' and 'username' in request.session:
+            post_data = {
+                "product_name": "Social Media Automation",
+                "details": {
+                    "_id": post_id,
+                    "field": {"_id": post_id},
+                    "title": "this is another title",
+                    "database": "socialmedia",
+                    "collection": "step3_data",
+                    "team_member_ID": "34567897799",
+                    "function_ID": "ABCDE",
+                    "cluster": "socialmedia",
+                    "document": "step3_data",
+                    "command": "update",
+                    "flag": "editing",
+                    "name": "Edit Post",
+                    "update_field": {
+                        "order_nos": 21,
+
+                    }
+                }
+            }
+            token = encode_json_data(post_data)
+            response_data = {
+                'redirect_url': f'https://ll04-finance-dowell.github.io/100058-DowellEditor-V2/?token={str(token)}'
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 '''step-3 Ends here'''
 
 '''step-4 starts here'''
