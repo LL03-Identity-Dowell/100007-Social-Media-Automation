@@ -1,20 +1,20 @@
-from datetime import datetime
 import json
+from datetime import datetime
+
 import requests
 from django.contrib import messages
 from django.db import transaction
-from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
+from django_q.tasks import async_task
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
-from credits.constants import STEP_1_SUB_SERVICE_ID
-from credits.credit_handler import CreditHandler
 from step2.views import create_event
 from website.forms import IndustryForm, SentencesForm
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
@@ -22,11 +22,13 @@ from website.models import User
 from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer
 
+
 def under_maintenance(request):
     context = {
         'message': "Kindly bear with us and check back in a few.",
     }
     return render(request, 'under_maintenance.html', context)
+
 
 def get_client_approval(user):
     url = "http://uxlivinglab.pythonanywhere.com/"
@@ -66,7 +68,6 @@ def get_client_approval(user):
     except:
         aproval = {'topic': 'False'}
     return (aproval)
-
 
 
 @csrf_exempt
@@ -129,7 +130,8 @@ def index(request):
                     "objmod": adjective,
                     "email": email,
                     'user': user,
-                    'approve': topic
+                    'approve': topic,
+                    'topic': sentencesForm.cleaned_data['topic']
 
                 }
 
@@ -152,13 +154,13 @@ def index(request):
                     'event_id': create_event()['event_id'],
                     'client_admin_id': request.session['userinfo']['client_admin_id']
                 }
-                userid=request.session['user_id']
- 
+                userid = request.session['user_id']
+
                 print(topic)
                 if topic['topic'] == 'True':
-                    # async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
-                    # return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
-                    pass
+                    async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
+                    return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+
                 else:
 
                     def api_call(grammar_arguments=None):
@@ -659,7 +661,6 @@ def schedule(request):
 
 def login(request):
     return render(request, 'login.html')
-
 
 
 @csrf_exempt

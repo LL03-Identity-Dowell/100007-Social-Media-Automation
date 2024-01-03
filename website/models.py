@@ -23,7 +23,6 @@ class User(models.Model):
 
     class Meta:
         verbose_name_plural = 'Users'
-        db_table = "Emails"
 
 class Category(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='categories')
