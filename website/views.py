@@ -72,6 +72,44 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         objdet = sentence_serializer.data['object_determinant']
         adjective = sentence_serializer.data['adjective']
 
+        # ToDo: Remove the code below after testing
+        topic = {'topic': 'True', 'article': 'False'}
+        if topic['topic'] == 'True':
+            auto_strings = {
+                "object": object,
+                "subject": subject,
+                "verb": verb,
+                "objdet": objdet,
+                "objmod": adjective,
+                "email": email,
+                'user': user,
+                'approve': topic,
+                'topic': sentence_serializer.validated_data['topic'],
+
+            }
+
+            data_di = {
+                'target_product': industry_serializer.validated_data['target_product'],
+                'target_industry': industry_serializer.validated_data['category'].name,
+                'subject_determinant': sentence_serializer.validated_data.get('subject_determinant', ''),
+                'subject': subject,
+                'subject_number': sentence_serializer.validated_data['subject_number'],
+                'object_determinant': objdet,
+                'object': object,
+                'object_number': sentence_serializer.validated_data['object_number'],
+                'adjective': adjective,
+                'verb': verb,
+                "email": email,
+                'user_id': request.session['user_id'],
+                "session_id": request.session["session_id"],
+                "org_id": request.session['org_id'],
+                'username': request.session['username'],
+                'event_id': create_event()['event_id'],
+                'client_admin_id': request.session['userinfo']['client_admin_id']
+            }
+            async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
+            return Response({'message': 'Your Sentences are being generated'})
+
         def api_call(grammar_arguments=None):
             if grammar_arguments is None:
                 grammar_arguments = {}
@@ -251,7 +289,6 @@ class UserTopicAPIView(generics.ListCreateAPIView):
             return Response(user_topic_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 def get_event_id():
     dd = datetime.now()
     time = dd.strftime("%d:%m:%Y,%H:%M:%S")
@@ -354,6 +391,7 @@ def get_client_approval(user):
         aproval = {'topic': 'False'}
     return (aproval)
 
+
 class SelectedResultAPIView(generics.CreateAPIView):
     """
 
@@ -414,7 +452,7 @@ class SelectedResultAPIView(generics.CreateAPIView):
         if topic.get('article') == 'True':
             async_task("automate.services.generate_article",
                        data_dic, hook='automate.services.hook_now2')
-            print('yes.......o')
+            return Response({'message': 'You sentences are being ranked in the background'})
         else:
             pass
 
