@@ -1,15 +1,14 @@
-from itertools import chain
 import concurrent.futures
 import datetime
 import json
 import random
-import time
 import traceback
 import urllib
 import urllib.parse
 from datetime import datetime
 # image resizing
 from io import BytesIO
+from itertools import chain
 
 # from website.views import get_client_approval
 import openai
@@ -17,11 +16,8 @@ import pytz
 import requests
 import wikipediaapi
 from PIL import Image
-from bson import ObjectId
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -30,7 +26,6 @@ from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
-from pymongo import MongoClient
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
@@ -3300,9 +3295,10 @@ class CreatePostComments(AuthenticatedBaseView):
                 return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
             user_id = request.session.get('user_id')
             post_data = get_post_by_id(post_id=post_id, user_id=user_id)
-            profile_key = post_data.get('profile_key')
+            user_id = request.session['user_id']
+            profile_key = get_key(user_id)
 
-            if not post_data.get('post_response'):
+            if not post_data or not post_data.get('post_response'):
                 return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
             platforms = list(serializer_data.validated_data.get('platforms'))
             comment = serializer_data.validated_data.get('comment')
@@ -3358,9 +3354,10 @@ class PostComments(AuthenticatedBaseView):
         if 'session_id' and 'username' in request.session:
             user_id = request.session.get('user_id')
             post_data = get_post_by_id(post_id=post_id, user_id=user_id)
-            profile_key = post_data.get('profile_key')
+            user_id = request.session['user_id']
+            profile_key = get_key(user_id)
 
-            if not post_data.get('post_response'):
+            if not post_data or not post_data.get('post_response'):
                 return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
             aryshare_post_id = post_data.get(
                 'post_response').get('posts')[0].get('id')
@@ -3381,7 +3378,8 @@ class DeletePostComment(AuthenticatedBaseView):
                 return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
             user_id = request.session.get('user_id')
             post_data = get_post_by_id(post_id=post_id, user_id=user_id)
-            profile_key = post_data.get('profile_key')
+            user_id = request.session['user_id']
+            profile_key = get_key(user_id)
             platform = serializer_data.validated_data.get('platform')
             response = delete_post_comment(
                 comment_id=serializer_data.validated_data.get('comment_id'),

@@ -363,7 +363,7 @@ def delete_post_comment(comment_id: str, profile_key: str, platform: str):
 
     data = json.dumps(payload)
 
-    url = f'https://app.ayrshare.com/api/comments/{str(comment_id)}/'
+    url = f'https://app.ayrshare.com/api/comments/{str(comment_id)}/?platform={str(platform)}&searchPlatformId=true'
     r = requests.delete(url, headers=headers, data=data)
 
     return r.json()
