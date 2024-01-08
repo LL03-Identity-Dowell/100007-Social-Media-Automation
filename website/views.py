@@ -72,8 +72,6 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         objdet = sentence_serializer.data['object_determinant']
         adjective = sentence_serializer.data['adjective']
 
-        # ToDo: Remove the code below after testing
-        topic = {'topic': 'True', 'article': 'False'}
         if topic['topic'] == 'True':
             auto_strings = {
                 "object": object,
