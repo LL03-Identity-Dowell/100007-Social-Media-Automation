@@ -72,6 +72,9 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         objdet = sentence_serializer.data['object_determinant']
         adjective = sentence_serializer.data['adjective']
 
+        userid = request.session['user_id']
+        topic = get_client_approval(userid)
+
         if topic['topic'] == 'True':
             auto_strings = {
                 "object": object,
