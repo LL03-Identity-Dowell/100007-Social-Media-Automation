@@ -2,6 +2,7 @@ import datetime
 import json
 from datetime import datetime
 
+import jwt
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
@@ -363,7 +364,7 @@ def delete_post_comment(comment_id: str, profile_key: str, platform: str):
 
     data = json.dumps(payload)
 
-    url = f'https://app.ayrshare.com/api/comments/{str(comment_id)}/'
+    url = f'https://app.ayrshare.com/api/comments/{str(comment_id)}/?platform={str(platform)}&searchPlatformId=true'
     r = requests.delete(url, headers=headers, data=data)
 
     return r.json()
@@ -563,3 +564,12 @@ def save_profile_key_to_post(profile_key, post_id, post_response):
     response = requests.post(url, headers=headers, json=payload)
 
     return response.json()
+
+
+def encode_json_data(data):
+    """
+    This method encodes json data
+    @param data: {}
+    @return: str
+    """
+    return jwt.encode(data, "secret", algorithm="HS256")
