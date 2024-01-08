@@ -38,7 +38,7 @@ const WriteYourSelf = ({ close }) => {
 
     axios
       .post(
-        `http://127.0.0.1:8000/api/v1/article/write_yourself/`,
+        `${import.meta.env.VITE_APP_BASEURL}/article/write_yourself/`,
         payload,
         {
           withCredentials: true,

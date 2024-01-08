@@ -133,7 +133,7 @@ function PostDetail({ show }) {
 
             // Make a POST request to the API endpoint with the session_id
             axios
-                .post(`http://127.0.0.1:8000/api/v1/post-detail/`, payload, {
+                .post(`${import.meta.env.VITE_APP_BASEURL}/post-detail/`, payload, {
                     withCredentials: true,
                 })
                 .then((response) => {
