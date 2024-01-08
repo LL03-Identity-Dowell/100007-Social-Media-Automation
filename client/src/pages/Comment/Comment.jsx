@@ -9,8 +9,6 @@ import PostedTo from "./_components/PostedTo";
 import Loading from "../../components/Loading";
 import ReactPaginate from "react-paginate";
 
-const perPage = 5;
-
 function Comment({ show }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
