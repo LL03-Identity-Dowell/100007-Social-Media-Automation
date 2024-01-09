@@ -24,7 +24,7 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
       comment: formData.get("comment") || "",
     };
 
-    const url = `http://127.0.0.1:8000/api/v1/comments/create/${id}/`;
+    const url = `${import.meta.env.VITE_APP_BASEURL}/comments/create/${id}/`;
     await axios
       .post(url, data, {
         withCredentials: true,
@@ -56,7 +56,7 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className='bg-white/60 data-[state=open]:animate-overlayShow fixed inset-0' />
-        <Dialog.Content className='data-[state=open]:animate-contentShow fixed top-[50%] left-[50%]  translate-x-[-50%] translate-y-[-50%] rounded-3xl bg-[#e6e8e9] p-11 space-y-10 focus:outline-none shadow-md w-[650px] bg-[#edeeeefb]'>
+        <Dialog.Content className='data-[state=open]:animate-contentShow fixed top-[50%] left-[50%]  translate-x-[-50%] translate-y-[-50%] rounded-3xl bg-[#e6e8e9] p-4 md:p-11 space-y-10 focus:outline-none shadow-md w-11/12 md:w-[650px] bg-[#edeeeefb]'>
           <Dialog.Close asChild>
             <button
               className='text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none'

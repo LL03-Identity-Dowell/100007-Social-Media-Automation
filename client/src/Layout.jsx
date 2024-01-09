@@ -9,7 +9,7 @@ import useDowellLogin from "./useDowellLogin";
 import BottomBar from "./components/Bottombar/BottomBar";
 
 const Layout = ({ children, side, show, isUser }) => {
-  // const [product, setProduct] = useState(true);
+  const [product, setProduct] = useState(true);
   // const [loading, setLoading] = useState(false);
   const [sessionCheckPerformed, setSessionCheckPerformed] = useState(false);
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const Layout = ({ children, side, show, isUser }) => {
     initFlowbite();
     
   }, []);
-  const {loading, product} = useDowellLogin()
+  const {loading} = useDowellLogin()
   // const clearLocalStorage = () => {
   //   localStorage.clear();
   //   sessionStorage.clear();
@@ -88,9 +88,10 @@ const Layout = ({ children, side, show, isUser }) => {
 
   useEffect(() => {
     const checkSession = async () => {
+      // if (!sessionCheckPerformed && session_id) {}
       const session_id = localStorage.getItem("session_id");
           axios
-            .get("http://127.0.0.1:8000/api/v1/main/", {
+            .get(`${import.meta.env.VITE_APP_BASEURL}/main/`, {
               headers: {
                 Authorization: `Bearer ${session_id}`,
               },
@@ -98,18 +99,18 @@ const Layout = ({ children, side, show, isUser }) => {
             })
             .then((res) => {
               const data = res.data;
-          // const saveUserInfo = JSON.stringify(data);
-          // localStorage.setItem("userInfo", saveUserInfo);
-        //   const userProducts = data.portfolio_info;
-        //   // Check if any product is "Social Media Automation"
-        //   const hasSocialMediaAutomation = userProducts.some(
-        //     (product) => product.product === "Social Media Automation"
-        //   );
-        //   if (!hasSocialMediaAutomation) {
-            
-        //     console.log("You do not have a portfolio", userProducts);
-        //     navigate("/portfolio_check");
-        // }
+          const saveUserInfo = JSON.stringify(data);
+          localStorage.setItem("userInfo", saveUserInfo);
+          const userProducts = data.portfolio_info;
+          // Check if any product is "Social Media Automation"
+          const hasSocialMediaAutomation = userProducts.some(
+            (product) => product.product === "Social Media Automation"
+          );
+          if (!hasSocialMediaAutomation) {
+            setProduct(false)
+            console.log("You do not have a portfolio", userProducts);
+            navigate("/portfolio_check");
+        }
             })
             .catch((err) => {
             
@@ -119,7 +120,7 @@ const Layout = ({ children, side, show, isUser }) => {
     };
 
     checkSession();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="w-full ">

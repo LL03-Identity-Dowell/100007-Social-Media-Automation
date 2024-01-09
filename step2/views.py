@@ -38,7 +38,8 @@ from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
-                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment)
+                     get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
+                     encode_json_data)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -95,14 +96,13 @@ class LogoutUser(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MainAPIView(APIView):
+class MainAPIView(AuthenticatedBaseView):
     def get(self, request):
-        session_id = request.session.get('session_id', None) or request.GET.get('session_id')
-        if session_id:
+        if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-
+            session_id = request.session["session_id"]
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
@@ -165,9 +165,8 @@ class MainAPIView(APIView):
 
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+
             # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
 '''
 step-2 starts here
 '''
@@ -437,7 +436,8 @@ class GenerateArticleView(AuthenticatedBaseView):
                 )
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
-                    engine="text-davinci-003",
+                    # engine="text-davinci-003",
+                    engine="gpt-3.5-turbo-instruct",
                     prompt=prompt,
                     temperature=0.5,
                     max_tokens=1024,
@@ -465,7 +465,7 @@ class GenerateArticleView(AuthenticatedBaseView):
                         step3_data = {
                             "user_id": user_id,
                             "org_id": org_id,
-                                "session_id": session_id,
+                            "session_id": session_id,
                             "eventId": event_id,
                             'client_admin_id': client_admin_id,
                             "title": RESEARCH_QUERY,
@@ -480,7 +480,7 @@ class GenerateArticleView(AuthenticatedBaseView):
                     "user_id": user_id,
                     "session_id": session_id,
                     "org_id": org_id,
-                                "eventId": event_id,
+                    "eventId": event_id,
                     'client_admin_id': client_admin_id,
                     "title": RESEARCH_QUERY,
                     "paragraph": article_str,
@@ -924,10 +924,43 @@ class SavePostView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+class EditPostView(AuthenticatedBaseView):
+    def get(self, request, post_id, *args, **kwargs):
+        session_id = request.GET.get('session_id', None)
+        if 'session_id' and 'username' in request.session:
+            post_data = {
+                "product_name": "Social Media Automation",
+                "details": {
+                    "_id": post_id,
+                    "field": {"_id": post_id},
+                    "title": "this is another title",
+                    "database": "socialmedia",
+                    "collection": "step3_data",
+                    "team_member_ID": "34567897799",
+                    "function_ID": "ABCDE",
+                    "cluster": "socialmedia",
+                    "document": "step3_data",
+                    "command": "update",
+                    "flag": "editing",
+                    "name": "Edit Post",
+                    "update_field": {
+                        "order_nos": 21,
+
+                    }
+                }
+            }
+            token = encode_json_data(post_data)
+            response_data = {
+                'redirect_url': f'https://ll04-finance-dowell.github.io/100058-DowellEditor-V2/?token={str(token)}'
+            }
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 '''step-3 Ends here'''
 
 '''step-4 starts here'''
-
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1295,7 +1328,6 @@ def api_call(postes, platforms, key, image, request, post_id):
         # credit_handler.consume_step_4_credit(request)
         update_most_recent(post_id)
 
-
     else:
         for warnings in r1.json()['warnings']:
             messages.error(request, warnings['message'])
@@ -1333,7 +1365,6 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update_schedule(post_id)
-
 
     else:
         for warnings in r1.json()['warnings']:

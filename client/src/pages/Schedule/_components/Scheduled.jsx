@@ -13,6 +13,7 @@ const ScheduledPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isEmpty, setIsEmpty] = useState("");
 
   const [pageNumber, setPageNumber] = useState(1);
 
@@ -21,7 +22,7 @@ const ScheduledPage = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://127.0.0.1:8000/api/v1/scheduled-json?page=${pageNumber}&order=newest`,
+          `${import.meta.env.VITE_APP_BASEURL}/scheduled-json?page=${pageNumber}&order=newest`,
           {
             withCredentials: true,
           }
@@ -33,6 +34,10 @@ const ScheduledPage = () => {
           totalPage: data.total_page,
           totalPosts: data.total_items,
         });
+
+        if(data.total_items <= 0){
+          setIsEmpty("You do not have any post scheduled")
+        }
         setSuccess("Successfully fetched posts");
         setError("");
       } catch (error) {
@@ -95,6 +100,7 @@ const ScheduledPage = () => {
       <ul className='space-y-4 '>
         {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
         {success !== "" && <SuccessMessages>{success}</SuccessMessages>}
+        <p className="text-red-600 mt-10 text-xl lg:mr-12">{isEmpty}</p>
         {loading ? (
           <Loading />
         ) : (

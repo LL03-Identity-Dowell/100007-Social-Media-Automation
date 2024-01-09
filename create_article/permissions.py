@@ -7,7 +7,6 @@ class HasBeenAuthenticated(permissions.BasePermission):
             'Authorization', '').replace('Bearer ', '')
         print(session_id)
         request.session["session_id"] = session_id
-        if 'session_id' in request.session and 'username' in request.session:
+        if 'session_id' in request.session:
             return True
-
         return False

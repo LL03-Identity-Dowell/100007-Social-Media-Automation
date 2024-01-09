@@ -2,6 +2,7 @@ import datetime
 import json
 from datetime import datetime
 
+import jwt
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
@@ -564,3 +565,12 @@ def save_profile_key_to_post(profile_key, post_id, post_response, org_id):
     response = requests.post(url, headers=headers, json=payload)
 
     return response.json()
+
+
+def encode_json_data(data):
+    """
+    This method encodes json data
+    @param data: {}
+    @return: str
+    """
+    return jwt.encode(data, "secret", algorithm="HS256")
