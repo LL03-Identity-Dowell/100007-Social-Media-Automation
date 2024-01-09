@@ -96,14 +96,13 @@ class LogoutUser(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class MainAPIView(APIView):
+class MainAPIView(AuthenticatedBaseView):
     def get(self, request):
-        session_id = request.session.get('session_id', None) or request.GET.get('session_id')
-        if session_id:
+        if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
             url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-
+            session_id = request.session["session_id"]
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
                 profile_details = response_1.json()
@@ -166,9 +165,8 @@ class MainAPIView(APIView):
 
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
+
             # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
 '''
 step-2 starts here
 '''
@@ -438,7 +436,8 @@ class GenerateArticleView(AuthenticatedBaseView):
                 )
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
-                    engine="text-davinci-003",
+                    # engine="text-davinci-003",
+                    engine="gpt-3.5-turbo-instruct",
                     prompt=prompt,
                     temperature=0.5,
                     max_tokens=1024,
@@ -466,7 +465,7 @@ class GenerateArticleView(AuthenticatedBaseView):
                         step3_data = {
                             "user_id": user_id,
                             "org_id": org_id,
-                                "session_id": session_id,
+                            "session_id": session_id,
                             "eventId": event_id,
                             'client_admin_id': client_admin_id,
                             "title": RESEARCH_QUERY,
@@ -481,7 +480,7 @@ class GenerateArticleView(AuthenticatedBaseView):
                     "user_id": user_id,
                     "session_id": session_id,
                     "org_id": org_id,
-                                "eventId": event_id,
+                    "eventId": event_id,
                     'client_admin_id': client_admin_id,
                     "title": RESEARCH_QUERY,
                     "paragraph": article_str,
@@ -957,10 +956,11 @@ class EditPostView(AuthenticatedBaseView):
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 '''step-3 Ends here'''
 
 '''step-4 starts here'''
-
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1328,7 +1328,6 @@ def api_call(postes, platforms, key, image, request, post_id):
         # credit_handler.consume_step_4_credit(request)
         update_most_recent(post_id)
 
-
     else:
         for warnings in r1.json()['warnings']:
             messages.error(request, warnings['message'])
@@ -1366,7 +1365,6 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update_schedule(post_id)
-
 
     else:
         for warnings in r1.json()['warnings']:
