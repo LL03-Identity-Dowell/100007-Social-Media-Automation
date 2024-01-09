@@ -26,7 +26,6 @@ class User(models.Model):
 
     class Meta:
         verbose_name_plural = 'Users'
-        db_table = "Emails"
 
 
 class Category(BaseModel):
