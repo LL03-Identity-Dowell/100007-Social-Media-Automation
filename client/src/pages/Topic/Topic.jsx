@@ -101,7 +101,7 @@ function Topic({ show }) {
       };
 
       axios
-        .post(`http://127.0.0.1:8000/website/api/v1`, data, {
+        .post(`http://127.0.0.1:8000/website/api/v1/generate/`, data, {
           withCredentials: true,
         })
         .then((response) => {
