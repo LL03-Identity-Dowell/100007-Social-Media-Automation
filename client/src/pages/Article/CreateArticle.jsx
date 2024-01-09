@@ -29,7 +29,7 @@ const CreateArticle = ({ show }) => {
       setLoading(true);
       axios
         .get(
-          `http://127.0.0.1:8000/api/v1/article/generate/?page=${
+          `${import.meta.env.VITE_APP_BASEURL}/article/generate/?page=${
             page + 1
           }&order=newest`,
           {
@@ -71,7 +71,7 @@ const CreateArticle = ({ show }) => {
     setLoading(true);
 
     axios
-      .post("http://127.0.0.1:8000/api/v1/article/AI/", data, {
+      .post(`${import.meta.env.VITE_APP_BASEURL}/article/AI/`, data, {
         withCredentials: true,
       })
       .then((response) => {
@@ -98,7 +98,7 @@ const CreateArticle = ({ show }) => {
     };
     setLoading(true);
     axios
-      .post("http://127.0.0.1:8000/api/v1/article/wiki/", data, {
+      .post(`${import.meta.env.VITE_APP_BASEURL}/article/wiki/`, data, {
         withCredentials: true,
       })
       .then((response) => {

@@ -24,11 +24,11 @@ const UnscheduledPage = () => {
   useEffect(() => {
     setLoading(true);
     //Load unscheduled data from API
-    const url = `http://127.0.0.1:8000/api/v1/unscheduled-json/?page=${
+    const url = `${import.meta.env.VITE_APP_BASEURL}/unscheduled-json/?page=${
       page + 1
     }&order=newest`;
 
-    const linkedAcc = "http://127.0.0.1:8000/api/v1/linked-account/";
+    const linkedAcc = `${import.meta.env.VITE_APP_BASEURL}/linked-account/`;
     const fetchLinkedAcc = async () => {
       try {
         const res = await axios.get(linkedAcc, {

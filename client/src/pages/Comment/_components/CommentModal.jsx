@@ -24,7 +24,7 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
       comment: formData.get("comment") || "",
     };
 
-    const url = `http://127.0.0.1:8000/api/v1/comments/create/${id}/`;
+    const url = `${import.meta.env.VITE_APP_BASEURL}/comments/create/${id}/`;
     await axios
       .post(url, data, {
         withCredentials: true,

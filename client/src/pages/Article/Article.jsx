@@ -35,8 +35,7 @@ const Article = ({ show }) => {
     // Make a GET request to the API endpoint with the session_id
     axios
       .get(
-        `http://127.0.0.1:8000/api/v1/list-articles/?page=${
-          page + 1
+        `${import.meta.env.VITE_APP_BASEURL}/list-articles/?page=${page + 1
         }&order=newest`,
         {
           withCredentials: true,
@@ -145,22 +144,14 @@ const Article = ({ show }) => {
           pageRangeDisplayed={pagesToDisplay}
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
-          previousLabel={
-            <span className='text-xs text-black md:text-lg'>
-              {page > 0 ? "Previous" : ""}
-            </span>
-          }
-          nextLabel={
-            <span className='text-xs text-black md:text-lg'>
-              {page < pageCount - 1 ? "Next" : " "}
-            </span>
-          }
-          containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll '
-          pageClassName='p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
-          previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
-          nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
-          breakClassName='p-2'
-          activeClassName='bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 '
+          previousLabel={<span className="text-black text-xs md:text-lg">{page > 0 ? "Previous" : ""}</span>}
+          nextLabel={<span className="text-black text-xs md:text-lg">{page < pageCount - 1 ? "Next" : " "}</span>}
+          containerClassName="flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-auto "
+          pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
+          previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+          nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+          breakClassName="p-2"
+          activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
         />
       </div>
     </div>

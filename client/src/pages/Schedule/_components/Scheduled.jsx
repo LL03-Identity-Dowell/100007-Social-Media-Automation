@@ -22,7 +22,7 @@ const ScheduledPage = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://127.0.0.1:8000/api/v1/scheduled-json?page=${pageNumber}&order=newest`,
+          `${import.meta.env.VITE_APP_BASEURL}/scheduled-json?page=${pageNumber}&order=newest`,
           {
             withCredentials: true,
           }
