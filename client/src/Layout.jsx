@@ -91,7 +91,7 @@ const Layout = ({ children, side, show, isUser }) => {
       // if (!sessionCheckPerformed && session_id) {}
       const session_id = localStorage.getItem("session_id");
           axios
-            .get(`${import.meta.env.VITE_APP_BASEURL}/api/v1/main/`, {
+            .get(`${import.meta.env.VITE_APP_BASEURL}/main/`, {
               headers: {
                 Authorization: `Bearer ${session_id}`,
               },
