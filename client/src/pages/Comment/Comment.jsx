@@ -37,11 +37,8 @@ function Comment({ show }) {
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
-      setError("");
-      setSuccess("");
-      const url = `http://127.0.0.1:8000/api/v1/comments/?page=${
-        page + 1
-      }&order=newest`;
+      const url = `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${page + 1
+    }&order=newest`;
       await axios
         .get(url, {
           withCredentials: true,

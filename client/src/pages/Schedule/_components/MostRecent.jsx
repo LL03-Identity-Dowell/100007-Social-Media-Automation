@@ -24,7 +24,7 @@ const MostRecent = () => {
       // Make a GET request to the API endpoint with the session_id
       axios
         .get(
-          `http://127.0.0.1:8000/api/v1/recent_posts/?page=${
+          `${import.meta.env.VITE_APP_BASEURL}/recent_posts/?page=${
             page + 1
           }&order=newest`,
           {

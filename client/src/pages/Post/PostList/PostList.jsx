@@ -35,7 +35,7 @@ const PostList = ({ show }) => {
     // Make a GET request to the API endpoint with the session_id
     axios
       .get(
-        `http://127.0.0.1:8000/api/v1/post_list/?page=${page + 1}&order=newest`,
+        `${import.meta.env.VITE_APP_BASEURL}/post_list/?page=${page + 1}&order=newest`,
         {
           withCredentials: true,
         }

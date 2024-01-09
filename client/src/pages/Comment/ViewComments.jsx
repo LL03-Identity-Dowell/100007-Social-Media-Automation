@@ -68,7 +68,7 @@ function ViewComments({ show }) {
         </Link>
         {hasComment ? (
           <div>
-            {comments?.twitter.length > 0 && (
+            {comments?.twitter?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
@@ -82,7 +82,10 @@ function ViewComments({ show }) {
                   {comments?.twitter?.map((t, i) => {
                     const date = getDate(t.created);
                     return (
-                      <li className='flex gap-6' key={t.commentId}>
+                      <li
+                        className='flex gap-6 px-8 py-4 bg-gray-100'
+                        key={t.commentId}
+                      >
                         <h4 className='mt-1'>{i + 1}.</h4>
                         <div>
                           <p className='text-xl'>{t.comment}</p>
@@ -94,7 +97,7 @@ function ViewComments({ show }) {
                 </ol>
               </div>
             )}
-            {comments?.pinterest.length > 0 && (
+            {comments?.pinterest?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
@@ -120,7 +123,7 @@ function ViewComments({ show }) {
                 </ol>
               </div>
             )}
-            {comments?.facebook.length > 0 && (
+            {comments?.facebook?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
@@ -146,7 +149,7 @@ function ViewComments({ show }) {
                 </ol>
               </div>
             )}
-            {comments?.youtube.length > 0 && (
+            {comments?.youtube?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <div className='custom-youtube-logo '></div>
@@ -168,7 +171,7 @@ function ViewComments({ show }) {
                 </ol>
               </div>
             )}
-            {comments?.instagram.length > 0 && (
+            {comments?.instagram?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
@@ -194,7 +197,7 @@ function ViewComments({ show }) {
                 </ol>
               </div>
             )}
-            {comments?.linkedin.length > 0 && (
+            {comments?.linkedin?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img

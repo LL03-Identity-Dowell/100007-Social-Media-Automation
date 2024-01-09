@@ -246,7 +246,7 @@ export const SocialComponentForSchedule = ({
       schedule: "11/23/2023 21:27:00",
     };
 
-    const url = "http://127.0.0.1:8000/api/v1/media_schedule/";
+    const url = `${import.meta.env.VITE_APP_BASEURL}/media_schedule/`;
 
     setLoading(true);
 
