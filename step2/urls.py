@@ -1,6 +1,5 @@
 from django.urls import path
 
-from . import views
 from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
@@ -11,7 +10,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     ArticleDetailView, PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
-                    Comments, PostComments, CreatePostComments,
+                    Comments, PostComments, CreatePostComments, EditPostView,
                     LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment)
 
 app_name = 'generate_article'
@@ -60,6 +59,7 @@ urlpatterns = [
     path('post_list/', PostListView.as_view(), name='submit-title'),
     path('post-detail/', PostDetailView.as_view(), name='post-detail'),
     path('save_post/', SavePostView.as_view(), name='save-post'),
+    path('edit_post/<str:post_id>/', EditPostView.as_view(), name='edit-post'),
     path('media_schedule/',
          MediaScheduleView.as_view(), name='media-schedule'),
     path('media_post/',
