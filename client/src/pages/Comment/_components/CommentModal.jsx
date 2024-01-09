@@ -37,8 +37,8 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
         setError("");
         formRef.current.reset();
       })
-      .catch(() => {
-        setError("Server error, Please try again later");
+      .catch((error) => {
+        setError(error?.response?.data?.platforms.join(", "));
         setSuccess("");
       });
     setLoading(false);
