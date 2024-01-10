@@ -912,12 +912,10 @@ class SavePostView(AuthenticatedBaseView):
                 response = requests.request(
                     "POST", url, headers=headers, data=payload)
                 print("data:", response.json())
-                # make sure to alert the user that the article has been saved sucesfully. (frontend)
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_3_credit(request)
                 response_data = {
                     "message": "Post saved successfully",
-                    # Redirect to step-4
                 }
                 return Response(response_data, status=status.HTTP_201_CREATED)
         else:
