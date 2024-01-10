@@ -1317,10 +1317,476 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 #
  ### v. Step-3 Endpoints
 #
+## 14. POST API
+
+### 14.1 Post List View
+
+- **Endpoint:** `GET api/v1/post_list/`
+- **Description:** Retrieves a list of posts
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/post_list/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Posts fetched successfully"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+
+### 14.2 Post Detail View
+
+- **Endpoint:** `POST api/v1/post-detail/`
+- **Description:**  Submits a post detail request.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"post_id": "post_id", "title": "title", "source": "source" }' https://www.socialmediaautomation.uxlivinglab.online/api/v1/post-detail/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Post detail fetched successfully"
+  }
+
+- **Status  400 Bad Request**
+  ```json
+  {
+    "error": "Invalid data format"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 14.2 Save Post View
+
+- **Endpoint:** `POST api/v1/save_post/`
+- **Description:**  Save a post to step4_data collection
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "title","source": "source", "qualitative_categorization": "qualitative_categorization","targeted_for": "targeted_for","designed_for": "designed_for","targeted_category": "targeted_category","image": "image","paragraphs": "paragraphs"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/save_post/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Post saved successfully"
+  }
+
+- **Status  400 Bad Request**
+  ```json
+  {
+    "error": "Bad request"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 14.3 Edit Post View
+
+- **Endpoint:** `GET api/v1/edit_post/<str:post_id>/`
+- **Description:**  Edit a post using dowell Editor
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YOUR_SESSION_ID" -d '{"token": "token"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/edit_post/<str:post_id>/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Post data sent"
+  }
+
+- **Status  400 Bad Request**
+  ```json
+  {
+    "error": "Bad request"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
 
 #
  ### vi. Step-4 Endpoints
 #
+## 15. SCHEDULE API
+
+### 15.1 Aryshare Profile View
+
+- **Endpoint:** `GET api/v1/link/linkusers/`
+- **Description:** Retrieves and links Aryshare profile information.
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/link/linkusers/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Social media profile created"
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "error": "Failed to create social media profile",
+    "detail": "Error message here(depends on what ayrshare will return)"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 15.2 Link Media Channels View
+
+- **Endpoint:** `GET api/v1/link/`
+- **Description:** Retrieves and links media channels using Ayrshare.
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/link/
+
+#### Response
+- **Status: 302 Found (Redirect)**
+  ```json
+  {
+    "status": "The response will be a redirect to the Ayrshare authorization page."
+  }
+  
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 15.3 Linked Accounts View
+
+- **Endpoint:** `GET api/v1/linked-account/`
+- **Description:** Retrieves information about linked accounts.
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/linked-account/
+
+#### Response
+
+- **Status: 200 OK**
+  ```json
+  {
+    "response": {
+      "linked_accounts": [
+        {
+          "account_type": "Facebook",
+          "linked": true
+        },
+        {
+          "account_type": "Twitter",
+          "linked": false
+        },
+        
+      ]
+    }
+  }
+  
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 15.2 Most Recent
+
+- **Endpoint:** `GET api/v1/recent_posts/`
+- **Description:** Retrieves a list of recently posted posts
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/recent_posts/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Posts fetched successfully"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 15.3 Scheduled Json View
+
+- **Endpoint:** `GET api/v1/scheduled-json/`
+- **Description:** Retrieves a list of recently Scheduled posts
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/scheduled-json/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Posts fetched successfully"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 15.4 UnScheduled Json View
+
+- **Endpoint:** `GET api/v1/unscheduled/`
+- **Description:** Retrieves a list of recently UnScheduled posts
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/unscheduled/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Posts fetched successfully"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 15.5 MediaPost View
+
+- **Endpoint:** `POST api/v1/media_post/`
+- **Description:** Creates and posts media content on various social media platforms.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "title": "Your Post Title",
+    "paragraph": "Your post content...",
+    "image": "https://your-image-url.com",
+    "PK": "YourPostID",
+    "social": ["Facebook", "Twitter"],
+    "special": ["SpecialPlatform"],
+  }
+- **Usage:**
+  ```bash
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Post Title", "paragraph": "Your post content...", "image": "https://your-image-url.com", "PK": "YourPostID", "social": ["Facebook", "Twitter"], "special": ["SpecialPlatform"]}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/media_post/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Posted successfully"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 15.6 Media Schedule View
+
+- **Endpoint:** `POST api/v1/media_schedule/`
+- **Description:** Creates and posts media content on various social media platforms.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "title": "Your Post Title",
+    "paragraph": "Your post content...",
+    "image": "https://your-image-url.com",
+    "PK": "YourPostID",
+    "social": ["Facebook", "Twitter"],
+    "special": ["SpecialPlatform"],
+    "schedule": "MM/DD/YYYY HH:MM:SS",
+  }
+- **Usage:**
+  ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Post Title", "paragraph": "Your post content...", "image": "https://your-image-url.com", "PK": "YourPostID", "social": ["Facebook", "Twitter"], "special": ["SpecialPlatform"], "schedule": "MM/DD/YYYY HH:MM:SS"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/media_schedule/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "scheduled successfully"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
 
 #
  ### vii. Step-5 Endpoints
