@@ -53,7 +53,7 @@ function Comment({ show }) {
             setSuccess("");
             setError("You do not have any posts");
           } else {
-            setSuccess("Successfully Fetched the comments");
+            setSuccess("Successfully Fetched the posts");
             setError("");
             setComments({
               paginatedPosts: paginated_posts,

@@ -171,10 +171,12 @@ function PostDetail({ show }) {
 
       <div className='mt-2 mb-2 text-lg font-bold md:mb-0'>
         {!editing ? (
-          <h2>{postDetailData && postDetailData.post.title}</h2>
+          <h2 className='text-customTextBlue'>
+            {postDetailData && postDetailData.post.title}
+          </h2>
         ) : (
           <input
-            className='w-full px-1 py-2 border border-[#6B7280] outline-[#3f83f8]'
+            className='w-full px-1 py-2 border border-[#6B7280] outline-[#3f83f8] text-gray-800'
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -193,7 +195,7 @@ function PostDetail({ show }) {
           ))
         ) : (
           <textarea
-            className='w-full px-1 py-2 outline-none ring-0 border border-[#6B7280]'
+            className='w-full px-1 py-2 outline-none ring-0 border border-[#6B7280] text-gray-800'
             rows={6}
             value={paragraph}
             onChange={(e) => setParagraph(e.target.value)}
