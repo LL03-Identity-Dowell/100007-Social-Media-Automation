@@ -37,8 +37,9 @@ function Comment({ show }) {
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
-      const url = `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${page + 1
-    }&order=newest`;
+      const url = `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${
+        page + 1
+      }&order=newest`;
       await axios
         .get(url, {
           withCredentials: true,
@@ -65,7 +66,7 @@ function Comment({ show }) {
           window.scrollTo(0, 0);
         })
         .catch(() => {
-          setError("Server error, Please try again later");
+          setError(error?.response?.data?.platforms.join(", "));
           setSuccess("");
         });
       setLoading(false);

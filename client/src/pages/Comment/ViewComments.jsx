@@ -42,7 +42,7 @@ function ViewComments({ show }) {
           setError("");
         })
         .catch(() => {
-          setError("The post does not have aryshare ID");
+          setError(error?.response?.data?.platforms.join(", "));
           setSuccess("");
         });
       setLoading(false);

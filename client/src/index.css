@@ -240,11 +240,6 @@
   background-size: 60%;
   background-color: #c4302b;
 }
-
-@import "@radix-ui/colors/black-alpha.css";
-@import "@radix-ui/colors/mauve.css";
-@import "@radix-ui/colors/violet.css";
-
 /* reset */
 button {
   all: unset;
