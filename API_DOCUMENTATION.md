@@ -1049,14 +1049,292 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 #
  ### iii. Step-1 Endpoints
 #
+## 13. Topic API
+
+### 13.1 Generate Topics
+
+- **Endpoint:** `POST website/api/v1/generate/`
+- **Description:** Generates sentences based on provided parameters. 
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "object": "object_value",
+    "topic": "topic_value",
+    "verb": "verb_value",
+    "object_determinant": "object_determinant_value",
+    "adjective": "adjective_value"
+  }
+- **Usage:**
+  ```bash
+  curl -X POST -H "session_id: YourSessionID" -d '{"object": "object_value", "topic": "topic_value", "verb": "verb_value", "object_determinant": "object_determinant_value", "adjective": "adjective_value"}' https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/generate/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message": "Your Sentences are being generated",
+    "api_sentence_1": {
+      "sentence": "generated_sentence_1",
+      "sentence_type": "sentence_type_1",
+      "sentence_id": 1
+    },
+    "api_sentence_2": {
+      "sentence": "generated_sentence_2",
+      "sentence_type": "sentence_type_2",
+      "sentence_id": 2
+    },
+    ...
+  }
+- **Status 400 Bad Request**
+  ```json
+  {
+    "error": "Invalid request data"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+
+### 13.2 Categories API View
+
+- **Endpoint:** `POST website/api/v1/category/`
+- **Description:** Creates user categories. 
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "name": "Category1,Category2"
+  }
+- **Usage:**
+  ```bash
+  curl -X POST -H "session_id: YourSessionID" -d '{"name": "Category1,Category2"}'https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/category/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message": "Categories created successfully"
+  }
+- **Status 400 Bad Request**
+  ```json
+  {
+    "error": "Invalid request data"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+
+- **Endpoint:** `GET website/api/v1/category/`
+- **Description:** Retrieves user categories. 
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/category/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  [
+    {
+      "id": 1,
+      "name": "Category1"
+    },
+    {
+      "id": 2,
+      "name": "Category2"
+    },
+    ...
+  ]
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
   
+### 13.3 Topics API View
+
+- **Endpoint:** `POST website/api/v1/topic/`
+- **Description:** Creates user topics. 
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "name": "Topic1,Topic2"
+  }
+- **Usage:**
+  ```bash
+  curl -X POST -H "session_id: YourSessionID" -d '{"name": "Topic1,Topic2"}'https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/topic/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message": "Topics created successfully"
+  }
+- **Status 400 Bad Request**
+  ```json
+  {
+    "error": "Invalid request data"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+
+- **Endpoint:** `GET website/api/v1/topic/`
+- **Description:** Retrieves user topics. 
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/topic/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  [
+    {
+      "id": 1,
+      "name": "Topic1"
+    },
+    {
+      "id": 2,
+      "name": "Topic2"
+    },
+    ...
+  ]
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 13.3 Selected Result API View
+
+- **Endpoint:** `POST website/api/v1/selected_result/`
+- **Description:** Ranks selected sentences.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+- **Body**
+  ```json
+  {
+    "rank_1": 2,
+    "rank_2": 1,
+    "rank_3": 3
+  }
+
+- **Usage:**
+  ```bash
+  curl -X POST -H "session_id: YourSessionID" -d '{"rank_1": 2, "rank_2": 1, "rank_3": 3}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/selected_result/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Sentence ranked successfully"
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "error": "Invalid request data"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
 #
  ### iv. Step-2 Endpoints
 #
 
-## 13. Article API
+## 14. Article API
 
-### 13.1 Get User Articles(ListArticleView)
+### 14.1 Get User Articles(ListArticleView)
 
 - **Endpoint:** `GET api/v1/list-articles/`
 - **Description:** Retrieves a list of articles created by the user in step-1 
@@ -1090,7 +1368,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 13.2 Article Detail View(ArticleDetailView)
+### 14.2 Article Detail View(ArticleDetailView)
 - **Endpoint:** `POST /api/v1/article-detail/`
 - **Description:** Submits an article detail request.
 
@@ -1139,7 +1417,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 13.3 Get User Topics(IndexView)
+### 14.3 Get User Topics(IndexView)
 
 - **Endpoint:** `GET api/v1/article/generate/`
 - **Description:** Retrieves a list of topics created by the user in step-1 
@@ -1166,7 +1444,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 13.4 Generate Articles Using OpenAI(GenerateArticleView)
+### 14.4 Generate Articles Using OpenAI(GenerateArticleView)
 - **Endpoint:** `POST /api/v1/article/AI/`
 - **Description:** Generates an article using OpenAI's GPT-3 based on user preferences.
 
@@ -1214,7 +1492,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
   
-### 13.5 Generate Articles Using Wikipedia(GenerateArticleWikiView)
+### 14.5 Generate Articles Using Wikipedia(GenerateArticleWikiView)
 - **Endpoint:** `POST /api/v1/article/wiki/`
 - **Description:** Generates an article using wikipediaapi based on user preferences.
 
@@ -1262,7 +1540,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
   
-### 13.6 Generate Articles Manually (WriteYourselfView)
+### 14.6 Generate Articles Manually (WriteYourselfView)
 - **Endpoint:** `POST /api/v1/article/write_yourself/`
 - **Description:** Allows users to manually write their own article.
 
@@ -1317,9 +1595,9 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 #
  ### v. Step-3 Endpoints
 #
-## 14. POST API
+## 15. POST API
 
-### 14.1 Post List View
+### 15.1 Post List View
 
 - **Endpoint:** `GET api/v1/post_list/`
 - **Description:** Retrieves a list of posts
@@ -1354,7 +1632,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 
-### 14.2 Post Detail View
+### 15.2 Post Detail View
 
 - **Endpoint:** `POST api/v1/post-detail/`
 - **Description:**  Submits a post detail request.
@@ -1394,7 +1672,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 14.2 Save Post View
+### 15.2 Save Post View
 
 - **Endpoint:** `POST api/v1/save_post/`
 - **Description:**  Save a post to step4_data collection
@@ -1434,7 +1712,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 14.3 Edit Post View
+### 15.3 Edit Post View
 
 - **Endpoint:** `GET api/v1/edit_post/<str:post_id>/`
 - **Description:**  Edit a post using dowell Editor
@@ -1477,9 +1755,9 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 #
  ### vi. Step-4 Endpoints
 #
-## 15. SCHEDULE API
+## 16. SCHEDULE API
 
-### 15.1 Aryshare Profile View
+### 16.1 Aryshare Profile View
 
 - **Endpoint:** `GET api/v1/link/linkusers/`
 - **Description:** Retrieves and links Aryshare profile information.
@@ -1520,7 +1798,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 15.2 Link Media Channels View
+### 16.2 Link Media Channels View
 
 - **Endpoint:** `GET api/v1/link/`
 - **Description:** Retrieves and links media channels using Ayrshare.
@@ -1549,7 +1827,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 15.3 Linked Accounts View
+### 16.3 Linked Accounts View
 
 - **Endpoint:** `GET api/v1/linked-account/`
 - **Description:** Retrieves information about linked accounts.
@@ -1596,7 +1874,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 15.2 Most Recent
+### 16.2 Most Recent
 
 - **Endpoint:** `GET api/v1/recent_posts/`
 - **Description:** Retrieves a list of recently posted posts
@@ -1630,7 +1908,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 15.3 Scheduled Json View
+### 16.3 Scheduled Json View
 
 - **Endpoint:** `GET api/v1/scheduled-json/`
 - **Description:** Retrieves a list of recently Scheduled posts
@@ -1664,7 +1942,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 15.4 UnScheduled Json View
+### 16.4 UnScheduled Json View
 
 - **Endpoint:** `GET api/v1/unscheduled/`
 - **Description:** Retrieves a list of recently UnScheduled posts
@@ -1698,7 +1976,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 15.5 MediaPost View
+### 16.5 MediaPost View
 
 - **Endpoint:** `POST api/v1/media_post/`
 - **Description:** Creates and posts media content on various social media platforms.
@@ -1742,7 +2020,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 15.6 Media Schedule View
+### 16.6 Media Schedule View
 
 - **Endpoint:** `POST api/v1/media_schedule/`
 - **Description:** Creates and posts media content on various social media platforms.
@@ -1791,8 +2069,182 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 #
  ### vii. Step-5 Endpoints
 #
+## 17. COMMENTS API
 
-### 6. Feedback
+### 17.1 Posted and scheduled Posts
+- **Endpoint:** `GET api/v1/comments/`
+- **Description:** Retrieves posts for most recent and scheduled posts.
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/comments/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "status": "Posts fetched successfully"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 17.2 Post Comments View
+- **Endpoint:** `GET api/v1/comments/create/<str:post_id>/`
+- **Description:** Retrieves comments for a specific post.
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+    curl -X GET -H "session_id: YOUR_SESSION_ID" -d https://www.socialmediaautomation.uxlivinglab.online/api/v1/comments/get-post-comments/{post_id}/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "comments": [
+      {
+        "comment_id": 1,
+        "comment_content": "Comment content...",
+        "commented_at": "YYYY-MM-DD HH:MM:SS",
+        "commented_by": "username"
+      }
+    ]
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "The post does not have aryshare ID"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 17.3 Create Comments View
+- **Endpoint:** `POST api/v1/comments/create/<str:post_id>/`
+- **Description:** Retrieves comments for a specific post.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "platforms": ["platform1", "platform2"],
+    "comment": "Your comment content..."
+  }
+
+- **Usage:**
+  ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d  '{"platforms": ["platform1", "platform2"], "comment": "Your comment content..."}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/comments/create/<str:post_id>/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message": "Comment posted successfully."
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "The post does not have aryshare ID"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+
+### 17.4 Delete Comments View
+- **Endpoint:** `POST api/v1/comments/delete-comment/<str:post_id>/`
+- **Description:** Deletes a specific comment on a post.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "platform": "platform_name",
+    "comment_id": "comment_id_to_delete"
+  }
+
+
+- **Usage:**
+  ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d  '{"platform": "platform_name", "comment_id": "comment_id_to_delete"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/comments/delete-comment/<str:post_id>/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message": "Comment posted successfully."
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "The post does not have aryshare ID"
+  }
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+
+### 18. Feedback
 If you have any questions or need assistance, please contact the backend team.
 
 
