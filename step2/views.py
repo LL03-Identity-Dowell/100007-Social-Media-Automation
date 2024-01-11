@@ -40,6 +40,7 @@ from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 from .models import Step2Manager
+from .sentence_generator.prodia import ImageGenerator
 
 # helper functions
 
@@ -3218,21 +3219,27 @@ def post_detail(request):
                     'animals', 'cars', 'History', 'Tech', 'People']
         query = title
         output = []
-        api = API(PEXELS_API_KEY)
-        # api.popular(results_per_page=10, page=5)
-        pic = api.search(query, page=a, results_per_page=10)
-        width = 350
-        for photo in pic['photos']:
-            pictures = photo['src']['medium']
-            img_data = requests.get(pictures).content
-            im = Image.open(BytesIO(img_data))
-            wit = im.size
-            if wit[0] >= width:
-                output.append(pictures)
-        if len(output) == 0:
-            messages.error(request, 'No images found!')
-            return redirect(reverse('generate_article:article-list'))
-        images = output[1]
+        image_gen=ImageGenerator()
+        image_details=image_gen.process(prompt=title)
+
+        if image_details.get('imageUrl'):
+            images=image_details.get('imageUrl')
+        else:
+            api = API(PEXELS_API_KEY)
+            # api.popular(results_per_page=10, page=5)
+            pic = api.search(query, page=a, results_per_page=10)
+            width = 350
+            for photo in pic['photos']:
+                pictures = photo['src']['medium']
+                img_data = requests.get(pictures).content
+                im = Image.open(BytesIO(img_data))
+                wit = im.size
+                if wit[0] >= width:
+                    output.append(pictures)
+            if len(output) == 0:
+                messages.error(request, 'No images found!')
+                return redirect(reverse('generate_article:article-list'))
+            images = output[0]
         print(profile)
         messages.info(
             request, 'You are limited to use only images from Samanta AI due to security and privacy policy')

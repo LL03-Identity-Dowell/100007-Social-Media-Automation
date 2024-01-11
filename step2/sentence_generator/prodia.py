@@ -1,4 +1,5 @@
 import logging
+from time import sleep
 
 import requests
 
@@ -51,11 +52,13 @@ class ImageGenerator:
         if job_detail.get('status') == 'queued':
             maximum_number_tries = 20
             counter = 0
+            sleep_time=0.5
             image_generation_competed = False
-            job_id = job_detail.get('job_id')
+            job_id = job_detail.get('job')
 
             while not image_generation_competed:
                 counter += 1
+                sleep(sleep_time)
                 try:
                     image_details = self.get_generated_image(job_id=job_id)
                     if image_details.get('status') == 'succeeded':
