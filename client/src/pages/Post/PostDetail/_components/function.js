@@ -1,17 +1,15 @@
-export const handleCharacCount = () => {
-  const postParagraphsDiv = document.getElementById("post-paragraphs");
+export const handleCharacCount = (text) => {
   let wordCount = 0;
   let characterCount = 0;
   let hashtagCount = 0;
 
-  if (postParagraphsDiv) {
-    const text = postParagraphsDiv.innerText.replace(/\n/g, "");
-
-    const words = text.split(/\s+/);
-    const hashtags = text.match(/#[\w]+/g);
+  if (text) {
+    const textArr = text.join(" ");
+    const words = textArr.split(/\s+/);
+    const hashtags = textArr.match(/#[\w]+/g);
 
     wordCount = words.filter((word) => word.length > 0).length;
-    characterCount = text.length;
+    characterCount = textArr.length;
     hashtagCount = hashtags ? hashtags.length : 0;
   }
   return { wordCount, characterCount, hashtagCount };

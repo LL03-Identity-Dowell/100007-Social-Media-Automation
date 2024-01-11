@@ -47,7 +47,8 @@ function PostDetail({ show }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { characterCount, hashtagCount, wordCount } = handleCharacCount();
+  const { characterCount, hashtagCount, wordCount } =
+    handleCharacCount(paragraph);
 
   useEffect(() => {
     show();
@@ -103,8 +104,6 @@ function PostDetail({ show }) {
         setError("Server error, Please try again later");
         console.error("Error submitting post:", error);
       });
-
-    console.log(data);
   };
 
   const fetch = () => {
@@ -204,6 +203,7 @@ function PostDetail({ show }) {
         />
       </div> */}
 
+
       <div className="mt-2 mb-2 text-lg font-bold md:mb-0 flex justify-between items-center">
        
           <h2>
@@ -212,6 +212,7 @@ function PostDetail({ show }) {
           </h2>
         
         <span onClick={handelPopup} className="cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg"> <FaEdit/>Edit</span>
+
       </div>
 
       <hr className="my-4" />
@@ -220,11 +221,13 @@ function PostDetail({ show }) {
         {
           postDetailData &&
           paragraph.map((p, index) => (
+
             <div className="text-base" key={index}>
               {index >= 0 && p}
             </div>
           ))
          }
+
       </div>
 
       <hr className="my-4" />

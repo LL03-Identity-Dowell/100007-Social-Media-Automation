@@ -69,8 +69,6 @@ const PostDetailDropdown = ({ close }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
-
     const qualitativeValue = Array.from(
       document.querySelectorAll(`input[name="inputCheckbox1"]:checked`)
     ).map((checkbox) => checkbox.value);
@@ -104,12 +102,15 @@ const PostDetailDropdown = ({ close }) => {
           setLoading(false);
           setSuccess(null);
           setSuccess("Details sent...!");
+          setInput1List([]);
+          setInput2List([]);
+          setInput3List([]);
           formRef.current.reset();
         })
         .catch((error) => {
           setLoading(false);
           setError("Error making the request. Please try again later . ");
-          //console.error("Error fetching user-approval:", error);
+          console.log(error);
         });
     }
 
@@ -242,7 +243,7 @@ const PostDetailDropdown = ({ close }) => {
                     <label className='text-sm'>{each}</label>
                     <button
                       onClick={() => {
-                        setInput1List((prev) =>
+                        setInput2List((prev) =>
                           prev.filter((item) => item !== each)
                         );
                         handleCheckboxChange();
@@ -295,7 +296,7 @@ const PostDetailDropdown = ({ close }) => {
                     <label className='text-sm'>{each}</label>
                     <button
                       onClick={() => {
-                        setInput1List((prev) =>
+                        setInput3List((prev) =>
                           prev.filter((item) => item !== each)
                         );
                         handleCheckboxChange();

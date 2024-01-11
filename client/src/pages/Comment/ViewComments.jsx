@@ -42,13 +42,25 @@ function ViewComments({ show }) {
           setError("");
         })
         .catch(() => {
-          setError("The post does not have aryshare ID");
+          setError(error?.response?.data?.platforms.join(", "));
           setSuccess("");
         });
       setLoading(false);
     };
     fetchComments();
   }, [id]);
+
+  const handleDelete = async (commentId, platform) => {
+    const body = {
+      comment_id: commentId,
+      platform,
+    };
+    const url = `http://127.0.0.1:8000/api/v1/comments/delete-comment/${id}/`;
+    const res = await axios.post(url, body, {
+      withCredentials: true,
+    });
+    console.log(res);
+  };
 
   return (
     <div className='relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto'>
@@ -83,7 +95,7 @@ function ViewComments({ show }) {
                     const date = getDate(t.created);
                     return (
                       <li
-                        className='flex gap-6 px-8 py-4 bg-gray-100'
+                        className='flex items-center w-full gap-6 px-8 py-4 bg-gray-100'
                         key={t.commentId}
                       >
                         <h4 className='mt-1'>{i + 1}.</h4>
@@ -91,6 +103,12 @@ function ViewComments({ show }) {
                           <p className='text-xl'>{t.comment}</p>
                           <span className='text-sm'>{date}</span>
                         </div>
+                        <button
+                          onClick={() => handleDelete(t.commentId, t.platform)}
+                          className='px-6 py-2.5 rounded-sm ml-auto text-sm font-bold text-red-600 bg-red-300 cursor-pointer'
+                        >
+                          Delete
+                        </button>
                       </li>
                     );
                   })}

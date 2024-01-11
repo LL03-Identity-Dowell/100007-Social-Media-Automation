@@ -49,10 +49,10 @@ const HashtagsMentions = ({ close }) => {
       setcheckedMentionsList([...checkedMentionsList, false]);
     }
   };
-  const handleAddInput = (e) => {
-    handleAddHashtagInput(e);
-    handleAddMentionsInput(e);
-  };
+  // const handleAddInput = (e) => {
+  //   handleAddHashtagInput(e);
+  //   handleAddMentionsInput(e);
+  // };
   const handleRemoveHashtagInput = (index) => {
     setinputHashtagList((prevList) => prevList.filter((_, i) => i !== index));
     setcheckedHashtagList((prevChecked) => {
@@ -212,7 +212,9 @@ const HashtagsMentions = ({ close }) => {
                   />
                   <button
                     className={`px-2 py-0 text-white bg-customBlue rounded-r-2xl ${
-                      checkedHashtagList.length <= 0 && "opacity-90 cursor-none"
+                      !inputHashtagText
+                        ? "opacity-90 cursor-not-allowed"
+                        : "cursor-pointer opacity-100"
                     }`}
                     onClick={handleAddHashtagInput}
                   >
@@ -264,8 +266,9 @@ const HashtagsMentions = ({ close }) => {
                   />
                   <button
                     className={`px-2 py-0 text-white bg-customBlue rounded-r-2xl ${
-                      checkedMentionsList.length <= 0 &&
-                      "opacity-90 cursor-none"
+                      !inputMentionsText
+                        ? "opacity-90 cursor-not-allowed"
+                        : "cursor-pointer opacity-100"
                     }`}
                     onClick={handleAddMentionsInput}
                   >
