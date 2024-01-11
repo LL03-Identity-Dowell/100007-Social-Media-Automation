@@ -9,6 +9,7 @@ function Navbar() {
   const [username, setUserName] = useState(null);
   const [userEmail, setUserEmail] = useState("");
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isSecondDropdownOpen, setSecondDropdownOpen] = useState(false);
 
   useEffect(() => {
     let user = JSON.parse(localStorage.getItem("userInfo"));
@@ -38,13 +39,19 @@ function Navbar() {
   const handleToggleDropdown = () => {
     setDropdownOpen(!isDropdownOpen);
   };
+  const handleToggleSecondDropdown = () => {
+    setSecondDropdownOpen(!isSecondDropdownOpen);
+  };
 
+  const handleSecondLinkClick = () => {
+    // Close the dropdown when a link is clicked
+    console.log("clicked");
+    setSecondDropdownOpen(false);
+  };
   const handleLinkClick = () => {
     // Close the dropdown when a link is clicked
     setDropdownOpen(false);
   };
-
-  
 
   return (
     <nav className="sticky top-0 z-20 w-full text-white border-b border-gray-200 bg-customBlue dark:bg-gray-900 dark:border-gray-600">
@@ -107,9 +114,10 @@ function Navbar() {
               type="button"
               className="relative flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 "
               id="user-menu-button"
+              onClick={handleToggleDropdown}
               aria-expanded="false"
-              data-dropdown-toggle="user-dropdown1"
-              data-dropdown-placement="bottom"
+              // data-dropdown-toggle="user-dropdown1"
+              // data-dropdown-placement="bottom"
             >
               <span className="sr-only">Open user menu</span>
               <FaUser className="w-8 h-8 p-1 rounded-full text-customBlue" />
@@ -141,7 +149,14 @@ function Navbar() {
 
             {/* Dropdown menu */}
             <div
-              className="z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
+              className={` ${
+                isDropdownOpen ? "absolute" : "hidden"
+              } z-30 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600`}
+              style={{
+                top: isDropdownOpen ? "calc(100% - 20px)" : "0",
+                right: 0,
+              }}
+              // className="z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
               id="user-dropdown1"
             >
               <div className="px-4 py-3">
@@ -153,6 +168,7 @@ function Navbar() {
                 <li>
                   <Link
                     to="/user-profile"
+                    onClick={handleLinkClick}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-customGray dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                   >
                     User Profile
@@ -161,6 +177,7 @@ function Navbar() {
                 <li>
                   <Link
                     to="/statistics/my-plan"
+                    onClick={handleLinkClick}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                     title="View Plan"
                   >
@@ -170,6 +187,7 @@ function Navbar() {
                 <li>
                   <Link
                     to="/statistics/my-team"
+                    onClick={handleLinkClick}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                     title="View Team"
                   >
@@ -179,6 +197,7 @@ function Navbar() {
                 <li>
                   <Link
                     to="/statistics/my-usage"
+                    onClick={handleLinkClick}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                     title="View Usage"
                   >
@@ -188,6 +207,7 @@ function Navbar() {
                 <li>
                   <Link
                     to="/address"
+                    onClick={handleLinkClick}
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                   >
                     Address
@@ -276,10 +296,12 @@ function Navbar() {
             </li>
 
             {/* Settings Dropdown Menu*/}
-            <li>
+            <li className="relative  w-[200px]">
               <button
                 id="dropdownNavbarLink"
-                data-dropdown-toggle="settingsDropdown"
+                // data-dropdown-toggle="settingsDropdown"
+                onClick={handleToggleSecondDropdown}
+                aria-expanded="false"
                 className="flex items-center justify-between w-full py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"
               >
                 User Settings
@@ -301,9 +323,14 @@ function Navbar() {
               </button>
               {/* Dropdown */}
               <div
-                id="settingsDropdown"
-                className="z-10 hidden font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
-              >
+                // id="settingsDropdown"
+                style={{
+                  top: isSecondDropdownOpen ? "calc(100% - 1px)" : "0",
+                  left: 0,
+                }}
+                className={` ${
+                  isSecondDropdownOpen ? "absolute" : "hidden"
+                } z-30 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600 w-full`}>
                 <ul
                   className="py-2 text-sm text-gray-700 dark:text-gray-400"
                   aria-labelledby="dropdownLargeButton"
@@ -311,7 +338,7 @@ function Navbar() {
                   <li>
                     <Link
                       to="/settings/hastagsandmentions"
-                      onClick={handleLinkClick}
+                      onClick={() => {handleSecondLinkClick(); handleLinkClick()}}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white"
                     >
                       Hashtags & Mentions
@@ -320,7 +347,7 @@ function Navbar() {
                   <li>
                     <Link
                       to="/settings/categoriesandtopic"
-                      onClick={handleLinkClick}
+                      onClick={() => {handleSecondLinkClick(); handleLinkClick()}}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white"
                     >
                       Categories & Topic
@@ -329,7 +356,7 @@ function Navbar() {
                   <li>
                     <Link
                       to="/settings/postdetaildropdowns"
-                      onClick={handleLinkClick}
+                      onClick={() => {handleSecondLinkClick(); handleLinkClick()}}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white"
                     >
                       Post Detail Dropdown
@@ -338,7 +365,7 @@ function Navbar() {
                   <li>
                     <Link
                       to="/social-media-channels"
-                      onClick={handleLinkClick}
+                      onClick={() => {handleSecondLinkClick(); handleLinkClick()}}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white"
                     >
                       Social Media Channels
@@ -347,7 +374,7 @@ function Navbar() {
                   <li>
                     <Link
                       to="/target-cities"
-                      onClick={handleLinkClick}
+                      onClick={() => {handleSecondLinkClick(); handleLinkClick()}}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white"
                     >
                       Targeted Cities
@@ -356,7 +383,7 @@ function Navbar() {
                   <li>
                     <Link
                       to="/client-profile"
-                      onClick={handleLinkClick}
+                      onClick={() => {handleSecondLinkClick(); handleLinkClick()}}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white"
                     >
                       View Client's Profile
@@ -365,7 +392,7 @@ function Navbar() {
                   <li>
                     <Link
                       to="/user-approval"
-                      onClick={handleLinkClick}
+                      onClick={() => {handleSecondLinkClick(); handleLinkClick()}}
                       className="block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white"
                     >
                       Approval By Clients
@@ -504,8 +531,6 @@ function Navbar() {
           </ul>
         </div>
       </div>
-
-
     </nav>
   );
 }

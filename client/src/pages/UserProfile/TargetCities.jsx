@@ -27,7 +27,7 @@ const TargetCities = () => {
     setLoading(true);
     if (status === "update") {
       const res = await axios.put(
-        `http://127.0.0.1:8000/api/v1/targeted_cities/update/`,
+        `${import.meta.env.VITE_APP_BASEURL}/targeted_cities/update/`,
         citiesArray,
         {
           withCredentials: true,
@@ -45,7 +45,7 @@ const TargetCities = () => {
       formRef.current.reset();
     } else if (status === "insert") {
       const res = await axios.post(
-        `http://127.0.0.1:8000/api/v1/targeted_cities/create/`,
+        `${import.meta.env.VITE_APP_BASEURL}/targeted_cities/create/`,
         citiesArray,
         {
           withCredentials: true,
@@ -70,7 +70,7 @@ const TargetCities = () => {
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
-      const url = "http://127.0.0.1:8000/api/v1/targeted_cities/";
+      const url = `${import.meta.env.VITE_APP_BASEURL}/targeted_cities/`;
       await axios
         .get(url, {
           withCredentials: true,

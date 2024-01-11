@@ -162,13 +162,13 @@ function PostDetail({ show }) {
 
   const handelPopup = ()=>{
     axios
-    .get(`http://127.0.0.1:8000/api/v1/edit_post/${postId}/`, {
+    .get(`${import.meta.env.VITE_APP_BASEURL}/edit_post/${postId}/`, {
       withCredentials: true,
     })
     .then((response) => {
       setError(null);
       setLoading(false);
-      console.log(response);
+      // console.log(response);
       let resData = response.data.redirect_url;
       setIframeSrc(resData)
 

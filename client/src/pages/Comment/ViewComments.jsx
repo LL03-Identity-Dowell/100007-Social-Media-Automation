@@ -29,7 +29,7 @@ function ViewComments({ show }) {
   useEffect(() => {
     setLoading(true);
     const fetchComments = async () => {
-      const url = `http://127.0.0.1:8000/api/v1/comments/get-post-comments/${id}/`;
+      const url = `${import.meta.env.VITE_APP_BASEURL}/comments/get-post-comments/${id}/`;
       await axios
         .get(url, {
           withCredentials: true,

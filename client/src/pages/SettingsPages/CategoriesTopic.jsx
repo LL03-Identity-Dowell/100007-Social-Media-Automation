@@ -97,7 +97,7 @@ const CategoriesTopic = ({ close }) => {
 
   const fetchCategories = async () => {
     const response = await axios.get(
-      "http://127.0.0.1:8000/website/api/v1/category/"
+      `${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`
     );
     //console.log("categories", response.data);
     setCategoryStatus(response.data);
@@ -105,7 +105,7 @@ const CategoriesTopic = ({ close }) => {
 
   const fetchTopics = async () => {
     const response = await axios.get(
-      "http://127.0.0.1:8000/website/api/v1/topic/"
+      `${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`
     );
     console.log("topics", response.data);
     setTopicStatus(response.data);
@@ -120,7 +120,7 @@ const CategoriesTopic = ({ close }) => {
         name: checkedCategories.join(","),
       };
       await axios
-        .post("http://127.0.0.1:8000/website/api/v1/category/", data, {
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`, data, {
           withCredentials: true,
         })
         .then((response) => {
@@ -143,7 +143,7 @@ const CategoriesTopic = ({ close }) => {
         name: checkedTopics.join(","),
       };
       await axios
-        .post("http://127.0.0.1:8000/website/api/v1/topic/", data, {
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`, data, {
           withCredentials: true,
         })
         .then((response) => {
