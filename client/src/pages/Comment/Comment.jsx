@@ -37,8 +37,9 @@ function Comment({ show }) {
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
-      const url = `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${page + 1
-    }&order=newest`;
+      const url = `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${
+        page + 1
+      }&order=newest`;
       await axios
         .get(url, {
           withCredentials: true,
@@ -46,23 +47,26 @@ function Comment({ show }) {
         .then((response) => {
           const { paginated_posts, page, total_pages, total_items } =
             response.data;
-          setComments({
-            paginatedPosts: paginated_posts,
-            page,
-            totalPages: total_pages,
-            totalItems: total_items,
-          });
 
-          if (total_items <= 0) {
+          if (Array.isArray(total_items) && total_items <= 0) {
             setIsEmpty("You do not have any posts");
+            setSuccess("");
+            setError("You do not have any posts");
+          } else {
+            setSuccess("Successfully Fetched the posts");
+            setError("");
+            setComments({
+              paginatedPosts: paginated_posts,
+              page,
+              totalPages: total_pages,
+              totalItems: total_items,
+            });
           }
-          setSuccess("successfully fetch the comments");
-          setError("");
           setShowMorePages(comments.totalPages > pagesToDisplay);
           window.scrollTo(0, 0);
         })
         .catch(() => {
-          setError("Server error, Please try again later");
+          setError(error?.response?.data?.platforms.join(", "));
           setSuccess("");
         });
       setLoading(false);
@@ -89,6 +93,7 @@ function Comment({ show }) {
           <ul className='mt-6 space-y-12'>
             {comments.paginatedPosts?.map((item) => {
               const redirectForComment = () => {
+                console.log(item);
                 if (item?.post_response) {
                   redirect(`/comment/${item.article_id}`);
                 } else {
