@@ -7,7 +7,7 @@ function SpecificArticle({ show }) {
   const [loading, setLoading] = useState();
   const [error, setError] = useState();
   const [articleDetailData, setArticleDetailData] = useState();
-  
+
 
   useEffect(() => {
     show();
@@ -33,7 +33,7 @@ function SpecificArticle({ show }) {
 
     // Make a POST request to the API endpoint with the session_id
     axios
-      .post(`${import.meta.env.VITE_APP_BASEURL}article-detail/`, payload, {
+      .post(`${import.meta.env.VITE_APP_BASEURL}/article-detail/`, payload, {
         withCredentials: true,
       })
       .then((response) => {

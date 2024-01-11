@@ -39,7 +39,8 @@ function PostDetail({ show }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { characterCount, hashtagCount, wordCount } = handleCharacCount();
+  const { characterCount, hashtagCount, wordCount } =
+    handleCharacCount(paragraph);
 
   useEffect(() => {
     show();
@@ -95,8 +96,6 @@ function PostDetail({ show }) {
         setError("Server error, Please try again later");
         console.error("Error submitting post:", error);
       });
-
-    console.log(data);
   };
 
   const fetch = () => {
@@ -172,13 +171,12 @@ function PostDetail({ show }) {
 
       <div className='mt-2 mb-2 text-lg font-bold md:mb-0'>
         {!editing ? (
-          <h2>
-            {/* {postDetailData && postDetailData.post.title} */}
-            The team was adviced by the cyber security experts.
+          <h2 className='text-customTextBlue'>
+            {postDetailData && postDetailData.post.title}
           </h2>
         ) : (
           <input
-            className='w-full px-1 py-2 border border-[#6B7280] outline-[#3f83f8]'
+            className='w-full px-1 py-2 border border-[#6B7280] outline-[#3f83f8] text-gray-800'
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -191,13 +189,13 @@ function PostDetail({ show }) {
         {!editing ? (
           postDetailData &&
           paragraph.map((p, index) => (
-            <div className='text-base' key={index}>
+            <div className='text-base ' key={index}>
               {index >= 0 && p}
             </div>
           ))
         ) : (
           <textarea
-            className='w-full px-1 py-2 outline-none ring-0 border border-[#6B7280]'
+            className='w-full px-1 py-2 outline-none ring-0 border border-[#6B7280] text-gray-800'
             rows={6}
             value={paragraph}
             onChange={(e) => setParagraph(e.target.value)}

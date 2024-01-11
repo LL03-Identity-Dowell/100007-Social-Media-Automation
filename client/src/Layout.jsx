@@ -17,9 +17,8 @@ const Layout = ({ children, side, show, isUser }) => {
   axios.defaults.withCredentials = true;
   useEffect(() => {
     initFlowbite();
-    
   }, []);
-  const {loading} = useDowellLogin()
+  const { loading } = useDowellLogin();
   // const clearLocalStorage = () => {
   //   localStorage.clear();
   //   sessionStorage.clear();
@@ -51,7 +50,7 @@ const Layout = ({ children, side, show, isUser }) => {
   // }, []);
 
   // useEffect(() => {
-    
+
   //   const fetchAndRemoveSessionId = async () => {
   //     const urlParams = new URLSearchParams(window.location.search);
   //     const session_id = urlParams.get("session_id");
@@ -65,11 +64,11 @@ const Layout = ({ children, side, show, isUser }) => {
   //       // Remove the session_id from the URL without causing a page reload
   //       const newUrl = window.location.href.split("?")[0];
   //       window.history.replaceState({}, document.title, newUrl);
-        
+
   //       // Proceed to fetch data or handle authenticated user logic
   //     } else {
   //       // If no session_id, redirect to the login page with session_id as a query parameter
-       
+
   //       // window.location.href = `https://100014.pythonanywhere.com/?redirect_url=${window.location.origin}`;
   //       window.location.href = 'https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/'
   //     }
@@ -90,15 +89,15 @@ const Layout = ({ children, side, show, isUser }) => {
     const checkSession = async () => {
       // if (!sessionCheckPerformed && session_id) {}
       const session_id = localStorage.getItem("session_id");
-          axios
-            .get(`${import.meta.env.VITE_APP_BASEURL}/api/v1/main/`, {
-              headers: {
-                Authorization: `Bearer ${session_id}`,
-              },
-              withCredentials: true
-            })
-            .then((res) => {
-              const data = res.data;
+      axios
+        .get(`${import.meta.env.VITE_APP_BASEURL}/main/`, {
+          headers: {
+            Authorization: `Bearer ${session_id}`,
+          },
+          withCredentials: true,
+        })
+        .then((res) => {
+          const data = res.data;
           const saveUserInfo = JSON.stringify(data);
           localStorage.setItem("userInfo", saveUserInfo);
           const userProducts = data.portfolio_info;
@@ -107,23 +106,21 @@ const Layout = ({ children, side, show, isUser }) => {
             (product) => product.product === "Social Media Automation"
           );
           if (!hasSocialMediaAutomation) {
-            setProduct(false)
+            setProduct(false);
             console.log("You do not have a portfolio", userProducts);
             navigate("/portfolio_check");
-        }
-            })
-            .catch((err) => {
-            
-              console.error("Error fetching data:", err);
-            });
-        
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching data:", err);
+        });
     };
 
     checkSession();
   }, [navigate]);
 
   return (
-    <div className="w-full ">
+    <div className='w-full '>
       {loading && <Loading />}
       {product && <Navbar user={isUser} />}
       <div
@@ -133,10 +130,13 @@ const Layout = ({ children, side, show, isUser }) => {
       >
         {product && (
           <>
-          <div className={show && "col-auto md:col-span-1 hidden md:block"}>{side && <Sidebar />}</div>
-          <div className={show && "md:hidden  absolute"}>{side && <BottomBar />}</div>
+            <div className={show && "col-auto md:col-span-1 hidden md:block"}>
+              {side && <Sidebar />}
+            </div>
+            <div className={show && "md:hidden  absolute"}>
+              {side && <BottomBar />}
+            </div>
           </>
-          
         )}
 
         <main
