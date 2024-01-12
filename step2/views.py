@@ -40,7 +40,7 @@ from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
 from .models import Step2Manager
-from .sentence_generator.prodia import ImageGenerator
+from .image_generator.prodia import ImageGenerator
 
 # helper functions
 
