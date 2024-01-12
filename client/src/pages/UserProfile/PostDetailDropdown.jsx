@@ -77,14 +77,14 @@ const PostDetailDropdown = ({ close }) => {
       document.querySelectorAll(`input[name="inputCheckbox2"]:checked`)
     ).map((checkbox) => checkbox.value);
 
-    const artictargetedCategory = Array.from(
+    const targetedCategory = Array.from(
       document.querySelectorAll(`input[name="inputCheckbox3"]:checked`)
     ).map((checkbox) => checkbox.value);
 
     const data = {
       qualitative_categorization: qualitativeValue,
       targeted: targetedFor,
-      targeted_category: artictargetedCategory,
+      targeted_category: targetedCategory,
     };
 
     if (getStatus === "update") {
@@ -168,9 +168,8 @@ const PostDetailDropdown = ({ close }) => {
                 <button
                   type='button'
                   disabled={!input1}
-                  className={`bg-customBlue text-white p-2.5 px-3 rounded-r-[20px] ${
-                    !input1 && "opacity-90"
-                  }`}
+                  className={`bg-customBlue text-white p-2.5 px-3 rounded-r-[20px] ${!input1 && "opacity-90"
+                    }`}
                   onClick={handleBtn1click}
                 >
                   Add
@@ -219,9 +218,8 @@ const PostDetailDropdown = ({ close }) => {
                 <button
                   type='button'
                   disabled={!input2}
-                  className={`bg-customBlue text-white p-2.5 px-3 rounded-r-[20px] ${
-                    !input2 && "opacity-90"
-                  }`}
+                  className={`bg-customBlue text-white p-2.5 px-3 rounded-r-[20px] ${!input2 && "opacity-90"
+                    }`}
                   onClick={handleBtn2click}
                 >
                   Add
@@ -272,9 +270,8 @@ const PostDetailDropdown = ({ close }) => {
                 <button
                   type='button'
                   disabled={!input3}
-                  className={`bg-customBlue text-white p-2.5 px-3 rounded-r-[20px] ${
-                    !input3 && "opacity-90"
-                  }`}
+                  className={`bg-customBlue text-white p-2.5 px-3 rounded-r-[20px] ${!input3 && "opacity-90"
+                    }`}
                   onClick={handleBtn3click}
                 >
                   Add
@@ -313,9 +310,8 @@ const PostDetailDropdown = ({ close }) => {
           </div>
           <button
             type='submit'
-            className={`px-10 py-2 text-white rounded-xl bg-customBlue ${
-              !atLeastOneCheckboxSelected && "opacity-90 cursor-not-allowed"
-            } opacity-100`}
+            className={`px-10 py-2 text-white rounded-xl bg-customBlue ${!atLeastOneCheckboxSelected && "opacity-90 cursor-not-allowed"
+              } opacity-100`}
             disabled={!atLeastOneCheckboxSelected}
           >
             Save
