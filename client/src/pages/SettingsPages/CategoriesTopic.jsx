@@ -59,11 +59,11 @@ const CategoriesTopic = ({ close }) => {
     setError("");
     setSuccess("");
     const topicsChecked = Array.from(
-      document.querySelectorAll(`input[name=inputCheckbox1]:checked`)
+      document.querySelectorAll(`input[name=inputCheckbox2]:checked`)
     ).map((checkbox) => checkbox.value);
 
     const categoriesChecked = Array.from(
-      document.querySelectorAll(`input[name=inputCheckbox2]:checked`)
+      document.querySelectorAll(`input[name=inputCheckbox1]:checked`)
     ).map((checkbox) => checkbox.value);
 
     console.log({ topicsChecked, categoriesChecked });
