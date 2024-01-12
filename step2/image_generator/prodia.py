@@ -1,7 +1,8 @@
 import logging
 import random
-from time import sleep
 import re
+from time import sleep
+
 import requests
 from transformers import pipeline, set_seed
 
@@ -71,7 +72,7 @@ class ImageGenerator:
         """
         image_details = {}
         try:
-            prompt=self.generate_stable_diffusion_prompt(starting_text=f'image about this title "{str(prompt)}"')
+            prompt = self.generate_stable_diffusion_prompt(starting_text=f'image about this title "{str(prompt)}"')
         except Exception as e:
             logging.exception(e)
             print(str(e))
