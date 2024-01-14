@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { FaCheck } from "react-icons/fa";
 import { FaTimes } from "react-icons/fa";
 import axios from "axios";
 import Loading from "../../components/Loading";
@@ -19,7 +18,7 @@ const HashtagsMentions = ({ close }) => {
   const [getStatus, setGetStatus] = useState();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
-  const [error, setError] = useState();
+  const [error, setError] = useState("");
 
   const handleHashtagInputChange = (e) => {
     setinputHashtagText(e.target.value);
@@ -119,6 +118,9 @@ const HashtagsMentions = ({ close }) => {
         mentions_list: checkedMentions.join(","),
       };
 
+      setSuccess("");
+      setError("");
+
       //console.log("from update", data);
       await axios
         .put(
@@ -131,15 +133,13 @@ const HashtagsMentions = ({ close }) => {
         )
         .then(() => {
           setLoading(false);
-          setSuccess(null);
-          setTimeout(() => {
-            setSuccess("Hashtags and mentions are updated...!");
-          }, 1);
+          setSuccess("Hashtags and mentions are updated...!");
+          setinputMentionsList([]);
+          setinputHashtagList([]);
         })
         .catch((error) => {
           setLoading(false);
           setError("Error making the request. Please try again later.");
-          //console.error("Error fetching user-approval:", error);
         });
     } else if (getStatus === "insert") {
       setLoading(true);
@@ -162,12 +162,13 @@ const HashtagsMentions = ({ close }) => {
           setLoading(false);
           if (!success) {
             setSuccess("Hashtags and mentions are sent successfully...!");
+            setinputMentionsList([]);
+            setinputHashtagList([]);
           }
         })
         .catch((error) => {
           setLoading(false);
           setError("Error making the request. Please try again later.");
-          //console.error("Error fetching user-approval:", error);
         });
     }
   };
