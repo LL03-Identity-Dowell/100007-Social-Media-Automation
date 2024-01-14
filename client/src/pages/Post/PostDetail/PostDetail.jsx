@@ -354,7 +354,7 @@ function PostDetail({ show }) {
 
       {/* Editing Modal Starts */}
       <div className={editing ? "fixed z-40 top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 transformrounded-xl w-full flex justify-center items-center h-full bg-overlay" : "hidden"}>
-        <div className=" bg-white w-full h-full 2xl:h-[900px] md:w-[900px] md:h-[600px]  text-black relative">
+        <div className=" bg-white w-full h-full 2xl:h-[750px] md:w-[900px] md:h-[600px]  text-black relative">
         <span className="font-bold text-xl p-2 border border-black rounded-full absolute -right-12 cursor-pointer top-0" onClick={handelPopup}><FaTimes/></span>
         <iframe src={iframeSrc} width="100%" height="100%"/>
 
