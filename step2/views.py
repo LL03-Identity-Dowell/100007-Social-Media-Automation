@@ -39,12 +39,13 @@ from helpers import (download_and_upload_image,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
-                     encode_json_data)
+                     encode_json_data, edit_article, create_step_4_data)
 from website.models import Sentences, SentenceResults
 from .image_generator.prodia import ImageGenerator
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer)
+                          MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
+                          EditPostSerializer)
 
 global PEXELS_API_KEY
 
@@ -983,6 +984,42 @@ class EditPostView(AuthenticatedBaseView):
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def post(self, request, post_id, *args, **kwargs):
+        """
+        This point saves a post
+        """
+        serializer = EditPostSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        step_3_data = {
+            'post_id': post_id,
+            'title': serializer.validated_data['title'],
+            'paragraph': serializer.validated_data['paragraph'],
+        }
+        edit_article(step_3_data)
+        uploaded_image = download_and_upload_image(image_url=serializer.validated_data['image'])
+
+        image_url = uploaded_image.get('file_url')
+
+        step_4_data = {
+            'user_id': request.session.get('user_id'),
+            'session_id': request.session.get('session_id'),
+            'client_admin_id': request.session['userinfo']['client_admin_id'],
+            'title': serializer.validated_data['title'],
+            'paragraph': serializer.validated_data['paragraph'],
+            'org_id': request.session.get('org_id'),
+            'source': 'dowell_editor',
+            'image': image_url,
+            "timezone": request.session['timezone'],
+            "username": request.session['username']
+        }
+        create_step_4_data(step_4_data)
+        response_data = {
+            "message": "Post saved successfully",
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 
 '''step-3 Ends here'''
