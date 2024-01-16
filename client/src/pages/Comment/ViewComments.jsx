@@ -76,11 +76,7 @@ function ViewComments({ show }) {
       .then((response) => {
         if (response.statusText === "OK") {
           console.log("Hitt");
-          setSuccess(
-            `Comment deleted successfully. It will be updated ${new Date(
-              new Date.getTime() + 2 * 60 * 60 * 1000
-            )}`
-          );
+          setSuccess("Comment deleted successfully. It will be updated 2h");
           setError("");
         }
       })
@@ -103,9 +99,10 @@ function ViewComments({ show }) {
         </h1>
         <Link
           to='/comment'
-          className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg'
+          className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg max-w-max'
         >
-          <MdArrowLeft /> Go back
+          <MdArrowLeft />
+          Go back
         </Link>
 
         {hasComment ? (
