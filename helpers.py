@@ -6,6 +6,7 @@ import jwt
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
+from django.utils.timezone import localtime, localdate
 from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 
@@ -574,3 +575,85 @@ def encode_json_data(data):
     @return: str
     """
     return jwt.encode(data, "secret", algorithm="HS256")
+
+
+def edit_article(data: dict):
+    """
+    This function updates a post data
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step3_data",
+        "document": "step3_data",
+        "team_member_ID": "34567897799",
+        "function_ID": "ABCDE",
+        "command": "update",
+        "field": {"_id": data.get('post_id')},
+        "update_field": {
+            "title": data.get('title'),
+            "paragraph": data.get('paragraph'),
+        },
+        "platform": "bangalore"
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    print(response.text)
+    return response.json()
+
+
+def create_step_4_data(data: dict):
+    """
+    This function creates step 4 data
+    """
+    time = localtime()
+    test_date = str(localdate())
+    date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+    date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+    eventId = create_event()['event_id'],
+    url = "http://uxlivinglab.pythonanywhere.com"
+    payload = json.dumps({
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "insert",
+        "eventId": eventId,
+        # 'dowelltime': dowellclock,
+        "field": {
+            "user_id": data['user_id'],
+            "session_id": data['session_id'],
+            "eventId": eventId,
+            'client_admin_id': data['client_admin_id'],
+            "title": data['title'],
+            "paragraph": data['paragraph'],
+            "org_id": data['org_id'],
+            "source": data['source'],
+            "qualitative_categorization": data.get('qualitative_categorization'),
+            "targeted_for": data.get('targeted_for'),
+            "designed_for": data.get('designed_for'),
+            "targeted_category": data.get('targeted_category'),
+            "image": data['image'],
+            "date": date,
+            "time": str(time),
+            "status": "",
+            "timezone": data['timezone'],
+            "username": data['username']
+        },
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    })
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    print("This is payload", payload)
+    response = requests.request(
+        "POST", url, headers=headers, data=payload)
+    print("data:", response.json())
+    return response.json()
