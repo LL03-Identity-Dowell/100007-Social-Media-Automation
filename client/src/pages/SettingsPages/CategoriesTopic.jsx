@@ -48,7 +48,45 @@ const CategoriesTopic = ({ close }) => {
   };
 
   const handleRemoveTopicsInput = (index) => {
-    setinputTopicsList((prevList) => prevList.filter((_, i) => i !== index));
+    setinputTopicsList((prevList) => prevList.filter((_, i) => i !== index))
+    setcheckedTopicsList((prevChecked) => {
+      const updatedChecked = [...prevChecked];
+      updatedChecked.splice(index, 1);
+      updateSaveButtonState(checkedCategoryList, updatedChecked);
+      return updatedChecked;
+    });
+  };
+
+  const handleCheckboxTopicsChange = (index) => {
+    const updatedChecked = [...checkedTopicsList];
+    updatedChecked[index] = !updatedChecked[index];
+    setcheckedTopicsList(updatedChecked);
+    setCheckedTopics(inputTopicsList.filter((_, i) => updatedChecked[i]));
+    updateSaveButtonState(checkedCategoryList, updatedChecked);
+  };
+
+  //Save Button
+  const updateSaveButtonState = (categoryChecked, topicsChecked) => {
+    const areAnyChecked =
+      categoryChecked.some((value) => value) ||
+      topicsChecked.some((value) => value);
+    setIsSaveDisabled(!areAnyChecked);
+  };
+
+  const fetchCategories = async () => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`
+    );
+    //console.log("categories", response.data);
+    setCategoryStatus(response.data);
+  };
+
+  const fetchTopics = async () => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`
+    );
+    console.log("topics", response.data);
+    setTopicStatus(response.data);
     setTimeout(() => {
       handleCheckboxChange();
     }, 20);
@@ -73,7 +111,7 @@ const CategoriesTopic = ({ close }) => {
         name: categoriesChecked.join(","),
       };
       await axios
-        .post("http://127.0.0.1:8000/website/api/v1/category/", data, {
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`, data, {
           withCredentials: true,
         })
         .then((response) => {
@@ -94,7 +132,7 @@ const CategoriesTopic = ({ close }) => {
         name: topicsChecked.join(","),
       };
       await axios
-        .post("http://127.0.0.1:8000/website/api/v1/topic/", data, {
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`, data, {
           withCredentials: true,
         })
         .then((response) => {

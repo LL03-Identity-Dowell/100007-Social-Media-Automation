@@ -95,7 +95,7 @@ const HashtagsMentions = ({ close }) => {
   const fetch = () => {
     // Make a GET request to the API endpoint with the session_id
     axios
-      .get("http://127.0.0.1:8000/api/v1/hash-tags-and-mentions/", {
+      .get(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/hash-tags-and-mentions/`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -124,7 +124,7 @@ const HashtagsMentions = ({ close }) => {
       //console.log("from update", data);
       await axios
         .put(
-          "http://127.0.0.1:8000/api/v1/update-hash-tags-and-mentions/",
+          `${import.meta.env.VITE_APP_WEBSITEBASEURL}/update-hash-tags-and-mentions/`,
           data,
 
           {
@@ -152,7 +152,7 @@ const HashtagsMentions = ({ close }) => {
       //console.log("from insert", payloadBody)
       await axios
         .post(
-          "http://127.0.0.1:8000/api/v1/hash-tags-and-mentions/",
+          `${import.meta.env.VITE_APP_WEBSITEBASEURL}/hash-tags-and-mentions/`,
           payloadBody,
           {
             withCredentials: true,

@@ -4,6 +4,8 @@ import axios from "axios";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
 import { getDate } from "./utils/getDate";
+import { MdArrowLeft } from "react-icons/md";
+
 function ViewComments({ show }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -30,7 +32,9 @@ function ViewComments({ show }) {
     setLoading(true);
 
     const fetchComments = async () => {
-      const url = `http://127.0.0.1:8000/api/v1/comments/get-post-comments/${id}/`;
+      const url = `${
+        import.meta.env.VITE_APP_BASEURL
+      }/comments/get-post-comments/${id}/`;
       await axios
         .get(url, {
           withCredentials: true,
@@ -99,10 +103,11 @@ function ViewComments({ show }) {
         </h1>
         <Link
           to='/comment'
-          className='px-3 py-2 mt-4 text-white rounded-md bg-customGray md:py-3 md:px-8'
+          className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg'
         >
-          Go back
+          <MdArrowLeft /> Go back
         </Link>
+
         {hasComment ? (
           <div>
             {comments?.twitter?.length > 0 && (

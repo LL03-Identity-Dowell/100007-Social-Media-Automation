@@ -36,7 +36,7 @@ const SocialMediaChannels = () => {
 
   const checkUserSocialMedia = () => {
     setLoading(true)
-    axios.get(`http://127.0.0.1:8000/api/v1/social_media_channels/`, {
+    axios.get(`${import.meta.env.VITE_APP_BASEURL}/social_media_channels/`, {
       withCredentials: true,
     })
       .then((response) => {
@@ -60,7 +60,7 @@ const SocialMediaChannels = () => {
   const checkUserAyrshareSocialLinking = () => {
 
     // setLoading(true)
-    axios.get(`http://127.0.0.1:8000/api/v1/link/linkusers/`, {
+    axios.get(`${import.meta.env.VITE_APP_BASEURL}/link/linkusers/`, {
       withCredentials: true,
     })
       .then((response) => {

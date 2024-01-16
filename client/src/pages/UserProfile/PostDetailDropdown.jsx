@@ -35,7 +35,7 @@ const PostDetailDropdown = ({ close }) => {
 
   const fetch = () => {
     axios
-      .get("http://127.0.0.1:8000/api/v1/post-detail-dropdowns/", {
+      .get(`${import.meta.env.VITE_APP_BASEURL}/post-detail-dropdowns/`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -91,7 +91,7 @@ const PostDetailDropdown = ({ close }) => {
       setLoading(true);
       await axios
         .put(
-          "http://127.0.0.1:8000/api/v1/post-detail-dropdowns/",
+          `${import.meta.env.VITE_APP_BASEURL}/post-detail-dropdowns/`,
           data,
 
           {
@@ -117,7 +117,7 @@ const PostDetailDropdown = ({ close }) => {
     if (getStatus === "insert") {
       setLoading(true);
       await axios
-        .post("http://127.0.0.1:8000/api/v1/post-detail-dropdowns/", data, {
+        .post(`${import.meta.env.VITE_APP_BASEURL}/post-detail-dropdowns/`, data, {
           withCredentials: true,
         })
         .then(() => {

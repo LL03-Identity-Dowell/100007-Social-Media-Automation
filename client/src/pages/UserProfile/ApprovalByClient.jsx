@@ -44,7 +44,7 @@ const ApprovalByClient = () => {
       const fetch = () => {
         // Make a GET request to the API endpoint with the session_id
         axios
-          .get("http://127.0.0.1:8000/api/v1/user-approval/", {
+          .get(`${import.meta.env.VITE_APP_BASEURL}/user-approval/`, {
             withCredentials: true,
           })
           .then((response) => {
@@ -94,7 +94,7 @@ const ApprovalByClient = () => {
     if (getStatus === "update") {
       setLoading(true);
       axios
-        .put("http://127.0.0.1:8000/api/v1/user-approval/", data, {
+        .put(`${import.meta.env.VITE_APP_BASEURL}/user-approval/`, data, {
           withCredentials: true,
         })
         .then((response) => {
@@ -118,7 +118,7 @@ const ApprovalByClient = () => {
     } else if (getStatus === "insert") {
       setLoading(true);
       axios
-        .post("http://127.0.0.1:8000/api/v1/user-approval/", data, {
+        .post(`${import.meta.env.VITE_APP_BASEURL}/user-approval/`, data, {
           withCredentials: true,
         })
         .then((response) => {

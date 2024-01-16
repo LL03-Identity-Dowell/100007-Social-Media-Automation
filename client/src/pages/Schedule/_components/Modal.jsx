@@ -20,7 +20,7 @@ export const PostModal = ({
       <Dialog.Trigger asChild>
         <button
           type='button'
-          className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-customBlue'
+          className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-customBlue text-center'
         >
           Post Now
         </button>
@@ -67,7 +67,7 @@ export const ScheduleModal = ({
       <Dialog.Trigger asChild>
         <button
           type='button'
-          className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-[#5c6388]'
+          className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-[#5c6388] text-center'
         >
           Schedule
         </button>
