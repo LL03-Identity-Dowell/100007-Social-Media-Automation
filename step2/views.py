@@ -41,6 +41,7 @@ from helpers import (download_and_upload_image,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data)
 from website.models import Sentences, SentenceResults
+from .image_generator.prodia import ImageGenerator
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer)
@@ -815,20 +816,27 @@ class PostDetailView(AuthenticatedBaseView):
             a = random.randint(1, 9)
             query = title
             output = []
-            api = API(PEXELS_API_KEY)
-            # api.popular(results_per_page=10, page=5)
-            pic = api.search(query, page=a, results_per_page=10)
-            width = 350
-            for photo in pic['photos']:
-                pictures = photo['src']['medium']
-                img_data = requests.get(pictures).content
-                im = Image.open(BytesIO(img_data))
-                wit = im.size
-                if wit[0] >= width:
-                    output.append(pictures)
-            if len(output) == 0:
-                return Response({'message': 'No images found please try again!'}, status=status.HTTP_404_NOT_FOUND)
-            images = output[1]
+            image_gen = ImageGenerator()
+            image_details = image_gen.process(prompt=title)
+
+            if image_details.get('imageUrl'):
+                images = image_details.get('imageUrl')
+            else:
+                api = API(PEXELS_API_KEY)
+                # api.popular(results_per_page=10, page=5)
+                pic = api.search(query, page=a, results_per_page=10)
+                width = 350
+                for photo in pic['photos']:
+                    pictures = photo['src']['medium']
+                    img_data = requests.get(pictures).content
+                    im = Image.open(BytesIO(img_data))
+                    wit = im.size
+                    if wit[0] >= width:
+                        output.append(pictures)
+                if len(output) == 0:
+                    return Response({'message': 'No images found please try again!'}, status=status.HTTP_404_NOT_FOUND)
+                images = output[0]
+
             print(profile)
             username = request.session['username']
             linked_accounts = check_connected_accounts(username)
