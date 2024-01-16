@@ -28,6 +28,7 @@ function ViewComments({ show }) {
   }, [comments]);
   useEffect(() => {
     setLoading(true);
+
     const fetchComments = async () => {
       const url = `http://127.0.0.1:8000/api/v1/comments/get-post-comments/${id}/`;
       await axios
@@ -36,10 +37,15 @@ function ViewComments({ show }) {
         })
         .then((response) => {
           const { data } = response;
-          setComments(data);
-          console.log(data);
-          setSuccess("Comments fetched successfully");
-          setError("");
+
+          if (data.status !== "error") {
+            setComments(data);
+            setSuccess("Comments fetched successfully");
+            setError("");
+          } else {
+            setError(data.message.split(".")[0]);
+            setSuccess("");
+          }
         })
         .catch(() => {
           setError(error?.response?.data?.platforms.join(", "));
@@ -51,15 +57,34 @@ function ViewComments({ show }) {
   }, [id]);
 
   const handleDelete = async (commentId, platform) => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
     const body = {
       comment_id: commentId,
       platform,
     };
     const url = `http://127.0.0.1:8000/api/v1/comments/delete-comment/${id}/`;
-    const res = await axios.post(url, body, {
-      withCredentials: true,
-    });
-    console.log(res);
+    await axios
+      .post(url, body, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        if (response.statusText === "OK") {
+          console.log("Hitt");
+          setSuccess(
+            `Comment deleted successfully. It will be updated ${new Date(
+              new Date.getTime() + 2 * 60 * 60 * 1000
+            )}`
+          );
+          setError("");
+        }
+      })
+      .catch(() => {
+        setError(error?.response?.data?.platforms.join(", "));
+        setSuccess("");
+      });
+    setLoading(false);
   };
 
   return (
@@ -243,9 +268,11 @@ function ViewComments({ show }) {
             )}
           </div>
         ) : (
-          <div className='text-4xl font-bold text-[#333] flex justify-center items-center h-[350px]'>
-            No comments posted
-          </div>
+          !loading && (
+            <div className='text-4xl font-bold text-[#333] flex justify-center items-center h-[350px]'>
+              No comments posted
+            </div>
+          )
         )}
       </div>
     </div>
