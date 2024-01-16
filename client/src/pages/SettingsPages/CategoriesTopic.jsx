@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { FaCheck, FaTimes } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaTimes } from "react-icons/fa";
 import axios from "axios";
 import Loading from "../../components/Loading";
 import { SuccessMessages } from "../../components/Messages";
@@ -8,15 +8,10 @@ import { ErrorMessages } from "../../components/Messages";
 const CategoriesTopic = ({ close }) => {
   const [inputCategoryText, setinputCategoryText] = useState("");
   const [inputCategoryList, setinputCategoryList] = useState([]);
-  const [checkedCategoryList, setcheckedCategoryList] = useState([]);
   const [inputTopicsText, setinputTopicsText] = useState("");
   const [inputTopicsList, setinputTopicsList] = useState([]);
-  const [checkedTopicsList, setcheckedTopicsList] = useState([]);
-  const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-  const [checkedCategories, setCheckedCategories] = useState([]);
-  const [checkedTopics, setCheckedTopics] = useState([]);
-  const [categoryStatus, setCategoryStatus] = useState();
-  const [topicStatus, setTopicStatus] = useState();
+  const [atLeastOneCheckboxSelected, setAtLeastOneCheckboxSelected] =
+    useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState();
@@ -26,32 +21,18 @@ const CategoriesTopic = ({ close }) => {
     setinputCategoryText(e.target.value);
   };
 
-  const handleAddCategoryInput = (e) => {
-    e.preventDefault();
-
+  const handleAddCategoryInput = () => {
     if (inputCategoryText) {
-      setinputCategoryList([...inputCategoryList, " " + inputCategoryText]);
+      setinputCategoryList([...inputCategoryList, inputCategoryText]);
       setinputCategoryText("");
-      setcheckedCategoryList([...checkedCategoryList, false]);
     }
   };
 
   const handleRemoveCategoryInput = (index) => {
     setinputCategoryList((prevList) => prevList.filter((_, i) => i !== index));
-    setcheckedCategoryList((prevChecked) => {
-      const updatedChecked = [...prevChecked];
-      updatedChecked.splice(index, 1);
-      updateSaveButtonState(updatedChecked, checkedTopicsList);
-      return updatedChecked;
-    });
-  };
-
-  const handleCheckboxCategoryChange = (index) => {
-    const updatedChecked = [...checkedCategoryList];
-    updatedChecked[index] = !updatedChecked[index];
-    setcheckedCategoryList(updatedChecked);
-    setCheckedCategories(inputCategoryList.filter((_, i) => updatedChecked[i]));
-    updateSaveButtonState(updatedChecked, checkedTopicsList);
+    setTimeout(() => {
+      handleCheckboxChange();
+    }, 20);
   };
 
   //Topics
@@ -59,18 +40,15 @@ const CategoriesTopic = ({ close }) => {
     setinputTopicsText(e.target.value);
   };
 
-  const handleAddTopicsInput = (e) => {
-    e.preventDefault();
-
+  const handleAddTopicsInput = () => {
     if (inputTopicsText) {
-      setinputTopicsList([...inputTopicsList, " " + inputTopicsText]);
+      setinputTopicsList([...inputTopicsList, inputTopicsText]);
       setinputTopicsText("");
-      setcheckedTopicsList([...checkedTopicsList, false]);
     }
   };
 
   const handleRemoveTopicsInput = (index) => {
-    setinputTopicsList((prevList) => prevList.filter((_, i) => i !== index));
+    setinputTopicsList((prevList) => prevList.filter((_, i) => i !== index))
     setcheckedTopicsList((prevChecked) => {
       const updatedChecked = [...prevChecked];
       updatedChecked.splice(index, 1);
@@ -97,7 +75,7 @@ const CategoriesTopic = ({ close }) => {
 
   const fetchCategories = async () => {
     const response = await axios.get(
-      "http://127.0.0.1:8000/website/api/v1/category/"
+      `${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`
     );
     //console.log("categories", response.data);
     setCategoryStatus(response.data);
@@ -105,66 +83,87 @@ const CategoriesTopic = ({ close }) => {
 
   const fetchTopics = async () => {
     const response = await axios.get(
-      "http://127.0.0.1:8000/website/api/v1/topic/"
+      `${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`
     );
     console.log("topics", response.data);
     setTopicStatus(response.data);
+    setTimeout(() => {
+      handleCheckboxChange();
+    }, 20);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+    const topicsChecked = Array.from(
+      document.querySelectorAll(`input[name=inputCheckbox2]:checked`)
+    ).map((checkbox) => checkbox.value);
 
-    if (categoryStatus) {
+    const categoriesChecked = Array.from(
+      document.querySelectorAll(`input[name=inputCheckbox1]:checked`)
+    ).map((checkbox) => checkbox.value);
+
+    console.log({ topicsChecked, categoriesChecked });
+    if (categoriesChecked.length > 0) {
       setLoading(true);
       const data = {
-        name: checkedCategories.join(","),
+        name: categoriesChecked.join(","),
       };
       await axios
-        .post("http://127.0.0.1:8000/website/api/v1/category/", data, {
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`, data, {
           withCredentials: true,
         })
         .then((response) => {
-          // console.log(response);
+          console.log(response);
           setLoading(false);
-          setSuccess(null);
-          setTimeout(() => {
-            setSuccess("Saved successfully!");
-          }, 1);
+          setSuccess(response.data.message);
         })
         .catch((error) => {
           setLoading(false);
-          setError("Error making the request. Please try again later.");
+          console.log(error);
+          setError(error?.response?.data?.name.join(", "));
         });
     }
 
-    if (topicStatus) {
+    if (topicsChecked.length > 0) {
       setLoading(true);
       const data = {
-        name: checkedTopics.join(","),
+        name: topicsChecked.join(","),
       };
       await axios
-        .post("http://127.0.0.1:8000/website/api/v1/topic/", data, {
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`, data, {
           withCredentials: true,
         })
         .then((response) => {
+          console.log(response);
           setLoading(false);
-          setSuccess(null);
-          setTimeout(() => {
-            setSuccess("Saved successfully!");
-          }, 1);
+
+          setSuccess(response.data.message);
         })
         .catch((error) => {
+          console.log(error);
           setLoading(false);
-          setError("Error making the request. Please try again later.");
+          setError(error?.response?.data?.name.join(", "));
         });
     }
   };
 
   useEffect(() => {
     close();
-    fetchCategories();
-    fetchTopics();
   }, []);
+
+  const handleCheckboxChange = () => {
+    const checkboxes = Array.from(
+      document.querySelectorAll('input[type="checkbox"]:checked')
+    );
+
+    console.log(checkboxes.length);
+    console.log(checkboxes);
+    setAtLeastOneCheckboxSelected(checkboxes.length > 0);
+  };
+
+  useEffect(() => handleCheckboxChange, [atLeastOneCheckboxSelected]);
 
   return (
     <div className='bg-pens bg-cover bg-center h-[90vh]'>
@@ -197,8 +196,14 @@ const CategoriesTopic = ({ close }) => {
                     onChange={handleCategoryInputChange}
                   />
                   <button
-                    className='px-2 text-white bg-customBlue rounded-r-2xl opacity-90'
-                    onClick={handleAddTopicsInput}
+                    className={`px-2 text-white bg-customBlue rounded-r-2xl opacity-90 ${
+                      !inputCategoryText
+                        ? "cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={handleAddCategoryInput}
+                    disabled={!inputCategoryText}
+                    type='button'
                   >
                     Add
                   </button>
@@ -209,9 +214,10 @@ const CategoriesTopic = ({ close }) => {
                       <li key={index} className='mb-4 mr-4'>
                         <div className='flex items-center'>
                           <input
+                            onChange={handleCheckboxChange}
+                            name='inputCheckbox1'
                             type='checkbox'
-                            checked={checkedCategoryList[index]}
-                            onChange={() => handleCheckboxCategoryChange(index)}
+                            value={name}
                             className='w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                           />
                           {name}
@@ -244,9 +250,12 @@ const CategoriesTopic = ({ close }) => {
                     onChange={handleTopicsInputChange}
                   />
                   <button
-                    className='px-2 py-0 text-white bg-customBlue rounded-r-2xl opacity-90 cursor-none"
-                    '
+                    className={`px-2 py-0 text-white bg-customBlue rounded-r-2xl opacity-90 cursor-none ${
+                      !inputTopicsText ? "cursor-not-allowed" : "cursor-pointer"
+                    }`}
+                    type='button'
                     onClick={handleAddTopicsInput}
+                    disabled={!inputTopicsText}
                   >
                     Add
                   </button>
@@ -256,13 +265,17 @@ const CategoriesTopic = ({ close }) => {
                     {inputTopicsList.map((name, index) => (
                       <li key={index} className='mb-4 mr-4'>
                         <input
+                          onChange={handleCheckboxChange}
                           type='checkbox'
-                          checked={checkedTopicsList[index]}
-                          onChange={() => handleCheckboxTopicsChange(index)}
-                        />{" "}
+                          name='inputCheckbox2'
+                          value={name}
+                          className='w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                        />
                         {name}
                         <button
-                          onClick={() => handleRemoveTopicsInput(index)}
+                          onClick={() => {
+                            handleRemoveTopicsInput(index);
+                          }}
                           className='ml-8 text-gray-600'
                         >
                           <FaTimes />
@@ -277,11 +290,10 @@ const CategoriesTopic = ({ close }) => {
             <div className='flex items-center justify-center mt-6 md:mt-16'>
               <button
                 type='submit'
-                className={`bg-customBlue px-10 py-2 text-white rounded-xl flex items-center gap-3  ${
-                  isSaveDisabled &&
-                  "bg-customBlue cursor-not-allowed opacity-90"
+                className={`bg-customBlue px-10 py-2 text-white rounded-xl flex items-center gap-3 opacity-100 ${
+                  !atLeastOneCheckboxSelected && "cursor-not-allowed opacity-90"
                 } `}
-                disabled={isSaveDisabled}
+                disabled={!atLeastOneCheckboxSelected}
               >
                 Save
               </button>

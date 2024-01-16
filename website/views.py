@@ -74,7 +74,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
 
         userid = request.session['user_id']
         topic = get_client_approval(userid)
-
+        print("Here I have topic set to true", topic)
         if topic['topic'] == 'True':
             auto_strings = {
                 "object": object,
@@ -108,7 +108,8 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
                 'event_id': create_event()['event_id'],
                 'client_admin_id': request.session['userinfo']['client_admin_id']
             }
-            async_task("automate.services.step_1", auto_strings, data_di, hook='automate.services.hook_now')
+            async_task("automate.services.step_1", auto_strings,
+                       data_di, hook='automate.services.hook_now')
             return Response({'message': 'Your Sentences are being generated'})
 
         def api_call(grammar_arguments=None):

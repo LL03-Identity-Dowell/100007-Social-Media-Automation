@@ -16,6 +16,7 @@ from django.utils.timezone import localdate, localtime
 from pexels_api import API
 
 from create_article import settings
+from helpers import fetch_user_info
 from step2.views import create_event
 from step2.views import save_data, get_key, update_schedule, check_connected_accounts
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -258,7 +259,7 @@ def insert_form_data(data_dict):
 
 
 @transaction.atomic
-def generate_article(data_dic):
+def generate_article(data_dic, request):
     start_datetime = datetime.now()
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
     api_no = random.choice(Rank)
@@ -279,105 +280,98 @@ def generate_article(data_dic):
     approval = get_client_approval(user_ids)
 
     # image = data_dic["image"]
+    org_id = request.session.get('org_id')
+    user_selected_cities = []
+    hashtags = []
+    user_tags_mentions = []
+    user_data = fetch_user_info(request)
+    for item in user_data["data"]:
+        if "target_city" in item and item["target_city"] is not None:
+            user_selected_cities.extend(item["target_city"])
+
+        if "hashtag_list" in item and item["hashtag_list"] is not None:
+            hashtags.extend(item["hashtag_list"])
+
+        if "mentions_list" in item and item["mentions_list"] is not None:
+            user_tags_mentions.extend(item["mentions_list"])
+
+    formatted_hashtags = " ".join(hashtags) if hashtags else ""
+    formatted_mentions = " ".join(
+        f"@{mention}" for mention in user_tags_mentions) if user_tags_mentions else ""
+    formatted_cities = " ".join(
+        f"#{city}" for city in user_selected_cities) if user_selected_cities else ""
 
     # Set your OpenAI API key here
     openai.api_key = settings.OPENAI_KEY
 
     # Build prompt
-    prompt_limit = 280
+    prompt_limit = 2000
+    min_characters = 500
+
+    # Modify the prompt to include the formatted user data
     prompt = (
-            f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
-            f" Generate only 2 paragraphs. "
-            [:prompt_limit]
-            + "..."
+        f"Write an article about {RESEARCH_QUERY}"
+        f" Include  {formatted_hashtags} at the end of the article."
+        f" Also, append {formatted_cities} to the end of the article."
+        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+        [:prompt_limit]
+        + "..."
     )
+    # Generate article using OpenAI's GPT-3
+    response = openai.Completion.create(
+        # engine="text-davinci-003",
+        engine="gpt-3.5-turbo-instruct",
+        prompt=prompt,
+        temperature=0.5,
+        max_tokens=1024,
+        n=1,
+        stop=None,
+        timeout=60,
+    )
+    article = response.choices[0].text
+    paragraphs = [p.strip()
+                    for p in article.split("\n\n") if p.strip()]
+    article_str = "\n\n".join(paragraphs)
 
-    # Variables for loop control
-    duration = 5  # Total duration in seconds
-    interval = 1  # Interval between generating articles in seconds
-    start_time = time.time()
+    sources = urllib.parse.unquote("")
+    event_id = create_event()['event_id']
+    user_id = request.session['user_id']
+    client_admin_id = request.session['userinfo']['client_admin_id']
+    # approval = get_client_approval(user_id)
+    hashtags_in_last_paragraph = set(
+        word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
+    for i in range(len(paragraphs) - 1):
+        paragraphs[i] += " " + " ".join(hashtags_in_last_paragraph)
 
-    def generate_and_save_article():
-        nonlocal start_time
+    for i in range(len(paragraphs)):
+        if paragraphs[i] != "":
+            step3_data = {
+                "user_id": user_id,
+                "org_id": org_id,
+                "session_id": session_id,
+                "eventId": event_id,
+                'client_admin_id': client_admin_id,
+                "title": RESEARCH_QUERY,
+                "source": sources,
+                "paragraph": paragraphs[i],
+                "citation_and_url": sources,
 
-        # Generate article using OpenAI's GPT-3
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=prompt,
-            temperature=0.5,
-            max_tokens=1024,
-            n=1,
-            stop=None,
-            timeout=60,
-        )
-        article = response.choices[0].text
-        paragraphs = article.split("\n\n")
-        print(paragraphs)
-        article_str = "\n\n".join(paragraphs)
-
-        sources = urllib.parse.unquote("https://openai.com")
-
-        try:
-            with transaction.atomic():
-                event_id = create_event()['event_id']
-
-                user_id = user_ids
-                client_admin_id = data_dic["client_admin_id"]
-
-                # Save data for step 3
-                step3_data = {
-                    "user_id": user_id,
-                    "session_id": session_id,
-                    "eventId": event_id,
-                    'client_admin_id': client_admin_id,
-                    "title": RESEARCH_QUERY,
-                    "target_industry": target_industry,
-                    "qualitative_categorization": qualitative_categorization,
-                    "targeted_for": targeted_for,
-                    "designed_for": designed_for,
-                    "targeted_category": targeted_category,
-                    "source": sources,
-                    "image": None,
-                    "paragraph": article_str,
-                    "citation_and_url": sources,
-                    "subject": subject,
-                }
-                save_data('step3_data', 'step3_data',
-                          step3_data, '34567897799')
-
-                # Save data for step 2
-                step2_data = {
-                    "user_id": user_id,
-                    "session_id": session_id,
-                    "eventId": event_id,
-                    'client_admin_id': client_admin_id,
-                    "title": RESEARCH_QUERY,
-                    "target_industry": target_industry,
-                    "paragraph": article_str,
-                    "source": sources,
-                    "subject": subject,
-                    "citation_and_url": sources,
-                }
-                save_data('step2_data', 'step2_data',
-                          step2_data, '9992828281')
-
-        except Exception as e:
-            print(f"Error saving data: {str(e)}")
-            return ('not saved')
-        # Update start_time for the next iteration
-        start_time = time.time()
-
-    # Create ThreadPoolExecutor
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        while True:
-            if time.time() - start_time >= duration:
-                break
-
-            executor.submit(generate_and_save_article)
-
-            # Wait before generating the next article
-            time.sleep(interval)
-
+            }
+            save_data('step3_data', 'step3_data',
+                        step3_data, '34567897799')
+    step2_data = {
+        "user_id": user_id,
+        "session_id": session_id,
+        "org_id": org_id,
+        "eventId": event_id,
+        'client_admin_id': client_admin_id,
+        "title": RESEARCH_QUERY,
+        "paragraph": article_str,
+        "source": sources,
+        "citation_and_url": sources,
+    }
+    save_data('step2_data', 'step2_data',
+                step2_data, '9992828281')
     end_datetime = datetime.now()
     time_taken = end_datetime - start_datetime
     print(f"Task started at: {start_datetime}")

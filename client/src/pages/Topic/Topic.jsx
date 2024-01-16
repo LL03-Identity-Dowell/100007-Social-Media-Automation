@@ -34,10 +34,10 @@ function Topic({ show }) {
   const fetchCategoryTopic = () => {
     // /Create two Axios GET requests
     const categoryReq = axios.get(
-      "http://127.0.0.1:8000/website/api/v1/category/",
+      `${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`,
       { withCredentials: true }
     );
-    const topicReq = axios.get("http://127.0.0.1:8000/website/api/v1/topic/", {
+    const topicReq = axios.get(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`, {
       withCredentials: true,
     });
 
@@ -101,7 +101,7 @@ function Topic({ show }) {
       };
 
       axios
-        .post(`http://127.0.0.1:8000/website/api/v1/generate/`, data, {
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/generate/`, data, {
           withCredentials: true,
         })
         .then((response) => {
