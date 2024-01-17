@@ -24,7 +24,7 @@ const HashtagsMentions = ({ close }) => {
   const [isAddGroup, setIsAddGroup] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
 
- useEffect(() => {
+  useEffect(() => {
     close();
     fetch();
   }, []);
@@ -97,8 +97,9 @@ const HashtagsMentions = ({ close }) => {
   };
   const updateSaveButtonState = (hashtagChecked, mentionsChecked) => {
     const areAnyChecked =
-      hashtagChecked.some((value) => value) ||
-      mentionsChecked.some((value) => value);
+      hashtagChecked.some((value) => value) 
+      // ||
+      // mentionsChecked.some((value) => value);
     setIsSaveDisabled(!areAnyChecked);
   };
   const fetch = () => {
@@ -185,8 +186,6 @@ const HashtagsMentions = ({ close }) => {
     }
   };
 
- 
-
   const handleGroupCheck = () => {
     if (group) {
       console.log(group);
@@ -195,7 +194,7 @@ const HashtagsMentions = ({ close }) => {
   };
 
   const handleAddGroup = () => {
-    setIsAddGroup(!isAddGroup)
+    setIsAddGroup(!isAddGroup);
   };
 
   return (
@@ -219,14 +218,24 @@ const HashtagsMentions = ({ close }) => {
                 >
                   Select Hashtag Group
                 </label>
-                <button className="float-right border rounded-xl bg-customTextBlue cursor-pointer text-white py-1 px-2 text-xs" onClick={handleAddGroup}>
+                <button
+                  className="float-right border rounded-xl bg-customTextBlue cursor-pointer text-white py-1 px-2 text-xs"
+                  onClick={handleAddGroup}
+                >
                   Add group
                 </button>
-                <div className={`${!isAddGroup ? "hidden" : "block"} bg-overlay w-full h-full fixed z-50 top-0 left-0 flex justify-center items-center `}>
+                <div
+                  className={`${
+                    !isAddGroup ? "hidden" : "block"
+                  } bg-overlay w-full h-full fixed z-50 top-0 left-0 flex justify-center items-center `}
+                >
                   <div className="bg-white w-[50%] 2xl:w-[40%] p-6 rounded-lg relative">
-                    <span className="border-2 border-gray-900 p-2 text-xl rounded-full absolute top-0 -right-12 cursor-pointer" onClick={handleAddGroup}>
+                    <span
+                      className="border-2 border-gray-900 p-2 text-xl rounded-full absolute top-0 -right-12 cursor-pointer"
+                      onClick={handleAddGroup}
+                    >
                       <FaTimes />
-                    </span> 
+                    </span>
                     <div className="">
                       <input
                         type="text"
@@ -237,11 +246,9 @@ const HashtagsMentions = ({ close }) => {
                         className="w-full outline-1 rounded-lg"
                       />
                     </div>
-                    <button
-                    className="mt-4 bg-customGray w-full text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer"
-                  >
-                    Save
-                  </button>
+                    <button className="mt-4 bg-customGray w-full text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer">
+                      Save
+                    </button>
                   </div>
                 </div>
                 <div className="flex flex-col w-full mt-6">
@@ -270,13 +277,75 @@ const HashtagsMentions = ({ close }) => {
 
               {isSelected && (
                 <div className="w-full text-center bg-gray-200 shadow-xl rounded-lg p-6">
-                  <label
-                    htmlFor="hashtags"
-                    className="text-xl font-bold text-customBlue"
-                  >
-                    {group}
-                  </label>
-                  <div className='flex w-full mt-6 border'>
+                  <form>
+                    <label
+                      htmlFor="hashtags"
+                      className="text-xl font-bold text-customBlue"
+                    >
+                      {group}
+                    </label>
+                    <div className="flex w-full mt-4 border">
+                      <span className="p-2 text-lg text-gray-600 bg-gray-400 rounded-l-md">
+                        #
+                      </span>
+                      <input
+                        type="text"
+                        id="hashtags"
+                        value={inputHashtagText}
+                        onChange={handleHashtagInputChange}
+                        placeholder="Enter Hashtags.."
+                        className="w-full outline-1"
+                      />
+                      <button
+                        className={`px-2 py-0 text-white bg-customBlue rounded-r-2xl ${
+                          !inputHashtagText
+                            ? "opacity-90 cursor-not-allowed"
+                            : "cursor-pointer opacity-100"
+                        }`}
+                        onClick={handleAddHashtagInput}
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <div className="mt-3">
+                      <ul className="flex flex-wrap">
+                        {inputHashtagList.map((name, index) => (
+                          <li key={index} className="mb-4 mr-4">
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={checkedHashtagList[index]}
+                                onChange={() =>
+                                  handleCheckboxHashtagChange(index)
+                                }
+                                className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                              />
+                              {name}
+                              <button
+                                onClick={() => handleRemoveHashtagInput(index)}
+                                className="ml-8 text-gray-600 cursor-pointer"
+                              >
+                                <FaTimes />
+                              </button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                  <button
+                type='submit'
+                className={`mt-6 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue  ${
+                  isSaveDisabled &&
+                  "bg-customGray cursor-not-allowed opacity-90"
+                } `}
+                disabled={isSaveDisabled}
+              >
+                Save
+              </button>
+                  </form>
+
+                  {/* <div className='flex w-full mt-6 border'>
                   <span className='p-2 text-lg text-gray-600 bg-gray-400 rounded-l-md'>
                     #
                   </span>
@@ -328,18 +397,12 @@ const HashtagsMentions = ({ close }) => {
                     >
                       <FaTimes />
                     </button>
-                  </div>
-                  <button
-                    className="mt-6 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue cursor-pointer"
-                    onClick={handleGroupCheck}
-                  >
-                    Submit
-                  </button>
+                 
+                  </div> */}
                 </div>
               )}
             </div>
           </div>
-
 
           {/* <form className='w-full px-6' onSubmit={handleSubmit}>
             <div className='flex flex-col w-full gap-6 ml-10 lg:flex-row lg:gap-10'>
