@@ -3,8 +3,9 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
-import { getDate } from "./utils/getDate";
 import { MdArrowLeft } from "react-icons/md";
+import CommentItem from "./_components/CommentItem";
+import { getDate } from "./utils/getDate";
 
 function ViewComments({ show }) {
   const [error, setError] = useState("");
@@ -15,6 +16,27 @@ function ViewComments({ show }) {
   const [comments, setComments] = useState({});
 
   const { id } = useParams();
+
+  const parsedDatetime = new Date(comments?.nextUpdateTwitter);
+
+  // Format without seconds (YYYY-MM-DD HH:mm)
+  const formattedDatetime = `${parsedDatetime.getFullYear()}-${(
+    parsedDatetime.getMonth() + 1
+  )
+    .toString()
+    .padStart(2, "0")}-${parsedDatetime
+    .getDate()
+    .toString()
+    .padStart(2, "0")} ${
+    parsedDatetime.getHours() > 12
+      ? (parsedDatetime.getHours() - 12).toString().padStart(2, "0")
+      : parsedDatetime.getHours().toString().padStart(2, "0")
+  }:${parsedDatetime.getMinutes().toString().padStart(2, "0")}:${parsedDatetime
+    .getSeconds()
+    .toString()
+    .padStart(2, "0")} ${parsedDatetime.getHours() >= 12 ? "PM" : "AM"} ${
+    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][parsedDatetime.getDay()]
+  }`;
 
   useEffect(() => {
     show();
@@ -28,6 +50,7 @@ function ViewComments({ show }) {
     const hasComments = socialMediaKeys.some((key) => comments[key].length > 0);
     setHasComments(hasComments);
   }, [comments]);
+
   useEffect(() => {
     setLoading(true);
 
@@ -42,14 +65,14 @@ function ViewComments({ show }) {
         .then((response) => {
           const { data } = response;
 
-          if (data.status !== "error") {
-            setComments(data);
-            setSuccess("Comments fetched successfully");
-            setError("");
-          } else {
+          if (data.status === "error") {
             setError(data.message.split(".")[0]);
             setSuccess("");
           }
+          setComments(data);
+          setSuccess("Comments fetched successfully");
+          setError("");
+          console.log(data);
         })
         .catch(() => {
           setError(error?.response?.data?.platforms.join(", "));
@@ -118,27 +141,14 @@ function ViewComments({ show }) {
                   <h2 className='text-2xl font-bold'>Twitter</h2>
                 </div>
                 <ol className='pl-20 space-y-4 mt-7'>
-                  {comments?.twitter?.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li
-                        className='flex items-center w-full gap-6 px-8 py-4 bg-gray-100'
-                        key={t.commentId}
-                      >
-                        <h4 className='mt-1'>{i + 1}.</h4>
-                        <div>
-                          <p className='text-xl'>{t.comment}</p>
-                          <span className='text-sm'>{date}</span>
-                        </div>
-                        <button
-                          onClick={() => handleDelete(t.commentId, t.platform)}
-                          className='px-6 py-2.5 rounded-sm ml-auto text-sm font-bold text-red-600 bg-red-300 cursor-pointer'
-                        >
-                          Delete
-                        </button>
-                      </li>
-                    );
-                  })}
+                  {comments?.twitter?.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
@@ -154,15 +164,13 @@ function ViewComments({ show }) {
                 </div>
                 <ol className='pl-20 space-y-4 mt-7'>
                   {comments.pinterest.map((t, i) => {
-                    const date = getDate(t.created);
                     return (
-                      <li className='flex gap-6' key={t.commentId}>
-                        <h4 className='mt-1'>{i + 1}.</h4>
-                        <div>
-                          <p className='text-xl'>{t.comment}</p>
-                          <span className='text-sm'>{date}</span>
-                        </div>
-                      </li>
+                      <CommentItem
+                        t={t}
+                        i={i}
+                        key={i}
+                        handleDelete={handleDelete}
+                      />
                     );
                   })}
                 </ol>
@@ -179,18 +187,14 @@ function ViewComments({ show }) {
                   <h2 className='text-2xl font-bold'>Facebook</h2>
                 </div>
                 <ol className='pl-20 space-y-4 mt-7'>
-                  {comments.facebook.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li className='flex gap-6' key={t.commentId}>
-                        <h4 className='mt-1'>{i + 1}.</h4>
-                        <div>
-                          <p className='text-xl'>{t.comment}</p>
-                          <span className='text-sm'>{date}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
+                  {comments.facebook.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
@@ -201,18 +205,14 @@ function ViewComments({ show }) {
                   <h2 className='text-2xl font-bold'>Youtube</h2>
                 </div>
                 <ol className='pl-20 space-y-4 mt-7'>
-                  {comments.youtube.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li className='flex gap-6' key={t.commentId}>
-                        <h4 className='mt-1'>{i + 1}.</h4>
-                        <div>
-                          <p className='text-xl'>{t.comment}</p>
-                          <span className='text-sm'>{date}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
+                  {comments.youtube.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
@@ -227,18 +227,14 @@ function ViewComments({ show }) {
                   <h2 className='text-2xl font-bold'>Instagram</h2>
                 </div>
                 <ol className='pl-20 space-y-4 mt-7'>
-                  {comments.instagram.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li className='flex gap-6' key={t.commentId}>
-                        <h4 className='mt-1'>{i + 1}.</h4>
-                        <div>
-                          <p className='text-xl'>{t.comment}</p>
-                          <span className='text-sm'>{date}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
+                  {comments.instagram.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
@@ -253,26 +249,22 @@ function ViewComments({ show }) {
                   <h2 className='text-2xl font-bold'>Linkedin</h2>
                 </div>
                 <ol className='pl-20 space-y-4 mt-7'>
-                  {comments.linkedin.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li className='flex gap-6' key={t.commentId}>
-                        <h4 className='mt-1'>{i + 1}.</h4>
-                        <div>
-                          <p className='text-xl'>{t.comment}</p>
-                          <span className='text-sm'>{date}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
+                  {comments.linkedin.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
           </div>
         ) : (
           !loading && (
-            <div className='text-4xl font-bold text-[#333] flex justify-center items-center h-[350px]'>
-              No comments posted
+            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
+              Please wait for the comments to update until, {formattedDatetime}.
             </div>
           )
         )}
