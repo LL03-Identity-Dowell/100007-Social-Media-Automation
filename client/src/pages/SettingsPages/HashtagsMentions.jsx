@@ -96,10 +96,9 @@ const HashtagsMentions = ({ close }) => {
     updateSaveButtonState(checkedHashtagList, updatedChecked);
   };
   const updateSaveButtonState = (hashtagChecked, mentionsChecked) => {
-    const areAnyChecked =
-      hashtagChecked.some((value) => value) 
-      // ||
-      // mentionsChecked.some((value) => value);
+    const areAnyChecked = hashtagChecked.some((value) => value);
+    // ||
+    // mentionsChecked.some((value) => value);
     setIsSaveDisabled(!areAnyChecked);
   };
   const fetch = () => {
@@ -332,17 +331,17 @@ const HashtagsMentions = ({ close }) => {
                         ))}
                       </ul>
                     </div>
-                    
-                  <button
-                type='submit'
-                className={`mt-6 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue  ${
-                  isSaveDisabled &&
-                  "bg-customGray cursor-not-allowed opacity-90"
-                } `}
-                disabled={isSaveDisabled}
-              >
-                Save
-              </button>
+
+                    <button
+                      type="submit"
+                      className={`mt-6 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue  ${
+                        isSaveDisabled ?
+                        "bg-customGray cursor-not-allowed opacity-90" : "cursor-pointer"
+                      } `}
+                      disabled={isSaveDisabled}
+                    >
+                      Save
+                    </button>
                   </form>
 
                   {/* <div className='flex w-full mt-6 border'>
