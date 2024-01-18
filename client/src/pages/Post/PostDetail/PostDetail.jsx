@@ -243,7 +243,7 @@ function PostDetail({ show }) {
         <div className='relative'>
           <img
             src={postDetailData && postDetailData.images}
-            alt='Random image'
+            alt=''
             className='w-full h-full img-fluid post-img'
           />
           {editing && <CarosuelModal setSelectedImage={setSelectedImage} />}
