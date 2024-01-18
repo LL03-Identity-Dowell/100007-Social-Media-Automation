@@ -39,8 +39,8 @@ from config_master import UPLOAD_IMAGE_ENDPOINT, SOCIAL_MEDIA_ADMIN_APPROVE_USER
 from create_article import settings
 from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
-from .models import Step2Manager
 from .image_generator.prodia import ImageGenerator
+from .models import Step2Manager
 
 # helper functions
 
@@ -3786,8 +3786,13 @@ def social_media_channels(request):
     if request.method == "POST":
         step_2_manager = Step2Manager()
         username = request.session['username']
-        owner_name = request.session['portfolio_info'][0]['owner_name']
-        if username != owner_name:
+        owner_name = request.session['portfolio_info'][0].get('owner_name')
+        is_current_user_owner = False
+        if isinstance(request.session['portfolio_info'][0]['username'], list) and \
+                request.session['portfolio_info'][0]['username'][0] == 'owner':
+            is_current_user_owner = True
+
+        if not is_current_user_owner:
             messages.error(request, 'You are permitted to perform this action!')
             messages.error(request, 'Only the owner of the organization can connect to social media channels')
             return HttpResponseRedirect(reverse("generate_article:social_media_channels"))
@@ -3807,13 +3812,17 @@ def social_media_channels(request):
     else:
         step_2_manager = Step2Manager()
 
-        title = request.session['portfolio_info'][0]['owner_name']
+        try:
+            title = request.session['portfolio_info'][0]['owner_name']
+        except KeyError:
+            title = request.session['username']
+
         user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
             title)
         linked_accounts = check_connected_accounts(title)
         context_data = {'user_has_social_media_profile': user_has_social_media_profile,
                         'linked_accounts': linked_accounts}
-        username = request.session['username']
+
         org_id = request.session['org_id']
 
         data = {
