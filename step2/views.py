@@ -41,6 +41,7 @@ from helpers import (download_and_upload_image,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data)
 from website.models import Sentences, SentenceResults
+from .image_generator.prodia import ImageGenerator
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer)
@@ -815,25 +816,53 @@ class PostDetailView(AuthenticatedBaseView):
             a = random.randint(1, 9)
             query = title
             output = []
-            api = API(PEXELS_API_KEY)
-            # api.popular(results_per_page=10, page=5)
-            pic = api.search(query, page=a, results_per_page=10)
-            width = 350
-            for photo in pic['photos']:
-                pictures = photo['src']['medium']
-                img_data = requests.get(pictures).content
-                im = Image.open(BytesIO(img_data))
-                wit = im.size
-                if wit[0] >= width:
-                    output.append(pictures)
-            if len(output) == 0:
-                return Response({'message': 'No images found please try again!'}, status=status.HTTP_404_NOT_FOUND)
-            images = output[1]
+            image_gen = ImageGenerator()
+            image_details = image_gen.process(prompt=title)
+
+            if image_details.get('imageUrl'):
+                images = image_details.get('imageUrl')
+            else:
+                api = API(PEXELS_API_KEY)
+                # api.popular(results_per_page=10, page=5)
+                pic = api.search(query, page=a, results_per_page=10)
+                width = 350
+                for photo in pic['photos']:
+                    pictures = photo['src']['medium']
+                    img_data = requests.get(pictures).content
+                    im = Image.open(BytesIO(img_data))
+                    wit = im.size
+                    if wit[0] >= width:
+                        output.append(pictures)
+                if len(output) == 0:
+                    return Response({'message': 'No images found please try again!'}, status=status.HTTP_404_NOT_FOUND)
+                images = output[0]
+
             print(profile)
             username = request.session['username']
             linked_accounts = check_connected_accounts(username)
+            targeted_category = []
+            qualitative_categorization = []
+            targeted_for = []
+            user_data = fetch_user_info(request)
+            for item in user_data["data"]:
+                if "targeted_category" in item and item["targeted_category"] is not None:
+                    targeted_category.extend(
+                        item["targeted_category"])
+                if "qualitative_categorization" in item and item["qualitative_categorization"] is not None:
+                    qualitative_categorization.extend(
+                        item["qualitative_categorization"])
+                if "targeted_for" in item and item["targeted_for"] is not None:
+                    targeted_for.extend(item["targeted_for"])
+            targeted_category = " ".join(
+                targeted_category) if targeted_category else ""
+            qualitative_categorization = " ".join(
+                qualitative_categorization) if qualitative_categorization else ""
+            targeted_for = " ".join(targeted_for) if targeted_for else ""
             response_data = {'post': post, 'categories': categories, 'linked_accounts': linked_accounts,
-                             'images': images, 'profile': profile, "message": "You are limited to use only images from Samanta AI due to security and privacy policy"}
+                             'images': images, 'profile': profile, 'targeted_category': targeted_category,
+                             'qualitative_categorization': qualitative_categorization,
+                             'targeted_for': targeted_for,
+                             "message": "You are limited to use only images from Samanta AI due to security and privacy policy"}
             return Response(response_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -912,12 +941,10 @@ class SavePostView(AuthenticatedBaseView):
                 response = requests.request(
                     "POST", url, headers=headers, data=payload)
                 print("data:", response.json())
-                # make sure to alert the user that the article has been saved sucesfully. (frontend)
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_3_credit(request)
                 response_data = {
                     "message": "Post saved successfully",
-                    # Redirect to step-4
                 }
                 return Response(response_data, status=status.HTTP_201_CREATED)
         else:
@@ -1732,6 +1759,113 @@ class ScheduledJsonView(AuthenticatedBaseView):
 '''step-4 Ends here'''
 
 '''Comments section'''
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreatePostComments(AuthenticatedBaseView):
+
+    def post(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+            serializer_data = PostCommentSerializer(data=request.data)
+            if not serializer_data.is_valid():
+                return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            user_id = request.session['user_id']
+            profile_key = get_key(user_id)
+
+            if not post_data or not post_data.get('post_response'):
+                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
+            platforms = list(serializer_data.validated_data.get('platforms'))
+            comment = serializer_data.validated_data.get('comment')
+            aryshare_post_id = post_data.get(
+                'post_response').get('posts')[0].get('id')
+            response = post_comment_to_social_media(
+                platforms=platforms,
+                id=aryshare_post_id,
+                comment=comment,
+                profile_key=profile_key
+            )
+            return Response(response)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class Comments(AuthenticatedBaseView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            user_id = request.session['user_id']
+            recent_posts = get_most_recent_posts(user_id=user_id)
+            scheduled_post = get_scheduled_posts(user_id=user_id)
+            all_posts = list(chain(recent_posts, scheduled_post))
+            number_of_items_per_page = 5
+            page = request.GET.get('page', 1)
+            paginator = Paginator(all_posts, number_of_items_per_page)
+
+            try:
+                comments_page = paginator.page(page)
+            except PageNotAnInteger:
+                comments_page = paginator.page(1)
+            except EmptyPage:
+                comments_page = paginator.page(paginator.num_pages)
+
+            paginated_posts = comments_page.object_list
+
+            response_data = {
+                'paginated_posts': paginated_posts,
+                'page': comments_page.number,
+                'total_pages': paginator.num_pages,
+                'total_items': paginator.count,
+            }
+
+            return Response(response_data)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PostComments(AuthenticatedBaseView):
+    def get(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            user_id = request.session['user_id']
+            profile_key = get_key(user_id)
+
+            if not post_data or not post_data.get('post_response'):
+                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
+            aryshare_post_id = post_data.get(
+                'post_response').get('posts')[0].get('id')
+            comments = get_post_comments(
+                post_id=aryshare_post_id, profile_key=profile_key)
+
+            return Response(comments)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DeletePostComment(AuthenticatedBaseView):
+    def post(self, request, post_id):
+        if 'session_id' and 'username' in request.session:
+            serializer_data = DeletePostCommentSerializer(data=request.data)
+            if not serializer_data.is_valid():
+                return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
+            user_id = request.session.get('user_id')
+            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
+            user_id = request.session['user_id']
+            profile_key = get_key(user_id)
+            platform = serializer_data.validated_data.get('platform')
+            response = delete_post_comment(
+                comment_id=serializer_data.validated_data.get('comment_id'),
+                profile_key=profile_key,
+                platform=platform,
+            )
+
+            return Response(response)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @csrf_exempt
@@ -3214,7 +3348,7 @@ class PostDetailDropdownView(AuthenticatedBaseView):
                     "approvals": {
                         "qualitative_categorization": qualitative_categorization,
                         "targeted_for": targeted_for,
-                        "artictargeted_category": targeted_category,
+                        "targeted_category": targeted_category,
                     },
                 },
                 "platform": "bangalore"
@@ -3232,7 +3366,7 @@ class PostDetailDropdownView(AuthenticatedBaseView):
                 'message': 'Details inserted successfully',
                 "qualitative_categorization": qualitative_categorization,
                 "targeted_for": targeted_for,
-                "artictargeted_category": targeted_category,
+                "targeted_category": targeted_category,
             }, status=status.HTTP_200_OK)
 
     def put(self, request):
@@ -3266,7 +3400,7 @@ class PostDetailDropdownView(AuthenticatedBaseView):
                 "update_field": {
                     "qualitative_categorization": qualitative_categorization,
                     "targeted_for": targeted_for,
-                    "artictargeted_category": targeted_category,
+                    "targeted_category": targeted_category,
                 },
                 "platform": "bangalore"
             }
@@ -3281,115 +3415,18 @@ class PostDetailDropdownView(AuthenticatedBaseView):
                 'message': 'Details updated successfully',
                 "qualitative_categorization": qualitative_categorization,
                 "targeted_for": targeted_for,
-                "artictargeted_category": targeted_category,
+                "targeted_category": targeted_category,
             }, status=status.HTTP_200_OK)
 
 
-'''user settings ends here'''
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-class CreatePostComments(AuthenticatedBaseView):
-
-    def post(self, request, post_id):
-        if 'session_id' and 'username' in request.session:
-            serializer_data = PostCommentSerializer(data=request.data)
-            if not serializer_data.is_valid():
-                return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
-            user_id = request.session.get('user_id')
-            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
-            user_id = request.session['user_id']
-            profile_key = get_key(user_id)
-
-            if not post_data or not post_data.get('post_response'):
-                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
-            platforms = list(serializer_data.validated_data.get('platforms'))
-            comment = serializer_data.validated_data.get('comment')
-            aryshare_post_id = post_data.get(
-                'post_response').get('posts')[0].get('id')
-            response = post_comment_to_social_media(
-                platforms=platforms,
-                id=aryshare_post_id,
-                comment=comment,
-                profile_key=profile_key
-            )
-            return Response(response)
-        else:
-            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-class Comments(AuthenticatedBaseView):
+class FetchUserInfo(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
-            user_id = request.session['user_id']
-            recent_posts = get_most_recent_posts(user_id=user_id)
-            scheduled_post = get_scheduled_posts(user_id=user_id)
-            all_posts = list(chain(recent_posts, scheduled_post))
-            number_of_items_per_page = 5
-            page = request.GET.get('page', 1)
-            paginator = Paginator(all_posts, number_of_items_per_page)
-
-            try:
-                comments_page = paginator.page(page)
-            except PageNotAnInteger:
-                comments_page = paginator.page(1)
-            except EmptyPage:
-                comments_page = paginator.page(paginator.num_pages)
-
-            paginated_posts = comments_page.object_list
-
-            response_data = {
-                'paginated_posts': paginated_posts,
-                'page': comments_page.number,
-                'total_pages': paginator.num_pages,
-                'total_items': paginator.count,
-            }
-
-            return Response(response_data)
+            user_data = fetch_user_info(request)
+            print(user_data)
+            return Response(user_data)
         else:
-            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class PostComments(AuthenticatedBaseView):
-    def get(self, request, post_id):
-        if 'session_id' and 'username' in request.session:
-            user_id = request.session.get('user_id')
-            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
-            user_id = request.session['user_id']
-            profile_key = get_key(user_id)
-
-            if not post_data or not post_data.get('post_response'):
-                return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
-            aryshare_post_id = post_data.get(
-                'post_response').get('posts')[0].get('id')
-            comments = get_post_comments(
-                post_id=aryshare_post_id, profile_key=profile_key)
-
-            return Response(comments)
-        else:
-            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-@method_decorator(csrf_exempt, name='dispatch')
-class DeletePostComment(AuthenticatedBaseView):
-    def post(self, request, post_id):
-        if 'session_id' and 'username' in request.session:
-            serializer_data = DeletePostCommentSerializer(data=request.data)
-            if not serializer_data.is_valid():
-                return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
-            user_id = request.session.get('user_id')
-            post_data = get_post_by_id(post_id=post_id, user_id=user_id)
-            user_id = request.session['user_id']
-            profile_key = get_key(user_id)
-            platform = serializer_data.validated_data.get('platform')
-            response = delete_post_comment(
-                comment_id=serializer_data.validated_data.get('comment_id'),
-                profile_key=profile_key,
-                platform=platform,
-            )
-
-            return Response(response)
-        else:
-            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+'''user settings ends here'''

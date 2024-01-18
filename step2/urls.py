@@ -11,7 +11,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
-                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment)
+                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,FetchUserInfo)
 
 app_name = 'generate_article'
 
@@ -44,6 +44,9 @@ urlpatterns = [
          name='client-form-api'),
     path('post-detail-dropdowns/',  PostDetailDropdownView.as_view(),
          name='post-detail-dropdowns-api'),
+    path('fetch_user_settings_data/', FetchUserInfo.as_view(),
+         name='test'),
+
 
     path('list-articles/', ListArticleView.as_view(), name='list-articles'),
     path('article-detail/',
@@ -86,6 +89,7 @@ urlpatterns = [
          PostComments.as_view(), name='post-comments-endpoint'),
     path('comments/delete-comment/<str:post_id>/', DeletePostComment.as_view(),
          name='delete-post-comments-endpoint'),
+
 
 
 
