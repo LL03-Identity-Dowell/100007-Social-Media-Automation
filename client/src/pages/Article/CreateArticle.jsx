@@ -220,7 +220,7 @@ const CreateArticle = ({ show }) => {
             {page < pageCount - 1 ? "Next" : " "}
           </span>
         }
-        containerClassName="flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll"
+        containerClassName="flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-x-auto"
         pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
         previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
         nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
