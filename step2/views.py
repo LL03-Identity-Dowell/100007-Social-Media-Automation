@@ -3786,7 +3786,6 @@ def social_media_channels(request):
     if request.method == "POST":
         step_2_manager = Step2Manager()
         username = request.session['username']
-        owner_name = request.session['portfolio_info'][0].get('owner_name')
         is_current_user_owner = False
         if isinstance(request.session['portfolio_info'][0]['username'], list) and \
                 request.session['portfolio_info'][0]['username'][0] == 'owner':
