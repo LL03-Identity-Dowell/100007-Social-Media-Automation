@@ -517,6 +517,7 @@ def get_post_by_id(post_id, user_id):
             except:
                 pass
 
+
 def get_aryshare_profile_id(user_id):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
@@ -574,3 +575,38 @@ def encode_json_data(data):
     @return: str
     """
     return jwt.encode(data, "secret", algorithm="HS256")
+
+
+def create_hashtags(data: dict):
+    """
+    This function returns
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    event_id = create_event()['event_id']
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "hashtags",
+        "document": "hashtags",
+        "team_member_ID": "1262001",
+        "function_ID": "ABCDE",
+        "command": "insert",
+        "field": {
+            "user_id": data['user_id'],
+            "session_id": data['session_id'],
+            "org_id": data['org_id'],
+            "eventId": event_id,
+            'client_admin_id': data['client_admin_id'],
+            "group_name": data['group_name'],
+            "hashtag": data['hashtag'],
+        },
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
