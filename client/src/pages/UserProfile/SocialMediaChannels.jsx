@@ -17,7 +17,7 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 
 
 
-const SocialMediaChannels = () => {
+const SocialMediaChannels = ({close}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -27,6 +27,9 @@ const SocialMediaChannels = () => {
     activate: "Activate",
     info: "Click to activate"
   });
+  useEffect(() => {
+    close();
+  }, []);
 
   useEffect(() => {
     checkUserAyrshareSocialLinking();

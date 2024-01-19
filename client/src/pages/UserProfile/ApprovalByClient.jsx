@@ -4,7 +4,7 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
 // import CSRFToken from "../../components/CSRFToken";
 
-const ApprovalByClient = () => {
+const ApprovalByClient = ({close}) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState();
   const [error, setError] = useState();
@@ -24,6 +24,10 @@ const ApprovalByClient = () => {
     post: false,
     schedule: false,
   };
+
+  useEffect(() => {
+    close();
+  }, []);
 
   useEffect(() => {
     try {

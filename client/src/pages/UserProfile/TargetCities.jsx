@@ -5,7 +5,7 @@ import axios from "axios";
 import Loading from "/src/components/Loading.jsx";
 import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
 
-const TargetCities = () => {
+const TargetCities = ({close}) => {
   const [cityList, setCityList] = useState([]);
   const [filteredCityList, setFilteredCityList] = useState([]);
   const [status, setStatus] = useState("");
@@ -16,6 +16,10 @@ const TargetCities = () => {
   const [success, setSuccess] = useState("");
 
   const formRef = useRef();
+
+  useEffect(() => {
+    close();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
