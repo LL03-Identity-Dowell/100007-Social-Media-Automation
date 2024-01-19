@@ -36,8 +36,9 @@
           {% csrf_token %}
           <input type="hidden" name="subject" value="{{topic.subject}}">
           <input type="hidden" name="verb" value="{{topic.verb}}">
+            <input type="hidden" name="topic_id" value="{{ topic.topic }}">
           <input type="hidden" name="title" value="{{topic.sentence}}">
-          <input type="hidden" name="target_industry" value="{{topic.target_industry}}">
+            <input type="hidden" name="target_product" value="{{ topic.target_product }}">
           <th scope="col-1">{{topic.ranks}}</th>
           <td scope="col-7">{{topic.sentence}}</td>
           <td>{{topic.created_by}}</td>
