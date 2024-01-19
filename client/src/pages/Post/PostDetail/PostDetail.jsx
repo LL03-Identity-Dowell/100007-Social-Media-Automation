@@ -14,7 +14,6 @@ import {
 } from "./_components/optionList";
 import Dropdown from "./_components/dropdown";
 import Counts from "./_components/counts";
-import CarosuelModal from "./_components/carosuel-modal";
 import { handleCharacCount } from "./_components/function";
 import { FaEdit, FaTimes } from "react-icons/fa";
 
@@ -131,7 +130,7 @@ function PostDetail({ show }) {
           let data = response.data;
           setSuccess(data.message);
           setDesignedFor(data.linked_accounts);
-          // console.log(data);
+          console.log(data);
           setPostDetailData(data);
 
           let isPostId = data.post._id;
@@ -246,7 +245,6 @@ function PostDetail({ show }) {
             alt=''
             className='w-full h-full img-fluid post-img'
           />
-          {editing && <CarosuelModal setSelectedImage={setSelectedImage} />}
         </div>
 
         <div className='flex flex-col gap-6 mt-5 post-options'>
@@ -305,12 +303,15 @@ function PostDetail({ show }) {
               name='designed_for'
               className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
             >
-              {designedFor &&
-                designedFor.map((socialMedia, index) => (
+              {designedFor.length > 0 ? (
+                designedFor?.map((socialMedia, index) => (
                   <option value={socialMedia} key={index}>
                     {socialMedia}
                   </option>
-                ))}
+                ))
+              ) : (
+                <option>No social media channels is linked</option>
+              )}
             </select>
           </div>
 
