@@ -64,7 +64,7 @@ const Hashtags = ({ close }) => {
     updateSaveButtonState(updatedChecked);
   };
   
-  const updateSaveButtonState = (hashtagChecked, mentionsChecked) => {
+  const updateSaveButtonState = (hashtagChecked) => {
     const areAnyChecked = hashtagChecked.some((value) => value);
     // ||
     // mentionsChecked.some((value) => value);
@@ -169,9 +169,9 @@ const Hashtags = ({ close }) => {
 
   return (
     <>
-    <div className={`${!isSelected ? "w-[60%]" : "w-full"} px-4 md:px-8`}>
-            <div className="flex justify-between gap-12 flex-col md:flex-row w-full">
-              <div className="w-full ">
+    <div className={`w-full px-4 md:px-8`}>
+            <div className="flex justify-between gap-12 flex-col items-center w-full">
+              <div className="w-full md:w-[60%]">
                 <label
                   htmlFor="hashtags"
                   className="text-xl font-bold text-customBlue"
@@ -236,7 +236,7 @@ const Hashtags = ({ close }) => {
               </div>
 
               {isSelected && (
-                <div className="w-full text-center bg-gray-200 shadow-xl rounded-lg p-6">
+                <div className="w-full  md:w-[60%] rounded-lg">
                   <form onSubmit={handleSubmit}>
                     <label
                       htmlFor="hashtags"
@@ -295,7 +295,7 @@ const Hashtags = ({ close }) => {
 
                     <button
                       type="submit"
-                      className={`mt-6 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue  ${
+                      className={`mt-6 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue text-center  ${
                         isSaveDisabled ?
                         "bg-customGray cursor-not-allowed opacity-90" : "cursor-pointer"
                       } `}

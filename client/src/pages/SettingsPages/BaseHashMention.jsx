@@ -3,10 +3,10 @@ import { Link, NavLink, Navigate, Outlet } from "react-router-dom";
 
 const BaseHashMention = () => {
   return (
-    <div className="bg-pens bg-cover bg-center h-[90vh] ">
+    <div className="bg-pens bg-cover bg-center h-auto ">
       <div className="bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400">
-        <div className="flex flex-col items-center justify-start py-10 w-full h-full">
-          <div className="flex gap-4 my-6">
+        <div className="flex flex-col items-center justify-start  w-full h-full">
+          <div className="flex gap-4 py-6 bg-white w-full justify-center">
             <NavLink
               to="/settings/hastags"
             //   className="pb-12 text-xl font-bold text-customGray xl:text-3xl active:text-customTextBlue"
