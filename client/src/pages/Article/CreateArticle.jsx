@@ -79,9 +79,9 @@ const CreateArticle = ({ show }) => {
         setLoading(false);
         // Handle the response here
         setSuccess("Articles created successfully...!");
-        setTimeout(()=>{
+        setTimeout(() => {
           navigate("/article");
-        }, 2000)
+        }, 2000);
       })
       .catch((error) => {
         setSuccess(null);
@@ -103,12 +103,12 @@ const CreateArticle = ({ show }) => {
       })
       .then((response) => {
         // Handle the response here
-        const data = response.data.message
-          setLoading(false);
-          setWikipida(data)
-          navigate("/article/Wikipidia/", { state: { data } })
-          // setShowWikipida(true)
-          // setSuccess(data); 
+        const data = response.data.message;
+        setLoading(false);
+        setWikipida(data);
+        navigate("/article/Wikipidia/", { state: { data } });
+        // setShowWikipida(true)
+        // setSuccess(data);
       })
       .catch((error) => {
         setLoading(false);
@@ -122,37 +122,37 @@ const CreateArticle = ({ show }) => {
     const data = {
       title: item,
     };
-    navigate("/article/write_yourself/", { state: { data } })
+    navigate("/article/write_yourself/", { state: { data } });
   };
 
   return (
-    <div className="lg:flex lg:flex-col lg:justify-center lg:items-center lg:article-container lg:relative  lg:max-w-7xl lg:mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-visible ">
+    <div className='overflow-y-hidden lg:flex lg:flex-col lg:justify-center lg:items-center lg:article-container lg:relative lg:max-w-7xl lg:mx-auto lg:h-auto lg:overflow-y-visible '>
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {/* <ToastContainer /> */}
-      <h1 className="text-2xl font-semibold text-customTextBlue">
+      <h1 className='text-2xl font-semibold text-customTextBlue'>
         Create An Article
       </h1>
-      <p className="">Select a topic</p>
-      <div className=" ">
-        <div className="flex flex-col max-w-6xl content-center">
-          <div className="overflow-x-auto lg:overflow-hidden sm:-mx-6 lg:-mx-8 ">
-            <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-              <div className="overflow-hidden">
-                <table className=" text-left text-sm font-light w-auto">
-                  <thead className="border-y font-medium dark:border-black">
+      <p className=''>Select a topic</p>
+      <div className=''>
+        <div className='flex flex-col content-center max-w-6xl'>
+          <div className='overflow-x-auto lg:overflow-hidden sm:-mx-6 lg:-mx-8 '>
+            <div className='inline-block min-w-full py-2 sm:px-6 lg:px-8'>
+              <div className='overflow-hidden'>
+                <table className='w-auto text-sm font-light text-left '>
+                  <thead className='font-medium border-y dark:border-black'>
                     <tr>
-                      <th scope="col" className="text-lg px-6 py-4">
+                      <th scope='col' className='px-6 py-4 text-lg'>
                         Rank
                       </th>
-                      <th scope="col" className="text-lg px-6 py-4">
+                      <th scope='col' className='px-6 py-4 text-lg'>
                         Sentense
                       </th>
-                      <th scope="col" className="text-lg px-6 py-4">
+                      <th scope='col' className='px-6 py-4 text-lg'>
                         Created By
                       </th>
-                      <th scope="col" className="text-lg px-6 py-4">
+                      <th scope='col' className='px-6 py-4 text-lg'>
                         Select Handle
                       </th>
                     </tr>
@@ -162,20 +162,20 @@ const CreateArticle = ({ show }) => {
                       topics.map((item, index) => (
                         <tr
                           key={index}
-                          className="border-b transition duration-300 ease-in-out text-md lg:text-lg text-gray-600 font-normal hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600"
+                          className='font-normal text-gray-600 transition duration-300 ease-in-out border-b text-md lg:text-lg hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'
                         >
-                          <td className="lg:whitespace-nowrap md:whitespace-nowrap px-6 py-4 font-medium">
+                          <td className='px-6 py-4 font-medium lg:whitespace-nowrap md:whitespace-nowrap'>
                             {item.ranks}
                           </td>
-                          <td className="lg:whitespace-nowrap md:whitespace-nowrap px-6 py-4">
+                          <td className='px-6 py-4 lg:whitespace-nowrap md:whitespace-nowrap'>
                             {item.sentence}
                           </td>
-                          <td className="lg:whitespace-nowrap md:whitespace-nowrap px-6 py-4">
+                          <td className='px-6 py-4 lg:whitespace-nowrap md:whitespace-nowrap'>
                             {item.created_by}
                           </td>
-                          <td className="lg:whitespace-nowrap md:whitespace-nowrap px-6 py-4">
+                          <td className='px-6 py-4 lg:whitespace-nowrap md:whitespace-nowrap'>
                             <button
-                              className="bg-[#999999] text-white text-xs mx-3 rounded p-2 w-auto"
+                              className='bg-[#999999] text-white text-xs mx-3 rounded p-2 w-auto'
                               onClick={() =>
                                 callGenerateArticleAI(item.sentence)
                               }
@@ -184,19 +184,22 @@ const CreateArticle = ({ show }) => {
                             </button>
 
                             <button
-                              className="bg-[#0866FF] text-white text-xs mx-3 rounded p-2 w-auto"
-                              onClick={()=> callGenerateArticleWiki(item.sentence)}
+                              className='bg-[#0866FF] text-white text-xs mx-3 rounded p-2 w-auto'
+                              onClick={() =>
+                                callGenerateArticleWiki(item.sentence)
+                              }
                             >
                               Wikipedia
                             </button>
 
                             <button
-                              className="bg-[#333333] text-white text-xs mx-3 rounded p-2 w-auto"
-                              onClick={()=> callGenerateArticleWriteYourself(item.sentence)}
+                              className='bg-[#333333] text-white text-xs mx-3 rounded p-2 w-auto'
+                              onClick={() =>
+                                callGenerateArticleWriteYourself(item.sentence)
+                              }
                             >
                               Write Yourself
                             </button>
-                            
                           </td>
                         </tr>
                       ))}
@@ -213,19 +216,21 @@ const CreateArticle = ({ show }) => {
         marginPagesDisplayed={2}
         onPageChange={handlePageClick}
         previousLabel={
-          <span className="text-black text-xs md:text-md">{page > 0 ? "Previous" : ""}</span>
+          <span className='text-xs text-black md:text-md'>
+            {page > 0 ? "Previous" : ""}
+          </span>
         }
         nextLabel={
-          <span className="text-black text-xs md:text-md">
+          <span className='text-xs text-black md:text-md'>
             {page < pageCount - 1 ? "Next" : " "}
           </span>
         }
-        containerClassName="flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll"
-        pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
-        previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-        nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-        breakClassName="p-2"
-        activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
+        containerClassName='flex justify-center items-center my-4 md:space-x-2'
+        pageClassName='p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
+        previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
+        nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
+        breakClassName='p-2'
+        activeClassName='bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 '
       />
 
       {/* {wikipida && <Wikipidia wikipida={wikipida}/>} */}

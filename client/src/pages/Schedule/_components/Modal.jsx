@@ -20,7 +20,7 @@ export const PostModal = ({
       <Dialog.Trigger asChild>
         <button
           type='button'
-          className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-customBlue text-center'
+          className='w-24 h-10 text-sm text-center text-white rounded-md hover:opacity-95 bg-customBlue '
         >
           Post Now
         </button>

@@ -431,3 +431,65 @@ button {
 .slick-slider {
   padding: 13px 10px 13px 23px;
 }
+
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after,
+.tooltip::before {
+  --scale: 0;
+  --tooltip-color: #252525;
+  --border-size: 10px;
+
+  position: absolute;
+  top: -0.05rem;
+  left: 50%;
+
+  transform: translateX(-50%) translateY(var(--translate-y, 0))
+    scale(var(--scale));
+  transition: 30ms opacity ease-in-out, 20ms transform ease-in-out;
+  transform-origin: center center;
+  opacity: 0;
+  background-color: var(--tooltip-color);
+  z-index: 5;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tooltip::before {
+  content: attr(data-tooltip);
+  font-weight: 500;
+  color: white;
+  padding: 0.5rem;
+  width: max-content;
+  max-width: 240px;
+  background: var(--tooltip-color);
+  border-radius: 0.3rem;
+  text-align: center;
+  --translate-y: calc(-98% - var(--border-size));
+  font-size: 12px;
+}
+
+.tooltip:hover::before,
+.tooltip:hover::after {
+  --scale: 1;
+  opacity: 1;
+}
+
+.tooltip::after {
+  --translate-y: calc(-1 * var(--border-size));
+  content: "";
+  background-color: transparent;
+  border: var(--border-size) solid transparent;
+  border-top-color: var(--tooltip-color);
+  border-radius: 0;
+  transform-origin: top center;
+  box-shadow: none;
+}
+
+.first-tooltip::before,
+.first-tooltip::after {
+  transform: translateX(-30%) translateY(var(--translate-y, 0))
+    scale(var(--scale));
+}
