@@ -11,7 +11,8 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
-                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,FetchUserInfo)
+                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
+                    FetchUserInfo, GroupHashtagView)
 
 app_name = 'generate_article'
 
@@ -31,22 +32,21 @@ urlpatterns = [
          name='update_hash_mentions'),
     path('facebook-form/', FacebookFormAPI.as_view(),
          name='facebook-form-api'),
-    path('instagram-form/',  InstaFormAPI.as_view(),
+    path('instagram-form/', InstaFormAPI.as_view(),
          name='instagram-form-api'),
-    path('X-form/',  XFormAPI.as_view(), name='X-form-api'),
-    path('linkedIn-form/',  LinkedInFormAPI.as_view(),
+    path('X-form/', XFormAPI.as_view(), name='X-form-api'),
+    path('linkedIn-form/', LinkedInFormAPI.as_view(),
          name='linkedIn-form-api'),
-    path('youtube-form/',  YoutubeFormView.as_view(),
+    path('youtube-form/', YoutubeFormView.as_view(),
          name='youtube-form-api'),
-    path('pinterest-form/',  PinterestFormView.as_view(),
+    path('pinterest-form/', PinterestFormView.as_view(),
          name='pinterest-form-api'),
-    path('client-form/',  ClientProfileFormView.as_view(),
+    path('client-form/', ClientProfileFormView.as_view(),
          name='client-form-api'),
-    path('post-detail-dropdowns/',  PostDetailDropdownView.as_view(),
+    path('post-detail-dropdowns/', PostDetailDropdownView.as_view(),
          name='post-detail-dropdowns-api'),
     path('fetch_user_settings_data/', FetchUserInfo.as_view(),
          name='test'),
-
 
     path('list-articles/', ListArticleView.as_view(), name='list-articles'),
     path('article-detail/',
@@ -89,8 +89,6 @@ urlpatterns = [
          PostComments.as_view(), name='post-comments-endpoint'),
     path('comments/delete-comment/<str:post_id>/', DeletePostComment.as_view(),
          name='delete-post-comments-endpoint'),
-
-
-
+    path('group-hashtags/', GroupHashtagView.as_view(), name='group-hashtag-endpoint'),
 
 ]
