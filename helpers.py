@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 
 import jwt
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
@@ -577,7 +578,7 @@ def encode_json_data(data):
     return jwt.encode(data, "secret", algorithm="HS256")
 
 
-def create_hashtags(data: dict):
+def create_group_hashtags(data: dict):
     """
     This function returns
     """
@@ -601,7 +602,7 @@ def create_hashtags(data: dict):
             "eventId": event_id,
             'client_admin_id': data['client_admin_id'],
             "group_name": data['group_name'],
-            "hashtag": data['hashtag'],
+            "hashtags": data['hashtags'],
         },
         "update_field": {
             "order_nos": 21
@@ -610,3 +611,37 @@ def create_hashtags(data: dict):
     }
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    return response.json()
+
+
+def filter_group_hashtag(data: dict):
+    """
+    This function returns
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+    filter_data = {
+        'org_id': data.get('org_id'),
+    }
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "hashtags",
+        "document": "hashtags",
+        "team_member_ID": "1262001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": filter_data,
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    response_data = json.loads(response.json())
+    group_hastag_pd = pd.DataFrame(response_data.get('data'))
+    return group_hastag_pd.to_dict('records')
