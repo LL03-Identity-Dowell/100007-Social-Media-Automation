@@ -18,7 +18,16 @@ function ViewComments({ show }) {
 
   const parsedDatetime = comments?.nextUpdateTwitter;
   const datetime = new Date(parsedDatetime);
-  const humanReadableDatetime = datetime.toLocaleString();
+  const options = {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  };
+  const humanReadableDatetime = datetime.toLocaleString(undefined, options);
 
   useEffect(() => {
     show();
@@ -247,7 +256,7 @@ function ViewComments({ show }) {
           !error && (
             <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
               Please wait for the comments to update until,
-              {humanReadableDatetime}.
+              {humanReadableDatetime} UTC
             </div>
           )
         )}
