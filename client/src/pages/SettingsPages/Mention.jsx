@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
+import Loading from "../../components/Loading";
+import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 
 const Mention = ({close}) => {
     const [inputHashtagText, setinputHashtagText] = useState("");
@@ -69,7 +71,7 @@ const Mention = ({close}) => {
         // Make a GET request to the API endpoint with the session_id
         axios
           .get(
-            `${import.meta.env.VITE_APP_WEBSITEBASEURL}/hash-tags-and-mentions/`,
+            `${import.meta.env.VITE_APP_BASEURL}/mentions/`,
             {
               withCredentials: true,
             }
@@ -99,8 +101,8 @@ const Mention = ({close}) => {
           await axios
             .put(
               `${
-                import.meta.env.VITE_APP_WEBSITEBASEURL
-              }/update-hash-tags-and-mentions/`,
+                import.meta.env.VITE_APP_BASEURL
+              }/update-mentions/`,
               data,
     
               {
@@ -127,7 +129,7 @@ const Mention = ({close}) => {
           //console.log("from insert", payloadBody)
           await axios
             .post(
-              `${import.meta.env.VITE_APP_WEBSITEBASEURL}/hash-tags-and-mentions/`,
+              `${import.meta.env.VITE_APP_BASEURL}/mentions/`,
               payloadBody,
               {
                 withCredentials: true,
@@ -148,9 +150,12 @@ const Mention = ({close}) => {
         }
       };
   return (
-    <div>
+    <div className="w-full  md:w-[60%]">
+        {loading && <Loading/>}
+        {success && <SuccessMessages>{success}</SuccessMessages>}
+      {error && <ErrorMessages>{error}</ErrorMessages>}
        <form className='w-full px-6' onSubmit={handleSubmit}>
-            <div className='flex flex-col w-full gap-6 ml-10 lg:flex-row lg:gap-10'>
+            <div className='flex flex-col w-full gap-6  lg:flex-row lg:gap-10'>
               
               <div className='w-full '>
                 {/* <label
@@ -159,7 +164,7 @@ const Mention = ({close}) => {
                 >
                   Mentions
                 </label> */}
-                <div className='flex w-full mt-4 border'>
+                <div className='flex w-full mt-4 '>
                   <span className='p-2 text-lg text-gray-600 bg-gray-400 rounded-l-md'>
                     @
                   </span>
@@ -169,7 +174,7 @@ const Mention = ({close}) => {
                     value={inputMentionsText}
                     onChange={handleMentionsInputChange}
                     placeholder='Enter Mentions..'
-                    className='w-80 outline-1'
+                    className='w-full outline-1'
                   />
                   <button
                     className={`px-2 py-0 text-white bg-customBlue rounded-r-2xl ${
@@ -207,10 +212,10 @@ const Mention = ({close}) => {
 
               </div>
             </div>
-            <div className='flex items-center justify-center mt-6 md:mt-16'>
+            <div className='flex items-center justify-center w-full mt-2'>
               <button
                 type='submit'
-                className={`bg-customBlue px-10 py-2 text-white rounded-xl flex items-center gap-3  ${
+                className={` bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue text-center  ${
                   isSaveDisabled &&
                   "bg-customBlue cursor-not-allowed opacity-90"
                 } `}
