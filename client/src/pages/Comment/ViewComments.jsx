@@ -17,6 +17,8 @@ function ViewComments({ show }) {
   const { id } = useParams();
 
   const parsedDatetime = comments?.nextUpdateTwitter;
+  const datetime = new Date(parsedDatetime);
+  const humanReadableDatetime = datetime.toLocaleString();
 
   useEffect(() => {
     show();
@@ -52,7 +54,7 @@ function ViewComments({ show }) {
             setSuccess("Comments fetched successfully");
             setError("");
           }
-          console.log(data);
+          setComments(data);
         })
         .catch(() => {
           setError(error?.response?.data?.platforms.join(", "));
@@ -245,7 +247,7 @@ function ViewComments({ show }) {
           !error && (
             <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
               Please wait for the comments to update until,
-              {parsedDatetime}.
+              {humanReadableDatetime}.
             </div>
           )
         )}
