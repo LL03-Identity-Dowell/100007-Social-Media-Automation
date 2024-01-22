@@ -3014,7 +3014,7 @@ class TargetedCitiesUpdateView(AuthenticatedBaseView):
             return Response({'detail': 'Targeted cities updated successfully'}, status=status.HTTP_200_OK)
 
 
-class HashMentionView(AuthenticatedBaseView):
+class MentionView(AuthenticatedBaseView):
     def get(self, request):
         session_id = request.GET.get("session_id", None)
         if 'session_id' in request.session and 'username' in request.session:
@@ -3036,7 +3036,6 @@ class HashMentionView(AuthenticatedBaseView):
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
-            hashtag_list = request.data.get('hashtags_list').split(',')
             mentions_list = request.data.get('mentions_list').split(',')
 
             url = "http://uxlivinglab.pythonanywhere.com/"
@@ -3058,11 +3057,9 @@ class HashMentionView(AuthenticatedBaseView):
                     "date": date,
                     "time": str(time),
                     "mentions_list": mentions_list,
-                    "hashtag_list": hashtag_list,
                 },
                 "update_field": {
                     "mentions_list": mentions_list,
-                    "hashtag_list": hashtag_list,
                 },
                 "platform": "bangalore"
             }
@@ -3073,16 +3070,13 @@ class HashMentionView(AuthenticatedBaseView):
             return Response({'detail': 'Hashtags and Mentions created successfully'}, status=status.HTTP_201_CREATED)
 
 
-class HashMentionUpdateView(AuthenticatedBaseView):
-
+class MentionUpdateView(AuthenticatedBaseView):
     def put(self, request):
         session_id = request.GET.get("session_id", None)
         if 'session_id' in request.session and 'username' in request.session:
             if request.method != "PUT":
                 return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                hashtag_list = request.data.get('hashtag_list')
-                print("Here we have", hashtag_list)
                 mentions_list = request.data.get('mentions_list')
                 print("Here we have", mentions_list)
                 url = "http://uxlivinglab.pythonanywhere.com/"
@@ -3101,7 +3095,6 @@ class HashMentionUpdateView(AuthenticatedBaseView):
                     },
                     "update_field": {
                         "mentions_list": mentions_list,
-                        "hashtag_list": hashtag_list,
                     },
                     "platform": "bangalore"
                 }
