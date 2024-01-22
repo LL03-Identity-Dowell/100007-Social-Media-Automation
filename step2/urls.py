@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
-                    HashMentionView, HashMentionUpdateView, UnScheduledView, UnScheduledJsonView,
+                    MentionView, MentionUpdateView, UnScheduledView, UnScheduledJsonView,
                     ScheduledJsonView, IndexView, MostRecentJSON, FacebookFormAPI,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
                     ClientProfileFormView, ListArticleView,
@@ -11,7 +11,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
-                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,FetchUserInfo)
+                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment, FetchUserInfo)
 
 app_name = 'generate_article'
 
@@ -25,10 +25,10 @@ urlpatterns = [
          name='targeted-cities-create'),
     path('targeted_cities/update/', TargetedCitiesUpdateView.as_view(),
          name='targeted-cities-update'),
-    path('hash-tags-and-mentions/', HashMentionView.as_view(),
-         name='save_hash_mentions'),
-    path('update-hash-tags-and-mentions/', HashMentionUpdateView.as_view(),
-         name='update_hash_mentions'),
+    path('mentions/', MentionView.as_view(),
+         name='save_mentions'),
+    path('update-mentions/', MentionUpdateView.as_view(),
+         name='update_mentions'),
     path('facebook-form/', FacebookFormAPI.as_view(),
          name='facebook-form-api'),
     path('instagram-form/',  InstaFormAPI.as_view(),
