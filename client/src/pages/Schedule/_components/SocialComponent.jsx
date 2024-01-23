@@ -180,7 +180,7 @@ export const SocialComponentForPost = ({
         <div className='flex justify-center mt-8'>
           <button
             type='submit'
-            className='text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95'
+            className='text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95 text-center'
           >
             Done
           </button>
@@ -375,7 +375,7 @@ export const SocialComponentForSchedule = ({
           <Dialog.Close asChild>
             <button
               type='button'
-              className='w-28 h-[46px] rounded-lg text-base font-medium text-white bg-[#464646] hover:opacity-95'
+              className='w-28 h-[46px] rounded-lg text-center text-base font-medium text-white bg-[#464646] hover:opacity-95'
             >
               Remove
             </button>
@@ -383,7 +383,7 @@ export const SocialComponentForSchedule = ({
 
           <button
             type='submit'
-            className='text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95'
+            className='text-base text-center font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95'
           >
             Done
           </button>
