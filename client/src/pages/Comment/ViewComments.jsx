@@ -46,9 +46,8 @@ function ViewComments({ show }) {
     setLoading(true);
 
     const fetchComments = async () => {
-      const url = `${
-        import.meta.env.VITE_APP_BASEURL
-      }/comments/get-post-comments/${id}/`;
+      const url = `${import.meta.env.VITE_APP_BASEURL
+        }/comments/get-post-comments/${id}/`;
       await axios
         .get(url, {
           withCredentials: true,
@@ -90,7 +89,7 @@ function ViewComments({ show }) {
       .then((response) => {
         if (response.statusText === "OK") {
           console.log("Hitt");
-          setSuccess("Comment deleted successfully. It will be updated 2h");
+          setSuccess("Comment deleted successfully.");
           setError("");
         }
       })
@@ -255,8 +254,8 @@ function ViewComments({ show }) {
           !loading &&
           !error && (
             <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
-              Please wait for the comments to update until,
-              {humanReadableDatetime} UTC
+              Please wait for the next update:
+              {humanReadableDatetime}
             </div>
           )
         )}
