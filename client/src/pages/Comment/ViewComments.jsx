@@ -5,7 +5,6 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
 import { MdArrowLeft } from "react-icons/md";
 import CommentItem from "./_components/CommentItem";
-import { getDate } from "./utils/getDate";
 
 function ViewComments({ show }) {
   const [error, setError] = useState("");
@@ -17,26 +16,18 @@ function ViewComments({ show }) {
 
   const { id } = useParams();
 
-  const parsedDatetime = new Date(comments?.nextUpdateTwitter);
-
-  // Format without seconds (YYYY-MM-DD HH:mm)
-  const formattedDatetime = `${parsedDatetime.getFullYear()}-${(
-    parsedDatetime.getMonth() + 1
-  )
-    .toString()
-    .padStart(2, "0")}-${parsedDatetime
-    .getDate()
-    .toString()
-    .padStart(2, "0")} ${
-    parsedDatetime.getHours() > 12
-      ? (parsedDatetime.getHours() - 12).toString().padStart(2, "0")
-      : parsedDatetime.getHours().toString().padStart(2, "0")
-  }:${parsedDatetime.getMinutes().toString().padStart(2, "0")}:${parsedDatetime
-    .getSeconds()
-    .toString()
-    .padStart(2, "0")} ${parsedDatetime.getHours() >= 12 ? "PM" : "AM"} ${
-    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][parsedDatetime.getDay()]
-  }`;
+  const parsedDatetime = comments?.nextUpdateTwitter;
+  const datetime = new Date(parsedDatetime);
+  const options = {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  };
+  const humanReadableDatetime = datetime.toLocaleString(undefined, options);
 
   useEffect(() => {
     show();
@@ -55,9 +46,8 @@ function ViewComments({ show }) {
     setLoading(true);
 
     const fetchComments = async () => {
-      const url = `${
-        import.meta.env.VITE_APP_BASEURL
-      }/comments/get-post-comments/${id}/`;
+      const url = `${import.meta.env.VITE_APP_BASEURL
+        }/comments/get-post-comments/${id}/`;
       await axios
         .get(url, {
           withCredentials: true,
@@ -66,13 +56,13 @@ function ViewComments({ show }) {
           const { data } = response;
 
           if (data.status === "error") {
-            setError(data.message.split(".")[0]);
+            setError("The  post does not have aryshare ID");
             setSuccess("");
+          } else {
+            setSuccess("Comments fetched successfully");
+            setError("");
           }
           setComments(data);
-          setSuccess("Comments fetched successfully");
-          setError("");
-          console.log(data);
         })
         .catch(() => {
           setError(error?.response?.data?.platforms.join(", "));
@@ -99,7 +89,7 @@ function ViewComments({ show }) {
       .then((response) => {
         if (response.statusText === "OK") {
           console.log("Hitt");
-          setSuccess("Comment deleted successfully. It will be updated 2h");
+          setSuccess("Comment deleted successfully.");
           setError("");
         }
       })
@@ -127,7 +117,6 @@ function ViewComments({ show }) {
           <MdArrowLeft />
           Go back
         </Link>
-
         {hasComment ? (
           <div>
             {comments?.twitter?.length > 0 && (
@@ -262,11 +251,18 @@ function ViewComments({ show }) {
             )}
           </div>
         ) : (
-          !loading && (
+          !loading &&
+          !error && (
             <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
-              Please wait for the comments to update until, {formattedDatetime}.
+              Please wait for the next update:
+              {humanReadableDatetime}
             </div>
           )
+        )}
+        {!loading && error && (
+          <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
+            Comments not found
+          </div>
         )}
       </div>
     </div>
