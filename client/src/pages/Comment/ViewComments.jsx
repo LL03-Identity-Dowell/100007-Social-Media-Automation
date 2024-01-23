@@ -3,8 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
-import { getDate } from "./utils/getDate";
-import { MdArrowLeft } from "react-icons/md"
+import { MdArrowLeft } from "react-icons/md";
+import CommentItem from "./_components/CommentItem";
 
 function ViewComments({ show }) {
   const [error, setError] = useState("");
@@ -15,6 +15,19 @@ function ViewComments({ show }) {
   const [comments, setComments] = useState({});
 
   const { id } = useParams();
+
+  const parsedDatetime = comments?.nextUpdateTwitter;
+  const datetime = new Date(parsedDatetime);
+  const options = {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  };
+  const humanReadableDatetime = datetime.toLocaleString(undefined, options);
 
   useEffect(() => {
     show();
@@ -28,22 +41,28 @@ function ViewComments({ show }) {
     const hasComments = socialMediaKeys.some((key) => comments[key].length > 0);
     setHasComments(hasComments);
   }, [comments]);
+
   useEffect(() => {
     setLoading(true);
+
     const fetchComments = async () => {
-      const url = `${
-        import.meta.env.VITE_APP_BASEURL
-      }/comments/get-post-comments/${id}/`;
+      const url = `${import.meta.env.VITE_APP_BASEURL
+        }/comments/get-post-comments/${id}/`;
       await axios
         .get(url, {
           withCredentials: true,
         })
         .then((response) => {
           const { data } = response;
+
+          if (data.status === "error") {
+            setError("The  post does not have aryshare ID");
+            setSuccess("");
+          } else {
+            setSuccess("Comments fetched successfully");
+            setError("");
+          }
           setComments(data);
-          console.log(data);
-          setSuccess("Comments fetched successfully");
-          setError("");
         })
         .catch(() => {
           setError(error?.response?.data?.platforms.join(", "));
@@ -55,92 +74,92 @@ function ViewComments({ show }) {
   }, [id]);
 
   const handleDelete = async (commentId, platform) => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
     const body = {
       comment_id: commentId,
       platform,
     };
     const url = `http://127.0.0.1:8000/api/v1/comments/delete-comment/${id}/`;
-    const res = await axios.post(url, body, {
-      withCredentials: true,
-    });
-    console.log(res);
+    await axios
+      .post(url, body, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        if (response.statusText === "OK") {
+          console.log("Hitt");
+          setSuccess("Comment deleted successfully.");
+          setError("");
+        }
+      })
+      .catch(() => {
+        setError(error?.response?.data?.platforms.join(", "));
+        setSuccess("");
+      });
+    setLoading(false);
   };
 
   return (
-    <div className="relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto">
+    <div className='relative h-[100vh] max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto'>
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {loading && <Loading />}
 
-      <div className="w-[90%] m-auto p-4  text-left text-gray-500 dark:text-gray-400 ">
-        <h1 className="text-3xl text-center md:text-4xl text-customTextBlue">
+      <div className='w-[90%] m-auto p-4  text-left text-gray-500 dark:text-gray-400 '>
+        <h1 className='text-3xl text-center md:text-4xl text-customTextBlue'>
           Comments
         </h1>
         <Link
-          to="/comment"
-          className="cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg"
+          to='/comment'
+          className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg max-w-max'
         >
-         <MdArrowLeft/> Go back
+          <MdArrowLeft />
+          Go back
         </Link>
-
         {hasComment ? (
           <div>
             {comments?.twitter?.length > 0 && (
               <div>
-                <div className="flex items-center gap-4 mt-8">
+                <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src="/x-twitter.svg"
-                    className="w-12 h-12 p-1 bg-black border rounded-full "
-                    alt=""
+                    src='/x-twitter.svg'
+                    className='w-12 h-12 p-1 bg-black border rounded-full '
+                    alt=''
                   />
-                  <h2 className="text-2xl font-bold">Twitter</h2>
+                  <h2 className='text-2xl font-bold'>Twitter</h2>
                 </div>
-                <ol className="pl-20 space-y-4 mt-7">
-                  {comments?.twitter?.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li
-                        className="flex items-center w-full gap-6 px-8 py-4 bg-gray-100"
-                        key={t.commentId}
-                      >
-                        <h4 className="mt-1">{i + 1}.</h4>
-                        <div>
-                          <p className="text-xl">{t.comment}</p>
-                          <span className="text-sm">{date}</span>
-                        </div>
-                        <button
-                          onClick={() => handleDelete(t.commentId, t.platform)}
-                          className="px-6 py-2.5 rounded-sm ml-auto text-sm font-bold text-red-600 bg-red-300 cursor-pointer"
-                        >
-                          Delete
-                        </button>
-                      </li>
-                    );
-                  })}
+                <ol className='pl-20 space-y-4 mt-7'>
+                  {comments?.twitter?.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
             {comments?.pinterest?.length > 0 && (
               <div>
-                <div className="flex items-center gap-4 mt-8">
+                <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src="/pinterest.svg"
-                    className="w-12 h-12 p-1 bg-[#e60023] border rounded-full "
-                    alt=""
+                    src='/pinterest.svg'
+                    className='w-12 h-12 p-1 bg-[#e60023] border rounded-full '
+                    alt=''
                   />
-                  <h2 className="text-2xl font-bold">Pinterest</h2>
+                  <h2 className='text-2xl font-bold'>Pinterest</h2>
                 </div>
-                <ol className="pl-20 space-y-4 mt-7">
+                <ol className='pl-20 space-y-4 mt-7'>
                   {comments.pinterest.map((t, i) => {
-                    const date = getDate(t.created);
                     return (
-                      <li className="flex gap-6" key={t.commentId}>
-                        <h4 className="mt-1">{i + 1}.</h4>
-                        <div>
-                          <p className="text-xl">{t.comment}</p>
-                          <span className="text-sm">{date}</span>
-                        </div>
-                      </li>
+                      <CommentItem
+                        t={t}
+                        i={i}
+                        key={i}
+                        handleDelete={handleDelete}
+                      />
                     );
                   })}
                 </ol>
@@ -148,108 +167,101 @@ function ViewComments({ show }) {
             )}
             {comments?.facebook?.length > 0 && (
               <div>
-                <div className="flex items-center gap-4 mt-8">
+                <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src="/facebook.svg"
-                    className="w-12 h-12 p-1 border rounded-full bg-customBlue "
-                    alt=""
+                    src='/facebook.svg'
+                    className='w-12 h-12 p-1 border rounded-full bg-customBlue '
+                    alt=''
                   />
-                  <h2 className="text-2xl font-bold">Facebook</h2>
+                  <h2 className='text-2xl font-bold'>Facebook</h2>
                 </div>
-                <ol className="pl-20 space-y-4 mt-7">
-                  {comments.facebook.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li className="flex gap-6" key={t.commentId}>
-                        <h4 className="mt-1">{i + 1}.</h4>
-                        <div>
-                          <p className="text-xl">{t.comment}</p>
-                          <span className="text-sm">{date}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
+                <ol className='pl-20 space-y-4 mt-7'>
+                  {comments.facebook.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
             {comments?.youtube?.length > 0 && (
               <div>
-                <div className="flex items-center gap-4 mt-8">
-                  <div className="custom-youtube-logo "></div>
-                  <h2 className="text-2xl font-bold">Youtube</h2>
+                <div className='flex items-center gap-4 mt-8'>
+                  <div className='custom-youtube-logo '></div>
+                  <h2 className='text-2xl font-bold'>Youtube</h2>
                 </div>
-                <ol className="pl-20 space-y-4 mt-7">
-                  {comments.youtube.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li className="flex gap-6" key={t.commentId}>
-                        <h4 className="mt-1">{i + 1}.</h4>
-                        <div>
-                          <p className="text-xl">{t.comment}</p>
-                          <span className="text-sm">{date}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
+                <ol className='pl-20 space-y-4 mt-7'>
+                  {comments.youtube.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
             {comments?.instagram?.length > 0 && (
               <div>
-                <div className="flex items-center gap-4 mt-8">
+                <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src="/instagram.svg"
-                    className="w-12 h-12 p-1 border rounded-full bg-[#b003c7] "
-                    alt=""
+                    src='/instagram.svg'
+                    className='w-12 h-12 p-1 border rounded-full bg-[#b003c7] '
+                    alt=''
                   />
-                  <h2 className="text-2xl font-bold">Instagram</h2>
+                  <h2 className='text-2xl font-bold'>Instagram</h2>
                 </div>
-                <ol className="pl-20 space-y-4 mt-7">
-                  {comments.instagram.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li className="flex gap-6" key={t.commentId}>
-                        <h4 className="mt-1">{i + 1}.</h4>
-                        <div>
-                          <p className="text-xl">{t.comment}</p>
-                          <span className="text-sm">{date}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
+                <ol className='pl-20 space-y-4 mt-7'>
+                  {comments.instagram.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
             {comments?.linkedin?.length > 0 && (
               <div>
-                <div className="flex items-center gap-4 mt-8">
+                <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src="/linkedin.svg"
-                    className="w-12 h-12 p-1 border rounded-full bg-[#0000ff] "
-                    alt=""
+                    src='/linkedin.svg'
+                    className='w-12 h-12 p-1 border rounded-full bg-[#0000ff] '
+                    alt=''
                   />
-                  <h2 className="text-2xl font-bold">Linkedin</h2>
+                  <h2 className='text-2xl font-bold'>Linkedin</h2>
                 </div>
-                <ol className="pl-20 space-y-4 mt-7">
-                  {comments.linkedin.map((t, i) => {
-                    const date = getDate(t.created);
-                    return (
-                      <li className="flex gap-6" key={t.commentId}>
-                        <h4 className="mt-1">{i + 1}.</h4>
-                        <div>
-                          <p className="text-xl">{t.comment}</p>
-                          <span className="text-sm">{date}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
+                <ol className='pl-20 space-y-4 mt-7'>
+                  {comments.linkedin.map((t, i) => (
+                    <CommentItem
+                      t={t}
+                      i={i}
+                      key={i}
+                      handleDelete={handleDelete}
+                    />
+                  ))}
                 </ol>
               </div>
             )}
           </div>
         ) : (
-          <div className="text-4xl font-bold text-[#333] flex justify-center items-center h-[350px]">
-            No comments posted
+          !loading &&
+          !error && (
+            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
+              Please wait for the next update:
+              {humanReadableDatetime}
+            </div>
+          )
+        )}
+        {!loading && error && (
+          <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
+            Comments not found
           </div>
         )}
       </div>
