@@ -3101,11 +3101,12 @@ class GroupHashtagView(AuthenticatedBaseView):
         return Response({'group_hastag_list': group_hastag_list})
 
     def post(self, request):
-        session_id = request.GET.get("session_id", None)
+
         serializer_data = GroupHashtagSerializer(data=request.data)
         if not serializer_data.is_valid():
             return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
         org_id = request.session['org_id']
+        session_id = request.GET.get("session_id", None)
         group_name = serializer_data.validated_data['group_name']
         hashtags = serializer_data.validated_data['hashtags'].split(',')
         client_admin_id = request.session['userinfo']['client_admin_id']

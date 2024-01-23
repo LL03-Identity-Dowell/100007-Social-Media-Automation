@@ -70,5 +70,5 @@ class DeletePostCommentSerializer(serializers.Serializer):
 
 
 class GroupHashtagSerializer(serializers.Serializer):
-    group_name = serializers.ChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
+    group_name = serializers.CharField(required=True)
     hashtags = serializers.CharField(required=True)
