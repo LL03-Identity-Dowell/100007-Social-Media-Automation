@@ -65,46 +65,46 @@ function PostDetail({ show }) {
       [name]: value,
     });
   };
-
-  //handle next button
-  const handleSubmit = () => {
-    // e.preventDefault();
-    setLoading(true);
-
-    const data = {
-      qualitative_categorization: inputs.qualitative_categorization,
-      targeted_for: inputs.targeted_for,
-      designed_for: inputs.designed_for,
-      targeted_category: inputs.targeted_category,
-      title: title || postDetailData?.post?.title || "",
-      paragraphs:
-        paragraph || postDetailData
-          ? postDetailData.post.paragraph[0].replace(/\n\n/, "")
-          : "",
-      source: postDetailData ? postDetailData.post.source : "",
-      image: selectedImage || postDetailData ? postDetailData.images : "",
-    };
-    // Make a POST request to the API endpoint with the session_id
-    axios
-      .post(`http://127.0.0.1:8000/api/v1/save_post/`, data, {
-        withCredentials: true,
-      })
-      .then((response) => {
-        setError(null);
-        setLoading(false);
-        let resData = response.data;
-
-        setSuccess(resData.message);
-        setTimeout(() => {
-          navigate("/unscheduled");
-        }, 2000);
-      })
-      .catch((error) => {
-        setLoading(false);
-        setError("Server error, Please try again later");
-        console.error("Error submitting post:", error);
-      });
+  const data = {
+    qualitative_categorization: inputs.qualitative_categorization,
+    targeted_for: inputs.targeted_for,
+    designed_for: inputs.designed_for,
+    targeted_category: inputs.targeted_category,
+    title: title || postDetailData?.post?.title || "",
+    paragraphs:
+      paragraph || postDetailData
+        ? postDetailData.post.paragraph[0].replace(/\n\n/, "")
+        : "",
+    source: postDetailData ? postDetailData.post.source : "",
+    image: selectedImage || postDetailData ? postDetailData.images : "",
   };
+  //handle next button
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   console.log("clicked");
+  //   setLoading(true);
+
+  //   // Make a POST request to the API endpoint with the session_id
+  //   axios
+  //     .post(`http://127.0.0.1:8000/api/v1/save_post/`, data, {
+  //       withCredentials: true,
+  //     })
+  //     .then((response) => {
+  //       setError(null);
+  //       setLoading(false);
+  //       let resData = response.data;
+  //       console.log(resData.message);
+  //       setSuccess(resData.message);
+  //       setTimeout(() => {
+  //         navigate("/unscheduled");
+  //       }, 2000);
+  //     })
+  //     .catch((error) => {
+  //       setLoading(false);
+  //       setError("Server error, Please try again later");
+  //       console.error("Error submitting post:", error);
+  //     });
+  // };
 
   const fetch = () => {
     setLoading(true);
@@ -374,7 +374,8 @@ function PostDetail({ show }) {
       {hashAndMention && (
         <HashtagAndMentions
           onclick={handleNavigation}
-          onsubmit={handleSubmit}
+          // onsubmit={handleSubmit}
+          data={data}
         />
       )}
     </div>
