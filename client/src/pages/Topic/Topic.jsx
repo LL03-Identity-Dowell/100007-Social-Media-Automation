@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -24,6 +24,7 @@ function Topic({ show }) {
     adjective: "",
   });
 
+  const [topicStatus, setTopicStatus] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,9 +38,12 @@ function Topic({ show }) {
       `${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`,
       { withCredentials: true }
     );
-    const topicReq = axios.get(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`, {
-      withCredentials: true,
-    });
+    const topicReq = axios.get(
+      `${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`,
+      {
+        withCredentials: true,
+      }
+    );
 
     Promise.all([categoryReq, topicReq])
       .then(([categoryRes, topicRes]) => {
@@ -50,6 +54,21 @@ function Topic({ show }) {
         console.error("Error retrieving Category or Topic:", error);
       });
   };
+
+  useEffect(() => {
+    const fetchData = () => {
+      axios
+        .get(`${import.meta.env.VITE_APP_BASEURL}/fetch_user_settings_data/`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setTopicStatus(res.data.data[0].topic);
+        })
+        .catch((err) => console.log(err));
+    };
+
+    fetchData();
+  }, []);
 
   const handelChange = (e) => {
     const { name, value } = e.target;
