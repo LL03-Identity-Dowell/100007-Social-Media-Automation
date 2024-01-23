@@ -615,6 +615,38 @@ def create_group_hashtags(data: dict):
     return response.json()
 
 
+def update_group_hashtags(data: dict):
+    """
+    This function returns
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    event_id = create_event()['event_id']
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "hashtags",
+        "document": "hashtags",
+        "team_member_ID": "1262001",
+        "function_ID": "ABCDE",
+        "command": "update",
+        "field": {
+            "_id": data['group_hashtag_id'],
+        },
+        "update_field": {
+            "group_name": data['group_name'],
+            "hashtags": data['hashtags'],
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    return response.json()
+
+
 def filter_group_hashtag(data: dict):
     """
     This function returns
