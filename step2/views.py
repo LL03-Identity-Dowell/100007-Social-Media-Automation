@@ -2170,9 +2170,15 @@ def index(request):
             for counter, data in enumerate(array):
 
                 for key in data.keys():
+
                     if key.startswith("sentence_rank_") and data[key]['sentence_rank'] is not None:
-                        topic = {"ranks": data[key]['sentence_rank'], "sentence": data[key]
-                                 ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
+                        topic = {
+                            "ranks": data[key]['sentence_rank'],
+                            "title": data[key]['sentence_result'],
+                            "subject": data.get('subject'),
+                            "key": key,
+                            'created_by': data.get('username', 'NA'),
+                        }
                         topics.append(topic)
 
             # Getting the results for a certain page
