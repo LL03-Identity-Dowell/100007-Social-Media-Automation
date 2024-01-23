@@ -17,6 +17,7 @@ import Counts from "./_components/counts";
 import CarosuelModal from "./_components/carosuel-modal";
 import { handleCharacCount } from "./_components/function";
 import { FaEdit, FaTimes } from "react-icons/fa";
+import HashtagAndMentions from "./_components/HashtagAndMentions";
 
 function PostDetail({ show }) {
   const [editing, setEditing] = useState(false);
@@ -28,6 +29,7 @@ function PostDetail({ show }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [selectedImage, setSelectedImage] = useState(postDetailData?.image);
+  const [hashAndMention, sethashAndMention] = useState(false);
 
   const [title, setTitle] = useState(postDetailData?.post?.title);
   const [paragraph, setParagraph] = useState(postDetailData?.post?.paragraph);
@@ -41,8 +43,6 @@ function PostDetail({ show }) {
 
   // const iframeSrc =
   //   "https://ll04-finance-dowell.github.io/100058-DowellEditor-V2/?token=eyJhbGciOiJIUzI1NiJ9.eyJwcm9kdWN0X25hbWUiOiJTb2NpYWwgTWVkaWEgQXV0b21hdGlvbiIsImRldGFpbHMiOnsiX2lkIjoiNjU3ODVmNWIzNWRhZDQzMjZlMDRiMGRjIiwiZGF0YWJhc2UiOiJzb2NpYWxtZWRpYSIsImNvbGxlY3Rpb24iOiJzdGVwM19kYXRhIiwidGVhbV9tZW1iZXJfSUQiOiIzNDU2Nzg5Nzc5OSIsImZ1bmN0aW9uX0lEIjoiQUJDREUiLCJjbHVzdGVyIjoic29jaWFsbWVkaWEiLCJkb2N1bWVudCI6InN0ZXAzX2RhdGEiLCJjb21tYW5kIjoiZmV0Y2giLCJ1cGRhdGVfZmllbGQiOnsib3JkZXJfbm9zIjoyMX19fQ.QTlwdOv7y1E6YcAe7hjyVLF9k2vNx_vdheoshLS3sOU";
-
- 
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -135,9 +135,9 @@ function PostDetail({ show }) {
           setDesignedFor(data.linked_accounts);
           // console.log(data);
           setPostDetailData(data);
-          
+
           let isPostId = data.post._id;
-          setPostId(isPostId)
+          setPostId(isPostId);
           let paragraph = data.post.paragraph[0];
           // console.log(paragraph)
           paragraph = paragraph.split("\n\n");
@@ -159,35 +159,34 @@ function PostDetail({ show }) {
     }
   };
 
-  const handelPopup = ()=>{
+  const handelPopup = () => {
     axios
-    .get(`${import.meta.env.VITE_APP_BASEURL}/edit_post/${postId}/`, {
-      withCredentials: true,
-    })
-    .then((response) => {
-      setError(null);
-      setLoading(false);
-      // console.log(response);
-      let resData = response.data.redirect_url;
-      setIframeSrc(resData)
+      .get(`${import.meta.env.VITE_APP_BASEURL}/edit_post/${postId}/`, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setError(null);
+        setLoading(false);
+        // console.log(response);
+        let resData = response.data.redirect_url;
+        setIframeSrc(resData);
+      })
+      .catch((error) => {
+        setLoading(false);
+        setError("Please try again later");
+        console.error("Error Editing post:", error);
+      });
 
-      
-    })
-    .catch((error) => {
-      setLoading(false);
-      setError("Please try again later");
-      console.error("Error Editing post:", error);
-    });
-
-    setEditing(!editing)
-  }
+    setEditing(!editing);
+  };
 
   const handleNavigation = () => {
-    if (!editing) {
-      navigate("/scheduled");
-    } else {
-      setError("You have a unsaved document. Please save it.");
-    }
+    sethashAndMention(!hashAndMention);
+    // if (!editing) {
+    //   navigate("/scheduled");
+    // } else {
+    //   setError("You have a unsaved document. Please save it.");
+    // }
   };
 
   return (
@@ -203,31 +202,31 @@ function PostDetail({ show }) {
         />
       </div> */}
 
-
       <div className="mt-2 mb-2 text-lg font-bold md:mb-0 flex justify-between items-center">
-       
-          <h2>
-            {postDetailData && postDetailData.post.title}
-            {/* The team was adviced by the cyber security experts. */}
-          </h2>
-        
-        <span onClick={handelPopup} className="cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg"> <FaEdit/>Edit</span>
+        <h2>
+          {postDetailData && postDetailData.post.title}
+          {/* The team was adviced by the cyber security experts. */}
+        </h2>
 
+        <span
+          onClick={handelPopup}
+          className="cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg"
+        >
+          {" "}
+          <FaEdit />
+          Edit
+        </span>
       </div>
 
       <hr className="my-4" />
 
       <div className="mt-4 md:mt-8">
-        {
-          postDetailData &&
+        {postDetailData &&
           paragraph.map((p, index) => (
-
             <div className="text-base" key={index}>
               {index >= 0 && p}
             </div>
-          ))
-         }
-
+          ))}
       </div>
 
       <hr className="my-4" />
@@ -353,14 +352,31 @@ function PostDetail({ show }) {
       </div>
 
       {/* Editing Modal Starts */}
-      <div className={editing ? "fixed z-40 top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 transformrounded-xl w-full flex justify-center items-center h-full bg-overlay" : "hidden"}>
+      <div
+        className={
+          editing
+            ? "fixed z-40 top-1/2 right-1/2 translate-x-1/2 -translate-y-1/2 transformrounded-xl w-full flex justify-center items-center h-full bg-overlay"
+            : "hidden"
+        }
+      >
         <div className=" bg-white w-full h-full 2xl:h-[750px] md:w-[900px] md:h-[600px]  text-black relative">
-        <span className="font-bold text-xl p-2 border border-black rounded-full absolute -right-12 cursor-pointer top-0" onClick={handelPopup}><FaTimes/></span>
-        <iframe src={iframeSrc} width="100%" height="100%"/>
-
+          <span
+            className="font-bold text-xl p-2 border border-black rounded-full absolute -right-12 cursor-pointer top-0"
+            onClick={handelPopup}
+          >
+            <FaTimes />
+          </span>
+          <iframe src={iframeSrc} width="100%" height="100%" />
         </div>
       </div>
       {/* Editing Modal Ends */}
+
+      {hashAndMention && (
+        <HashtagAndMentions
+          onclick={handleNavigation}
+          onsubmit={handleSubmit}
+        />
+      )}
     </div>
   );
 }
