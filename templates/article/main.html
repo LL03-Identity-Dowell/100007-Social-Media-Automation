@@ -36,10 +36,10 @@
           {% csrf_token %}
           <input type="hidden" name="subject" value="{{topic.subject}}">
           <input type="hidden" name="verb" value="{{topic.verb}}">
-          <input type="hidden" name="title" value="{{topic.sentence}}">
+            <input type="hidden" name="title" value="{{ topic.title }}">
           <input type="hidden" name="target_industry" value="{{topic.target_industry}}">
           <th scope="col-1">{{topic.ranks}}</th>
-          <td scope="col-7">{{topic.sentence}}</td>
+            <td scope="col-7">{{ topic.title }}</td>
           <td>{{topic.created_by}}</td>
           <td><input type="submit" class="btn btn-secondary btn-sm" formaction="{% url 'generate_article:submit-title' %}" value="AIWriter" /></td>
           <td><input type="submit" class="btn btn-primary btn-sm" formaction="{% url 'generate_article:submit-title-wiki' %}" value="Wikipedia" /></td>
@@ -52,10 +52,10 @@
           {% csrf_token %}
           <input type="hidden" name="subject" value="{{topic.subject}}">
           <input type="hidden" name="verb" value="{{topic.verb}}">
-          <input type="hidden" name="title" value="{{topic.sentence}}">
+            <input type="hidden" name="title" value="{{ topic.title }}">
           <input type="hidden" name="target_industry" value="{{topic.target_industry}}">
           <th scope="col-1">{{topic.ranks}}</th>
-          <td scope="col-7">{{topic.sentence}}</td>
+            <td scope="col-7">{{ topic.title }}</td>
           <td>{{topic.created_by}}</td>
           <td><input type="button" class="btn btn-secondary btn-sm" value="AIWriter" onclick="alertNotAdmin();" /></td>
           <td><input type="button" class="btn btn-primary btn-sm" value="Wikipedia" onclick="alertNotAdmin();" /></td>

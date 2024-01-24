@@ -215,6 +215,7 @@ def index(request):
                         return [response['sentence'], type_of_sentence]
 
                     data_dictionary = request.POST.dict()
+                    data_dictionary['subject'] = subject
                     data_dictionary["user_id"] = request.session['user_id']
                     data_dictionary["session_id"] = session_id
                     data_dictionary["org_id"] = request.session['org_id']
@@ -401,6 +402,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
             return [response['sentence'], type_of_sentence]
 
         data_dictionary = request.POST.dict()
+        data_dictionary['subject'] = subject
         data_dictionary["user_id"] = request.session['user_id']
         data_dictionary["session_id"] = session_id
         data_dictionary["org_id"] = request.session['org_id']
@@ -481,6 +483,7 @@ def selected_result(request):
 
                 # if not credit_response.get('success'):
                 #     return redirect(reverse('credit_error_view'))
+
                 sentence_ids = request.session.get('result_ids')
                 loop_counter = 1
 
