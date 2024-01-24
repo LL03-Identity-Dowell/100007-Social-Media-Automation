@@ -812,12 +812,16 @@ class PostDetailView(AuthenticatedBaseView):
                 else:
                     return Response({'error': 'Invalid data format'}, status=400)
             a = random.randint(1, 9)
+
+            max_characters = 200
             if 'paragraph' in data:
                 paragraph = data.get('paragraph')
-                query = paragraph
+                truncated_paragraph = paragraph[:max_characters]
+                query = truncated_paragraph
             elif 'article' in data:
                 article = data.get("article")
-                query = article
+                truncated_article = article[:max_characters]
+                query = truncated_article
             else:
                 return Response({'error': 'No query was used'}, status=400)
             output = []
