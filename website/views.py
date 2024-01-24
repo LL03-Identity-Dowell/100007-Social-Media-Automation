@@ -108,11 +108,23 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
                 'event_id': create_event()['event_id'],
                 'client_admin_id': request.session['userinfo']['client_admin_id']
             }
+            
+            ###########################
+            sentence_count = 12  # Update this with the actual number of sentences
+            rankings = automate_ranking(sentence_count)
+            data_di.update(rankings)
+              #####################################
+            
+            
             async_task("automate.services.step_1", auto_strings,
                        data_di, hook='automate.services.hook_now')
             return Response({'message': 'Your Sentences are being generated'})
 
-        def api_call(grammar_arguments=None):
+            async_task("automate.services.step_1", auto_strings,
+                       data_di, hook='automate.services.hook_now')
+            return Response({'message': 'Your Sentences are being generated'})
+
+        def api_call(grammar_arguments=None,rank=None):  ######################## added rank and set to none
             if grammar_arguments is None:
                 grammar_arguments = {}
 
@@ -170,6 +182,10 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         data_dictionary["session_id"] = request.session.get('session_id', None)
         data_dictionary['event_id'] = create_event()['event_id']
         data_dictionary['email'] = email
+        #######################################
+        data_dictionary[f"api_sentence_{counter}"]["sentence_rank"] = rank
+        data_dictionary[f"api_sentence_{counter}"]["sentence_id"] = sentence_result.pk
+##################################################
 
         try:
             data_dictionary.pop('csrfmiddlewaretoken')
@@ -185,6 +201,11 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
             adjective=adjective,
         )
 
+
+
+        rankings = automate_ranking(sentence_count) ###################new list created
+        
+        
         tenses = ['past', 'present', 'future']
         other_grammar = ['passive', 'progressive', 'perfect', 'negated']
         api_results = []
@@ -192,6 +213,8 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         for tense in tenses:
             for grammar in other_grammar:
                 arguments = {'tense': tense, grammar: grammar}
+                rank = rankings.pop(0) ##############newly added
+
                 api_result = api_call(arguments)
                 api_results.append(api_result)
 
