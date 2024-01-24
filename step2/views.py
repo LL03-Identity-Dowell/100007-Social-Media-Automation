@@ -17,6 +17,8 @@ import requests
 import wikipediaapi
 from PIL import Image
 from django.contrib import messages
+from django.core import cache
+from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
@@ -39,7 +41,7 @@ from helpers import (download_and_upload_image,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
-                     encode_json_data, edit_article, create_step_4_data)
+                     encode_json_data)
 from website.models import Sentences, SentenceResults
 from .image_generator.prodia import ImageGenerator
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
@@ -981,6 +983,9 @@ class EditPostView(AuthenticatedBaseView):
             response_data = {
                 'redirect_url': f'https://ll04-finance-dowell.github.io/100058-DowellEditor-V2/?token={str(token)}'
             }
+            cache_key = f'post_id{str(post_id)}'
+            if cache.get(cache_key):
+                response_data['updated_post_details'] = cache.get(cache_key)
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -992,31 +997,16 @@ class EditPostView(AuthenticatedBaseView):
         serializer = EditPostSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-        step_3_data = {
+        updated_data = {
             'post_id': post_id,
             'title': serializer.validated_data['title'],
             'paragraph': serializer.validated_data['paragraph'],
+            'image': serializer.validated_data['image'],
         }
-        edit_article(step_3_data)
-        uploaded_image = download_and_upload_image(image_url=serializer.validated_data['image'])
-
-        image_url = uploaded_image.get('file_url')
-
-        step_4_data = {
-            'user_id': request.session.get('user_id'),
-            'session_id': request.session.get('session_id'),
-            'client_admin_id': request.session['userinfo']['client_admin_id'],
-            'title': serializer.validated_data['title'],
-            'paragraph': serializer.validated_data['paragraph'],
-            'org_id': request.session.get('org_id'),
-            'source': 'dowell_editor',
-            'image': image_url,
-            "timezone": request.session['timezone'],
-            "username": request.session['username']
-        }
-        create_step_4_data(step_4_data)
+        cache_key = f'post_id{str(post_id)}'
+        cache.set(cache_key, updated_data, timeout=3600)
         response_data = {
-            "message": "Post saved successfully",
+            'message': 'Post has been updated'
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
 
