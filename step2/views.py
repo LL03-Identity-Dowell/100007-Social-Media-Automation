@@ -1350,7 +1350,7 @@ def api_call(postes, platforms, key, image, request, post_id):
         messages.error(request, 'error in posting')
     elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
         messages.success(
-            request, 'post have been sucessfully posted')
+            request, 'post has been successfully posted')
         # credit_handler = CreditHandler()
         # credit_handler.consume_step_4_credit(request)
         update_most_recent(post_id)
