@@ -30,6 +30,8 @@ urlpatterns = [
     path('credit/', include('credits.urls')),
 
     path('api/v1/', include('article_api.urls')),
+    path('api/v1/', include('automate.urls')),
+
 
 ]
 
