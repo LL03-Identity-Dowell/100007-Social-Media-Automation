@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-from website.models import IndustryData, Sentences
+from article_api.models import IndustryData, Sentences
 
 
 class GenerateArticleSerializer(serializers.Serializer):
@@ -11,7 +11,7 @@ class GenerateArticleSerializer(serializers.Serializer):
 class IndustrySerializer(serializers.ModelSerializer):
     class Meta:
         model = IndustryData
-        fields = ['target_industry', 'target_product', ]
+        fields = ['target_industry', 'target_product']
         labels = {
             'target_industry': _('Category'),
             'target_product': _('Product/Services'),
@@ -26,10 +26,14 @@ class SentenceSerializer(serializers.ModelSerializer):
     )
     subject_number = serializers.ChoiceField(choices=NUMBERS, default='singular')
     object_number = serializers.ChoiceField(choices=NUMBERS, default='singular')
+    subject = serializers.CharField(required=True, max_length=100)
+    verb = serializers.CharField(required=True, max_length=100)
+    adjective = serializers.CharField(required=True, max_length=100)
 
     class Meta:
         model = Sentences
         fields = (
-            'subject_determinant', 'subject', 'subject_number', 'object_determinant', 'object', 'object_number',
-            'verb', 'adjective', 'email',
+            'subject_determinant', 'subject_number', 'object_determinant', 'object', 'object_number',
+            'verb', 'adjective', 'email', 'subject'
         )
+

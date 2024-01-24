@@ -1,0 +1,368 @@
+{% extends "article/base_steps.html" %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="{% static 'step1/css/stepwise.css' %}">
+        {% comment %} <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous"> {% endcomment %}
+    </head>
+
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+
+    /*body {*/
+    /*    background-color: #f1f1f1;*/
+    /*}*/
+
+    input.invalid {
+        background-color: #ffdddd;
+    }
+
+    #regForm {
+        background-color: #ffffff;
+        margin: 100px auto;
+        font-family: Raleway;
+        padding: 40px;
+        width: 70%;
+        min-width: 300px;
+        border-radius: 0.3em;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+
+    /* Hide all steps by default: */
+    .tab {
+        display: none;
+    }
+
+    button#nextBtn {
+        border-color: #ffc107;
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    button {
+
+        border: none;
+        padding: 10px 20px;
+        font-size: 17px;
+        font-family: Raleway;
+        cursor: pointer;
+    }
+
+    button:hover {
+        opacity: 0.8;
+    }
+
+    /* Make circles that indicate the steps of the form: */
+    /*.step {*/
+    /*    height: 15px;*/
+    /*    width: 15px;*/
+    /*    margin: 0 2px;*/
+    /*    background-color: #47ce29;*/
+    /*    border: none;*/
+    /*    border-radius: 50%;*/
+    /*    display: inline-block;*/
+    /*    opacity: 0.5;*/
+    /*}*/
+
+    /*.step.active {*/
+    /*    opacity: 1;*/
+    /*}*/
+
+    /* Mark the steps that are finished and valid: */
+    /*.step.finish {*/
+    /*    background-color: #04AA6D;*/
+    /*}*/
+
+    #submitBtn {
+        display: none;
+    }
+
+    .custom-radio-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 4px;
+    }
+
+   .required_field {
+        font-size: 1em;
+        color: red;
+    }
+
+    .popup {
+    position: fixed;
+    top: 20px; /* Adjust the top position as per your needs */
+    right: 20px; /* Adjust the right position as per your needs */
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* Adjust the alpha value (0.8 in this example) */
+    border: none;
+    box-shadow: none;
+    font-style: italic;
+    z-index: 9999;
+    animation: slideIn 0.5s ease-in-out;
+}
+
+.cancel-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.popup p {
+  margin: 0;
+  padding: 0;
+}
+
+.popup::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%; /* Set initial width to full */
+  transition: width 30s linear;
+    height: 4px;
+    background-color: green;
+}
+
+.popup.timeout::after {
+  animation: decreaseWidth 10s linear forwards; /* Use animation for decreasing width */
+}
+
+
+/*button in select*/
+ .button-like-option {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
+@keyframes decreaseWidth {
+  0% {
+    width: 100%; /* Set initial width to full */
+  }
+  100% {
+    width: 0; /* Decrease width to 0 */
+  }
+}
+
+@keyframes slideIn {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(0); }
+}
+
+
+
+</style>
+
+<body>
+
+<form id="regForm" action="{% url 'index' %}" method="post">
+
+    <!-- One "tab" for each step in the form: -->
+    <!--{% csrf_token %}-->
+    <!--<div class="tab">-->
+    <!--    <h1><b>Email ID input:</b></h1>-->
+
+    <!--    {% for input in emailForm %}-->
+
+    <!--        <span class="row"><span>{{ input.label }}:{% if input.field.required %}-->
+    <!--            <span class="required_field">*</span>{% endif %} </span>{{ input }}</span>-->
+    <!--    {% endfor %}-->
+    <!--</div>-->
+    <!-- <div id="popupMessage" class="popup"></div> -->
+    {#    <div class="tab">#}
+    {##}
+    {##}
+    {#        <h1><b>Hashtags:</b></h1>#}
+    {##}
+    {#        <p class="hashtag">Use at least one hashtag from each group</p>#}
+    {#todo continue from here to add hashtags#}
+    {#        <p class="hashtag">Group 1 - industry based hashtags</p>#}
+    {#        <p class="hashtag">#livinglab</p>#}
+    {#        <p class="hashtag">#innovation</p>#}
+    {#        <p class="hashtag">#userexperience</p>#}
+    {#        <p class="hashtag">#storytelling</p>#}
+    {#        <p class="hashtag">#consumerbehavior</p>#}
+    {#        <p class="hashtag">#behavioraleconomics</p>#}
+    {#        <p class="hashtag">#ux</p>#}
+    {#        <p class="hashtag">#consumerinsights</p>#}
+    {#        <p class="hashtag">#statistics</p>#}
+    {#        <p class="hashtag separator">--------------------------------------------------</p>#}
+    {#        <p class="hashtag">Group 2 - DoWell hashtags</p>#}
+    {#        <p class="hashtag">#truemoments - awareness brand</p>#}
+    {#        <p class="hashtag">#seeuser - awareness brand</p>#}
+    {#        <p class="hashtag">#stattricks - knowledge brand</p>#}
+    {#        <p class="hashtag">#dowellcomprehend - knowledge brand</p>#}
+    {#        <p class="hashtag">#uxlivinglab - Product brand</p>#}
+    {#        <p class="hashtag">#unpackandwin - Product brand</p>#}
+    {#        <p class="hashtag">#dowellresearch - Corporate brand</p>#}
+    {#        <p class="hashtag">#openinnovationacademy - non profit brand</p>#}
+    {#        <p class="hashtag separator">------------------------------------------------------------</p>#}
+    {#        <p class="hashtag">Group 3 - Most used hashtags</p>#}
+    {#        <p class="hashtag">#goodmorning</p>#}
+    {#        <p class="hashtag">#thankyou</p>#}
+    {#        <p class="hashtag">#internship</p>#}
+    {#        <p class="hashtag">#genz</p>#}
+    {#        <p class="hashtag">#sales</p>#}
+    {#        <p class="hashtag">#strategy</p>#}
+    {#        <p class="hashtag">#business</p>#}
+    {#        <p class="hashtag">#digitaltwin</p>#}
+    {#        <p class="hashtag">#germany</p>#}
+    {#        <p class="hashtag">#singapore</p>#}
+    {#        <p class="hashtag">#london</p>#}
+    {#        <p class="hashtag">#usa</p>#}
+    {#        <p class="hashtag">#sweden</p>#}
+    {#        <p class="hashtag separator">-----------------------------------------------------------</p>#}
+    {#        <p class="hashtag">Group 4 - client hashtags</p>#}
+    {#        <p class="hashtag">#google</p>#}
+    {#        <p class="hashtag">#amazon</p>#}
+    {#        <p class="hashtag">#microsoft</p>#}
+    {#        <p class="hashtag">#apple</p>#}
+    {#        <p class="hashtag">#facebook</p>#}
+    {#        <p class="hashtag separator">-----------------------------------------------------------</p>#}
+    {#        <p class="hashtag">Group 5 - event hashtags</p>#}
+    {##}
+    {##}
+    {#        <p class="hashtag separator">--------------------------------------------------------</p>#}
+    {#        <p class="hashtag">Work flow</p>#}
+    {#        <p class="hashtag">Step 1- Select a topic</p>#}
+    {#        <p class="hashtag">Step 2 -Create post using AI</p>#}
+    {#        <p class="hashtag">Step 3 - Edit, Copy each post and paste in this form</p>#}
+    {#        <p class="hashtag">Step 4 - Add relevant hashtags and mentions</p>#}
+    {#        <p class="hashtag">Step 5 - Select a copyright free photo or create it connecting to the post</p>#}
+    {#        <p class="hashtag">Step 6 - Upload as image /video and submit</p>#}
+    {#        <p class="hashtag">Step 7 - Select relevant social media channel to post</p>#}
+    {#    </div>#}
+
+<div class="tab">
+    <h1><b>Industry Information:</b></h1>
+    {% for input in industryForm %}
+        <p>
+            <span>{{ input.label }}:
+                {% if input.field.required %}
+                    <span class="required_field">*</span>&nbsp;&nbsp;
+                {% endif %}
+            </span>
+            {{ input }}
+            {{input.errors}}
+        </p>
+    {% endfor %}
+
+    <span class="input-group mb-3">
+        <span>{{ sentencesForm.subject_determinant.label }}:</span>&nbsp;
+        {{ sentencesForm.subject_determinant }}
+        &nbsp;&nbsp;
+           <span class="help_text">{{ sentencesForm.subject_determinant.help_text }}</span>
+        <span>{{ sentencesForm.topic.label }}:
+            {% if sentencesForm.topic.field.required %}
+                <span class="required_field">*</span>&nbsp;&nbsp;
+            {% endif %}
+            <span class="help_text">{{ sentencesForm.topic.help_text }}</span>
+        </span>
+        <span class="required_field">*</span>&nbsp;&nbsp;&nbsp;{{ sentencesForm.topic }}
+        &nbsp;{{ sentencesForm.subject_number }}
+        {{ sentencesForm.topic.errors }}
+    </span>
+
+    <span class="input-group mb-3">
+        <span>{{ sentencesForm.object_determinant.label }}:</span>&nbsp;
+        {{ sentencesForm.object_determinant }}
+        &nbsp;&nbsp;
+        <span>{{ sentencesForm.object.label }}:
+            {% if sentencesForm.object_determinant.field.required %}
+                <span class="required_field">*</span>&nbsp;&nbsp;
+            {% endif %}
+            <span class="help_text">{{ sentencesForm.object.help_text }}</span>
+            <span class="help_text">{{ sentencesForm.object_determinant.help_text }}</span>
+        </span>
+        &nbsp;{{ sentencesForm.object }}
+        &nbsp;{{ sentencesForm.object_number }}
+        {{ sentencesForm.object.errors }}
+    </span>
+
+    <span class="row">
+        <span>{{ sentencesForm.verb.label }}:
+            {% if sentencesForm.verb.field.required %}
+                <span class="required_field">*</span>&nbsp;&nbsp;
+            {% endif %}
+            <span class="help_text">{{ sentencesForm.verb.help_text }}</span>
+        </span>
+        {{ sentencesForm.verb }}
+        {{ sentencesForm.verb.errors }}
+    </span>
+
+    <span class="row">
+        <span>{{ sentencesForm.adjective.label }}:
+            {% if sentencesForm.adjective.field.required %}
+                <span class="required_field">*</span>&nbsp;&nbsp;
+            {% endif %}
+            <span class="help_text">{{ sentencesForm.adjective.help_text }}</span>
+        </span>
+        {{ sentencesForm.adjective }}
+        {{ sentencesForm.adjective.errors }}
+    </span>
+
+</div>
+
+        <p style="margin-top: 29px; font-size: 1.1rem; font-style: italic;">Sample Topic Output: The Livinglab was testing workflow ai digital documentation. </p>
+         <p style="margin-top: 29px; font-size: 1.1rem; font-style: italic;"><span style="font-weight: 600">Your sample output:</span> <span id="sentencePreview" style="color: #250ddb;"> The Livinglab was testing workflow ai digital documentation.<span> </p>
+         <p style="font-size: smaller;">Click 'Submit' to view more topic instances<p>
+
+    {#todo remove final part in order to generate different messages#}
+    {#    <div class="tab"><h1><b>Sentence Grammar</b></h1>#}
+    {#        <span class=" row input-group mb-3"><span>{{ sentencesForm.tense.label }}: {% if sentencesForm.tense.field.required %} <span class=" required_field">*</span>{% endif %}</span>{{ sentencesForm.tense }}&nbsp;&nbsp</span>&nbsp;&nbsp;#}
+    {#        <span class="input-group mb-3"><span>{{ sentencesForm.sentence_art.label }}: {% if sentencesForm.sentence_art.field.required %} <span class=" required_field">*</span>{% endif %}</span>&nbsp;{{ sentencesForm.sentence_art }}&nbsp;&nbsp;#}
+    {#                <span>{{ sentencesForm.modal_verb.label }}: {% if sentencesForm.modal_verb.field.required %} <span class=" required_field">*</span>{% endif %}</span>&nbsp;{{ sentencesForm.modal_verb }}</span>#}
+    {#        <span class="row"><span>{{ sentencesForm.progressive.label }}: {% if sentencesForm.progressive.field.required %} <span class=" required_field">*</span>{% endif %}</span>{{ sentencesForm.progressive }}</span>#}
+    {#        <span class="row"><span>{{ sentencesForm.perfect.label }}:{% if sentencesForm.perfect.field.required %} <span class=" required_field">*</span>{% endif %} </span>{{ sentencesForm.perfect }}</span>#}
+    {#        <span class="row"><span>{{ sentencesForm.negated.label }}: {% if sentencesForm.negated.field.required %} <span class=" required_field">*</span>{% endif %}</span>{{ sentencesForm.negated }}</span>#}
+    {#        <span class="row"><span>{{ sentencesForm.passive.label }}:{% if sentencesForm.passive.field.required %} <span class=" required_field">*</span>{% endif %} </span>{{ sentencesForm.passive }}</span>#}
+    {#    </div>#}
+
+       <div style="overflow:auto;" class="mt-5">
+        {% if profile == 'Admin' or 'Add/Edit' %}
+        <div style="float:right;">
+            <button type="button" id="prevBtn" class="btn btn-danger" onclick="nextPrev(-1)">Previous</button>
+            <button type="button" id="nextBtn" class="btn btn-warning" onclick="nextPrev(1)">Next</button>
+            <button type="submit" id="submitBtn" class="btn btn-success">Submit</button>
+
+        </div>
+        {% else %}
+        <div style="float:right;">
+            <button type="button" id="prevBtn" class="btn btn-danger" onclick="nextPrev(-1)">Previous</button>
+            <button type="button" id="nextBtn" class="btn btn-warning" onclick="notAdmin()">Next</button>
+            <button type="subm" id="submitBtn" class="btn btn-success">Submit</button>
+
+        </div>
+        {% endif %}
+    </div>
+    <!-- Circles which indicates the steps of the form: -->
+    <div style="text-align:center;margin-top:40px;">
+
+        <span class="step"></span>
+        <span class="step"></span>
+    </div>
+</form>
+
+<script type="text/javascript" src="{% static 'step1/js/stepwise.js'%}"></script>
+
+{% endblock content %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>

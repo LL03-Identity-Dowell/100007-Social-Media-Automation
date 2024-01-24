@@ -7,7 +7,6 @@ admin.site.register(Sentences)
 admin.site.register(SentenceResults)
 admin.site.register(MTopic)
 
-
 @admin.register(IndustryData)
 class IndustryDataAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'category', 'target_product', 'created_datetime']

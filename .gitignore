@@ -164,6 +164,7 @@ dist-ssr
 
 client/package-lock.json
 client/package-lock.json
+<<<<<<< HEAD
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -327,3 +328,6 @@ cython_debug/
 #.idea/
 
 dowellresearch.key
+=======
+100007-Social-Media-Automation/dowellresearch.key
+>>>>>>> 8ce2f4717d8897aa32bf9d4008a68374cb161b81

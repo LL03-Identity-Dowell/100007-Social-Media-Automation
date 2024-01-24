@@ -1,0 +1,133 @@
+{% extends "article/base.html" %} {% load static %} {% block script %}
+<script src="{% static 'main.js' %}"></script>
+{% endblock script %} {% block style %}
+<link rel="stylesheet" href="{% static 'step2/css/target_cities.css' %}" />
+<style>
+  .col {
+    /* Set background image. */
+    background-image: url("{% static 'photos/pens.jpg' %}");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .row {
+    height: 92vh !important;
+    margin: 0 !important;
+  }
+</style>
+{% endblock %} {% block navbar_heading %} {% endblock %} {% block content %}
+<div
+  class="content-container d-flex flex-column justify-content-center align-items-center flex-grow-1"
+>
+  <div class="wrapper-container">
+    <div class="search-container">
+      <button type="button" class="search-container-btns" id="search-btn">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          x="0px"
+          y="0px"
+          width="54"
+          height="54"
+          viewBox="0,0,256,256"
+          style="fill: #000000"
+        >
+          <g
+            fill="#1b3474"
+            fill-rule="nonzero"
+            stroke="none"
+            stroke-width="1"
+            stroke-linecap="butt"
+            stroke-linejoin="miter"
+            stroke-miterlimit="10"
+            stroke-dasharray=""
+            stroke-dashoffset="0"
+            font-family="none"
+            font-weight="none"
+            font-size="none"
+            text-anchor="none"
+            style="mix-blend-mode: normal"
+          >
+            <g transform="scale(3.55556,3.55556)">
+              <path
+                d="M31,11c-11.027,0 -20,8.973 -20,20c0,11.027 8.973,20 20,20c3.97417,0 7.67238,-1.17843 10.78906,-3.18555l12.9375,12.9375c1.664,1.664 4.36239,1.664 6.02539,0c1.664,-1.664 1.664,-4.36139 0,-6.02539l-12.9375,-12.9375c2.00712,-3.11668 3.18555,-6.8149 3.18555,-10.78906c0,-11.027 -8.973,-20 -20,-20zM31,19c6.616,0 12,5.384 12,12c0,6.616 -5.384,12 -12,12c-6.616,0 -12,-5.384 -12,-12c0,-6.616 5.384,-12 12,-12z"
+              ></path>
+            </g>
+          </g>
+        </svg>
+      </button>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="List of the Cities"
+      />
+      <button id="cancel-button" type="reset" class="search-container-btns">
+        <div class="icons8-cancel"></div>
+      </button>
+    </div>
+    <div class="no-city-match-container">
+      <h1 class="no-city-message">No matching cities found.</h1>
+    </div>
+
+    {% if status == 'insert' %}
+    <form
+      id="city-selection-form"
+      method="post"
+      action="{% url 'generate_article:save_target_cities' %}"
+    >
+      {% csrf_token %}
+      <div id="city-list" class="city-list">
+        {% for city in cities %}
+        <div class="city">
+          <label for="city_{{ city.id }}">{{ city.name }}</label>
+          <input
+            id="city_{{ city.id }}"
+            type="checkbox"
+            name="target_cities[]"
+            value="{{ city.name }}"
+          />
+        </div>
+        {% endfor %}
+      </div>
+      <div class="submit-button-wrapper">
+        <button type="submit" class="submit-button">save</button>
+      </div>
+    </form>
+    {% else %}
+    <form
+      id="city-selection-form"
+      method="post"
+      action="{% url 'generate_article:update_saved_target_cities' %}"
+    >
+      {% csrf_token %}
+      <div id="city-list" class="city-list">
+        {% for city in cities %}
+        <div class="city">
+          <label for="city_{{ city.id }}">{{ city.name }}</label>
+          <input
+            id="city_{{ city.id }}"
+            type="checkbox"
+            name="target_cities[]"
+            value="{{ city.name }}"
+          />
+        </div>
+        {% endfor %}
+      </div>
+      <div class="submit-button-wrapper">
+        <button type="submit" class="submit-button">save</button>
+      </div>
+    </form>
+    {%endif%}
+  </div>
+</div>
+
+<script type="module" src="{% static 'step2/js/target_cities.js' %}"></script>
+
+{% endblock %}

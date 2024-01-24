@@ -71,8 +71,13 @@ sympy==1.12
 tenacity==5.1.5
 tokenizers==0.15.0
 tomli==2.0.1
+<<<<<<< HEAD
 torch==2.1.2; python_version >= "3.7" and python_version < "3.11"
 torchvision==0.16.2; python_version >= "3.7" and python_version < "3.11"
+=======
+torch==2.1.2+cpu
+torchvision==0.16.2+cpu
+>>>>>>> 8ce2f4717d8897aa32bf9d4008a68374cb161b81
 tqdm==4.65.0
 transformers==4.36.2
 typing_extensions==4.6.3

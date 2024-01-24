@@ -22,11 +22,14 @@ class User(models.Model):
     email = models.EmailField(blank=False)
 
     def __str__(self):
-        return self.email
+        return str(self.email)
 
     class Meta:
         verbose_name_plural = 'Users'
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8ce2f4717d8897aa32bf9d4008a68374cb161b81
 
 class Category(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='categories')
@@ -50,12 +53,15 @@ class UserTopic(BaseModel):
     def __str__(self):
         return self.name
 
+<<<<<<< HEAD
 
 @receiver(pre_save, sender=UserTopic)
 def validate_category_save(sender, instance, **kwargs):
     if not instance.user and instance.is_default == False:
         raise ValueError('A category which is not default has to be assigned to a user!')
 
+=======
+>>>>>>> 8ce2f4717d8897aa32bf9d4008a68374cb161b81
 class IndustryData(BaseModel):
     CHOICES = (
         ('Technology & Telecom', 'Technology & Telecom'),
@@ -80,10 +86,20 @@ class IndustryData(BaseModel):
     target_product = models.CharField(max_length=100, blank=False)
 
     def __str__(self):
-        return self.user
+        return self.user.email
 
 
-class Sentences(models.Model):
+class Sentences(BaseModel):
+    SUBJECT_CHOICES = (
+        ('Livinglab', 'Livinglab'),
+        ('Innovation', 'Innovation'),
+        ('User experience', 'User experience'),
+        ('Storytelling', 'Storytelling'),
+        ('Consumer Behaviour', 'Consumer Behaviour'),
+        ('Behavioral economics', 'Behavioral economics'),
+        ('Consumer Insights', 'Consumer Insights'),
+        ('Statistics', 'Statistics'),
+    )
 
     DETERMINANTS = (
         ('-', ''),
@@ -109,12 +125,16 @@ class Sentences(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     subject_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS,
                                            default=DETERMINANTS[0][0])
-    # subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
+    #subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
     topic = models.ForeignKey(UserTopic, on_delete=models.PROTECT, null=True, blank=True,
                               related_name='sentence')
     subject_number = models.CharField(max_length=100, blank=True, null=True)
+<<<<<<< HEAD
     object_determinant = models.CharField(max_length=100, blank=True, null=True, choices=DETERMINANTS,
                                           default=DETERMINANTS[0][0])
+=======
+    object_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS, default=DETERMINANTS[0][0])
+>>>>>>> 8ce2f4717d8897aa32bf9d4008a68374cb161b81
     object = models.CharField(max_length=100, blank=False)
     object_number = models.CharField(max_length=100, blank=False)
     verb = models.CharField(max_length=100, blank=True, null=True)
@@ -153,25 +173,24 @@ class SentenceResults(models.Model):
 
 class SentenceRank(models.Model):
     sentence_result = models.ForeignKey(SentenceResults, on_delete=models.CASCADE)
-    sentence_rank = models.CharField(null=True, max_length=2)
+    sentence_rank = models.CharField(null=True,max_length=2)
 
     def __str__(self):
         return self.sentence_result.sentence
 
-
-# to not to be used
-class Topic(models.Model):
-    owner = models.CharField(max_length=100, primary_key=True, default=None)
-    rank = models.CharField(null=True, max_length=2)
+#to not to be used
+class Topic (models.Model):
+    owner = models.CharField(max_length=100,primary_key=True,default=None)
+    rank= models.CharField(null=True,max_length=2)
     sentence = models.TextField(max_length=400)
-    key = models.CharField(null=True, max_length=100, blank=True)
+    key = models.CharField(null=True,max_length=100,blank=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.owner
 
     class Meta:
-        ordering = ['-updated']
+         ordering = ['-updated']
 
 
 # class MyTopic (models.Model):
@@ -189,18 +208,20 @@ class Topic(models.Model):
 #     class Meta:
 #          ordering = ['-updated']
 
-class MTopic(models.Model):
-    username = models.CharField(null=True, max_length=100, blank=True)
-    ranks = models.IntegerField(blank=True, null=True)
+class MTopic (models.Model):
+    username=models.CharField(null=True,max_length=100,blank=True)
+    ranks = models.IntegerField(blank=True,null=True)
     sentence = models.TextField(max_length=400)
-    keyes = models.CharField(null=True, max_length=100, blank=True)
+    keyes = models.CharField(null=True,max_length=100,blank=True)
     updated = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.username
 
     class Meta:
-        ordering = ['-updated']
+         ordering = ['-updated']
+
 
 
 class WebsiteManager:
@@ -261,3 +282,9 @@ class WebsiteManager:
         if user:
             return user.last()
         return User.objects.create(email=data.get('email'))
+
+
+
+
+
+

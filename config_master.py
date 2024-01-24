@@ -15,6 +15,7 @@ UPLOAD_IMAGE_ENDPOINT = 'https://dowellfileuploader.uxlivinglab.online/uploadfil
 def session_id(request):
     return {'session_id': request.GET.get("session_id", None)}
 
+<<<<<<< HEAD
 
 SOCIAL_PLATFORM_FACEBOOK = 'facebook'
 
@@ -30,5 +31,11 @@ SOCIAL_PLATFORM_CHOICES = (
     (SOCIAL_PLATFORM_LINKEDIN, SOCIAL_PLATFORM_LINKEDIN),
     (SOCIAL_PLATFORM_TWITTER, SOCIAL_PLATFORM_TWITTER),
 )
+=======
+SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME = 'uxliveadmin'
+# SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME = 'wilfex'
+
+CREDITS_EXEMPTED_USERNAMES = [SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME]
+>>>>>>> 8ce2f4717d8897aa32bf9d4008a68374cb161b81
 
 PRODIA_API_KEY = config('PRODIA_API_KEY', '')
