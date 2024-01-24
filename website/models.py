@@ -129,7 +129,7 @@ class Sentences(models.Model):
     # negated = models.BooleanField(default=False)
     # perfect = models.BooleanField(default=False)
     # passive = models.BooleanField(default=False)
-    automated_rank = models.IntegerField(null=True, blank=True)  ##(abel_) update for ranking automations 
+    
     def __str__(self):
         return self.pk.__str__()
 
