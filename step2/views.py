@@ -166,6 +166,7 @@ class MainAPIView(AuthenticatedBaseView):
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
+
             # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 '''
 step-2 starts here
@@ -832,6 +833,7 @@ class PostDetailView(AuthenticatedBaseView):
                 pictures = photo['src']['medium']
                 img_data = requests.get(pictures).content
                 im = Image.open(BytesIO(img_data))
+                print("Here I have", im)
                 wit = im.size
                 if wit[0] >= width:
                     output.append(pictures)
@@ -1334,30 +1336,30 @@ def api_call(postes, platforms, key, image, request, post_id):
                }
     headers = {'Content-Type': 'application/json',
                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r1 = requests.post('https://app.ayrshare.com/api/post',
-                       json=payload,
-                       headers=headers)
-    print(r1.json())
-    org_id = request.session.get('org_id')
-    save_profile_key_to_post(
-        profile_key=key,
-        post_id=post_id,
-        post_response=r1.json(),
-        org_id=org_id,
-    )
-    if r1.json()['status'] == 'error':
-        messages.error(request, 'error in posting')
-    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-        messages.success(
-            request, 'post have been sucessfully posted')
-        # credit_handler = CreditHandler()
-        # credit_handler.consume_step_4_credit(request)
-        update_most_recent(post_id)
-
-    else:
-        for warnings in r1.json()['warnings']:
-            messages.error(request, warnings['message'])
+    try:
+        r1 = requests.post('https://app.ayrshare.com/api/post',
+                           json=payload,
+                           headers=headers)
+        print(r1.json())
+        response_data = r1.json()
+        org_id = request.session.get('org_id')
+        save_profile_key_to_post(
+            profile_key=key,
+            post_id=post_id,
+            post_response=response_data,
+            org_id=org_id,
+        )
+        if response_data['status'] == 'error':
+            return {'success': False, 'error_message': 'Error in posting'}
+        elif response_data['status'] == 'success' and 'warnings' not in response_data:
+            update_most_recent(post_id)
+            return {'success': True, 'message': 'Successfully Posted'}
+        else:
+            warnings = [warning['message']
+                        for warning in response_data['warnings']]
+            return {'success': False, 'error_message': warnings}
+    except Exception as e:
+        return {'success': False, 'error_message': str(e)}
 
 
 def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
@@ -1370,32 +1372,30 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
                }
     headers = {'Content-Type': 'application/json',
                'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r1 = requests.post('https://app.ayrshare.com/api/post',
-                       json=payload,
-                       headers=headers)
-    print(r1.json())
-    org_id = request.session.get('org_id')
-    save_profile_key_to_post(
-        profile_key=key,
-        post_id=post_id,
-        post_response=r1.json(),
-        org_id=org_id,
-    )
-    if r1.json()['status'] == 'error':
-        for error in r1.json()['posts']:
-            for message in error['errors']:
-                messages.error(request, message['message'][:62])
-    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-        messages.success(
-            request, 'post have been successfully posted')
-        # credit_handler = CreditHandler()
-        # credit_handler.consume_step_4_credit(request)
-        update_schedule(post_id)
-
-    else:
-        for warnings in r1.json()['warnings']:
-            messages.error(request, warnings['message'])
+    try:
+        r1 = requests.post('https://app.ayrshare.com/api/post',
+                           json=payload,
+                           headers=headers)
+        print(r1.json())
+        response_data = r1.json()
+        org_id = request.session.get('org_id')
+        save_profile_key_to_post(
+            profile_key=key,
+            post_id=post_id,
+            post_response=response_data,
+            org_id=org_id,
+        )
+        if response_data['status'] == 'error':
+            return {'success': False, 'error_message': 'Error in posting'}
+        elif response_data['status'] == 'success' and 'warning' not in response_data:
+            update_schedule(post_id)
+            return {'success': True, 'message': 'Successfully Scheduled'}
+        else:
+            warnings = [warning['message']
+                        for warning in response_data['warnings']]
+            return {'success': False, 'error_message': warnings}
+    except Exception as e:
+        return {'success': False, 'error_message': str(e)}
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1463,11 +1463,24 @@ class MediaPostView(AuthenticatedBaseView):
             "posting to Various social media"
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 # Using lambda, unpacks the tuple (*f) into api_call(*args)
-                executor.map(lambda f: api_call(*f), arguments)
+                results = executor.map(lambda f: api_call(*f), arguments)
+
+                for result in results:
+                    if not result['success']:
+                        error_message = result['error_message']
+                        messages.error(request, error_message)
                 end_datetime = datetime.now()
                 time_taken = end_datetime - start_datetime
                 print(f"Total time taken: {time_taken}")
-            return Response('most_recent')
+            error_messages = messages.get_messages(request)
+            if error_messages:
+                error_response = {'error': True, 'error_messages': [
+                    str(msg) for msg in error_messages][1:]}
+                return Response(error_response)
+            else:
+                success_response = {'success': True,
+                                    'message': 'Successfully Posted'}
+                return Response(success_response)
         else:
             return Response('social_media_channels')
 
@@ -1547,11 +1560,24 @@ class MediaScheduleView(AuthenticatedBaseView):
             "posting to Various social media"
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
-                executor.map(lambda f: api_call_schedule(*f), arguments)
+                results = executor.map(
+                    lambda f: api_call_schedule(*f), arguments)
+                for result in results:
+                    if not result['success']:
+                        error_message = result['error_message']
+                        messages.error(request, error_message)
                 end_datetime = datetime.now()
                 time_taken = end_datetime - start_datetime
                 print(f"Total time taken: {time_taken}")
-            return Response('scheduled')
+            error_messages = messages.get_messages(request)
+            if error_messages:
+                error_response = {'error': True, 'error_messages': [
+                    str(msg) for msg in error_messages][1:]}
+                return Response(error_response)
+            else:
+                success_response = {'success': True,
+                                    'message': 'Successfully Scheduled'}
+                return Response(success_response)
         else:
             return Response('social_media_channels')
 
