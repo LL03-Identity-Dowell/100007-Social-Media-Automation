@@ -17,6 +17,7 @@ const Hashtags = ({ close }) => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState();
   const [group, setGroups] = useState();
+  const [groupInput, setGroupInput] = useState();
   const [isAddGroup, setIsAddGroup] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
 
@@ -70,10 +71,11 @@ const Hashtags = ({ close }) => {
     // mentionsChecked.some((value) => value);
     setIsSaveDisabled(!areAnyChecked);
   };
+
   const fetch = () => {
     // Make a GET request to the API endpoint with the session_id
     axios
-      .get(`${import.meta.env.VITE_APP_BASEURL}/hash-tags-and-mentions/`, {
+      .get(`${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -162,6 +164,28 @@ const Hashtags = ({ close }) => {
     setIsAddGroup(!isAddGroup);
   };
 
+  const handleGroupSubmit = () => {
+  const data = groupInput
+     
+     axios
+        .post(
+          `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
+          data,
+
+          {
+            withCredentials: true,
+          }
+        )
+        .then(() => {
+          setLoading(false);
+          setSuccess("Group added sucessfully...!");
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Error making the request. Please try again later.");
+        });
+  };
+
   return (
     <>
       <div className={`w-full px-4 md:px-8`}>
@@ -189,7 +213,10 @@ const Hashtags = ({ close }) => {
                 !isAddGroup ? "hidden" : "block"
               } bg-overlay w-full h-full fixed z-50 top-0 left-0 flex justify-center items-center `}
             >
-              <div className="bg-white w-[50%] 2xl:w-[40%] p-6 rounded-lg relative">
+              <form
+                onSubmit={handleGroupSubmit}
+                className="bg-white w-[50%] 2xl:w-[40%] p-6 rounded-lg relative"
+              >
                 <span
                   className="border-2 border-gray-900 p-2 text-xl rounded-full absolute top-0 -right-12 cursor-pointer"
                   onClick={handleAddGroup}
@@ -201,7 +228,7 @@ const Hashtags = ({ close }) => {
                     type="text"
                     id="hashtags"
                     // value={inputHashtagText}
-                    // onChange={handleHashtagInputChange}
+                    onChange={(e) => setGroupInput(e.target.value)}
                     placeholder="Enter Hashtags Group.."
                     className="w-full outline-1 rounded-lg"
                   />
@@ -209,7 +236,7 @@ const Hashtags = ({ close }) => {
                 <button className="mt-4 bg-customBlue w-full text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer">
                   Save
                 </button>
-              </div>
+              </form>
             </div>
 
             <div className="flex flex-col w-full mt-6">
@@ -219,7 +246,7 @@ const Hashtags = ({ close }) => {
                 className="w-full outline-1 rounded-lg text-customGray"
                 onChange={(e) => setGroups(e.target.value)}
               >
-                <option >...</option>
+                <option>...</option>
                 <option value="Software Engineering">
                   Software Engineering
                 </option>
@@ -360,7 +387,9 @@ const Hashtags = ({ close }) => {
                  
                   </div> */}
             </div>
-          ): ""}
+          ) : (
+            ""
+          )}
         </div>
       </div>
     </>

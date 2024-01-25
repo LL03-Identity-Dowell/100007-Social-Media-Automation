@@ -10,6 +10,9 @@ const HashtagAndMentions = ({ onclick, data }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [inputHashtagList] = useState(["Html", "Food"]);
+
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -85,6 +88,29 @@ const HashtagAndMentions = ({ onclick, data }) => {
               <option value="Science">Science</option>
               <option value="Food">Food</option>
             </select>
+            <div className="mt-3">
+                  <ul className="flex flex-wrap">
+                    {inputHashtagList.map((name, index) => (
+                      <li key={index} className="mb-4 mr-4">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={checkedHashtagList[index]}
+                            onChange={() => handleCheckboxHashtagChange(index)}
+                            className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                          />
+                          {name}
+                          <button
+                            onClick={() => handleRemoveHashtagInput(index)}
+                            className="ml-8 text-gray-600 cursor-pointer"
+                          >
+                            <FaTimes />
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
             <button
             type="submit"
               className="mt-4 bg-customBlue text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer"
