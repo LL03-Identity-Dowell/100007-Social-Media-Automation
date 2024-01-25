@@ -14,7 +14,8 @@ const HashtagAndMentions = ({ onclick, data }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isFetched, setIsFetched] = useState("");
-  const navigate = useNavigate();
+
+
   useEffect(() => {
     const fetch = () => {
       // Make a GET request to the API endpoint with the session_id
@@ -140,12 +141,12 @@ const HashtagAndMentions = ({ onclick, data }) => {
                         className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                       />
                       {name}
-                      <button
+                      {/* <button
                         onClick={() => handleRemoveHashtagInput(index)}
                         className="ml-8 text-gray-600 cursor-pointer"
                       >
                         <FaTimes />
-                      </button>
+                      </button> */}
                     </div>
                   </li>
                 ))}
