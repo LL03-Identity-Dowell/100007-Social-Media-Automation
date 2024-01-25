@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Loading from "../../../../components/Loading";
-import { ErrorMessages, SuccessMessages } from "../../../../components/Messages";
+import {
+  ErrorMessages,
+  SuccessMessages,
+} from "../../../../components/Messages";
 import axios from "axios";
 
 const HashtagAndMentions = ({ onclick, data }) => {
@@ -10,15 +13,36 @@ const HashtagAndMentions = ({ onclick, data }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [inputHashtagList] = useState(["Html", "Food"]);
+  const [isFetched, setIsFetched] = useState("");
+  const navigate = useNavigate();
+  useEffect(() => {
+    const fetch = () => {
+      // Make a GET request to the API endpoint with the session_id
+      axios
+        .get(`${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log(response);
+          let data = response.data.group_hastag_list;
+          console.log(data);
 
-
+          setIsFetched(data);
+        })
+        .catch((error) => {
+          setError("Server error, Please try again later");
+          //console.error("Error fetching user-approval:", error);
+        });
+    };
+    fetch();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("clicked");
     setLoading(true);
-        data.hashtagGroup = selectOptions
+    data.group_name= selectOptions.group_name,
+    data.hashtags= selectOptions.hashtags,
     console.log(data);
 
     // // Make a POST request to the API endpoint with the session_id
@@ -34,7 +58,7 @@ const HashtagAndMentions = ({ onclick, data }) => {
         setSuccess(resData.message);
         setTimeout(() => {
           navigate("/unscheduled");
-        }, 2000);
+        }, 1000);
       })
       .catch((error) => {
         setLoading(false);
@@ -45,7 +69,7 @@ const HashtagAndMentions = ({ onclick, data }) => {
 
   return (
     <div>
-        {loading && <Loading />}
+      {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       <div
@@ -65,9 +89,12 @@ const HashtagAndMentions = ({ onclick, data }) => {
             <div className="md:flex justify-between items-center mb-6">
               <div>
                 <p className="text-lg text-customBlue font-semibold">
-                  Select a hastag group (Optional)
+                  Select a hastag group 
                 </p>
-                <p className="text-customDarkpuprle ">Include your favourite hashtags to this post by selecting your saved group.</p>
+                <p className="text-customDarkpuprle ">
+                  Include your favourite hashtags to this post by selecting your
+                  saved group.
+                </p>
               </div>
               <Link
                 to="/settings/hastags"
@@ -76,43 +103,56 @@ const HashtagAndMentions = ({ onclick, data }) => {
                 Add hastags
               </Link>
             </div>
+            {/* {
+              isFetched ? () : "Please add a hastag"
+            } */}
             <select
               name=""
               id=""
               className="w-full outline-1 rounded-lg text-customGray"
-              onChange={(e) => setSelectOptions(e.target.value)}
+              onChange={(e) => {
+                const selectedGroup = isFetched.find(
+                  (group) => group.group_name === e.target.value
+                );
+                setSelectOptions(selectedGroup);
+              }}
             >
-              <option>...</option>
-              <option value="Software Engineering">Software Engineering</option>
-              <option value="Technology">Technology</option>
-              <option value="Science">Science</option>
-              <option value="Food">Food</option>
+              {isFetched &&
+                isFetched
+                  .filter((group) => group.group_name) // Assuming group_name is the property you want
+                  .map((group, index) => (
+                    <option key={index} value={group.group_name}>
+                      {group.group_name}
+                    </option>
+                  ))}
             </select>
+            
             <div className="mt-3">
-                  <ul className="flex flex-wrap">
-                    {inputHashtagList.map((name, index) => (
-                      <li key={index} className="mb-4 mr-4">
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={checkedHashtagList[index]}
-                            onChange={() => handleCheckboxHashtagChange(index)}
-                            className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                          />
-                          {name}
-                          <button
-                            onClick={() => handleRemoveHashtagInput(index)}
-                            className="ml-8 text-gray-600 cursor-pointer"
-                          >
-                            <FaTimes />
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              <ul className="flex flex-wrap">
+                
+                {selectOptions && selectOptions.hashtags.map((name, index) => (
+                  <li key={index} className="mb-4 mr-4">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        // checked={checkedHashtagList[index]}
+                        onChange={() => handleCheckboxHashtagChange(index)}
+                        className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                      {name}
+                      <button
+                        onClick={() => handleRemoveHashtagInput(index)}
+                        className="ml-8 text-gray-600 cursor-pointer"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <button
-            type="submit"
+              type="submit"
               className="mt-4 bg-customBlue text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer"
               //   onClick={}
             >

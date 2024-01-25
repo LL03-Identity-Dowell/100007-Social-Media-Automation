@@ -29,6 +29,7 @@ function PostDetail({ show }) {
   const [success, setSuccess] = useState("");
   const [selectedImage, setSelectedImage] = useState(postDetailData?.image);
   const [hashAndMention, sethashAndMention] = useState(false);
+  const [checkPermission, setCheckPermission] = useState(false);
 
   const [title, setTitle] = useState(postDetailData?.post?.title);
   const [paragraph, setParagraph] = useState(postDetailData?.post?.paragraph);
@@ -78,32 +79,33 @@ function PostDetail({ show }) {
     image: selectedImage || postDetailData ? postDetailData.images : "",
   };
   //handle next button
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   console.log("clicked");
-  //   setLoading(true);
 
-  //   // Make a POST request to the API endpoint with the session_id
-  //   axios
-  //     .post(`http://127.0.0.1:8000/api/v1/save_post/`, data, {
-  //       withCredentials: true,
-  //     })
-  //     .then((response) => {
-  //       setError(null);
-  //       setLoading(false);
-  //       let resData = response.data;
-  //       console.log(resData.message);
-  //       setSuccess(resData.message);
-  //       setTimeout(() => {
-  //         navigate("/unscheduled");
-  //       }, 2000);
-  //     })
-  //     .catch((error) => {
-  //       setLoading(false);
-  //       setError("Server error, Please try again later");
-  //       console.error("Error submitting post:", error);
-  //     });
-  // };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("clicked");
+    setLoading(true);
+
+    // Make a POST request to the API endpoint with the session_id
+    axios
+      .post(`http://127.0.0.1:8000/api/v1/save_post/`, data, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setError(null);
+        setLoading(false);
+        let resData = response.data;
+        console.log(resData.message);
+        setSuccess(resData.message);
+        setTimeout(() => {
+          navigate("/unscheduled");
+        }, 2000);
+      })
+      .catch((error) => {
+        setLoading(false);
+        setError("Server error, Please try again later");
+        console.error("Error submitting post:", error);
+      });
+  };
 
   const fetch = () => {
     setLoading(true);
@@ -188,8 +190,12 @@ function PostDetail({ show }) {
     // }
   };
 
+  const handelCheckPermission = () => {
+    setCheckPermission(!checkPermission);
+  };
+
   return (
-    <div className='m-4 mb-8 lg:m-8'>
+    <div className="m-4 mb-8 lg:m-8">
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
@@ -217,7 +223,7 @@ function PostDetail({ show }) {
         </span>
       </div>
 
-      <hr className='my-4' />
+      <hr className="my-4" />
 
       <div className="mt-4 md:mt-8">
         {postDetailData &&
@@ -228,41 +234,41 @@ function PostDetail({ show }) {
           ))}
       </div>
 
-      <hr className='my-4' />
+      <hr className="my-4" />
 
-      <div id='post-sources' className='mt-4 md:mt-8'>
+      <div id="post-sources" className="mt-4 md:mt-8">
         <Link
-          to='https://openai.com'
-          className='text-blue-500 post-source hover:underline'
+          to="https://openai.com"
+          className="text-blue-500 post-source hover:underline"
         >
           {postDetailData && postDetailData.post.source}
         </Link>
       </div>
 
-      <hr className='my-4' />
+      <hr className="my-4" />
 
-      <div className='flex flex-col lg:flex-row md:flex-row md:gap-20 lg:gap-24'>
-        <div className='relative'>
+      <div className="flex flex-col lg:flex-row md:flex-row md:gap-20 lg:gap-24">
+        <div className="relative">
           <img
             src={postDetailData && postDetailData.images}
-            alt=''
-            className='w-full h-full img-fluid post-img'
+            alt=""
+            className="w-full h-full img-fluid post-img"
           />
         </div>
 
-        <div className='flex flex-col gap-6 mt-5 post-options'>
-          <div className='flex flex-col lg:flex-row lg:gap-8'>
+        <div className="flex flex-col gap-6 mt-5 post-options">
+          <div className="flex flex-col lg:flex-row lg:gap-8">
             <label
-              htmlFor='content'
-              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+              htmlFor="content"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               <strong>Qualitative categorization:</strong>
             </label>
             <select
               value={inputs.qualitative_categorization}
-              name='qualitative_categorization'
+              name="qualitative_categorization"
               onChange={handelChange}
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >
               <option value={postDetailData?.qualitative_categorization}>
                 {postDetailData?.qualitative_categorization}
@@ -271,19 +277,19 @@ function PostDetail({ show }) {
             </select>
           </div>
 
-          <div className='flex flex-col lg:flex-row lg:gap-8'>
+          <div className="flex flex-col lg:flex-row lg:gap-8">
             <label
-              htmlFor='brand'
-              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+              htmlFor="brand"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               <strong>Targeted for:</strong>
             </label>
             <select
               value={inputs.targeted_for}
-              id='brand'
+              id="brand"
               onChange={handelChange}
-              name='targeted_for'
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+              name="targeted_for"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >
               <option value={postDetailData?.targeted_for}>
                 {postDetailData?.targeted_for}
@@ -292,19 +298,19 @@ function PostDetail({ show }) {
             </select>
           </div>
 
-          <div className='flex flex-col lg:flex-row lg:gap-8'>
+          <div className="flex flex-col lg:flex-row lg:gap-8">
             <label
-              htmlFor='channel'
-              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+              htmlFor="channel"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               <strong>Designed for:</strong>
             </label>
             <select
               value={inputs.designed_for}
-              id='channel'
+              id="channel"
               onChange={handelChange}
-              name='designed_for'
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+              name="designed_for"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >
               {designedFor.length > 0 ? (
                 designedFor?.map((socialMedia, index) => (
@@ -318,19 +324,19 @@ function PostDetail({ show }) {
             </select>
           </div>
 
-          <div className='flex flex-col lg:flex-row lg:gap-8'>
+          <div className="flex flex-col lg:flex-row lg:gap-8">
             <label
-              htmlFor='countries'
-              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+              htmlFor="countries"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               <strong>Targeted category:</strong>
             </label>
             <select
-              id='channelbrand'
+              id="channelbrand"
               value={inputs.targeted_category}
               onChange={handelChange}
-              name='targeted_category'
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+              name="targeted_category"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >
               <option value={postDetailData?.targeted_category}>
                 {postDetailData?.targeted_category}
@@ -341,7 +347,7 @@ function PostDetail({ show }) {
         </div>
       </div>
 
-      <hr className='my-4' />
+      <hr className="my-4" />
 
       <Counts
         characCount={characterCount}
@@ -349,15 +355,15 @@ function PostDetail({ show }) {
         wordCount={wordCount}
       />
 
-      <div className='flex justify-center gap-20 mt-8'>
+      <div className="flex justify-center gap-20 mt-8">
         <UnstyledButton
-          text='Back'
-          className='text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center'
+          text="Back"
+          className="text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center"
         />
         <UnstyledButton
-          text='Next'
-          className='text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center'
-          onClick={handleNavigation}
+          text="Next"
+          className="text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center"
+          onClick={handelCheckPermission}
         />
       </div>
 
@@ -380,6 +386,44 @@ function PostDetail({ show }) {
         </div>
       </div>
       {/* Editing Modal Ends */}
+
+      {checkPermission && (
+        <div
+          className={` bg-overlay w-full h-full fixed z-50 top-0 left-0 flex justify-center items-center `}
+        >
+          <div className="bg-white w-[50%] 2xl:w-[40%] p-6 rounded-lg relative flex flex-col justify-center items-center">
+            <span
+              className="border-2 border-gray-900 p-2 text-xl rounded-full absolute top-0 -right-12 cursor-pointer"
+              onClick={handelCheckPermission}
+            >
+              <FaTimes />
+            </span>
+            <div className="">
+              <h3 className="text-lg font-semibold">Do you want to add hashtags?</h3>
+            </div>
+            <div className="flex gap-4 mt-6 w-[300px]">
+              <button
+                onClick={() => {
+                  handelCheckPermission();
+                  handleSubmit()
+                }}
+                className="mt-4 bg-customDarkpuprle w-full text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer"
+              >
+                No
+              </button>
+              <button
+                onClick={() => {
+                  handleNavigation();
+                  handelCheckPermission();
+                }}
+                className="mt-4 bg-customBlue w-full text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {hashAndMention && (
         <HashtagAndMentions

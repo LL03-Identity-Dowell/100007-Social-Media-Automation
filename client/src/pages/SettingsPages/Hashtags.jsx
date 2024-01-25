@@ -16,10 +16,7 @@ const Hashtags = ({ close }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState();
-  const [group, setGroups] = useState();
-  const [groupInput, setGroupInput] = useState();
-  const [isAddGroup, setIsAddGroup] = useState(false);
-  const [isSelected, setIsSelected] = useState(false);
+  const [groupInput, setGroupInput] = useState("");
 
   useEffect(() => {
     close();
@@ -79,6 +76,7 @@ const Hashtags = ({ close }) => {
         withCredentials: true,
       })
       .then((response) => {
+        console.log(response);
         let data = response.data.status;
         setGetStatus(data);
       })
@@ -101,89 +99,138 @@ const Hashtags = ({ close }) => {
       setSuccess("");
       setError("");
 
-      //console.log("from update", data);
-      await axios
-        .put(
-          `${import.meta.env.VITE_APP_BASEURL}/update-hash-tags-and-mentions/`,
-          data,
+      axios
+      .put(
+        `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
+        data,
 
-          {
-            withCredentials: true,
-          }
-        )
-        .then(() => {
-          setLoading(false);
-          setSuccess("Hashtags and mentions are updated...!");
-          // setinputMentionsList([]);
-          setinputHashtagList([]);
-        })
-        .catch((error) => {
-          setLoading(false);
-          setError("Error making the request. Please try again later.");
-        });
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        setLoading(false);
+        setSuccess("Group added sucessfully...!");
+        setGroupInput("");
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+        setError("Error making the request. Please try again later.");
+      });
+
+      //console.log("from update", data);
+      // await axios
+      //   .put(
+      //     `${import.meta.env.VITE_APP_BASEURL}/update-hash-tags-and-mentions/`,
+      //     data,
+
+      //     {
+      //       withCredentials: true,
+      //     }
+      //   )
+      //   .then(() => {
+      //     setLoading(false);
+      //     setSuccess("Hashtags and mentions are updated...!");
+      //     // setinputMentionsList([]);
+      //     setinputHashtagList([]);
+      //   })
+      //   .catch((error) => {
+      //     setLoading(false);
+      //     setError("Error making the request. Please try again later.");
+      //   });
     } else if (getStatus === "insert") {
       setLoading(true);
-      const payloadBody = {
+      const data = {
         field: {
           hashtag_list: checkedHashtags.join(),
           // mentions_list: checkedMentions.join(),
         },
       };
       //console.log("from insert", payloadBody)
-      await axios
-        .post(
-          `${import.meta.env.VITE_APP_BASEURL}/hash-tags-and-mentions/`,
-          payloadBody,
-          {
-            withCredentials: true,
-          }
-        )
-        .then(() => {
-          setLoading(false);
-          if (!success) {
-            setSuccess("Hashtags and mentions are sent successfully...!");
-            // setinputMentionsList([]);
-            setinputHashtagList([]);
-          }
-        })
-        .catch((error) => {
-          setLoading(false);
-          setError("Error making the request. Please try again later.");
-        });
+      axios
+      .post(
+        `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
+        data,
+
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        setLoading(false);
+        setSuccess("Group added sucessfully...!");
+        setGroupInput("");
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+        setError("Error making the request. Please try again later.");
+      });
+
+      // await axios
+      //   .post(
+      //     `${import.meta.env.VITE_APP_BASEURL}/hash-tags-and-mentions/`,
+      //     payloadBody,
+      //     {
+      //       withCredentials: true,
+      //     }
+      //   )
+      //   .then(() => {
+      //     setLoading(false);
+      //     if (!success) {
+      //       setSuccess("Hashtags and mentions are sent successfully...!");
+      //       // setinputMentionsList([]);
+      //       setinputHashtagList([]);
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     setLoading(false);
+      //     setError("Error making the request. Please try again later.");
+      //   });
     }
   };
 
-  const handleGroupCheck = () => {
-    if (group) {
-      console.log(group);
-      setIsSelected(true);
-    }
-  };
+  // const handleGroupCheck = () => {
+  //   if (group) {
+  //     console.log(group);
+  //     setIsSelected(true);
+  //   }
+  // };
 
-  const handleAddGroup = () => {
-    setIsAddGroup(!isAddGroup);
-  };
+  // const handleAddGroup = () => {
+  //   setIsAddGroup(!isAddGroup);
+  // };
 
-  const handleGroupSubmit = () => {
-  const data = groupInput
-     
-     axios
-        .post(
-          `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
-          data,
+  const handleGroupSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-          {
-            withCredentials: true,
-          }
-        )
-        .then(() => {
-          setLoading(false);
-          setSuccess("Group added sucessfully...!");
-        })
-        .catch((error) => {
-          setLoading(false);
-          setError("Error making the request. Please try again later.");
-        });
+    const data = { group_name: groupInput, hashtags: checkedHashtags.join(",")};
+
+    axios
+      .post(
+        `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
+        data,
+
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        console.log(res);
+        setLoading(false);
+        setSuccess(res.data.detail);
+        setGroupInput("");
+        setinputHashtagList([ ])
+      })
+      .catch((error) => {
+        console.log(error);
+        setLoading(false);
+        setError("Error making the request. Please try again later.");
+      });
   };
 
   return (
@@ -198,17 +245,17 @@ const Hashtags = ({ close }) => {
               htmlFor="hashtags"
               className="text-xl font-bold text-customBlue"
             >
-              Select Hashtag Group
+              Enter Hashtag Group
             </label>
-            <button
+            {/* <button
               className="float-right border rounded-xl bg-customTextBlue cursor-pointer text-white py-1 px-2 text-xs"
               onClick={handleAddGroup}
             >
               Add group
-            </button>
+            </button> */}
 
             {/* Group Modal */}
-            <div
+            {/* <div
               className={`${
                 !isAddGroup ? "hidden" : "block"
               } bg-overlay w-full h-full fixed z-50 top-0 left-0 flex justify-center items-center `}
@@ -237,10 +284,13 @@ const Hashtags = ({ close }) => {
                   Save
                 </button>
               </form>
-            </div>
+            </div> */}
 
-            <div className="flex flex-col w-full mt-6">
-              <select
+            <form
+              onSubmit={handleGroupSubmit}
+              className="flex flex-col w-full mt-6"
+            >
+              {/* <select
                 name=""
                 id=""
                 className="w-full outline-1 rounded-lg text-customGray"
@@ -253,25 +303,18 @@ const Hashtags = ({ close }) => {
                 <option value="Technology">Technology</option>
                 <option value="Science">Science</option>
                 <option value="Food">Food</option>
-              </select>
-              <button
-                className="mt-4 bg-customBlue text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer"
-                onClick={handleGroupCheck}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-
-          {isSelected ? (
-            <div className="w-full  md:w-[60%] rounded-lg">
-              <form onSubmit={handleSubmit}>
-                <label
-                  htmlFor="hashtags"
-                  className="text-xl font-bold text-customBlue"
-                >
-                  {group}
-                </label>
+              </select> */}
+              <div className="">
+                <input
+                  type="text"
+                  id="hashtags"
+                  // value={inputHashtagText}
+                  onChange={(e) => setGroupInput(e.target.value)}
+                  placeholder="Enter Hashtags Group.."
+                  className="w-full outline-1 rounded-lg"
+                />
+              </div>
+              
                 <div className="flex w-full mt-4 border">
                   <span className="p-2 text-lg text-gray-600 bg-gray-400 rounded-l-md">
                     #
@@ -281,7 +324,7 @@ const Hashtags = ({ close }) => {
                     id="hashtags"
                     value={inputHashtagText}
                     onChange={handleHashtagInputChange}
-                    placeholder="Enter Hashtags.."
+                    placeholder="Enter Hashtags (eg. Fashion)"
                     className="w-full outline-1"
                   />
                   <button
@@ -318,78 +361,21 @@ const Hashtags = ({ close }) => {
                     ))}
                   </ul>
                 </div>
-
                 <button
                   type="submit"
-                  className={`mt-6 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue text-center  ${
+                  className={`mt-2 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue text-center  ${
                     isSaveDisabled
                       ? "bg-customBlue cursor-not-allowed opacity-90"
                       : "cursor-pointer"
                   } `}
                   disabled={isSaveDisabled}
                 >
-                  Save
+                  Submit
                 </button>
-              </form>
+            </form>
+          </div>
 
-              {/* <div className='flex w-full mt-6 border'>
-                  <span className='p-2 text-lg text-gray-600 bg-gray-400 rounded-l-md'>
-                    #
-                  </span>
-                  <input
-                    type='text'
-                    id='hashtags'
-                    value={inputHashtagText}
-                    onChange={handleHashtagInputChange}
-                    placeholder='Enter Hashtags..'
-                    className='w-80 outline-1'
-                  />
-                  <button
-                    className={`px-2 py-0 text-white bg-customBlue rounded-r-2xl ${
-                      !inputHashtagText
-                        ? "opacity-90 cursor-not-allowed"
-                        : "cursor-pointer opacity-100"
-                    }`}
-                    onClick={handleAddHashtagInput}
-                  >
-                    Add
-                  </button>
-                </div>
-                  <div className="flex items-center mt-6">
-                    <input
-                      type="checkbox"
-                      // checked={checkedHashtagList[index]}
-                      // onChange={() => handleCheckboxHashtagChange(index)}
-                      className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                    />
-                    #webdevs
-                    <button
-                      // onClick={() => handleRemoveHashtagInput(index)}
-                      className="ml-8 text-gray-600"
-                    >
-                      <FaTimes />
-                    </button>
-                  </div>
-                  <div className="flex items-center mt-2">
-                    <input
-                      type="checkbox"
-                      // checked={checkedHashtagList[index]}
-                      // onChange={() => handleCheckboxHashtagChange(index)}
-                      className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                    />
-                    #webdevs
-                    <button
-                      // onClick={() => handleRemoveHashtagInput(index)}
-                      className="ml-8 text-gray-600"
-                    >
-                      <FaTimes />
-                    </button>
-                 
-                  </div> */}
-            </div>
-          ) : (
-            ""
-          )}
+          
         </div>
       </div>
     </>
