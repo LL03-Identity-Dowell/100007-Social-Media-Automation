@@ -17,6 +17,8 @@ import requests
 import wikipediaapi
 from PIL import Image
 from django.contrib import messages
+from django.core import cache
+from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
@@ -43,7 +45,8 @@ from helpers import (download_and_upload_image,
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer)
+                          MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
+                          EditPostSerializer)
 
 global PEXELS_API_KEY
 
@@ -982,9 +985,33 @@ class EditPostView(AuthenticatedBaseView):
             response_data = {
                 'redirect_url': f'https://ll04-finance-dowell.github.io/100058-DowellEditor-V2/?token={str(token)}'
             }
+            cache_key = f'post_id{str(post_id)}'
+            if cache.get(cache_key):
+                response_data['updated_post_details'] = cache.get(cache_key)
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def post(self, request, post_id, *args, **kwargs):
+        """
+        This point saves a post
+        """
+        serializer = EditPostSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        updated_data = {
+            'post_id': post_id,
+            'title': serializer.validated_data['title'],
+            'paragraph': serializer.validated_data['paragraph'],
+            'image': serializer.validated_data['image'],
+        }
+        cache_key = f'post_id{str(post_id)}'
+        cache.set(cache_key, updated_data, timeout=3600)
+        response_data = {
+            'message': 'Post has been updated'
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 
 '''step-3 Ends here'''
