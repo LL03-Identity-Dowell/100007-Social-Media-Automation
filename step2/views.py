@@ -45,7 +45,6 @@ from helpers import (download_and_upload_image,
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
                           GroupHashtagSerializer)
@@ -600,11 +599,16 @@ class WriteYourselfView(AuthenticatedBaseView):
                         {'error': 'Error code 403 Forbidden: Website does not allow verification of the article!',
                          'data': response_data}, status=status.HTTP_403_FORBIDDEN)
                 else:
+
                     text_from_page_space = text_from_html(response.text)
                     text_from_page = text_from_page_space.replace(" ", "")
                     text_from_page = text_from_page.replace("\xa0", "")
                     print(article_text_area)
                     paragraph = article_text_area.split("\r\n")
+                    double_line_paragraphs = article_text_area.split("\n\n")
+                    if len(double_line_paragraphs) > len(paragraph):
+                        paragraph = double_line_paragraphs
+
                     message = "Article Verified, "
                     for i in range(len(paragraph)):
                         if paragraph[i] == "":
@@ -621,7 +625,18 @@ class WriteYourselfView(AuthenticatedBaseView):
                                                                "source": source,
                                                                # 'dowelltime': dowellclock
                                                                }, '34567897799')
-                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "org_id": org_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                                                                   'client_admin_id'],
+                                                               "title": title,
+                                                               "paragraph": paragraph[i],
+                                                               "source": source,
+
+                                                               }, '34567897799')
+                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                                "session_id": session_id,
                                                                "org_id": org_id,
                                                                "eventId": create_event()['event_id'],
@@ -635,7 +650,7 @@ class WriteYourselfView(AuthenticatedBaseView):
 
                         # credit_handler = CreditHandler()
                         # credit_handler.consume_step_2_credit(request)
-                        return Response({'message': 'Article saved successfully', 'data': response_data},
+                    return Response({'message': 'Article saved successfully', 'data': response_data},
                                         status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
