@@ -14,7 +14,6 @@ import {
 } from "./_components/optionList";
 import Dropdown from "./_components/dropdown";
 import Counts from "./_components/counts";
-import CarosuelModal from "./_components/carosuel-modal";
 import { handleCharacCount } from "./_components/function";
 import { FaEdit, FaTimes } from "react-icons/fa";
 import HashtagAndMentions from "./_components/HashtagAndMentions";
@@ -133,7 +132,7 @@ function PostDetail({ show }) {
           let data = response.data;
           setSuccess(data.message);
           setDesignedFor(data.linked_accounts);
-          // console.log(data);
+          console.log(data);
           setPostDetailData(data);
 
           let isPostId = data.post._id;
@@ -190,7 +189,7 @@ function PostDetail({ show }) {
   };
 
   return (
-    <div className="m-4 mb-8 lg:m-8">
+    <div className='m-4 mb-8 lg:m-8'>
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
@@ -218,7 +217,7 @@ function PostDetail({ show }) {
         </span>
       </div>
 
-      <hr className="my-4" />
+      <hr className='my-4' />
 
       <div className="mt-4 md:mt-8">
         {postDetailData &&
@@ -229,109 +228,120 @@ function PostDetail({ show }) {
           ))}
       </div>
 
-      <hr className="my-4" />
+      <hr className='my-4' />
 
-      <div id="post-sources" className="mt-4 md:mt-8">
+      <div id='post-sources' className='mt-4 md:mt-8'>
         <Link
-          to="https://openai.com"
-          className="text-blue-500 post-source hover:underline"
+          to='https://openai.com'
+          className='text-blue-500 post-source hover:underline'
         >
           {postDetailData && postDetailData.post.source}
         </Link>
       </div>
 
-      <hr className="my-4" />
+      <hr className='my-4' />
 
-      <div className="flex flex-col lg:flex-row md:flex-row md:gap-20 lg:gap-24">
-        <div className="relative">
+      <div className='flex flex-col lg:flex-row md:flex-row md:gap-20 lg:gap-24'>
+        <div className='relative'>
           <img
             src={postDetailData && postDetailData.images}
-            alt="Random image"
-            className="w-full h-full img-fluid post-img"
+            alt=''
+            className='w-full h-full img-fluid post-img'
           />
-          {editing && <CarosuelModal setSelectedImage={setSelectedImage} />}
         </div>
 
-        <div className="flex flex-col gap-6 mt-5 post-options">
-          <div className="flex flex-col lg:flex-row lg:gap-8">
+        <div className='flex flex-col gap-6 mt-5 post-options'>
+          <div className='flex flex-col lg:flex-row lg:gap-8'>
             <label
-              htmlFor="content"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor='content'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
             >
               <strong>Qualitative categorization:</strong>
             </label>
             <select
               value={inputs.qualitative_categorization}
-              name="qualitative_categorization"
+              name='qualitative_categorization'
               onChange={handelChange}
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
             >
+              <option value={postDetailData?.qualitative_categorization}>
+                {postDetailData?.qualitative_categorization}
+              </option>
               <QualitativeCategorizationList />
             </select>
           </div>
 
-          <div className="flex flex-col lg:flex-row lg:gap-8">
+          <div className='flex flex-col lg:flex-row lg:gap-8'>
             <label
-              htmlFor="brand"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor='brand'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
             >
               <strong>Targeted for:</strong>
             </label>
             <select
               value={inputs.targeted_for}
-              id="brand"
+              id='brand'
               onChange={handelChange}
-              name="targeted_for"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              name='targeted_for'
+              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
             >
+              <option value={postDetailData?.targeted_for}>
+                {postDetailData?.targeted_for}
+              </option>
               <TargetForListOptions />
             </select>
           </div>
 
-          <div className="flex flex-col lg:flex-row lg:gap-8">
+          <div className='flex flex-col lg:flex-row lg:gap-8'>
             <label
-              htmlFor="channel"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor='channel'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
             >
               <strong>Designed for:</strong>
             </label>
             <select
               value={inputs.designed_for}
-              id="channel"
+              id='channel'
               onChange={handelChange}
-              name="designed_for"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              name='designed_for'
+              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
             >
-              {designedFor &&
-                designedFor.map((socialMedia, index) => (
+              {designedFor.length > 0 ? (
+                designedFor?.map((socialMedia, index) => (
                   <option value={socialMedia} key={index}>
                     {socialMedia}
                   </option>
-                ))}
+                ))
+              ) : (
+                <option>No social media channels is linked</option>
+              )}
             </select>
           </div>
 
-          <div className="flex flex-col lg:flex-row lg:gap-8">
+          <div className='flex flex-col lg:flex-row lg:gap-8'>
             <label
-              htmlFor="countries"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor='countries'
+              className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
             >
               <strong>Targeted category:</strong>
             </label>
             <select
-              id="channelbrand"
+              id='channelbrand'
               value={inputs.targeted_category}
               onChange={handelChange}
-              name="targeted_category"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              name='targeted_category'
+              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
             >
+              <option value={postDetailData?.targeted_category}>
+                {postDetailData?.targeted_category}
+              </option>
               <TargetCategory />
             </select>
           </div>
         </div>
       </div>
 
-      <hr className="my-4" />
+      <hr className='my-4' />
 
       <Counts
         characCount={characterCount}
@@ -339,14 +349,14 @@ function PostDetail({ show }) {
         wordCount={wordCount}
       />
 
-      <div className="flex justify-center gap-20 mt-8">
+      <div className='flex justify-center gap-20 mt-8'>
         <UnstyledButton
-          text="Back"
-          className="text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center"
+          text='Back'
+          className='text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center'
         />
         <UnstyledButton
-          text="Next"
-          className="text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center"
+          text='Next'
+          className='text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center'
           onClick={handleNavigation}
         />
       </div>

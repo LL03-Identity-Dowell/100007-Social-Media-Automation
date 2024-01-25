@@ -67,3 +67,14 @@ class PostCommentSerializer(serializers.Serializer):
 class DeletePostCommentSerializer(serializers.Serializer):
     platform = serializers.ChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
     comment_id = serializers.CharField(required=True)
+
+
+class GroupHashtagSerializer(serializers.Serializer):
+    group_name = serializers.CharField(required=True)
+    hashtags = serializers.CharField(required=True)
+
+
+class EditPostSerializer(serializers.Serializer):
+    title = serializers.CharField(required=True, )
+    paragraph = serializers.CharField(required=True)
+    image = serializers.URLField(required=True)
