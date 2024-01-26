@@ -5,6 +5,7 @@ import Loading from "../../components/Loading";
 import { SuccessMessages } from "../../components/Messages";
 import { ErrorMessages } from "../../components/Messages";
 import { Link } from "react-router-dom";
+import EditHashtag from "./EditHashtag";
 
 const Hashtags = ({ close }) => {
   const [inputHashtagText, setinputHashtagText] = useState("");
@@ -12,8 +13,11 @@ const Hashtags = ({ close }) => {
   const [checkedHashtagList, setcheckedHashtagList] = useState([]);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [checkedHashtags, setCheckedHashtags] = useState([]);
+  const [selectOptions, setSelectOptions] = useState("");
+  const [isFetched, setIsFetched] = useState("");
   const [getStatus, setGetStatus] = useState();
   const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState();
   const [groupInput, setGroupInput] = useState("");
@@ -25,6 +29,10 @@ const Hashtags = ({ close }) => {
 
   const handleHashtagInputChange = (e) => {
     setinputHashtagText(e.target.value);
+    //console.log(inputHashtagText);
+  };
+  const handleNewHashtagInputChange = (e) => {
+    setInputNewHashtagText(e.target.value);
     //console.log(inputHashtagText);
   };
 
@@ -76,9 +84,10 @@ const Hashtags = ({ close }) => {
         withCredentials: true,
       })
       .then((response) => {
-        console.log(response);
-        let data = response.data.status;
-        setGetStatus(data);
+        let data = response.data.group_hastag_list;
+        console.log(data);
+
+        setIsFetched(data);
       })
       .catch((error) => {
         setError("Server error, Please try again later");
@@ -86,112 +95,112 @@ const Hashtags = ({ close }) => {
       });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
 
-    if (getStatus === "update") {
-      setLoading(true);
-      const data = {
-        hashtag_list: checkedHashtags.join(","),
-        // mentions_list: checkedMentions.join(","),
-      };
+  //   if (getStatus === "update") {
+  //     setLoading(true);
+  //     const data = {
+  //       hashtag_list: checkedHashtags.join(","),
+  //       // mentions_list: checkedMentions.join(","),
+  //     };
 
-      setSuccess("");
-      setError("");
+  //     setSuccess("");
+  //     setError("");
 
-      axios
-      .put(
-        `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
-        data,
+  //     axios
+  //       .put(
+  //         `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
+  //         data,
 
-        {
-          withCredentials: true,
-        }
-      )
-      .then((res) => {
-        console.log(res);
-        setLoading(false);
-        setSuccess("Group added sucessfully...!");
-        setGroupInput("");
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-        setError("Error making the request. Please try again later.");
-      });
+  //         {
+  //           withCredentials: true,
+  //         }
+  //       )
+  //       .then((res) => {
+  //         console.log(res);
+  //         setLoading(false);
+  //         setSuccess("Group added sucessfully...!");
+  //         setGroupInput("");
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //         setLoading(false);
+  //         setError("Error making the request. Please try again later.");
+  //       });
 
-      //console.log("from update", data);
-      // await axios
-      //   .put(
-      //     `${import.meta.env.VITE_APP_BASEURL}/update-hash-tags-and-mentions/`,
-      //     data,
+  //     //console.log("from update", data);
+  //     // await axios
+  //     //   .put(
+  //     //     `${import.meta.env.VITE_APP_BASEURL}/update-hash-tags-and-mentions/`,
+  //     //     data,
 
-      //     {
-      //       withCredentials: true,
-      //     }
-      //   )
-      //   .then(() => {
-      //     setLoading(false);
-      //     setSuccess("Hashtags and mentions are updated...!");
-      //     // setinputMentionsList([]);
-      //     setinputHashtagList([]);
-      //   })
-      //   .catch((error) => {
-      //     setLoading(false);
-      //     setError("Error making the request. Please try again later.");
-      //   });
-    } else if (getStatus === "insert") {
-      setLoading(true);
-      const data = {
-        field: {
-          hashtag_list: checkedHashtags.join(),
-          // mentions_list: checkedMentions.join(),
-        },
-      };
-      //console.log("from insert", payloadBody)
-      axios
-      .post(
-        `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
-        data,
+  //     //     {
+  //     //       withCredentials: true,
+  //     //     }
+  //     //   )
+  //     //   .then(() => {
+  //     //     setLoading(false);
+  //     //     setSuccess("Hashtags and mentions are updated...!");
+  //     //     // setinputMentionsList([]);
+  //     //     setinputHashtagList([]);
+  //     //   })
+  //     //   .catch((error) => {
+  //     //     setLoading(false);
+  //     //     setError("Error making the request. Please try again later.");
+  //     //   });
+  //   } else if (getStatus === "insert") {
+  //     setLoading(true);
+  //     const data = {
+  //       field: {
+  //         hashtag_list: checkedHashtags.join(),
+  //         // mentions_list: checkedMentions.join(),
+  //       },
+  //     };
+  //     //console.log("from insert", payloadBody)
+  //     axios
+  //       .post(
+  //         `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
+  //         data,
 
-        {
-          withCredentials: true,
-        }
-      )
-      .then((res) => {
-        console.log(res);
-        setLoading(false);
-        setSuccess("Group added sucessfully...!");
-        setGroupInput("");
-      })
-      .catch((error) => {
-        console.log(error);
-        setLoading(false);
-        setError("Error making the request. Please try again later.");
-      });
+  //         {
+  //           withCredentials: true,
+  //         }
+  //       )
+  //       .then((res) => {
+  //         console.log(res);
+  //         setLoading(false);
+  //         setSuccess("Group added sucessfully...!");
+  //         setGroupInput("");
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //         setLoading(false);
+  //         setError("Error making the request. Please try again later.");
+  //       });
 
-      // await axios
-      //   .post(
-      //     `${import.meta.env.VITE_APP_BASEURL}/hash-tags-and-mentions/`,
-      //     payloadBody,
-      //     {
-      //       withCredentials: true,
-      //     }
-      //   )
-      //   .then(() => {
-      //     setLoading(false);
-      //     if (!success) {
-      //       setSuccess("Hashtags and mentions are sent successfully...!");
-      //       // setinputMentionsList([]);
-      //       setinputHashtagList([]);
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     setLoading(false);
-      //     setError("Error making the request. Please try again later.");
-      //   });
-    }
-  };
+  //     // await axios
+  //     //   .post(
+  //     //     `${import.meta.env.VITE_APP_BASEURL}/hash-tags-and-mentions/`,
+  //     //     payloadBody,
+  //     //     {
+  //     //       withCredentials: true,
+  //     //     }
+  //     //   )
+  //     //   .then(() => {
+  //     //     setLoading(false);
+  //     //     if (!success) {
+  //     //       setSuccess("Hashtags and mentions are sent successfully...!");
+  //     //       // setinputMentionsList([]);
+  //     //       setinputHashtagList([]);
+  //     //     }
+  //     //   })
+  //     //   .catch((error) => {
+  //     //     setLoading(false);
+  //     //     setError("Error making the request. Please try again later.");
+  //     //   });
+  //   }
+  // };
 
   // const handleGroupCheck = () => {
   //   if (group) {
@@ -200,15 +209,18 @@ const Hashtags = ({ close }) => {
   //   }
   // };
 
-  // const handleAddGroup = () => {
-  //   setIsAddGroup(!isAddGroup);
-  // };
+  const handleEditing = () => {
+    setIsEditing(!isEditing);
+  };
 
   const handleGroupSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const data = { group_name: groupInput, hashtags: checkedHashtags.join(",")};
+    const data = {
+      group_name: groupInput,
+      hashtags: checkedHashtags.join(","),
+    };
 
     axios
       .post(
@@ -224,7 +236,7 @@ const Hashtags = ({ close }) => {
         setLoading(false);
         setSuccess(res.data.detail);
         setGroupInput("");
-        setinputHashtagList([ ])
+        setinputHashtagList([]);
       })
       .catch((error) => {
         console.log(error);
@@ -247,44 +259,17 @@ const Hashtags = ({ close }) => {
             >
               Enter Hashtag Group
             </label>
-            {/* <button
+            <button
               className="float-right border rounded-xl bg-customTextBlue cursor-pointer text-white py-1 px-2 text-xs"
-              onClick={handleAddGroup}
+              onClick={handleEditing}
             >
-              Add group
-            </button> */}
+              Edit group
+            </button>
 
             {/* Group Modal */}
-            {/* <div
-              className={`${
-                !isAddGroup ? "hidden" : "block"
-              } bg-overlay w-full h-full fixed z-50 top-0 left-0 flex justify-center items-center `}
-            >
-              <form
-                onSubmit={handleGroupSubmit}
-                className="bg-white w-[50%] 2xl:w-[40%] p-6 rounded-lg relative"
-              >
-                <span
-                  className="border-2 border-gray-900 p-2 text-xl rounded-full absolute top-0 -right-12 cursor-pointer"
-                  onClick={handleAddGroup}
-                >
-                  <FaTimes />
-                </span>
-                <div className="">
-                  <input
-                    type="text"
-                    id="hashtags"
-                    // value={inputHashtagText}
-                    onChange={(e) => setGroupInput(e.target.value)}
-                    placeholder="Enter Hashtags Group.."
-                    className="w-full outline-1 rounded-lg"
-                  />
-                </div>
-                <button className="mt-4 bg-customBlue w-full text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer">
-                  Save
-                </button>
-              </form>
-            </div> */}
+            {isEditing && (
+              <EditHashtag close={handleEditing}/>
+            )}
 
             <form
               onSubmit={handleGroupSubmit}
@@ -314,68 +299,66 @@ const Hashtags = ({ close }) => {
                   className="w-full outline-1 rounded-lg"
                 />
               </div>
-              
-                <div className="flex w-full mt-4 border">
-                  <span className="p-2 text-lg text-gray-600 bg-gray-400 rounded-l-md">
-                    #
-                  </span>
-                  <input
-                    type="text"
-                    id="hashtags"
-                    value={inputHashtagText}
-                    onChange={handleHashtagInputChange}
-                    placeholder="Enter Hashtags (eg. Fashion)"
-                    className="w-full outline-1"
-                  />
-                  <button
-                    className={`px-2 py-0 text-white bg-customBlue rounded-r-2xl ${
-                      !inputHashtagText
-                        ? "opacity-90 cursor-not-allowed"
-                        : "cursor-pointer opacity-100"
-                    }`}
-                    onClick={handleAddHashtagInput}
-                  >
-                    Add
-                  </button>
-                </div>
-                <div className="mt-3">
-                  <ul className="flex flex-wrap">
-                    {inputHashtagList.map((name, index) => (
-                      <li key={index} className="mb-4 mr-4">
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={checkedHashtagList[index]}
-                            onChange={() => handleCheckboxHashtagChange(index)}
-                            className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                          />
-                          {name}
-                          <button
-                            onClick={() => handleRemoveHashtagInput(index)}
-                            className="ml-8 text-gray-600 cursor-pointer"
-                          >
-                            <FaTimes />
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+
+              <div className="flex w-full mt-4 border">
+                <span className="p-2 text-lg text-gray-600 bg-gray-400 rounded-l-md">
+                  #
+                </span>
+                <input
+                  type="text"
+                  id="hashtags"
+                  value={inputHashtagText}
+                  onChange={handleHashtagInputChange}
+                  placeholder="Enter Hashtags (eg. Fashion)"
+                  className="w-full outline-1"
+                />
                 <button
-                  type="submit"
-                  className={`mt-2 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue text-center  ${
-                    isSaveDisabled
-                      ? "bg-customBlue cursor-not-allowed opacity-90"
-                      : "cursor-pointer"
-                  } `}
-                  disabled={isSaveDisabled}
+                  className={`px-2 py-0 text-white bg-customBlue rounded-r-2xl ${
+                    !inputHashtagText
+                      ? "opacity-90 cursor-not-allowed"
+                      : "cursor-pointer opacity-100"
+                  }`}
+                  onClick={handleAddHashtagInput}
                 >
-                  Submit
+                  Add
                 </button>
+              </div>
+              <div className="mt-3">
+                <ul className="flex flex-wrap">
+                  {inputHashtagList.map((name, index) => (
+                    <li key={index} className="mb-4 mr-4">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={checkedHashtagList[index]}
+                          onChange={() => handleCheckboxHashtagChange(index)}
+                          className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        {name}
+                        <button
+                          onClick={() => handleRemoveHashtagInput(index)}
+                          className="ml-8 text-gray-600 cursor-pointer"
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <button
+                type="submit"
+                className={`mt-2 bg-customBlue text-white py-2 rounded-lg w-full hover:bg-customTextBlue text-center  ${
+                  isSaveDisabled
+                    ? "bg-customBlue cursor-not-allowed opacity-90"
+                    : "cursor-pointer"
+                } `}
+                disabled={isSaveDisabled}
+              >
+                Submit
+              </button>
             </form>
           </div>
-
-          
         </div>
       </div>
     </>
