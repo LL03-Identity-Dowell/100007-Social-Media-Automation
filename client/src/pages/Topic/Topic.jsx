@@ -127,7 +127,6 @@ function Topic({ show }) {
           .then((response) => {
             setLoading(false);
             let resData = response.data;
-            console.log(resData);
 
             setSuccess("Topics created successfully!");
             setTimeout(() => {
@@ -152,7 +151,6 @@ function Topic({ show }) {
           .then((response) => {
             setLoading(false);
             let resData = response.data;
-            console.log(resData);
             setSuccess("Topics created successfully!");
             setTimeout(() => {
               handleSentenceNavigate(resData);
