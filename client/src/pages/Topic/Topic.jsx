@@ -142,9 +142,13 @@ function Topic({ show }) {
       }
       if (topicStatus) {
         axios
-          .post(`${import.meta.env.VITE_APP_BASEURL}/selected-results/`, data, {
-            withCredentials: true,
-          })
+          .post(
+            "http://127.0.0.1:8000/automation/api/v1/selected-automation-results/",
+            data,
+            {
+              withCredentials: true,
+            }
+          )
           .then((response) => {
             setLoading(false);
             let resData = response.data;
