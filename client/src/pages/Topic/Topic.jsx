@@ -142,7 +142,7 @@ function Topic({ show }) {
       }
       if (topicStatus) {
         axios
-          .post(`${import.meta.env.VITE_APP_BASEURL}/rank-automation/`, data, {
+          .post(`${import.meta.env.VITE_APP_BASEURL}/selected-results/`, data, {
             withCredentials: true,
           })
           .then((response) => {
