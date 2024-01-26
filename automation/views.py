@@ -399,7 +399,7 @@ def get_client_approval(user):
     return (aproval)
 
 
-class SelectedResultAPIView(generics.CreateAPIView):
+class SelectedAutomationResultAPIView(generics.CreateAPIView):
     """
 
     """
@@ -462,8 +462,8 @@ class SelectedResultAPIView(generics.CreateAPIView):
 
         print(topic)
         if topic.get('article') == 'True':
-            async_task("automate.services.generate_article",
-                       data_dic, hook='automate.services.hook_now2')
+            async_task("services.generate_article",
+                       data_dic, hook='services.hook_now2')
             return Response({'message': 'You sentences are being ranked in the background'})
         else:
             pass
