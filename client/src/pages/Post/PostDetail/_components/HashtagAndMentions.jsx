@@ -15,7 +15,6 @@ const HashtagAndMentions = ({ onclick, data }) => {
   const [success, setSuccess] = useState("");
   const [isFetched, setIsFetched] = useState("");
 
-
   useEffect(() => {
     const fetch = () => {
       // Make a GET request to the API endpoint with the session_id
@@ -42,9 +41,14 @@ const HashtagAndMentions = ({ onclick, data }) => {
     e.preventDefault();
     console.log("clicked");
     setLoading(true);
-    data.group_name= selectOptions.group_name,
-    data.hashtags= selectOptions.hashtags,
-    console.log(data);
+    // data.group_name= selectOptions.group_name,
+    // data.hashtags= ,
+
+      if (data.paragraphs) {
+        // Add some words to the paragraph before submitting
+        data.paragraphs += " " + selectOptions.hashtags;
+      }
+
 
     // // Make a POST request to the API endpoint with the session_id
     axios
@@ -78,10 +82,10 @@ const HashtagAndMentions = ({ onclick, data }) => {
       >
         <form
           onSubmit={handleSubmit}
-          className="bg-white w-[50%] 2xl:w-[40%] p-6 rounded-lg relative"
+          className="bg-white md:w-[50%]  2xl:w-[40%] p-6 rounded-lg relative"
         >
           <span
-            className="border-2 border-gray-900 p-2 text-xl rounded-full absolute top-0 -right-12 cursor-pointer"
+            className="border-2 border-gray-900 p-2 text-xs md:text-xl rounded-full absolute md:top-0 md:-right-12 right-4 top-2 cursor-pointer"
             onClick={onclick}
           >
             <FaTimes />
@@ -90,7 +94,7 @@ const HashtagAndMentions = ({ onclick, data }) => {
             <div className="md:flex justify-between items-center mb-6">
               <div>
                 <p className="text-lg text-customBlue font-semibold">
-                  Select a hastag group 
+                  Select a hastag group
                 </p>
                 <p className="text-customDarkpuprle ">
                   Include your favourite hashtags to this post by selecting your
@@ -127,29 +131,29 @@ const HashtagAndMentions = ({ onclick, data }) => {
                     </option>
                   ))}
             </select>
-            
+
             <div className="mt-3">
               <ul className="flex flex-wrap">
-                
-                {selectOptions && selectOptions.hashtags.map((name, index) => (
-                  <li key={index} className="mb-4 mr-4">
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        // checked={checkedHashtagList[index]}
-                        onChange={() => handleCheckboxHashtagChange(index)}
-                        className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                      />
-                      {name}
-                      {/* <button
+                {selectOptions &&
+                  selectOptions.hashtags.map((name, index) => (
+                    <li key={index} className="mb-4 mr-4">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          // checked={checkedHashtagList[index]}
+                          // onChange={() => handleCheckboxHashtagChange(index)}
+                          className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        {name}
+                        {/* <button
                         onClick={() => handleRemoveHashtagInput(index)}
                         className="ml-8 text-gray-600 cursor-pointer"
                       >
                         <FaTimes />
                       </button> */}
-                    </div>
-                  </li>
-                ))}
+                      </div>
+                    </li>
+                  ))}
               </ul>
             </div>
             <button

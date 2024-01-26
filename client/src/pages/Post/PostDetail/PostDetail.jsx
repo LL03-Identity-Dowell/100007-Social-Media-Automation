@@ -81,7 +81,7 @@ function PostDetail({ show }) {
   //handle next button
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    // e.preventDefault();
     console.log("clicked");
     setLoading(true);
 
@@ -391,25 +391,26 @@ function PostDetail({ show }) {
         <div
           className={` bg-overlay w-full h-full fixed z-50 top-0 left-0 flex justify-center items-center `}
         >
-          <div className="bg-white w-[50%] 2xl:w-[40%] p-6 rounded-lg relative flex flex-col justify-center items-center">
+          <div className="bg-white md:w-[50%]  2xl:w-[40%] p-6 rounded-lg relative flex flex-col justify-center items-center">
             <span
-              className="border-2 border-gray-900 p-2 text-xl rounded-full absolute top-0 -right-12 cursor-pointer"
+              className="border-2 border-gray-900 p-2 text-xs md:text-xl rounded-full absolute md:top-0 md:-right-12 right-4 top-2 cursor-pointer"
               onClick={handelCheckPermission}
             >
               <FaTimes />
             </span>
             <div className="">
-              <h3 className="text-lg font-semibold">Do you want to add hashtags?</h3>
+              <h3 className="text-lg font-semibold">Do you want to add hashtags to this post?</h3>
             </div>
             <div className="flex gap-4 mt-6 w-[300px]">
               <button
                 onClick={() => {
-                  handelCheckPermission();
                   handleSubmit()
+                  handelCheckPermission();
+
                 }}
                 className="mt-4 bg-customDarkpuprle w-full text-center text-white py-2 rounded-lg hover:bg-customTextBlue cursor-pointer"
               >
-                No
+                No, Save
               </button>
               <button
                 onClick={() => {
