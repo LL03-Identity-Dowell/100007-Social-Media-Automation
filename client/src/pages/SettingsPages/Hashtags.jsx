@@ -13,9 +13,7 @@ const Hashtags = ({ close }) => {
   const [checkedHashtagList, setcheckedHashtagList] = useState([]);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
   const [checkedHashtags, setCheckedHashtags] = useState([]);
-  const [selectOptions, setSelectOptions] = useState("");
   const [isFetched, setIsFetched] = useState("");
-  const [getStatus, setGetStatus] = useState();
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [success, setSuccess] = useState("");
@@ -31,10 +29,6 @@ const Hashtags = ({ close }) => {
     setinputHashtagText(e.target.value);
     //console.log(inputHashtagText);
   };
-  const handleNewHashtagInputChange = (e) => {
-    setInputNewHashtagText(e.target.value);
-    //console.log(inputHashtagText);
-  };
 
   const handleAddHashtagInput = (e) => {
     e.preventDefault();
@@ -47,10 +41,6 @@ const Hashtags = ({ close }) => {
     }
   };
 
-  // const handleAddInput = (e) => {
-  //   handleAddHashtagInput(e);
-  //   handleAddMentionsInput(e);
-  // };
   const handleRemoveHashtagInput = (index) => {
     setinputHashtagList((prevList) => prevList.filter((_, i) => i !== index));
     setcheckedHashtagList((prevChecked) => {
@@ -94,120 +84,6 @@ const Hashtags = ({ close }) => {
         //console.error("Error fetching user-approval:", error);
       });
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (getStatus === "update") {
-  //     setLoading(true);
-  //     const data = {
-  //       hashtag_list: checkedHashtags.join(","),
-  //       // mentions_list: checkedMentions.join(","),
-  //     };
-
-  //     setSuccess("");
-  //     setError("");
-
-  //     axios
-  //       .put(
-  //         `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
-  //         data,
-
-  //         {
-  //           withCredentials: true,
-  //         }
-  //       )
-  //       .then((res) => {
-  //         console.log(res);
-  //         setLoading(false);
-  //         setSuccess("Group added sucessfully...!");
-  //         setGroupInput("");
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //         setLoading(false);
-  //         setError("Error making the request. Please try again later.");
-  //       });
-
-  //     //console.log("from update", data);
-  //     // await axios
-  //     //   .put(
-  //     //     `${import.meta.env.VITE_APP_BASEURL}/update-hash-tags-and-mentions/`,
-  //     //     data,
-
-  //     //     {
-  //     //       withCredentials: true,
-  //     //     }
-  //     //   )
-  //     //   .then(() => {
-  //     //     setLoading(false);
-  //     //     setSuccess("Hashtags and mentions are updated...!");
-  //     //     // setinputMentionsList([]);
-  //     //     setinputHashtagList([]);
-  //     //   })
-  //     //   .catch((error) => {
-  //     //     setLoading(false);
-  //     //     setError("Error making the request. Please try again later.");
-  //     //   });
-  //   } else if (getStatus === "insert") {
-  //     setLoading(true);
-  //     const data = {
-  //       field: {
-  //         hashtag_list: checkedHashtags.join(),
-  //         // mentions_list: checkedMentions.join(),
-  //       },
-  //     };
-  //     //console.log("from insert", payloadBody)
-  //     axios
-  //       .post(
-  //         `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
-  //         data,
-
-  //         {
-  //           withCredentials: true,
-  //         }
-  //       )
-  //       .then((res) => {
-  //         console.log(res);
-  //         setLoading(false);
-  //         setSuccess("Group added sucessfully...!");
-  //         setGroupInput("");
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //         setLoading(false);
-  //         setError("Error making the request. Please try again later.");
-  //       });
-
-  //     // await axios
-  //     //   .post(
-  //     //     `${import.meta.env.VITE_APP_BASEURL}/hash-tags-and-mentions/`,
-  //     //     payloadBody,
-  //     //     {
-  //     //       withCredentials: true,
-  //     //     }
-  //     //   )
-  //     //   .then(() => {
-  //     //     setLoading(false);
-  //     //     if (!success) {
-  //     //       setSuccess("Hashtags and mentions are sent successfully...!");
-  //     //       // setinputMentionsList([]);
-  //     //       setinputHashtagList([]);
-  //     //     }
-  //     //   })
-  //     //   .catch((error) => {
-  //     //     setLoading(false);
-  //     //     setError("Error making the request. Please try again later.");
-  //     //   });
-  //   }
-  // };
-
-  // const handleGroupCheck = () => {
-  //   if (group) {
-  //     console.log(group);
-  //     setIsSelected(true);
-  //   }
-  // };
 
   const handleEditing = () => {
     setIsEditing(!isEditing);
@@ -267,9 +143,7 @@ const Hashtags = ({ close }) => {
             </button>
 
             {/* Group Modal */}
-            {isEditing && (
-              <EditHashtag close={handleEditing}/>
-            )}
+            {isEditing && <EditHashtag close={handleEditing} />}
 
             <form
               onSubmit={handleGroupSubmit}
