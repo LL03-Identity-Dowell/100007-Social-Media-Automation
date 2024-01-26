@@ -41,12 +41,13 @@ from helpers import (download_and_upload_image,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
-                     encode_json_data)
+                     encode_json_data, create_group_hashtags, filter_group_hashtag)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
+                          EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
-                          EditPostSerializer)
+                          GroupHashtagSerializer)
 
 global PEXELS_API_KEY
 
@@ -78,11 +79,14 @@ def Logout(request):
     if session_id:
         try:
             del request.session["session_id"]
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+            return redirect(
+                "https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
         except:
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+            return redirect(
+                "https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
     else:
-        return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+        return redirect(
+            "https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
 
 
 class LogoutUser(APIView):
@@ -111,7 +115,7 @@ class MainAPIView(AuthenticatedBaseView):
                 profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
                 user_map[profile_details['userinfo']['userID']
-                         ] = profile_details['userinfo']['username']
+                ] = profile_details['userinfo']['username']
             else:
                 url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
                 response_2 = requests.post(
@@ -120,7 +124,7 @@ class MainAPIView(AuthenticatedBaseView):
                     profile_details = response_2.json()
                     request.session['portfolio_info'] = profile_details['portfolio_info']
                     user_map[profile_details['userinfo']['userID']
-                             ] = profile_details['userinfo']['username']
+                    ] = profile_details['userinfo']['username']
                 else:
                     profile_details = {}
                     request.session['portfolio_info'] = []
@@ -171,6 +175,8 @@ class MainAPIView(AuthenticatedBaseView):
 
 
             # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 '''
 step-2 starts here
 '''
@@ -318,7 +324,8 @@ class IndexView(AuthenticatedBaseView):
             try:
                 # Get the user org ids from the portfolio objects of the user
                 user_org_id_list = [portfolio_info.get(
-                    'org_id') for portfolio_info in request.session['portfolio_info'] if portfolio_info.get('org_id', None)]
+                    'org_id') for portfolio_info in request.session['portfolio_info'] if
+                    portfolio_info.get('org_id', None)]
 
                 datas = results['data']
 
@@ -333,7 +340,6 @@ class IndexView(AuthenticatedBaseView):
                         org_id = row.get('org_id')
                         # Filter the question data with the org_ids from the user's portfolio
                         if org_id in user_org_id_list:
-
                             array.append(row)
                     except Exception as e:
                         traceback.print_exc()
@@ -355,7 +361,7 @@ class IndexView(AuthenticatedBaseView):
                     for key in data.keys():
                         if key.startswith("sentence_rank_") and data[key]['sentence_rank'] is not None:
                             topic = {"ranks": data[key]['sentence_rank'], "sentence": data[key]
-                                     ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
+                            ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
                             topics.append(topic)
 
                 # Getting the results for a certain page
@@ -374,7 +380,7 @@ class IndexView(AuthenticatedBaseView):
 
             # Extract the data to be serialized
             topics_data = [{'ranks': topic['ranks'], 'sentence': topic['sentence'],
-                           'key': topic['key'], 'created_by': topic.get('created_by', 'NA')} for topic in topics]
+                            'key': topic['key'], 'created_by': topic.get('created_by', 'NA')} for topic in topics]
             serialized_data = RankedTopicListSerializer(
                 topics_data, many=True).data
 
@@ -431,12 +437,12 @@ class GenerateArticleView(AuthenticatedBaseView):
 
                 # Modify the prompt to include the formatted user data
                 prompt = (
-                    f"Write an article about {RESEARCH_QUERY}"
-                    f" Include  {formatted_hashtags} at the end of the article."
-                    f" Also, append {formatted_cities} to the end of the article."
-                    f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-                    [:prompt_limit]
-                    + "..."
+                        f"Write an article about {RESEARCH_QUERY}"
+                        f" Include  {formatted_hashtags} at the end of the article."
+                        f" Also, append {formatted_cities} to the end of the article."
+                        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+                        [:prompt_limit]
+                        + "..."
                 )
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
@@ -517,7 +523,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
                 page = wiki_language.page(title)
                 if page.exists():
-                    print("For Title: "+title+" Page exists.")
+                    print("For Title: " + title + " Page exists.")
                     article = page.text
                     article = article.split("See also")
                     para_list = article[0].split("\n\n")
@@ -526,7 +532,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                             save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                                    "session_id": session_id,
                                                                    "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                   'client_admin_id': request.session['userinfo'][
+                                                                       'client_admin_id'],
                                                                    "title": title,
                                                                    "org_id": org_id,
                                                                    "paragraph": article[0],
@@ -542,7 +549,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                             save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                                    "session_id": session_id,
                                                                    "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                   'client_admin_id': request.session['userinfo'][
+                                                                       'client_admin_id'],
                                                                    "title": title,
                                                                    "org_id": org_id,
                                                                    "paragraph": para_list[i],
@@ -555,7 +563,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     # credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
                 elif page.exists() == False:
-                    return Response({'message': f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"})
+                    return Response({
+                        'message': f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"})
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -583,15 +592,23 @@ class WriteYourselfView(AuthenticatedBaseView):
                     response = requests.get(source, headers=headers)
                 except Exception as e:
                     print(str(e))
-                    return Response({'error': 'The url of the article has not been authorized!', 'data': response_data}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'error': 'The url of the article has not been authorized!', 'data': response_data},
+                                    status=status.HTTP_400_BAD_REQUEST)
                 if response.status_code == 403:
-                    return Response({'error': 'Error code 403 Forbidden: Website does not allow verification of the article!', 'data': response_data}, status=status.HTTP_403_FORBIDDEN)
+                    return Response(
+                        {'error': 'Error code 403 Forbidden: Website does not allow verification of the article!',
+                         'data': response_data}, status=status.HTTP_403_FORBIDDEN)
                 else:
+
                     text_from_page_space = text_from_html(response.text)
                     text_from_page = text_from_page_space.replace(" ", "")
                     text_from_page = text_from_page.replace("\xa0", "")
                     print(article_text_area)
                     paragraph = article_text_area.split("\r\n")
+                    double_line_paragraphs = article_text_area.split("\n\n")
+                    if len(double_line_paragraphs) > len(paragraph):
+                        paragraph = double_line_paragraphs
+
                     message = "Article Verified, "
                     for i in range(len(paragraph)):
                         if paragraph[i] == "":
@@ -601,28 +618,40 @@ class WriteYourselfView(AuthenticatedBaseView):
                                                                "org_id": org_id,
                                                                "eventId": create_event()['event_id'],
                                                                'client_admin_id': request.session['userinfo'][
-                            'client_admin_id'],
-                            "title": title,
-                            "paragraph": paragraph[i],
-                            "article": article_text_area,
-                            "source": source,
-                            # 'dowelltime': dowellclock
-                        }, '34567897799')
-                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                                   'client_admin_id'],
+                                                               "title": title,
+                                                               "paragraph": paragraph[i],
+                                                               "article": article_text_area,
+                                                               "source": source,
+                                                               # 'dowelltime': dowellclock
+                                                               }, '34567897799')
+                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
                                                                "session_id": session_id,
                                                                "org_id": org_id,
                                                                "eventId": create_event()['event_id'],
                                                                'client_admin_id': request.session['userinfo'][
-                            'client_admin_id'],
-                            "title": title,
-                            "paragraph": article_text_area,
-                            "source": source,
-                            # 'dowelltime': dowellclock
-                        }, "9992828281")
+                                                                   'client_admin_id'],
+                                                               "title": title,
+                                                               "paragraph": paragraph[i],
+                                                               "source": source,
+
+                                                               }, '34567897799')
+                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "org_id": org_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                                                                   'client_admin_id'],
+                                                               "title": title,
+                                                               "paragraph": article_text_area,
+                                                               "source": source,
+                                                               # 'dowelltime': dowellclock
+                                                               }, "9992828281")
 
                         # credit_handler = CreditHandler()
                         # credit_handler.consume_step_2_credit(request)
-                        return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+                    return Response({'message': 'Article saved successfully', 'data': response_data},
+                                        status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -1061,10 +1090,7 @@ class AryshareProfileView(AuthenticatedBaseView):
                 "update_field": {
                     "aryshare_details": {
 
-
-
                     }
-
 
                 },
                 "platform": "bangalore"
@@ -1275,15 +1301,15 @@ def update_most_recent(pk):
             "function_ID": "ABCDE",
             "command": "update",
             "field":
-            {
-                '_id': pk
-            },
+                {
+                    '_id': pk
+                },
             "update_field":
-            {
-                "status": 'posted',
-                "date": date,
-                "time": str(time),
-            },
+                {
+                    "status": 'posted',
+                    "date": date,
+                    "time": str(time),
+                },
 
             "platform": "bangalore"
         })
@@ -1311,15 +1337,15 @@ def update_schedule(pk):
             "function_ID": "ABCDE",
             "command": "update",
             "field":
-            {
-                '_id': pk
-            },
+                {
+                    '_id': pk
+                },
             "update_field":
-            {
-                "status": 'scheduled',
-                "date": date,
-                "time": str(time),
-            },
+                {
+                    "status": 'scheduled',
+                    "date": date,
+                    "time": str(time),
+                },
             "platform": "bangalore"
         })
     headers = {'Content-Type': 'application/json'}
@@ -1355,7 +1381,6 @@ def get_key(user_id):
 
 
 def api_call(postes, platforms, key, image, request, post_id):
-
     payload = {'post': postes,
                'platforms': platforms,
                'profileKey': key,
@@ -1390,7 +1415,6 @@ def api_call(postes, platforms, key, image, request, post_id):
 
 
 def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
-
     payload = {'post': postes,
                'platforms': platforms,
                'profileKey': key,
@@ -1706,7 +1730,6 @@ class UnScheduledJsonView(AuthenticatedBaseView):
 @csrf_exempt
 @xframe_options_exempt
 def post_scheduler(request):
-
     # url = "http://uxlivinglab.pythonanywhere.com"
 
     # # adding eddited field in article
@@ -1994,7 +2017,6 @@ def comments(request):
 @csrf_exempt
 @xframe_options_exempt
 def generate_comments(request):
-
     print("-------------------------generate comments function------------------------------")
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
@@ -2090,7 +2112,7 @@ def generate_comments(request):
                     'x-rapidapi-key': settings.LINGUA_KEY
                 }
                 print(requests.request("GET", url,
-                      headers=headers, params=querystring))
+                                       headers=headers, params=querystring))
                 return [requests.request("GET", url, headers=headers, params=querystring).json()['sentence'],
                         type_of_sentence]
 
@@ -2272,7 +2294,8 @@ class FacebookFormAPI(AuthenticatedBaseView):
         if response.status_code == 200:
             return Response({'message': 'Facebook details updated successfully'})
         else:
-            return Response({'error': 'Failed to update Facebook details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Failed to update Facebook details'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
         if request.method != "POST":
@@ -2314,7 +2337,8 @@ class FacebookFormAPI(AuthenticatedBaseView):
         if response.status_code == 200:
             return Response({'message': 'Facebook details updated successfully'})
         else:
-            return Response({'error': 'Failed to update Facebook details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Failed to update Facebook details'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class InstaFormAPI(AuthenticatedBaseView):
@@ -2374,7 +2398,8 @@ class InstaFormAPI(AuthenticatedBaseView):
         if response.status_code == 200:
             return Response({'message': 'Instagram details updated successfully'})
         else:
-            return Response({'error': 'Failed to update Instagram details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Failed to update Instagram details'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request):
         if request.method != "PUT":
@@ -2419,7 +2444,8 @@ class InstaFormAPI(AuthenticatedBaseView):
         if response.status_code == 200:
             return Response({'message': 'Instagram details updated successfully'})
         else:
-            return Response({'error': 'Failed to update Instagram details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Failed to update Instagram details'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class XFormAPI(AuthenticatedBaseView):
@@ -2586,7 +2612,8 @@ class LinkedInFormAPI(AuthenticatedBaseView):
         if response.status_code == 200:
             return Response({'message': 'LinkedIn details updated successfully'})
         else:
-            return Response({'error': 'Failed to update LinkedIn details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Failed to update LinkedIn details'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request):
         if request.method != "PUT":
@@ -2631,7 +2658,8 @@ class LinkedInFormAPI(AuthenticatedBaseView):
         if response.status_code == 200:
             return Response({'message': 'LinkedIn details updated successfully'})
         else:
-            return Response({'error': 'Failed to update LinkedIn details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Failed to update LinkedIn details'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class YoutubeFormView(AuthenticatedBaseView):
@@ -2692,7 +2720,8 @@ class YoutubeFormView(AuthenticatedBaseView):
             if response.status_code == 200:
                 return Response({'message': 'Youtube details updated successfully'})
             else:
-                return Response({'error': 'Failed to update Youtube details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': 'Failed to update Youtube details'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request):
         if request.method != "PUT":
@@ -2738,7 +2767,8 @@ class YoutubeFormView(AuthenticatedBaseView):
             if response.status_code == 200:
                 return Response({'message': 'Youtube details updated successfully'})
             else:
-                return Response({'error': 'Failed to update Youtube details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': 'Failed to update Youtube details'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PinterestFormView(AuthenticatedBaseView):
@@ -2800,7 +2830,8 @@ class PinterestFormView(AuthenticatedBaseView):
             if response.status_code == 200:
                 return Response({'message': 'Pinterest details updated successfully'})
             else:
-                return Response({'error': 'Failed to update Pinterest details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': 'Failed to update Pinterest details'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request):
         if request.method != "PUT":
@@ -2847,7 +2878,8 @@ class PinterestFormView(AuthenticatedBaseView):
             if response.status_code == 200:
                 return Response({'message': 'Pinterest details updated successfully'})
             else:
-                return Response({'error': 'Failed to update Pinterest details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': 'Failed to update Pinterest details'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ClientProfileFormView(AuthenticatedBaseView):
@@ -2905,7 +2937,8 @@ class ClientProfileFormView(AuthenticatedBaseView):
             if response.status_code == 200:
                 return Response({'message': 'Client details updated successfully'})
             else:
-                return Response({'error': 'Failed to update Client details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': 'Failed to update Client details'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request):
         session_id = request.GET.get("session_id", None)
@@ -2950,7 +2983,8 @@ class ClientProfileFormView(AuthenticatedBaseView):
             if response.status_code == 200:
                 return Response({'message': 'Client details updated successfully'})
             else:
-                return Response({'error': 'Failed to update Client details'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': 'Failed to update Client details'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class TargetedCitiesListView(AuthenticatedBaseView):
@@ -3121,6 +3155,38 @@ class MentionView(AuthenticatedBaseView):
             response = requests.post(url, headers=headers, data=data)
 
             return Response({'detail': 'Hashtags and Mentions created successfully'}, status=status.HTTP_201_CREATED)
+
+
+class GroupHashtagView(AuthenticatedBaseView):
+    def get(self, request):
+        org_id = request.session['org_id']
+        data = {
+            'org_id': org_id,
+        }
+        group_hastag_list = filter_group_hashtag(data)
+        return Response({'group_hastag_list': group_hastag_list})
+
+    def post(self, request):
+
+        serializer_data = GroupHashtagSerializer(data=request.data)
+        if not serializer_data.is_valid():
+            return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
+        org_id = request.session['org_id']
+        session_id = request.GET.get("session_id", None)
+        group_name = serializer_data.validated_data['group_name']
+        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        client_admin_id = request.session['userinfo']['client_admin_id']
+
+        create_hashtag_data = {
+            'user_id': request.session.get('user_id'),
+            'session_id': session_id,
+            'org_id': org_id,
+            'client_admin_id': client_admin_id,
+            'group_name': group_name,
+            'hashtags': hashtags,
+        }
+        response = create_group_hashtags(create_hashtag_data)
+        return Response({'detail': 'Hashtags and Mentions created successfully'}, status=status.HTTP_201_CREATED)
 
 
 class MentionUpdateView(AuthenticatedBaseView):
