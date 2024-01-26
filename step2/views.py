@@ -2817,6 +2817,7 @@ def verify_article(request):
             designed_for = request.POST.get("designed_for")
             targeted_category = request.POST.get("targeted_category")
             image = request.POST.get("image")
+            org_id = request.session.get('org_id')
             # dowellclock = get_dowellclock()
             article = request.POST.get("articletextarea")
             source = request.POST.get("url")
