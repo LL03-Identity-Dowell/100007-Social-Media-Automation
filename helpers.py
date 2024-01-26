@@ -778,4 +778,4 @@ def filter_group_hashtag(data: dict):
     group_hastag_pd = pd.DataFrame(response_data.get('data'))
     filtered_pd = group_hastag_pd[group_hastag_pd['org_id'] == org_id]
 
-    return group_hastag_pd.to_dict('records')
+    return filtered_pd.to_dict('records')
