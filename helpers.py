@@ -748,6 +748,7 @@ def filter_group_hashtag(data: dict):
     """
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
+    org_id = data.get('org_id')
     filter_data = {
         'org_id': data.get('org_id'),
     }
@@ -775,4 +776,6 @@ def filter_group_hashtag(data: dict):
     print(response.json())
     response_data = json.loads(response.json())
     group_hastag_pd = pd.DataFrame(response_data.get('data'))
+    filtered_pd = group_hastag_pd[group_hastag_pd['org_id'] == org_id]
+
     return group_hastag_pd.to_dict('records')
