@@ -107,7 +107,21 @@ function Topic({ show }) {
         .then((response) => {
           setLoading(false);
           let resData = response.data;
+          console.log("Here I have", resData)
           setSuccess("Topics created successfully!");
+          axios
+            .post(
+              "http://127.0.0.1:8000/automation/api/v1/selected-automation-results/",
+              resData,
+              { withCredentials: true }
+            )
+            .then((response) => {
+              // Handle success response from automation endpoint
+            })
+            .catch((error) => {
+              // Handle error response from automation endpoint
+            });
+
           setTimeout(() => {
             handleSentenceNavigate(resData);
           }, 2000);
