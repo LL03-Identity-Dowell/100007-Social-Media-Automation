@@ -30,7 +30,7 @@ urlpatterns = [
     path('credit/', include('credits.urls')),
 
     path('api/v1/', include('article_api.urls')),
-    path('api/v1/', include('automation.urls')),
+    path('automation/api/v1/', include('automation.urls')),
 
 ]
 
