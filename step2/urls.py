@@ -94,6 +94,8 @@ urlpatterns = [
          name='post_detail_dropdowns'),
     path('update_post_detail_addition/', views.update_post_detail_dropdowns,
          name='update_post_detail_dropdowns'),
+    path('porfolio_settings/', views.porfolio_settings,
+         name='porfolio_settings'),
 
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
