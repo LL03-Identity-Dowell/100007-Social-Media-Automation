@@ -118,8 +118,7 @@ function Topic({ show }) {
     if (topicStatus) {
       axios
         .post(
-          `${
-            import.meta.env.VITE_APP_AUTOMATIONURL
+          `${import.meta.env.VITE_APP_AUTOMATIONURLL
           }/selected-automation-results/`,
           data,
           { withCredentials: true }
