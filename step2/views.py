@@ -30,7 +30,7 @@ from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 # rest(React endpoints)
 from rest_framework.views import APIView
 
@@ -3165,6 +3165,42 @@ class GroupHashtagView(AuthenticatedBaseView):
         }
         group_hastag_list = filter_group_hashtag(data)
         return Response({'group_hastag_list': group_hastag_list})
+
+    def post(self, request):
+
+        serializer_data = GroupHashtagSerializer(data=request.data)
+        if not serializer_data.is_valid():
+            return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
+        org_id = request.session['org_id']
+        session_id = request.GET.get("session_id", None)
+        group_name = serializer_data.validated_data['group_name']
+        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        client_admin_id = request.session['userinfo']['client_admin_id']
+
+        create_hashtag_data = {
+            'user_id': request.session.get('user_id'),
+            'session_id': session_id,
+            'org_id': org_id,
+            'client_admin_id': client_admin_id,
+            'group_name': group_name,
+            'hashtags': hashtags,
+        }
+        response = create_group_hashtags(create_hashtag_data)
+        return Response({'detail': 'Hashtags and Mentions created successfully'}, status=status.HTTP_201_CREATED)
+
+
+class GroupHashtagDetailView(AuthenticatedBaseView):
+    def get(self, request, group_hashtag_id):
+        org_id = request.session['org_id']
+        data = {
+            'org_id': org_id,
+            'group_hashtag_id': group_hashtag_id,
+        }
+        print(data)
+        group_hashtag_list = filter_group_hashtag(data)
+        if not group_hashtag_list:
+            return Response({'message': 'Item not found'}, status=HTTP_404_NOT_FOUND)
+        return Response(group_hashtag_list[0])
 
     def post(self, request):
 

@@ -776,6 +776,8 @@ def filter_group_hashtag(data: dict):
     print(response.json())
     response_data = json.loads(response.json())
     group_hastag_pd = pd.DataFrame(response_data.get('data'))
-    filtered_pd = group_hastag_pd[group_hastag_pd['org_id'] == org_id]
-
+    try:
+        filtered_pd = group_hastag_pd[group_hastag_pd['org_id'] == org_id]
+    except KeyError:
+        return []
     return filtered_pd.to_dict('records')
