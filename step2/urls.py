@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
-                    HashMentionView, HashMentionUpdateView, UnScheduledView, UnScheduledJsonView,
+                    MentionView, MentionUpdateView, UnScheduledView, UnScheduledJsonView,
                     ScheduledJsonView, IndexView, MostRecentJSON, FacebookFormAPI,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
                     ClientProfileFormView, ListArticleView,
@@ -11,7 +11,8 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
-                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,FetchUserInfo)
+                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
+                    FetchUserInfo, GroupHashtagView)
 
 app_name = 'generate_article'
 
@@ -25,28 +26,27 @@ urlpatterns = [
          name='targeted-cities-create'),
     path('targeted_cities/update/', TargetedCitiesUpdateView.as_view(),
          name='targeted-cities-update'),
-    path('hash-tags-and-mentions/', HashMentionView.as_view(),
-         name='save_hash_mentions'),
-    path('update-hash-tags-and-mentions/', HashMentionUpdateView.as_view(),
-         name='update_hash_mentions'),
+    path('mentions/', MentionView.as_view(),
+         name='save_mentions'),
+    path('update-mentions/', MentionUpdateView.as_view(),
+         name='update_mentions'),
     path('facebook-form/', FacebookFormAPI.as_view(),
          name='facebook-form-api'),
-    path('instagram-form/',  InstaFormAPI.as_view(),
+    path('instagram-form/', InstaFormAPI.as_view(),
          name='instagram-form-api'),
-    path('X-form/',  XFormAPI.as_view(), name='X-form-api'),
-    path('linkedIn-form/',  LinkedInFormAPI.as_view(),
+    path('X-form/', XFormAPI.as_view(), name='X-form-api'),
+    path('linkedIn-form/', LinkedInFormAPI.as_view(),
          name='linkedIn-form-api'),
-    path('youtube-form/',  YoutubeFormView.as_view(),
+    path('youtube-form/', YoutubeFormView.as_view(),
          name='youtube-form-api'),
-    path('pinterest-form/',  PinterestFormView.as_view(),
+    path('pinterest-form/', PinterestFormView.as_view(),
          name='pinterest-form-api'),
-    path('client-form/',  ClientProfileFormView.as_view(),
+    path('client-form/', ClientProfileFormView.as_view(),
          name='client-form-api'),
-    path('post-detail-dropdowns/',  PostDetailDropdownView.as_view(),
+    path('post-detail-dropdowns/', PostDetailDropdownView.as_view(),
          name='post-detail-dropdowns-api'),
     path('fetch_user_settings_data/', FetchUserInfo.as_view(),
          name='test'),
-
 
     path('list-articles/', ListArticleView.as_view(), name='list-articles'),
     path('article-detail/',
@@ -89,8 +89,6 @@ urlpatterns = [
          PostComments.as_view(), name='post-comments-endpoint'),
     path('comments/delete-comment/<str:post_id>/', DeletePostComment.as_view(),
          name='delete-post-comments-endpoint'),
-
-
-
+    path('group-hashtags/', GroupHashtagView.as_view(), name='group-hashtag-endpoint'),
 
 ]

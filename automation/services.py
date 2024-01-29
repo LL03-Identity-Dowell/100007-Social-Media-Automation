@@ -30,6 +30,9 @@ PEXELS_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
 def step_1(auto_strings, data_di):
     # sleep time to allow for redirection in main app
     print('starting----------------')
+    session_id = data_di["session_id"]
+    email = data_di["email"]
+    print("I have email", email)
 
     def api_call(grammar_arguments=None):
         if grammar_arguments is None:
@@ -42,7 +45,6 @@ def step_1(auto_strings, data_di):
             "subject": auto_strings['subject'],
             "verb": auto_strings['verb'],
             "objdet": auto_strings['objdet'],
-            "objmod": auto_strings['objmod'],
         }
 
         iter_sentence_type = []
@@ -82,19 +84,27 @@ def step_1(auto_strings, data_di):
         response = requests.request(
             "GET", url, headers=headers, params=querystring).json()
         return [response['sentence'], type_of_sentence]
+    data_dictionary = data_di['user_id']
+    user_id = data_di['user_id']
+    session_id = data_di["session_id"]
+    org_id = data_di['org_id']
+    username = data_di['username']
+    event_id = create_event()['event_id']
+    email = email
 
     tenses = ['past', 'present', 'future']
-    other_grammar = ['passive',
-                     'progressive', 'perfect', 'negated']
+    other_grammar = ['passive', 'progressive', 'perfect', 'negated']
     api_results = []
     sentence_grammar = Sentences.objects.create(
         user=auto_strings['user'],
         object=auto_strings['object'],
         topic=auto_strings['topic'],
         verb=auto_strings['verb'],
-        adjective=auto_strings['objmod'],
     )
 
+    tenses = ['past', 'present', 'future']
+    other_grammar = ['passive', 'progressive', 'perfect', 'negated']
+    api_results = []
     for tense in tenses:
         for grammar in other_grammar:
             arguments = {'tense': tense, grammar: grammar}
@@ -112,6 +122,7 @@ def step_1(auto_strings, data_di):
         SentenceResults.objects.bulk_create(sentence_results)
     result_ids = SentenceResults.objects.filter(
         sentence_grammar=sentence_grammar).values_list('pk', flat=True)
+    article_id = list(result_ids)
     # accessing primary key of values to use in next functions
     article_id = list(result_ids)
     user_id = data_di['user_id']
@@ -127,15 +138,19 @@ def step_1(auto_strings, data_di):
             for counter, (api_result, sentence_result) in enumerate(zip(api_results, sentence_results), start=1)
         }
     }
+    print("########################")
+    print(data_dic)
+    print("We got here")
+    print("##################################################")
     Ranked_dic = selected_result(article_id, data_dic)
-    inserts = insert_form_data(Ranked_dic)
+    print("and here", Ranked_dic)
+    # inserts = insert_form_data(Ranked_dic)
 
-    if auto_strings['approve']['article'] == 'True':
-        generate = generate_article(data_dic)
-
-    else:
-        print('done inserting')
-    return (inserts)
+    # if auto_strings['approve']['article'] == 'True':
+    #     generate = generate_article(data_dic)
+    # else:
+    #     print('done inserting')
+    # return (inserts)
 
 
 def hook_now(task):
@@ -165,13 +180,13 @@ def get_dowellclock():
     data = response_dowell.json()
     return data['t1']
 
-
 @transaction.atomic
 def selected_result(article_id, data_dic):
     try:
         print('ranking___________')
         sentence_ids = article_id
-        Rank = ['1', '2', '3', '4', '5', ' 6', '7', ' 8', '9', '10', '11', '12', ]
+        Rank = ['1', '2', '3', '4', '5', ' 6',
+                '7', ' 8', '9', '10', '11', '12', ]
         Rank_dict = {}
         loop_counter = 1
         for sentence_id in sentence_ids:
@@ -267,13 +282,6 @@ def generate_article(data_dic, request):
 
     # getting required data
     RESEARCH_QUERY = data_dic[key]['sentence']
-    subject = data_dic["subject"]
-    verb = None
-    target_industry = None
-    qualitative_categorization = None
-    targeted_for = None
-    designed_for = None
-    targeted_category = None
     user_ids = data_dic["user_id"]
     session_id = data_dic["session_id"]
     # calling user aproval
@@ -330,7 +338,7 @@ def generate_article(data_dic, request):
     )
     article = response.choices[0].text
     paragraphs = [p.strip()
-                    for p in article.split("\n\n") if p.strip()]
+                  for p in article.split("\n\n") if p.strip()]
     article_str = "\n\n".join(paragraphs)
 
     sources = urllib.parse.unquote("")
@@ -358,7 +366,7 @@ def generate_article(data_dic, request):
 
             }
             save_data('step3_data', 'step3_data',
-                        step3_data, '34567897799')
+                      step3_data, '34567897799')
     step2_data = {
         "user_id": user_id,
         "session_id": session_id,
@@ -371,7 +379,7 @@ def generate_article(data_dic, request):
         "citation_and_url": sources,
     }
     save_data('step2_data', 'step2_data',
-                step2_data, '9992828281')
+              step2_data, '9992828281')
     end_datetime = datetime.now()
     time_taken = end_datetime - start_datetime
     print(f"Task started at: {start_datetime}")
@@ -465,10 +473,10 @@ def post_list(user_id):
                     "Linkdin-dowellresearch", "Linkdin-Company page-Germany", "Linkdin-Company page-Singapore",
                     "Linkedin-Company page-UK", "Linkedin-Company page-Scandinavia", "Facebook-DoWell Research",
                     "Youtube-Dowell Research", "Twitter-seeuser", "Linkedin-Intership", "Facebook-uxlivinglab team",
-                    "Instagram-uxlivinglab team", "Youtube-Team playlist", "Twitter-unpacandwin", "Linkedin-unpacandwin"
-        , "Facebook-unpacandwin", "Instagram-unpacandwin", "Youtube-unpacandwin"]
+                    "Instagram-uxlivinglab team", "Youtube-Team playlist", "Twitter-unpacandwin", "Linkedin-unpacandwin", "Facebook-unpacandwin", "Instagram-unpacandwin", "Youtube-unpacandwin"]
 
-    Targeted_category = ["Brand", "Corporate", "Team building", "Consumer contest"]
+    Targeted_category = ["Brand", "Corporate",
+                         "Team building", "Consumer contest"]
     # takes in the image
     a = random.randint(1, 5)
 

@@ -3,9 +3,11 @@ import json
 from datetime import datetime
 
 import jwt
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
+from django.utils.timezone import localtime, localdate
 from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 
@@ -517,6 +519,7 @@ def get_post_by_id(post_id, user_id):
             except:
                 pass
 
+
 def get_aryshare_profile_id(user_id):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
@@ -574,3 +577,205 @@ def encode_json_data(data):
     @return: str
     """
     return jwt.encode(data, "secret", algorithm="HS256")
+
+
+def edit_article(data: dict):
+    """
+    This function updates a post data
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step3_data",
+        "document": "step3_data",
+        "team_member_ID": "34567897799",
+        "function_ID": "ABCDE",
+        "command": "update",
+        "field": {"_id": data.get('post_id')},
+        "update_field": {
+            "title": data.get('title'),
+            "paragraph": data.get('paragraph'),
+        },
+        "platform": "bangalore"
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    print(response.text)
+    return response.json()
+
+
+def create_step_4_data(data: dict):
+    """
+    This function creates step 4 data
+    """
+    time = localtime()
+    test_date = str(localdate())
+    date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+    date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+    eventId = create_event()['event_id'],
+    url = "http://uxlivinglab.pythonanywhere.com"
+    payload = json.dumps({
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "insert",
+        "eventId": eventId,
+        # 'dowelltime': dowellclock,
+        "field": {
+            "user_id": data['user_id'],
+            "session_id": data['session_id'],
+            "eventId": eventId,
+            'client_admin_id': data['client_admin_id'],
+            "title": data['title'],
+            "paragraph": data['paragraph'],
+            "org_id": data['org_id'],
+            "source": data['source'],
+            "qualitative_categorization": data.get('qualitative_categorization'),
+            "targeted_for": data.get('targeted_for'),
+            "designed_for": data.get('designed_for'),
+            "targeted_category": data.get('targeted_category'),
+            "image": data['image'],
+            "date": date,
+            "time": str(time),
+            "status": "",
+            "timezone": data['timezone'],
+            "username": data['username']
+        },
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    })
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    print("This is payload", payload)
+    response = requests.request(
+        "POST", url, headers=headers, data=payload)
+    print("data:", response.json())
+    return response.json()
+
+
+def create_group_hashtags(data: dict):
+    """
+    This function returns
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    event_id = create_event()['event_id']
+    group_hashtags = filter_group_hashtag({
+        'org_id': data['org_id'],
+        'group_name': data['group_name'],
+    })
+    if group_hashtags:
+        group_hashtag_id = group_hashtags[0].get('_id')
+        update_data = {
+            'group_hashtag_id': group_hashtag_id,
+            'group_name': data['group_name'],
+            'hashtags': data['hashtags'],
+        }
+        return update_group_hashtags(update_data)
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "hashtags",
+        "document": "hashtags",
+        "team_member_ID": "1262001",
+        "function_ID": "ABCDE",
+        "command": "insert",
+        "field": {
+            "user_id": data['user_id'],
+            "session_id": data['session_id'],
+            "org_id": data['org_id'],
+            "eventId": event_id,
+            'client_admin_id': data['client_admin_id'],
+            "group_name": data['group_name'],
+            "hashtags": data['hashtags'],
+        },
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    return response.json()
+
+
+def update_group_hashtags(data: dict):
+    """
+    This function returns
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    event_id = create_event()['event_id']
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "hashtags",
+        "document": "hashtags",
+        "team_member_ID": "1262001",
+        "function_ID": "ABCDE",
+        "command": "update",
+        "field": {
+            "_id": data['group_hashtag_id'],
+        },
+        "update_field": {
+            "group_name": data['group_name'],
+            "hashtags": data['hashtags'],
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    return response.json()
+
+
+def filter_group_hashtag(data: dict):
+    """
+    This function returns
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+    org_id = data.get('org_id')
+    filter_data = {
+        'org_id': data.get('org_id'),
+    }
+    if data.get('group_hashtag_id'):
+        filter_data['_id'] = data.get('group_hashtag_id')
+    if data.get('group_name'):
+        filter_data['group_name'] = data.get('group_name')
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "hashtags",
+        "document": "hashtags",
+        "team_member_ID": "1262001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": filter_data,
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    response_data = json.loads(response.json())
+    group_hastag_pd = pd.DataFrame(response_data.get('data'))
+    filtered_pd = group_hastag_pd[group_hastag_pd['org_id'] == org_id]
+
+    return filtered_pd.to_dict('records')

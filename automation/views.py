@@ -1,3 +1,8 @@
+from django.shortcuts import render
+
+# Create your views here.
+
+
 import json
 from datetime import datetime
 
@@ -74,44 +79,44 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
 
         userid = request.session['user_id']
         topic = get_client_approval(userid)
-        # auto_strings = {
-        #     "object": object,
-        #     "subject": subject,
-        #     "verb": verb,
-        #     "objdet": objdet,
-        #     "objmod": adjective,
-        #     "email": email,
-        #     'user': user,
-        #     'approve': topic,
-        #     'topic': sentence_serializer.validated_data['topic'],
+        print("Here I have topic set to true", topic)
+        if topic['topic'] == 'True':
+            auto_strings = {
+                "object": object,
+                "subject": subject,
+                "verb": verb,
+                "objdet": objdet,
+                "objmod": adjective,
+                "email": email,
+                'user': user,
+                'approve': topic,
+                'topic': sentence_serializer.validated_data['topic'],
 
-        # }
+            }
 
-        # data_di = {
-        #     'target_product': industry_serializer.validated_data['target_product'],
-        #     'target_industry': industry_serializer.validated_data['category'].name,
-        #     'subject_determinant': sentence_serializer.validated_data.get('subject_determinant', ''),
-        #     'subject': subject,
-        #     'subject_number': sentence_serializer.validated_data['subject_number'],
-        #     'object_determinant': objdet,
-        #     'object': object,
-        #     'object_number': sentence_serializer.validated_data['object_number'],
-        #     'adjective': adjective,
-        #     'verb': verb,
-        #     "email": email,
-        #     'user_id': request.session['user_id'],
-        #     "session_id": request.session["session_id"],
-        #     "org_id": request.session['org_id'],
-        #     'username': request.session['username'],
-        #     'event_id': create_event()['event_id'],
-        #     'client_admin_id': request.session['userinfo']['client_admin_id'],
-        # }
-        userid = request.session['user_id']
-        # if topic['topic'] == True:
-        #     async_task("automation.services.step_1", auto_strings,
-        #                data_di, hook='automation.services.hook_now')
-            # return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
-    
+            data_di = {
+                'target_product': industry_serializer.validated_data['target_product'],
+                'target_industry': industry_serializer.validated_data['category'].name,
+                'subject_determinant': sentence_serializer.validated_data.get('subject_determinant', ''),
+                'subject': subject,
+                'subject_number': sentence_serializer.validated_data['subject_number'],
+                'object_determinant': objdet,
+                'object': object,
+                'object_number': sentence_serializer.validated_data['object_number'],
+                'adjective': adjective,
+                'verb': verb,
+                "email": email,
+                'user_id': request.session['user_id'],
+                "session_id": request.session["session_id"],
+                "org_id": request.session['org_id'],
+                'username': request.session['username'],
+                'event_id': create_event()['event_id'],
+                'client_admin_id': request.session['userinfo']['client_admin_id']
+            }
+            async_task("automate.services.step_1", auto_strings,
+                       data_di, hook='automate.services.hook_now')
+            return Response({'message': 'Your Sentences are being generated'})
+
         def api_call(grammar_arguments=None):
             if grammar_arguments is None:
                 grammar_arguments = {}
@@ -167,8 +172,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         data_dictionary["session_id"] = session_id
         data_dictionary["org_id"] = request.session['org_id']
         data_dictionary["username"] = request.session['username']
-        data_dictionary["session_id"] = request.session.get(
-            'session_id', None)
+        data_dictionary["session_id"] = request.session.get('session_id', None)
         data_dictionary['event_id'] = create_event()['event_id']
         data_dictionary['email'] = email
 
@@ -394,8 +398,8 @@ def get_client_approval(user):
         aproval = {'topic': 'False'}
     return (aproval)
 
-
-class SelectedResultAPIView(generics.CreateAPIView):
+import random
+class SelectedAutomationResultAPIView(generics.CreateAPIView):
     """
 
     """
@@ -416,16 +420,20 @@ class SelectedResultAPIView(generics.CreateAPIView):
                                         'sentences again.'}, status=HTTP_400_BAD_REQUEST)
 
         loop_counter = 1
+        Rank = ['1', '2', '3', '4', '5', ' 6','7', ' 8', '9', '10', '11', '12', ]
+        Rank_dict = {}         #added dictionary to store rankings
         for sentence_id in sentence_ids:
-            selected_rank = request.data.get(
-                'rank_{}'.format(loop_counter))
-
+            selected_rank = random.choice(Rank).format(loop_counter)
+            key = 'rank_{}'.format(loop_counter)
+            Rank_dict[key] = selected_rank
             loop_counter += 1
             sentence_result = SentenceResults.objects.get(
                 pk=sentence_id)
             selected_result_obj = SentenceRank.objects.create(
                 sentence_result=sentence_result, sentence_rank=selected_rank
             )
+            
+            Rank_dict[sentence_result.sentence] = selected_rank  # Store ranking for each sentence
 
             request.session['data_dictionary'] = {
                 **request.session['data_dictionary'],
@@ -440,7 +448,7 @@ class SelectedResultAPIView(generics.CreateAPIView):
 
         data_dictionary = request.POST.dict()
         data_dictionary['client_admin_id'] = request.session['userinfo']['client_admin_id']
-
+        
         request.session['data_dictionary'] = {
             **request.session['data_dictionary'],
             **data_dictionary
@@ -452,11 +460,10 @@ class SelectedResultAPIView(generics.CreateAPIView):
         insert_form_data(request.session['data_dictionary'])
 
         print(topic)
-        if topic.get('article') == 'True':
-            async_task("automate.services.generate_article",
-                       data_dic, hook='automate.services.hook_now2')
-            return Response({'message': 'You sentences are being ranked in the background'})
+        if topic.get('article') == True:
+            async_task("services.generate_article",
+                       data_dic, hook='services.hook_now2')
+            return Response({'message': 'You articles are being generated in the background'})
         else:
-            pass
-
+            return Response({'message': 'Sentence ranked successfully'})
         return Response({'message': 'Sentence ranked successfully'})
