@@ -398,7 +398,7 @@ def get_client_approval(user):
         aproval = {'topic': 'False'}
     return (aproval)
 
-
+import random
 class SelectedAutomationResultAPIView(generics.CreateAPIView):
     """
 
@@ -420,12 +420,12 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
                                         'sentences again.'}, status=HTTP_400_BAD_REQUEST)
 
         loop_counter = 1
-        
-        rankings = {}         #added dictionary to store rankings
+        Rank = ['1', '2', '3', '4', '5', ' 6','7', ' 8', '9', '10', '11', '12', ]
+        Rank_dict = {}         #added dictionary to store rankings
         for sentence_id in sentence_ids:
-            selected_rank = request.data.get(
-                'rank_{}'.format(loop_counter))
-
+            selected_rank = random.choice(Rank).format(loop_counter)
+            key = 'rank_{}'.format(loop_counter)
+            Rank_dict[key] = selected_rank
             loop_counter += 1
             sentence_result = SentenceResults.objects.get(
                 pk=sentence_id)
@@ -433,8 +433,7 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
                 sentence_result=sentence_result, sentence_rank=selected_rank
             )
             
-            rankings[sentence_result.sentence] = selected_rank  # Store ranking for each sentence
-
+            Rank_dict[sentence_result.sentence] = selected_rank  # Store ranking for each sentence
 
             request.session['data_dictionary'] = {
                 **request.session['data_dictionary'],
@@ -449,7 +448,7 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
 
         data_dictionary = request.POST.dict()
         data_dictionary['client_admin_id'] = request.session['userinfo']['client_admin_id']
-
+        
         request.session['data_dictionary'] = {
             **request.session['data_dictionary'],
             **data_dictionary
@@ -461,11 +460,10 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
         insert_form_data(request.session['data_dictionary'])
 
         print(topic)
-        if topic.get('article') == 'True':
+        if topic.get('article') == True:
             async_task("services.generate_article",
                        data_dic, hook='services.hook_now2')
-            return Response({'message': 'You sentences are being ranked in the background'})
+            return Response({'message': 'You articles are being generated in the background'})
         else:
-            pass
-
+            return Response({'message': 'Sentence ranked successfully'})
         return Response({'message': 'Sentence ranked successfully'})

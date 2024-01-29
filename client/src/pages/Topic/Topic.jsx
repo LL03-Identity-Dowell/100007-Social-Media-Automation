@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-
 import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
-import CSRFToken from "../../components/CSRFToken";
+// import CSRFToken from "../../components/CSRFToken";
 
 function Topic({ show }) {
   const [error, setError] = useState("");
@@ -13,6 +12,7 @@ function Topic({ show }) {
   const [userCategory, setUserCategory] = useState([]);
   const [userTopic, setUserTopic] = useState([]);
   const [topicName, setTopicName] = useState("");
+  const [topicStatus, setTopicStatus] = useState(null);
   const [inputs, setInputs] = useState({
     category: "",
     product: "",
@@ -24,13 +24,24 @@ function Topic({ show }) {
     adjective: "",
   });
 
-  const [topicStatus, setTopicStatus] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     show();
     fetchCategoryTopic();
+    fetchData();
   }, []);
+
+  const fetchData = () => {
+    axios
+      .get(`${import.meta.env.VITE_APP_BASEURL}/fetch_user_settings_data/`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setTopicStatus(res.data.data[0].topic);
+      })
+      .catch((err) => console.log(err));
+  };
 
   const fetchCategoryTopic = () => {
     // /Create two Axios GET requests
@@ -54,21 +65,6 @@ function Topic({ show }) {
         console.error("Error retrieving Category or Topic:", error);
       });
   };
-
-  useEffect(() => {
-    const fetchData = () => {
-      axios
-        .get(`${import.meta.env.VITE_APP_BASEURL}/fetch_user_settings_data/`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setTopicStatus(res.data.data[0].topic);
-        })
-        .catch((err) => console.log(err));
-    };
-
-    fetchData();
-  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -99,73 +95,66 @@ function Topic({ show }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    setError("");
+    setSuccess("");
+
     if (!inputs.category || !inputs.topic) {
       setError("Required field(s) missing please fill");
-      setTimeout(() => {
-        setError("");
-        return;
-      }, 4000);
-    } else {
-      setLoading(true);
+      return;
+    }
+    setLoading(true);
 
-      const data = {
-        target_product: inputs.product,
-        category: inputs.category,
-        topic: inputs.topic,
-        object: inputs.purpose,
-        verb: inputs.verb,
-        adjective: inputs.adjective,
-        object_determinant: inputs.article,
-        subject_number: inputs.theme,
-      };
+    const data = {
+      target_product: inputs.product,
+      category: inputs.category,
+      topic: inputs.topic,
+      object: inputs.purpose,
+      verb: inputs.verb,
+      adjective: inputs.adjective,
+      object_determinant: inputs.article,
+      subject_number: inputs.theme,
+    };
 
-      if (!topicStatus) {
-        axios
-          .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/generate/`, data, {
-            withCredentials: true,
-          })
-          .then((response) => {
-            setLoading(false);
-            let resData = response.data;
+    if (topicStatus) {
+      axios
+        .post(
+          `${
+            import.meta.env.VITE_APP_AUTOMATIONURL
+          }/selected-automation-results/`,
+          data,
+          { withCredentials: true }
+        )
+        .then((response) => {
+          setLoading(false);
+          if (response.status !== 200) return;
+          const { data } = response;
+          setSuccess(data?.message);
+          setTimeout(() => {
+            navigate("/");
+          }, 2000);
+        })
+        .catch(() => {
+          setError("Error creating topics..!");
+        });
+    }
+    if (!topicStatus) {
+      axios
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/generate/`, data, {
+          withCredentials: true,
+        })
+        .then((response) => {
+          setLoading(false);
+          if (response.status !== 200) return;
+          const { data } = response;
+          setSuccess(data?.message);
 
-            setSuccess("Topics created successfully!");
-            setTimeout(() => {
-              handleSentenceNavigate(resData);
-            }, 2000);
-          })
-          .catch((error) => {
-            setLoading(false);
-            setError("Error creating topics..!");
-            console.error("Error creating topics:", error);
-          });
-      }
-      if (topicStatus) {
-        axios
-          .post(
-            "http://127.0.0.1:8000/automation/api/v1/selected-automation-results/",
-            data,
-            {
-              withCredentials: true,
-            }
-          )
-          .then((response) => {
-            setLoading(false);
-            let resData = response.data;
-            setSuccess("Topics created successfully!");
-            setTimeout(() => {
-              handleSentenceNavigate(resData);
-            }, 2000);
-          })
-          .catch((error) => {
-            setLoading(false);
-            setError("Error creating topics..!");
-            console.error("Error creating topics:", error);
-          });
-      }
-
-      setTimeout(() => {
-        setError("");
-      }, 4000);
+          setTimeout(() => {
+            handleSentenceNavigate(data);
+          }, 2000);
+        })
+        .catch(() => {
+          setError("Error creating topics..!");
+        });
     }
   };
 
