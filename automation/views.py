@@ -466,4 +466,3 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
             return Response({'message': 'You articles are being generated in the background'})
         else:
             return Response({'message': 'Sentence ranked successfully'})
-        return Response({'message': 'Sentence ranked successfully'})
