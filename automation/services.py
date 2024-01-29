@@ -25,119 +25,6 @@ from website.views import get_client_approval
 global PEXELS_API_KEY
 PEXELS_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
 
-
-@transaction.atomic
-def step_1(auto_strings, data_di):
-    # sleep time to allow for redirection in main app
-    print('starting----------------')
-
-    def api_call(grammar_arguments=None):
-        if grammar_arguments is None:
-            grammar_arguments = {}
-        url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
-
-        # acess query string from kwargs
-        querystring = {
-            "object": auto_strings['object'],
-            "subject": auto_strings['subject'],
-            "verb": auto_strings['verb'],
-            "objdet": auto_strings['objdet'],
-            "objmod": auto_strings['objmod'],
-        }
-
-        iter_sentence_type = []
-        if 'tense' in grammar_arguments:
-            querystring['tense'] = grammar_arguments['tense'].capitalize()
-            iter_sentence_type.append(
-                grammar_arguments['tense'].capitalize())
-
-        if 'progressive' in grammar_arguments:
-            querystring['progressive'] = 'progressive'
-            iter_sentence_type.append(
-                grammar_arguments['progressive'])
-
-        if 'perfect' in grammar_arguments:
-            querystring['perfect'] = 'perfect'
-            iter_sentence_type.append(grammar_arguments['perfect'])
-
-        if 'negated' in grammar_arguments:
-            querystring['negated'] = 'negated'
-            iter_sentence_type.append(grammar_arguments['negated'])
-
-        if 'passive' in grammar_arguments:
-            querystring['passive'] = 'passive'
-            iter_sentence_type.append(grammar_arguments['passive'])
-
-        if 'modal_verb' in grammar_arguments:
-            querystring['modal'] = grammar_arguments['modal_verb']
-
-        if 'sentence_art' in grammar_arguments:
-            querystring['sentencetype'] = grammar_arguments['sentence_art']
-        iter_sentence_type.append("sentence.")
-        type_of_sentence = ' '.join(iter_sentence_type)
-        headers = {
-            'x-rapidapi-host': "linguatools-sentence-generating.p.rapidapi.com",
-            'x-rapidapi-key': settings.LINGUA_KEY
-        }
-        response = requests.request(
-            "GET", url, headers=headers, params=querystring).json()
-        return [response['sentence'], type_of_sentence]
-
-    tenses = ['past', 'present', 'future']
-    other_grammar = ['passive',
-                     'progressive', 'perfect', 'negated']
-    api_results = []
-    sentence_grammar = Sentences.objects.create(
-        user=auto_strings['user'],
-        object=auto_strings['object'],
-        topic=auto_strings['topic'],
-        verb=auto_strings['verb'],
-        adjective=auto_strings['objmod'],
-    )
-
-    for tense in tenses:
-        for grammar in other_grammar:
-            arguments = {'tense': tense, grammar: grammar}
-            api_result = api_call(arguments)
-            api_results.append(api_result)
-    with transaction.atomic():
-        sentence_results = [
-            SentenceResults(
-                sentence_grammar=sentence_grammar,
-                sentence=api_result[0],
-                sentence_type=api_result[1]
-            )
-            for api_result in api_results
-        ]
-        SentenceResults.objects.bulk_create(sentence_results)
-    result_ids = SentenceResults.objects.filter(
-        sentence_grammar=sentence_grammar).values_list('pk', flat=True)
-    # accessing primary key of values to use in next functions
-    article_id = list(result_ids)
-    user_id = data_di['user_id']
-    # create a dictionary of the generated sentences
-    data_dic = {
-        **data_di,
-        **{
-            f"api_sentence_{counter}": {
-                "sentence": api_result[0],
-                'sentence_type': api_result[1],
-                'sentence_id': sentence_result.pk
-            }
-            for counter, (api_result, sentence_result) in enumerate(zip(api_results, sentence_results), start=1)
-        }
-    }
-    Ranked_dic = selected_result(article_id, data_dic)
-    inserts = insert_form_data(Ranked_dic)
-
-    if auto_strings['approve']['article'] == 'True':
-        generate = generate_article(data_dic)
-
-    else:
-        print('done inserting')
-    return (inserts)
-
-
 def hook_now(task):
     print(task.result)
 
@@ -165,13 +52,13 @@ def get_dowellclock():
     data = response_dowell.json()
     return data['t1']
 
-
 @transaction.atomic
 def selected_result(article_id, data_dic):
     try:
         print('ranking___________')
         sentence_ids = article_id
-        Rank = ['1', '2', '3', '4', '5', ' 6', '7', ' 8', '9', '10', '11', '12', ]
+        Rank = ['1', '2', '3', '4', '5', ' 6',
+                '7', ' 8', '9', '10', '11', '12', ]
         Rank_dict = {}
         loop_counter = 1
         for sentence_id in sentence_ids:
@@ -267,13 +154,6 @@ def generate_article(data_dic, request):
 
     # getting required data
     RESEARCH_QUERY = data_dic[key]['sentence']
-    subject = data_dic["subject"]
-    verb = None
-    target_industry = None
-    qualitative_categorization = None
-    targeted_for = None
-    designed_for = None
-    targeted_category = None
     user_ids = data_dic["user_id"]
     session_id = data_dic["session_id"]
     # calling user aproval
@@ -330,7 +210,7 @@ def generate_article(data_dic, request):
     )
     article = response.choices[0].text
     paragraphs = [p.strip()
-                    for p in article.split("\n\n") if p.strip()]
+                  for p in article.split("\n\n") if p.strip()]
     article_str = "\n\n".join(paragraphs)
 
     sources = urllib.parse.unquote("")
@@ -358,7 +238,7 @@ def generate_article(data_dic, request):
 
             }
             save_data('step3_data', 'step3_data',
-                        step3_data, '34567897799')
+                      step3_data, '34567897799')
     step2_data = {
         "user_id": user_id,
         "session_id": session_id,
@@ -371,7 +251,7 @@ def generate_article(data_dic, request):
         "citation_and_url": sources,
     }
     save_data('step2_data', 'step2_data',
-                step2_data, '9992828281')
+              step2_data, '9992828281')
     end_datetime = datetime.now()
     time_taken = end_datetime - start_datetime
     print(f"Task started at: {start_datetime}")
@@ -379,7 +259,7 @@ def generate_article(data_dic, request):
     print(f"Total time taken: {time_taken}")
     print('step_3 starting')
     #    seeking for approval to automate step 3
-    if approval['post'] == 'True':
+    if approval['post'] == True:
         step_3 = post_list(user_ids)
     print('step_3 done')
     return ('done')
@@ -465,10 +345,10 @@ def post_list(user_id):
                     "Linkdin-dowellresearch", "Linkdin-Company page-Germany", "Linkdin-Company page-Singapore",
                     "Linkedin-Company page-UK", "Linkedin-Company page-Scandinavia", "Facebook-DoWell Research",
                     "Youtube-Dowell Research", "Twitter-seeuser", "Linkedin-Intership", "Facebook-uxlivinglab team",
-                    "Instagram-uxlivinglab team", "Youtube-Team playlist", "Twitter-unpacandwin", "Linkedin-unpacandwin"
-        , "Facebook-unpacandwin", "Instagram-unpacandwin", "Youtube-unpacandwin"]
+                    "Instagram-uxlivinglab team", "Youtube-Team playlist", "Twitter-unpacandwin", "Linkedin-unpacandwin", "Facebook-unpacandwin", "Instagram-unpacandwin", "Youtube-unpacandwin"]
 
-    Targeted_category = ["Brand", "Corporate", "Team building", "Consumer contest"]
+    Targeted_category = ["Brand", "Corporate",
+                         "Team building", "Consumer contest"]
     # takes in the image
     a = random.randint(1, 5)
 

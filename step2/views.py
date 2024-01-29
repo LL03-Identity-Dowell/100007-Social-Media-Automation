@@ -30,7 +30,7 @@ from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 # rest(React endpoints)
 from rest_framework.views import APIView
 
@@ -41,11 +41,10 @@ from helpers import (download_and_upload_image,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
-                     encode_json_data, create_group_hashtags, filter_group_hashtag)
+                     encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
                           GroupHashtagSerializer)
@@ -173,7 +172,6 @@ class MainAPIView(AuthenticatedBaseView):
 
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
-
 
             # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -600,11 +598,16 @@ class WriteYourselfView(AuthenticatedBaseView):
                         {'error': 'Error code 403 Forbidden: Website does not allow verification of the article!',
                          'data': response_data}, status=status.HTTP_403_FORBIDDEN)
                 else:
+
                     text_from_page_space = text_from_html(response.text)
                     text_from_page = text_from_page_space.replace(" ", "")
                     text_from_page = text_from_page.replace("\xa0", "")
                     print(article_text_area)
                     paragraph = article_text_area.split("\r\n")
+                    double_line_paragraphs = article_text_area.split("\n\n")
+                    if len(double_line_paragraphs) > len(paragraph):
+                        paragraph = double_line_paragraphs
+
                     message = "Article Verified, "
                     for i in range(len(paragraph)):
                         if paragraph[i] == "":
@@ -621,22 +624,33 @@ class WriteYourselfView(AuthenticatedBaseView):
                                                                "source": source,
                                                                # 'dowelltime': dowellclock
                                                                }, '34567897799')
-                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
                                                                "session_id": session_id,
                                                                "org_id": org_id,
                                                                "eventId": create_event()['event_id'],
                                                                'client_admin_id': request.session['userinfo'][
                                                                    'client_admin_id'],
                                                                "title": title,
-                                                               "paragraph": article_text_area,
+                                                               "paragraph": paragraph[i],
                                                                "source": source,
-                                                               # 'dowelltime': dowellclock
-                                                               }, "9992828281")
 
-                        # credit_handler = CreditHandler()
-                        # credit_handler.consume_step_2_credit(request)
-                        return Response({'message': 'Article saved successfully', 'data': response_data},
-                                        status=status.HTTP_201_CREATED)
+                                                               }, '34567897799')
+                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                           "session_id": session_id,
+                                                           "org_id": org_id,
+                                                           "eventId": create_event()['event_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
+                                                           "title": title,
+                                                           "paragraph": article_text_area,
+                                                           "source": source,
+                                                           # 'dowelltime': dowellclock
+                                                           }, "9992828281")
+
+                    # credit_handler = CreditHandler()
+                    # credit_handler.consume_step_2_credit(request)
+                    return Response({'message': 'Article saved successfully', 'data': response_data},
+                                    status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -1025,7 +1039,6 @@ class EditPostView(AuthenticatedBaseView):
             'message': 'Post has been updated'
         }
         return Response(response_data, status=status.HTTP_201_CREATED)
-
 
 
 '''step-3 Ends here'''
@@ -1511,7 +1524,7 @@ class MediaPostView(AuthenticatedBaseView):
             error_messages = messages.get_messages(request)
             if error_messages:
                 error_response = {'error': True, 'error_messages': [
-                    str(msg) for msg in error_messages][1:]}
+                                                                       str(msg) for msg in error_messages][1:]}
                 return Response(error_response)
             else:
                 success_response = {'success': True,
@@ -1608,7 +1621,7 @@ class MediaScheduleView(AuthenticatedBaseView):
             error_messages = messages.get_messages(request)
             if error_messages:
                 error_response = {'error': True, 'error_messages': [
-                    str(msg) for msg in error_messages][1:]}
+                                                                       str(msg) for msg in error_messages][1:]}
                 return Response(error_response)
             else:
                 success_response = {'success': True,
@@ -3152,7 +3165,6 @@ class GroupHashtagView(AuthenticatedBaseView):
         return Response({'group_hastag_list': group_hastag_list})
 
     def post(self, request):
-
         serializer_data = GroupHashtagSerializer(data=request.data)
         if not serializer_data.is_valid():
             return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
@@ -3172,6 +3184,42 @@ class GroupHashtagView(AuthenticatedBaseView):
         }
         response = create_group_hashtags(create_hashtag_data)
         return Response({'detail': 'Hashtags and Mentions created successfully'}, status=status.HTTP_201_CREATED)
+
+
+class GroupHashtagDetailView(AuthenticatedBaseView):
+    def get(self, request, group_hashtag_id):
+        org_id = request.session['org_id']
+        data = {
+            'org_id': org_id,
+            'group_hashtag_id': group_hashtag_id,
+        }
+        print(data)
+        group_hashtag_list = filter_group_hashtag(data)
+        if not group_hashtag_list:
+            return Response({'message': 'Item not found'}, status=HTTP_404_NOT_FOUND)
+        return Response(group_hashtag_list[0])
+
+    def post(self, request, group_hashtag_id):
+
+        serializer_data = GroupHashtagSerializer(data=request.data)
+        if not serializer_data.is_valid():
+            return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
+
+        group_name = serializer_data.validated_data['group_name']
+        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        update_type = request.GET.get('update_type', 'append')
+        org_id = request.session['org_id']
+
+        update_data = {
+            'group_hashtag_id': group_hashtag_id,
+            'group_name': group_name,
+            'hashtags': hashtags,
+            'update_type': update_type,
+            'org_id': org_id,
+        }
+
+        response = update_group_hashtags(update_data)
+        return Response({'detail': 'Group hashtag has been updated successfully'}, status=status.HTTP_201_CREATED)
 
 
 class MentionUpdateView(AuthenticatedBaseView):
