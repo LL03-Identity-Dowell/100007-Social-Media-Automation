@@ -669,18 +669,6 @@ def create_group_hashtags(data: dict):
     headers = {'content-type': 'application/json'}
 
     event_id = create_event()['event_id']
-    group_hashtags = filter_group_hashtag({
-        'org_id': data['org_id'],
-        'group_name': data['group_name'],
-    })
-    if group_hashtags:
-        group_hashtag_id = group_hashtags[0].get('_id')
-        update_data = {
-            'group_hashtag_id': group_hashtag_id,
-            'group_name': data['group_name'],
-            'hashtags': data['hashtags'],
-        }
-        return update_group_hashtags(update_data)
 
     payload = {
         "cluster": "socialmedia",
