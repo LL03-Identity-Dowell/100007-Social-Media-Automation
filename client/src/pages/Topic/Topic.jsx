@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-
 import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
-import CSRFToken from "../../components/CSRFToken";
+// import CSRFToken from "../../components/CSRFToken";
 
 function Topic({ show }) {
   const [error, setError] = useState("");
@@ -13,6 +12,7 @@ function Topic({ show }) {
   const [userCategory, setUserCategory] = useState([]);
   const [userTopic, setUserTopic] = useState([]);
   const [topicName, setTopicName] = useState("");
+  const [topicStatus, setTopicStatus] = useState(null);
   const [inputs, setInputs] = useState({
     category: "",
     product: "",
@@ -29,7 +29,19 @@ function Topic({ show }) {
   useEffect(() => {
     show();
     fetchCategoryTopic();
+    fetchData();
   }, []);
+
+  const fetchData = () => {
+    axios
+      .get(`${import.meta.env.VITE_APP_BASEURL}/fetch_user_settings_data/`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setTopicStatus(res.data.data[0].topic);
+      })
+      .catch((err) => console.log(err));
+  };
 
   const fetchCategoryTopic = () => {
     // /Create two Axios GET requests
@@ -37,9 +49,12 @@ function Topic({ show }) {
       `${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`,
       { withCredentials: true }
     );
-    const topicReq = axios.get(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`, {
-      withCredentials: true,
-    });
+    const topicReq = axios.get(
+      `${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`,
+      {
+        withCredentials: true,
+      }
+    );
 
     Promise.all([categoryReq, topicReq])
       .then(([categoryRes, topicRes]) => {
@@ -51,7 +66,7 @@ function Topic({ show }) {
       });
   };
 
-  const handelChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
 
     setInputs({
@@ -80,61 +95,65 @@ function Topic({ show }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    setError("");
+    setSuccess("");
+
     if (!inputs.category || !inputs.topic) {
       setError("Required field(s) missing please fill");
-      setTimeout(() => {
-        setError("");
-        return;
-      }, 4000);
-    } else {
-      setLoading(true);
+      return;
+    }
+    setLoading(true);
 
-      const data = {
-        target_product: inputs.product,
-        category: inputs.category,
-        topic: inputs.topic,
-        object: inputs.purpose,
-        verb: inputs.verb,
-        adjective: inputs.adjective,
-        object_determinant: inputs.article,
-        subject_number: inputs.theme,
-      };
+    const data = {
+      target_product: inputs.product,
+      category: inputs.category,
+      topic: inputs.topic,
+      object: inputs.purpose,
+      verb: inputs.verb,
+      adjective: inputs.adjective,
+      object_determinant: inputs.article,
+      subject_number: inputs.theme,
+    };
 
+    if (topicStatus) {
+      axios
+        .post(
+          `${import.meta.env.VITE_APP_AUTOMATIONURLL
+          }/selected-automation-results/`,
+          data,
+          { withCredentials: true }
+        )
+        .then((response) => {
+          setLoading(false);
+          if (response.status !== 200) return;
+          const { data } = response;
+          setSuccess(data?.message);
+          setTimeout(() => {
+            navigate("/");
+          }, 2000);
+        })
+        .catch(() => {
+          setError("Error creating topics..!");
+        });
+    }
+    if (!topicStatus) {
       axios
         .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/generate/`, data, {
           withCredentials: true,
         })
         .then((response) => {
           setLoading(false);
-          let resData = response.data;
-          console.log("Here I have", resData)
-          setSuccess("Topics created successfully!");
-          axios
-            .post(
-              "http://127.0.0.1:8000/automation/api/v1/selected-automation-results/",
-              resData,
-              { withCredentials: true }
-            )
-            .then((response) => {
-              // Handle success response from automation endpoint
-            })
-            .catch((error) => {
-              // Handle error response from automation endpoint
-            });
+          if (response.status !== 200) return;
+          const { data } = response;
+          setSuccess(data?.message);
 
           setTimeout(() => {
-            handleSentenceNavigate(resData);
+            handleSentenceNavigate(data);
           }, 2000);
         })
-        .catch((error) => {
-          setLoading(false);
+        .catch(() => {
           setError("Error creating topics..!");
-          console.error("Error creating topics:", error);
         });
-
-      setTimeout(() => {
-        setError("");
-      }, 4000);
     }
   };
 
@@ -199,7 +218,7 @@ function Topic({ show }) {
               </div>
               <select
                 value={inputs.category}
-                onChange={handelChange}
+                onChange={handleChange}
                 name='category'
                 required
                 className='block w-full p-2 pl-[100px] text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4'
@@ -236,7 +255,7 @@ function Topic({ show }) {
             <div className='relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden'>
               <input
                 value={inputs.product}
-                onChange={handelChange}
+                onChange={handleChange}
                 name='product'
                 required
                 type='text'
@@ -264,7 +283,7 @@ function Topic({ show }) {
               <select
                 id='id_topic'
                 value={inputs.topic}
-                onChange={handelChange}
+                onChange={handleChange}
                 name='topic'
                 required
                 className='block w-full p-2 pl-[100px] text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4'
@@ -302,7 +321,7 @@ function Topic({ show }) {
               <div className='flex items-center mb-4'>
                 <input
                   value='a'
-                  onChange={handelChange}
+                  onChange={handleChange}
                   id='article'
                   type='radio'
                   name='article'
@@ -318,7 +337,7 @@ function Topic({ show }) {
               <div className='flex items-center mb-4'>
                 <input
                   value='an'
-                  onChange={handelChange}
+                  onChange={handleChange}
                   id='article'
                   type='radio'
                   name='article'
@@ -333,7 +352,7 @@ function Topic({ show }) {
               </div>
               <div className='flex items-center mb-4'>
                 <input
-                  onChange={handelChange}
+                  onChange={handleChange}
                   id='article'
                   type='radio'
                   value='the'
@@ -363,7 +382,7 @@ function Topic({ show }) {
               <div className='flex items-center mb-4'>
                 <input
                   value='singular'
-                  onChange={handelChange}
+                  onChange={handleChange}
                   id='theme'
                   type='radio'
                   name='theme'
@@ -378,7 +397,7 @@ function Topic({ show }) {
               </div>
               <div className='flex items-center mb-4'>
                 <input
-                  onChange={handelChange}
+                  onChange={handleChange}
                   id='theme'
                   type='radio'
                   value='plural'
@@ -410,7 +429,7 @@ function Topic({ show }) {
             <div className='relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden'>
               <input
                 value={inputs.purpose}
-                onChange={handelChange}
+                onChange={handleChange}
                 name='purpose'
                 required
                 type='text'
@@ -432,7 +451,7 @@ function Topic({ show }) {
             <div className='relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden'>
               <input
                 value={inputs.verb}
-                onChange={handelChange}
+                onChange={handleChange}
                 name='verb'
                 required
                 type='text'
@@ -454,7 +473,7 @@ function Topic({ show }) {
             <div className='relative w-[90%] md:w-[50%] xl:w-[40%] overflow-hidden'>
               <input
                 value={inputs.adjective}
-                onChange={handelChange}
+                onChange={handleChange}
                 name='adjective'
                 type='text'
                 className='block w-full p-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 md:py-4'
