@@ -25,6 +25,7 @@ from website.views import get_client_approval
 global PEXELS_API_KEY
 PEXELS_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
 
+
 def hook_now(task):
     print(task.result)
 
@@ -51,6 +52,7 @@ def get_dowellclock():
         'https://100009.pythonanywhere.com/dowellclock')
     data = response_dowell.json()
     return data['t1']
+
 
 @transaction.atomic
 def selected_result(article_id, data_dic):
@@ -146,38 +148,24 @@ def insert_form_data(data_dict):
 
 
 @transaction.atomic
-def generate_article(data_dic, request):
+def generate_article(data_dic, user_data):
+    print("automation started.........................................................")
     start_datetime = datetime.now()
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
     api_no = random.choice(Rank)
     key = f'api_sentence_{api_no}'
-
     # getting required data
     RESEARCH_QUERY = data_dic[key]['sentence']
     user_ids = data_dic["user_id"]
     session_id = data_dic["session_id"]
     # calling user aproval
     approval = get_client_approval(user_ids)
-
-    # image = data_dic["image"]
-    org_id = request.session.get('org_id')
+    org_id = data_dic["org_id"]
     user_selected_cities = []
-    hashtags = []
-    user_tags_mentions = []
-    user_data = fetch_user_info(request)
+    user_data = user_data
     for item in user_data["data"]:
         if "target_city" in item and item["target_city"] is not None:
             user_selected_cities.extend(item["target_city"])
-
-        if "hashtag_list" in item and item["hashtag_list"] is not None:
-            hashtags.extend(item["hashtag_list"])
-
-        if "mentions_list" in item and item["mentions_list"] is not None:
-            user_tags_mentions.extend(item["mentions_list"])
-
-    formatted_hashtags = " ".join(hashtags) if hashtags else ""
-    formatted_mentions = " ".join(
-        f"@{mention}" for mention in user_tags_mentions) if user_tags_mentions else ""
     formatted_cities = " ".join(
         f"#{city}" for city in user_selected_cities) if user_selected_cities else ""
 
@@ -191,8 +179,7 @@ def generate_article(data_dic, request):
     # Modify the prompt to include the formatted user data
     prompt = (
         f"Write an article about {RESEARCH_QUERY}"
-        f" Include  {formatted_hashtags} at the end of the article."
-        f" Also, append {formatted_cities} to the end of the article."
+        f" Include {formatted_cities} to the end of the article."
         f" Ensure that the generated content is a minimum of {min_characters} characters in length."
         [:prompt_limit]
         + "..."
@@ -202,7 +189,7 @@ def generate_article(data_dic, request):
         # engine="text-davinci-003",
         engine="gpt-3.5-turbo-instruct",
         prompt=prompt,
-        temperature=0.5,
+        temperature=0,
         max_tokens=1024,
         n=1,
         stop=None,
@@ -212,12 +199,10 @@ def generate_article(data_dic, request):
     paragraphs = [p.strip()
                   for p in article.split("\n\n") if p.strip()]
     article_str = "\n\n".join(paragraphs)
-
     sources = urllib.parse.unquote("")
     event_id = create_event()['event_id']
-    user_id = request.session['user_id']
-    client_admin_id = request.session['userinfo']['client_admin_id']
-    # approval = get_client_approval(user_id)
+    user_id = data_dic["user_id"]
+    client_admin_id = data_dic["client_admin_id"]
     hashtags_in_last_paragraph = set(
         word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
     for i in range(len(paragraphs) - 1):
@@ -261,7 +246,8 @@ def generate_article(data_dic, request):
     #    seeking for approval to automate step 3
     if approval['post'] == True:
         step_3 = post_list(user_ids)
-    print('step_3 done')
+        print(step_3)
+    print('step_3 not done')
     return ('done')
 
 
