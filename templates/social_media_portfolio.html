@@ -1,3 +1,4 @@
+
 `{% extends "article/base_background.html" %} {% load static %} {% block style %}
     {{ block.super }}
 {% endblock %} {% block stuff %}
@@ -59,16 +60,27 @@
         ];
 
         // Function to create portfolio HTML
-        function createPortfolioHTML(porfoloData) {
+        function createPortfolioHTML(portfolioData) {
+            current_channels = portfolioData.channels;
+
             return `
-      <li class="portfolio-item" id=${porfoloData.portfolio_name}>
-          <h1>${porfoloData.portfolio_name}</h1>
-          ${channels.map((channel, index) => `
+      <li class="portfolio-item" id=${portfolioData.portfolio_name}>
+          <h1>${portfolioData.portfolio_name}</h1>
+          ${channels.map(function (channel, index) {
+                let channel_input;
+                if (current_channels.some(str => str.includes(channel))) {
+                    channel_input = `<input type="checkbox" name="channel" value="${channel},${portfolioData.portfolio_code}" checked >`
+                } else {
+                    channel_input = `<input type="checkbox" name="channel" value="${channel},${portfolioData.portfolio_code}" >`
+                }
+                return `
+
             <label >
-              <input type="checkbox" name="channel" value="${channel},${porfoloData.portfolio_code}" >
-              ${channel}             
+                ${channel_input}
+              ${channel}
               </label>
-          `).join('')}
+          `
+            }).join('')}
       </li>
     `;
         }

@@ -3913,24 +3913,34 @@ def social_media_portfolio(request):
             portfolio_pd = pd.DataFrame(
                 [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
             user_info = fetch_user_info(request)
+            portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+            portfolio_info_list = portfolio_pd.to_dict('records')
+
+            portfolio_info_channel_list = []
+
+            for portfolio_info in portfolio_info_list:
+                portfolio_info['channels'] = portfolio_code_channel_mapping.get(portfolio_info.get('portfolio_code'),
+                                                                                [])
+                portfolio_info_channel_list.append(portfolio_info)
             context_dict = {
-                'portfolio_info_list': json.dumps(portfolio_pd.to_dict('records'))
+                'portfolio_info_list': json.dumps(portfolio_info_channel_list),
             }
+
             return render(request, 'social_media_portfolio.html', context_dict)
         elif request.method == "POST":
-            channel_porfolio_list = request.POST.getlist('channel')
-            porfolio_code_channel_mapping = {}
+            channel_portfolio_list = request.POST.getlist('channel')
+            portfolio_code_channel_mapping = {}
 
-            for channel_porfolio in channel_porfolio_list:
-                channel = channel_porfolio.split(',')[0]
-                porfolio_code = channel_porfolio.split(',')[1]
+            for channel_portfolio in channel_portfolio_list:
+                channel = channel_portfolio.split(',')[0]
+                portfolio_code = channel_portfolio.split(',')[1]
 
-                if porfolio_code in porfolio_code_channel_mapping.keys():
-                    channel_list = porfolio_code_channel_mapping[porfolio_code]
+                if portfolio_code in portfolio_code_channel_mapping.keys():
+                    channel_list = portfolio_code_channel_mapping[portfolio_code]
                     channel_list.append(channel)
-                    porfolio_code_channel_mapping[porfolio_code] = channel_list
+                    portfolio_code_channel_mapping[portfolio_code] = channel_list
                 else:
-                    porfolio_code_channel_mapping[porfolio_code] = [channel]
+                    portfolio_code_channel_mapping[portfolio_code] = [channel]
             url = "http://uxlivinglab.pythonanywhere.com"
 
             payload = json.dumps({
@@ -3946,7 +3956,7 @@ def social_media_portfolio(request):
                     'user_id': request.session['user_id'],
                 },
                 "update_field": {
-                    "porfolio_code_channel_mapping": porfolio_code_channel_mapping,
+                    "portfolio_code_channel_mapping": portfolio_code_channel_mapping,
                 },
                 "platform": "bangalore"
             })
