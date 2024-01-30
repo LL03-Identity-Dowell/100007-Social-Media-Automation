@@ -1,0 +1,84 @@
+`{% extends "article/base_background.html" %} {% load static %} {% block style %}
+    {{ block.super }}
+{% endblock %} {% block stuff %}
+
+    <style>
+        .portfolio-item {
+            list-style-type: none;
+
+        }
+
+        .portfolio-item label {
+            font-size: 16px;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+
+        .portfolio-item h1 {
+            font-weight: 600;
+        }
+
+        .save-button {
+            margin-block: auto;
+            background-color: #34495e;
+            border: none;
+            padding: 8px 34px;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .save-button:hover {
+            opacity: .95;
+        }
+
+        .portfolio-form > div {
+            width: 100%;
+            text-align: center;
+        }
+
+        .portfolio-form ul {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+    </style>
+    <form class="portfolio-form" method="post" action="">
+        {% csrf_token %}
+        <ul id="portfolio-list"></ul>
+        <div>
+            <button class="save-button">Save</button>
+        </div>
+    </form>
+
+
+    <script>
+        const channels = [
+            'facebook', 'twitter', 'instagram', 'linkedin', "youtube", 'pinterest'
+        ];
+
+        // Function to create portfolio HTML
+        function createPortfolioHTML(porfoloData) {
+            return `
+      <li class="portfolio-item" id=${porfoloData.portfolio_name}>
+          <h1>${porfoloData.portfolio_name}</h1>
+          ${channels.map((channel, index) => `
+            <label >
+              <input type="checkbox" name="channel" value="${channel},${porfoloData.portfolio_code}" >
+              ${channel}             
+              </label>
+          `).join('')}
+      </li>
+    `;
+        }
+
+        // Array of portfolio names
+        const portfolios = ['Portfolio 1', 'Portfolio 2', 'Portfolio 3'];
+        let portfolio_info_list = JSON.parse(`{{ portfolio_info_list|safe }}`);
+        console.log(portfolio_info_list)
+
+        // Inject the HTML into the document
+        document.getElementById('portfolio-list').innerHTML = portfolio_info_list.map(createPortfolioHTML).join('');
+    </script>
+{% endblock %}`
