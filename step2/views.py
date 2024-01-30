@@ -12,6 +12,7 @@ from datetime import datetime, date
 from io import BytesIO
 
 import openai
+import pandas as pd
 import pytz
 import requests
 import wikipediaapi
@@ -3903,6 +3904,62 @@ def create_social_media_request(request):
     else:
         return render(request, 'error.html')
 
+
+def social_media_portfolio(request):
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            user_portfolio = request.session['portfolio_info']
+            user_portfolio_pd = pd.DataFrame(user_portfolio)
+            portfolio_pd = pd.DataFrame(
+                [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
+            user_info = fetch_user_info(request)
+            context_dict = {
+                'portfolio_info_list': json.dumps(portfolio_pd.to_dict('records'))
+            }
+            return render(request, 'social_media_portfolio.html', context_dict)
+        elif request.method == "POST":
+            channel_porfolio_list = request.POST.getlist('channel')
+            porfolio_code_channel_mapping = {}
+
+            for channel_porfolio in channel_porfolio_list:
+                channel = channel_porfolio.split(',')[0]
+                porfolio_code = channel_porfolio.split(',')[1]
+
+                if porfolio_code in porfolio_code_channel_mapping.keys():
+                    channel_list = porfolio_code_channel_mapping[porfolio_code]
+                    channel_list.append(channel)
+                    porfolio_code_channel_mapping[porfolio_code] = channel_list
+                else:
+                    porfolio_code_channel_mapping[porfolio_code] = [channel]
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+
+                "field": {
+                    'user_id': request.session['user_id'],
+                },
+                "update_field": {
+                    "porfolio_code_channel_mapping": porfolio_code_channel_mapping,
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.request("POST", url, headers=headers, data=payload)
+            print(response.json())
+            messages.success(request, "Social Media Channels for portfolios have been updated successfully")
+            return HttpResponseRedirect(reverse("generate_article:social_media_portfolio"))
+    else:
+        return render(request, 'error.html')
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)
