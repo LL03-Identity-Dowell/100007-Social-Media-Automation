@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
+from helpers import fetch_user_info
 from step2.views import create_event
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
@@ -194,8 +195,9 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
 
         insert_form_data(request.session['data_dictionary'])
         if topic.get('article') == True:
-            async_task("services.generate_article",
-                       data_dic, hook='services.hook_now2')
+            user_data = fetch_user_info(request)
+            async_task("automation.services.generate_article",
+                       data_dic,user_data, hook='automation.services.hook_now2')
             return Response({'message': 'You articles are being generated in the background'})
         else:
             return Response({'message': 'Sentence ranked successfully'})
