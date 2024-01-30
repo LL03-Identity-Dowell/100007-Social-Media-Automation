@@ -9,7 +9,7 @@ const EditHashtag = ({ close }) => {
   const [inputHashtagList, setinputHashtagList] = useState([]);
   const [checkedHashtagList, setcheckedHashtagList] = useState([]);
   const [isSaveDisabled, setIsSaveDisabled] = useState(true);
-  const [checkedHashtags, setCheckedHashtags] = useState([]);
+  const [groupId, setGroupId] = useState();
   const [selectOptions, setSelectOptions] = useState("");
   const [isFetched, setIsFetched] = useState("");
   const [getStatus, setGetStatus] = useState();
@@ -84,7 +84,7 @@ const EditHashtag = ({ close }) => {
     console.log(data);
     axios
       .post(
-        `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/`,
+        `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/${selectOptions._id}`,
         data,
 
         {
