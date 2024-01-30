@@ -12,7 +12,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
                     LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
-                    FetchUserInfo, GroupHashtagView)
+                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView)
 
 app_name = 'generate_article'
 
@@ -90,5 +90,7 @@ urlpatterns = [
     path('comments/delete-comment/<str:post_id>/', DeletePostComment.as_view(),
          name='delete-post-comments-endpoint'),
     path('group-hashtags/', GroupHashtagView.as_view(), name='group-hashtag-endpoint'),
+    path('group-hashtags/<str:group_hashtag_id>/', GroupHashtagDetailView.as_view(),
+         name='group-hashtag-detail-endpoint'),
 
 ]
