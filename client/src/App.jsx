@@ -12,7 +12,7 @@ import NotFound from "./pages/NotFound/NotFound";
 import MyPlan from "./pages/Statistics/MyPlan";
 import MyTeam from "./pages/Statistics/MyTeam";
 import MyUsage from "./pages/Statistics/MyUsage";
-import HashtagsMentions from "./pages/SettingsPages/HashtagsMentions";
+import Hashtags from "./pages/SettingsPages/Hashtags";
 import CategoriesTopic from "./pages/SettingsPages/CategoriesTopic";
 import Address from "./pages/Address/Address";
 import UserProfile from "./pages/UserProfile/UserProfile";
@@ -35,6 +35,8 @@ import PortfolioError from "./pages/NotFound/PortfolioError";
 import Wikipidia from "./pages/Article/Wikipidia";
 import WriteYourSelf from "./pages/Article/WriteYourSelf";
 import PostDetailDropdown from "./pages/UserProfile/PostDetailDropdown";
+import Mention from "./pages/SettingsPages/Mention";
+import BaseHashMention from "./pages/SettingsPages/BaseHashMention";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -245,10 +247,7 @@ function App() {
             path='/statistics/my-usage'
             element={<MyUsage close={handleCloseSideBar} />}
           />
-          <Route
-            path='/settings/hastagsandmentions'
-            element={<HashtagsMentions close={handleCloseSideBar} />}
-          />
+          
           <Route
             path='/settings/categoriesandtopic'
             element={<CategoriesTopic close={handleCloseSideBar} />}
@@ -277,6 +276,16 @@ function App() {
             path='/portfolio_check'
             element={<PortfolioError close={handleCloseSideBar} />}
           />
+          <Route element={<BaseHashMention/>}>
+          <Route
+            path='/settings/hastags'
+            element={<Hashtags close={handleCloseSideBar} />}
+          />
+          <Route
+          path='/settings/mentions'
+          element={<Mention close={handleCloseSideBar} />}
+        />
+          </Route>
         </Routes>
       </Layout>
     </>
