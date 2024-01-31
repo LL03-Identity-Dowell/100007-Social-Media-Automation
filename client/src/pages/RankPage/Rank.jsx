@@ -51,6 +51,7 @@ function Rank({ show }) {
 
             setSentences(apiSentences);
         } else {
+        setLoading(false);
             setError("Cannot retrieve sentences");
             setTimeout(() => {
                 navigate('/topic');
