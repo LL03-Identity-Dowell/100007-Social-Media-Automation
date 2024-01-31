@@ -206,37 +206,15 @@ def create_event():
         return json.loads(r.text)['error']
 
 
-@csrf_exempt
-def fetch_user_info(request):
-    if 'session_id' and 'username' in request.session:
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
+def fetch_user_portfolio_data(request):
+    session_id = request.session.get("session_id")
+    if not session_id:
+        return JsonResponse({"error": "Session ID not found"}, status=400)
 
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
+    url = "https://100093.pythonanywhere.com/api/userinfo/"
+    response = requests.post(url, data={"session_id": session_id})
+    return response.json()
 
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-        if response.status_code == 200:
-            user_data = json.loads(response.json())
-            return user_data
-        else:
-            # where the request to the database fails
-            return None
-    return "Error Handling your request"
 
 
 def fetch_organization_user_info(org_id):
@@ -3698,6 +3676,7 @@ def Media_Post(request):
         print(post_id)
         org_id = request.session['org_id']
         user_info = fetch_organization_user_info(org_id)
+
         portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
         portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
         approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
@@ -3963,11 +3942,14 @@ def create_social_media_request(request):
 def social_media_portfolio(request):
     if 'session_id' and 'username' in request.session:
         if request.method == "GET":
-            user_portfolio = request.session['portfolio_info']
-            user_portfolio_pd = pd.DataFrame(user_portfolio)
+            user_portfolio = fetch_user_portfolio_data(request)
+            org_portfolios = user_portfolio['selected_product']['userportfolio']
+            org_id = request.session['org_id']
+            user_portfolio_pd = pd.DataFrame(org_portfolios)
             portfolio_pd = pd.DataFrame(
                 [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
-            user_info = fetch_user_info(request)
+            user_info = fetch_organization_user_info(org_id)
+
             portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
             portfolio_info_list = portfolio_pd.to_dict('records')
 
