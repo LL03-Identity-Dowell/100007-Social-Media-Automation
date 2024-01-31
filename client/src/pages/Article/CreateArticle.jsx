@@ -84,6 +84,7 @@ const CreateArticle = ({ show }) => {
         }, 2000);
       })
       .catch((error) => {
+        setLoading(false);
         setSuccess(null);
         setError("Error Fetching Data, Please try again");
         // Handle any errors
@@ -149,7 +150,7 @@ const CreateArticle = ({ show }) => {
                       <th scope='col' className='px-6 py-4 text-lg'>
                         Sentense
                       </th>
-                      <th scope='col' className='px-6 py-4 text-lg'>
+                      <th scope='col' className='px-6 py-4 text-lg md:whitespace-nowrap'>
                         Created By
                       </th>
                       <th scope='col' className='px-6 py-4 text-lg'>
@@ -162,7 +163,7 @@ const CreateArticle = ({ show }) => {
                       topics.map((item, index) => (
                         <tr
                           key={index}
-                          className='font-normal text-gray-600 transition duration-300 ease-in-out border-b text-md lg:text-lg hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'
+                          className='font-normal text-gray-600 transition duration-300 ease-in-out border-b text-[15px] hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600'
                         >
                           <td className='px-6 py-4 font-medium lg:whitespace-nowrap md:whitespace-nowrap'>
                             {item.ranks}

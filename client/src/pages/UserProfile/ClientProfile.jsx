@@ -52,6 +52,7 @@ const ClientProfile = ({ close }) => {
           setFormData({ address: "", business: "", product: "", logo: "" });
         })
         .catch((error) => {
+        setLoading(false);
           toast.error("Oops! An error occurred");
           console.error("Error:", error);
         });
@@ -66,6 +67,7 @@ const ClientProfile = ({ close }) => {
           setFormData({ address: "", business: "", product: "", logo: "" });
         })
         .catch((error) => {
+        setLoading(false);
           toast.error("Oops! An error occurred");
           console.error("Error:", error);
         });

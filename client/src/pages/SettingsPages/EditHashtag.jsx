@@ -74,17 +74,17 @@ const EditHashtag = ({ close }) => {
 
   const handleGroupSubmit = (e) => {
     e.preventDefault();
-    console.log("clicked");
+    
     setLoading(true);
 
     const data = {
       group_name: groupInput,
       hashtags: hashtagList,
     };
-    console.log(data);
+    console.log(data, selectOptions._id);
     axios
       .post(
-        `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/${selectOptions._id}`,
+        `${import.meta.env.VITE_APP_BASEURL}/group-hashtags/${selectOptions._id}/`,
         data,
 
         {

@@ -116,6 +116,7 @@ const ApprovalByClient = ({close}) => {
           localStorage.setItem("approvalData", resData);
         })
         .catch((error) => {
+        setLoading(false);
           setError("Error making request, Please try again later");
           console.error("Error fetching user-approval:", error);
         });
@@ -138,6 +139,7 @@ const ApprovalByClient = ({close}) => {
           console.log(data);
         })
         .catch((error) => {
+        setLoading(false);
           setError("Error making request, Please try again later");
           console.error("Error fetching user-approval:", error);
         });
