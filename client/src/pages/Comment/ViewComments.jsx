@@ -65,6 +65,7 @@ function ViewComments({ show }) {
           setComments(data);
         })
         .catch(() => {
+        setLoading(false);
           setError(error?.response?.data?.platforms.join(", "));
           setSuccess("");
         });

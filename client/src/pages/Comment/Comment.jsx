@@ -66,6 +66,7 @@ function Comment({ show }) {
           window.scrollTo(0, 0);
         })
         .catch(() => {
+        setLoading(false);
           setError(error?.response?.data?.platforms.join(", "));
           setSuccess("");
         });

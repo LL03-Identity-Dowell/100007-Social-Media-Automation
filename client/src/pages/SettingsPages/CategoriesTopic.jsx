@@ -111,7 +111,7 @@ const CategoriesTopic = ({ close }) => {
         name: categoriesChecked.join(","),
       };
       await axios
-        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`, data, {
+        .post(`${import.meta.env.VITE_APP_BASEURL}/category/`, data, {
           withCredentials: true,
         })
         .then((response) => {
@@ -132,7 +132,7 @@ const CategoriesTopic = ({ close }) => {
         name: topicsChecked.join(","),
       };
       await axios
-        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`, data, {
+        .post(`${import.meta.env.VITE_APP_BASEURL}/topic/`, data, {
           withCredentials: true,
         })
         .then((response) => {

@@ -53,6 +53,7 @@ const WriteYourSelf = ({ close }) => {
         }, 2000)
       })
       .catch((error) => {
+        setLoading(false);
         setSuccess(null);
         setError("Error Sending Article, Please try again");
         // Handle any errors

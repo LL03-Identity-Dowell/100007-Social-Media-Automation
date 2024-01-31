@@ -4,84 +4,10 @@ import { LadyPixel, step1, step2, step3, step4, step5 } from "../../assets";
 import Loading from "../../components/Loading";
 
 const Home = ({ close }) => {
-  // const [product, setProduct] = useState('');
-  // const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     close();
-    // fetchSessionId();
   }, []);
-
-  // useEffect(() => {
-  //   const fetchAndRemoveSessionId = async () => {
-  //     const urlParams = new URLSearchParams(window.location.search);
-  //     const session_id = urlParams.get("session_id");
-
-  //     if (session_id) {
-  //       // Store the session_id in both local storage and session storage
-  //       localStorage.setItem("session_id", session_id);
-  //       sessionStorage.setItem("session_id", session_id);
-
-  //       // Remove the session_id from the URL without causing a page reload
-  //       const newUrl = window.location.href.split('?')[0];
-  //       window.history.replaceState({}, document.title, newUrl);
-
-  //       // Proceed to fetch data or handle authenticated user logic
-  //       setLoading(true);
-  //       fetchData();
-  //     } else {
-  //       // If no session_id, redirect to the login page with session_id as a query parameter
-  //       window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/`;
-  //     }
-  //   };
-
-  //   // Check if session_id has already been processed to avoid continuous reload
-  //   if (!localStorage.getItem("session_id") && !sessionStorage.getItem("session_id")) {
-  //     fetchAndRemoveSessionId();
-  //   }
-  // }, []);
-
-  // const fetchSessionId = async () => {
-  //   const urlParams = new URLSearchParams(window.location.search);
-  //   const session_id = urlParams.get("session_id");
-
-  //   if (session_id) {
-  //     // Store the session_id in both local storage and session storage
-  //     localStorage.setItem("session_id", session_id);
-  //     sessionStorage.setItem("session_id", session_id);
-  //     // console.log(session_id);
-  //     const newUrl = window.location.href.split('?')[0];
-  //     window.history.replaceState({}, document.title, newUrl);
-  //     // Proceed to fetch data or handle authenticated user logic
-  //     setLoading(true);
-  //     fetchData();
-  //   } else {
-  //     // If no session_id, redirect to the login page with session_id as a query parameter
-  //     window.location.href = `https://100014.pythonanywhere.com/?redirect_url=http://localhost:5173/`;
-  //   }
-  // };
-
-  // const fetchData = async () => {
-  //   // Define the API URL
-  //   setLoading(true);
-  //   const apiUrl = "http://127.0.0.1:8000/api/v1/main/";
-  //   axios.defaults.withCredentials = true;
-
-  //   try {
-  //     const res = await axios.get(apiUrl);
-  //     if (res.status === 200) {
-  //       const data = res.data;
-  //       const saveUserInfo = JSON.stringify(data);
-  //       localStorage.setItem("userInfo", saveUserInfo);
-  //       console.log(data);
-  //       // setProduct(data.portfolio_info[0].product)
-  //       setLoading(false);
-  //     }
-  //   } catch (error) {
-  //     setLoading(false);
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
 
   return (
     <div className='w-[100vw] h-[90vh]'>

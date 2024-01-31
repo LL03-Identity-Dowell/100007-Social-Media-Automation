@@ -198,6 +198,6 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
             user_data = fetch_user_info(request)
             async_task("automation.services.generate_article",
                        data_dic,user_data, hook='automation.services.hook_now2')
-            return Response({'message': 'You articles are being generated in the background'})
+            return Response({'message': 'Your articles are being generated in the background'})
         else:
             return Response({'message': 'Sentence ranked successfully'})
