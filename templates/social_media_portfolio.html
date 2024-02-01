@@ -1,50 +1,68 @@
-
-`{% extends "article/base_background.html" %} {% load static %} {% block style %}
-    {{ block.super }}
+{% extends "article/base_background.html" %} {% load static %} {% block style %}
+{{ block.super }}
 {% endblock %} {% block stuff %}
 
-    <style>
-        .portfolio-item {
-            list-style-type: none;
+<style>
 
-        }
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
 
-        .portfolio-item label {
-            font-size: 16px;
-            font-weight: 500;
-            margin-right: 10px;
-        }
+    ::-webkit-scrollbar-track{
+        background: hsl(0, 0%, 50% );
+    }
 
-        .portfolio-item h1 {
-            font-weight: 600;
-        }
+    ::-webkit-scrollbar-thumb{
+        background: hsl(0, 0%, 34% );;
+    }
+  .portfolio-item{
+    list-style-type: none; 
+    margin-right: 50px;
 
-        .save-button {
-            margin-block: auto;
-            background-color: #34495e;
-            border: none;
-            padding: 8px 34px;
-            border-radius: 4px;
-            color: white;
-        }
+  }
 
-        .save-button:hover {
-            opacity: .95;
-        }
+  .portfolio-item label{
+    font-size: 16px ;
+    font-weight: 500;
+    margin-right: 10px;
+  }
+  .portfolio-item h1{
+    font-weight: 700;
+    color: #365677;
+    font-size: 30px;
+  }
+  .save-button{
+    margin-block: auto;
+    background-color: #34495e;
+    border: none;
+    padding: 8px 34px;
+    border-radius: 4px;
+    color: white;
+  }
+  .save-button:hover{
+    opacity: .95;
+  }
 
-        .portfolio-form > div {
-            width: 100%;
-            text-align: center;
-        }
+  .portfolio-form>div{
+    width: 100%;
+    text-align: center;
+  }
 
-        .portfolio-form ul {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+  .portfolio-form ul{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    overflow-y: scroll;
+    height: 400px;
+    margin-bottom: 20px;
+  }
 
-    </style>
+
+
+
+
+</style>
     <form class="portfolio-form" method="post" action="">
         {% csrf_token %}
         <ul id="portfolio-list"></ul>

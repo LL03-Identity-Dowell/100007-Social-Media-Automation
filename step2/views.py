@@ -3937,6 +3937,13 @@ def create_social_media_request(request):
             return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
+    
+    
+
+@csrf_exempt
+@xframe_options_exempt
+def porfolio_settings(request):
+    return render(request, 'porfolio_settings.html')
 
 
 def social_media_portfolio(request):

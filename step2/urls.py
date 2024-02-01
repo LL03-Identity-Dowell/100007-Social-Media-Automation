@@ -96,6 +96,8 @@ urlpatterns = [
          name='update_post_detail_dropdowns'),
     path('social-media-portfolio/', views.social_media_portfolio,
          name='social_media_portfolio'),
+    path('porfolio_settings/', views.porfolio_settings,
+         name='porfolio_settings'),
 
     # path('list/article',views.list_article, name='list-article'),
     # path('saved/',views.save_article,name='save-article'),
