@@ -3701,7 +3701,9 @@ def Media_Post(request):
         except:
             pass
         combined_social_channels = platforms + splited
-        if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
+        is_owner = check_if_user_is_owner_of_organization(request)
+
+        if not is_owner and not (set(combined_social_channels).issubset(set(approved_social_accounts))):
             not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
             data = {
                 'not_approved_channels': not_approved_channels
@@ -3946,19 +3948,24 @@ def porfolio_settings(request):
     return render(request, 'porfolio_settings.html')
 
 
-def check_if_user_is_owner_of_organization(portfolio_info_list):
+def check_if_user_is_owner_of_organization(request):
+    portfolio_info_list = request.session['portfolio_info']
+    username = request.session['username']
     if not portfolio_info_list:
         return False
     for portfolio_info in portfolio_info_list:
-        if portfolio_info.get('product') == 'Social Media Automation' and portfolio_info.get('member_type') == 'owner':
-            return True
+        if portfolio_info.get('product') == 'Social Media Automation':
+            if portfolio_info.get('member_type') == 'owner':
+                return True
+            if portfolio_info.get('member_type') == 'team_member' and portfolio_info.get('owner_name') == username:
+                return True
     return False
 
 
 def social_media_portfolio(request):
     if 'session_id' and 'username' in request.session:
         if request.method == "GET":
-            if not check_if_user_is_owner_of_organization(request.session['portfolio_info']):
+            if not check_if_user_is_owner_of_organization(request):
                 messages.error(request, 'Only the owner of the organization can access this page')
                 return HttpResponseRedirect(reverse("generate_article:main-view"))
             user_portfolio = fetch_user_portfolio_data(request)
