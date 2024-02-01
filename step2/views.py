@@ -3946,9 +3946,21 @@ def porfolio_settings(request):
     return render(request, 'porfolio_settings.html')
 
 
+def check_if_user_is_owner_of_organization(portfolio_info_list):
+    if not portfolio_info_list:
+        return False
+    for portfolio_info in portfolio_info_list:
+        if portfolio_info.get('product') == 'Social Media Automation' and portfolio_info.get('member_type') == 'owner':
+            return True
+    return False
+
+
 def social_media_portfolio(request):
     if 'session_id' and 'username' in request.session:
         if request.method == "GET":
+            if not check_if_user_is_owner_of_organization(request.session['portfolio_info']):
+                messages.error(request, 'Only the owner of the organization can access this page')
+                return HttpResponseRedirect(reverse("generate_article:main-view"))
             user_portfolio = fetch_user_portfolio_data(request)
             org_portfolios = user_portfolio['selected_product']['userportfolio']
             org_id = request.session['org_id']
@@ -3956,7 +3968,6 @@ def social_media_portfolio(request):
             portfolio_pd = pd.DataFrame(
                 [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
             user_info = fetch_organization_user_info(org_id)
-
             portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
             portfolio_info_list = portfolio_pd.to_dict('records')
 
@@ -3973,6 +3984,9 @@ def social_media_portfolio(request):
 
             return render(request, 'social_media_portfolio.html', context_dict)
         elif request.method == "POST":
+            if not check_if_user_is_owner_of_organization(request.session['portfolio_info']):
+                messages.error(request, 'Only the owner of the organization can access this page')
+                return HttpResponseRedirect(reverse("generate_article:main-view"))
             channel_portfolio_list = request.POST.getlist('channel')
             portfolio_code_channel_mapping = {}
             org_id = request.session['org_id']
