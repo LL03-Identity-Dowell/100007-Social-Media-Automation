@@ -104,7 +104,7 @@ function Navbar() {
             <Searchbar />
           </div>
 
-          <div className="items-center justify-center hidden md:flex">
+          <div className="items-center justify-center hidden md:flex relative group">
             <span className="pr-2 text-sm font-semibold text-white">
               {username && username}
             </span>
@@ -112,7 +112,7 @@ function Navbar() {
               data-tooltip-target="user-tooltip1"
               data-tooltip-placement="left"
               type="button"
-              className="relative flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 "
+              className=" flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600 "
               id="user-menu-button"
               onClick={handleToggleDropdown}
               aria-expanded="false"
@@ -149,14 +149,15 @@ function Navbar() {
 
             {/* Dropdown menu */}
             <div
-              className={` ${
-                isDropdownOpen ? "absolute" : "hidden"
-              } z-30 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600`}
-              style={{
-                top: isDropdownOpen ? "calc(100% - 20px)" : "0",
-                right: 0,
-              }}
-              // className="z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
+              // className={` ${
+              //   isDropdownOpen ? "absolute" : "hidden"
+              // } z-30 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600`}
+              // style={{
+              //   top: isDropdownOpen ? "calc(100% - 20px)" : "0",
+              //   right: 0,
+              // }}
+
+              className="z-30 absolute hidden group-hover:block top-4 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
               id="user-dropdown1"
             >
               <div className="px-4 py-3">
@@ -296,13 +297,13 @@ function Navbar() {
             </li>
 
             {/* Settings Dropdown Menu*/}
-            <li className="relative  w-[200px]">
+            <li className="relative group w-[200px]">
               <button
                 id="dropdownNavbarLink"
                 // data-dropdown-toggle="settingsDropdown"
                 onClick={handleToggleSecondDropdown}
                 aria-expanded="false"
-                className="flex items-center justify-between w-full py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"
+                className=" cursor-pointer flex items-center justify-between w-full py-2 pl-3 pr-4 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 hover:text-blue-700 md:p-0 md:w-auto dark:text-white md:dark:hover:text-blue-500 dark:focus:text-white dark:border-gray-700 dark:hover:bg-gray-700 md:dark:hover:bg-transparent"
               >
                 User Settings
                 <svg
@@ -324,13 +325,16 @@ function Navbar() {
               {/* Dropdown */}
               <div
                 // id="settingsDropdown"
-                style={{
-                  top: isSecondDropdownOpen ? "calc(100% - 1px)" : "0",
-                  left: 0,
-                }}
-                className={` ${
-                  isSecondDropdownOpen ? "absolute" : "hidden"
-                } z-30 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600 w-full`}>
+                // style={{
+                //   top: isSecondDropdownOpen ? "calc(100% - 1px)" : "0",
+                //   left: 0,
+                // }}
+                // className={` ${
+                //   isSecondDropdownOpen ? "absolute" : "hidden"
+                // } z-30 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600 w-full`}
+                className="z-30 absolute hidden top-4 md:top-2 group-hover:block my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600 w-full"
+                >
+                
                 <ul
                   className="py-2 text-sm text-gray-700 dark:text-gray-400"
                   aria-labelledby="dropdownLargeButton"
@@ -406,7 +410,7 @@ function Navbar() {
               </div>
             </li>
 
-            <li className="md:hidden">
+            <li className="md:hidden ">
               {/* profile pic  */}
               <button
                 data-tooltip-target="user-tooltip"
