@@ -3674,12 +3674,6 @@ def Media_Post(request):
         post_id = data['PK']
         print('This is the post PK')
         print(post_id)
-        org_id = request.session['org_id']
-        user_info = fetch_organization_user_info(org_id)
-
-        portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
-        portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
-        approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
 
         # Splitting the content and logo into separate paragraphs
         postes_paragraph1 = f"{paragraph[0:2000]}."
@@ -3702,6 +3696,19 @@ def Media_Post(request):
             pass
         combined_social_channels = platforms + splited
         is_owner = check_if_user_is_owner_of_organization(request)
+
+        org_id = request.session['org_id']
+        user_info = fetch_organization_user_info(org_id)
+
+        if not user_info['data']:
+            data = {
+                'not_approved_channels': combined_social_channels
+            }
+            return JsonResponse(data, safe=False)
+
+        portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
+        portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+        approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
 
         if not is_owner and not (set(combined_social_channels).issubset(set(approved_social_accounts))):
             not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
