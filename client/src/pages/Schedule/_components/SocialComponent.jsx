@@ -12,6 +12,7 @@ export const SocialComponentForPost = ({
   socialArr,
 }) => {
   const navigate = useNavigate();
+  
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -82,14 +83,14 @@ export const SocialComponentForPost = ({
   return (
     <>
       <form className='form' onSubmit={onSubmit}>
-        <div className='flex justify-between mb-6'>
+        <div className='flex justify-between mb-6 gap-4'>
           <label
             htmlFor='facebook'
             className='flex flex-row-reverse items-center'
           >
             <img
               src='/facebook.svg'
-              className='w-20 h-[90px] ml-1 p-6 rounded-2xl bg-customBlue'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-customBlue'
               alt='facebook'
             />
             <input
@@ -105,7 +106,7 @@ export const SocialComponentForPost = ({
           >
             <img
               src='/x-twitter.svg'
-              className='w-20 h-[90px] ml-1 p-5 rounded-2xl bg-black'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-black'
               alt='twitter'
             />
             <input
@@ -121,7 +122,7 @@ export const SocialComponentForPost = ({
           >
             <img
               src='/instagram.svg'
-              className='w-20 h-[90px] ml-1 p-4 rounded-2xl bg-[#b003c7]'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#b003c7]'
               alt='facebook'
             />
             <input
@@ -137,7 +138,7 @@ export const SocialComponentForPost = ({
           >
             <img
               src='/linkedin.svg'
-              className='w-20 h-[90px] ml-1 p-4 rounded-2xl bg-[#0000ff]'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#0000ff]'
               alt='linkedin'
             />
             <input
@@ -152,7 +153,12 @@ export const SocialComponentForPost = ({
             htmlFor='youtube'
             className='flex flex-row-reverse items-center'
           >
-            <div className='icons8-youtube-logo '></div>
+            {/* <div className='icons8-youtube-logo md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 object-cover'></div> */}
+            <img
+              src='/youtube.png'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#ae2d2d]'
+              alt='pinterest'
+            />
             <input
               name='youtube'
               className='w-3 h-3'
@@ -166,7 +172,7 @@ export const SocialComponentForPost = ({
           >
             <img
               src='/pinterest.svg'
-              className='w-20 h-[90px] ml-1 p-3 rounded-2xl bg-[#e60023]'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#e60023]'
               alt='pinterest'
             />
             <input
@@ -274,15 +280,15 @@ export const SocialComponentForSchedule = ({
 
   return (
     <>
-      <form className='form' onSubmit={onSubmit}>
-        <div className='flex justify-between mb-6'>
+      <form className='form  w-full mx-auto' onSubmit={onSubmit}>
+        <div className='flex md:justify-between items-center mb-6 gap-4'>
           <label
             htmlFor='facebook'
-            className='flex flex-row-reverse items-center'
+            className='flex flex-row-reverse items-center w-full'
           >
             <img
               src='/facebook.svg'
-              className='w-20 h-[90px] ml-1 p-6 rounded-2xl bg-customBlue'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-customBlue'
               alt='facebook'
             />
             <input
@@ -294,11 +300,11 @@ export const SocialComponentForSchedule = ({
           </label>
           <label
             htmlFor='twitter'
-            className='flex flex-row-reverse items-center'
+            className='flex flex-row-reverse items-center w-full'
           >
             <img
               src='/x-twitter.svg'
-              className='w-20 h-[90px] ml-1 p-5 rounded-2xl bg-black'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-black'
               alt='twitter'
             />
             <input
@@ -310,11 +316,11 @@ export const SocialComponentForSchedule = ({
           </label>
           <label
             htmlFor='instagram'
-            className='flex flex-row-reverse items-center'
+            className='flex flex-row-reverse items-center w-full'
           >
             <img
               src='/instagram.svg'
-              className='w-20 h-[90px] ml-1 p-4 rounded-2xl bg-[#b003c7]'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#b003c7]'
               alt='facebook'
             />
             <input
@@ -326,11 +332,11 @@ export const SocialComponentForSchedule = ({
           </label>
           <label
             htmlFor='linkedin'
-            className='flex flex-row-reverse items-center'
+            className='flex flex-row-reverse items-center w-full'
           >
             <img
               src='/linkedin.svg'
-              className='w-20 h-[90px] ml-1 p-4 rounded-2xl bg-[#0000ff]'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#0000ff]'
               alt='linkedin'
             />
             <input
@@ -343,9 +349,14 @@ export const SocialComponentForSchedule = ({
 
           <label
             htmlFor='youtube'
-            className='flex flex-row-reverse items-center'
+            className='flex flex-row-reverse items-center  w-full '
           >
-            <div className='icons8-youtube-logo '></div>
+            {/* <div className='icons8-youtube-logo md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 object-cover'></div> */}
+            <img
+              src='/youtube.png'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#ae2d2d]'
+              alt='pinterest'
+            />
             <input
               name='youtube'
               className='w-3 h-3'
@@ -355,11 +366,11 @@ export const SocialComponentForSchedule = ({
           </label>
           <label
             htmlFor='pinterest'
-            className='flex flex-row-reverse items-center'
+            className='flex flex-row-reverse items-center w-full'
           >
             <img
               src='/pinterest.svg'
-              className='w-20 h-[90px] ml-1 p-3 rounded-2xl bg-[#e60023]'
+              className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#e60023]'
               alt='pinterest'
             />
             <input
