@@ -3791,6 +3791,28 @@ def Media_schedule(request):
         except:
             pass
         print(platforms)
+        combined_social_channels = platforms + splited
+        is_owner = check_if_user_is_owner_of_organization(request)
+        if not is_owner:
+            org_id = request.session['org_id']
+            user_info = fetch_organization_user_info(org_id)
+
+            if not user_info['data']:
+                data = {
+                    'not_approved_channels': combined_social_channels
+                }
+                return JsonResponse(data, safe=False)
+
+            portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
+            portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+            approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
+
+            if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
+                not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
+                data = {
+                    'not_approved_channels': not_approved_channels
+                }
+                return JsonResponse(data, safe=False)
         # Formatting time for utc
         formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
         current_time = pytz.timezone(timezone)
