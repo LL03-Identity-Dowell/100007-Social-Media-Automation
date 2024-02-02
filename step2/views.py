@@ -12,6 +12,7 @@ from datetime import datetime, date
 from io import BytesIO
 
 import openai
+import pandas as pd
 import pytz
 import requests
 import wikipediaapi
@@ -168,7 +169,6 @@ def get_dowellclock():
 
 
 def create_event():
-
     url = "https://uxlivinglab.pythonanywhere.com/create_event"
     dd = datetime.now()
     time = dd.strftime("%d:%m:%Y,%H:%M:%S")
@@ -206,37 +206,44 @@ def create_event():
         return json.loads(r.text)['error']
 
 
-@csrf_exempt
-def fetch_user_info(request):
-    if 'session_id' and 'username' in request.session:
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
+def fetch_user_portfolio_data(request):
+    session_id = request.session.get("session_id")
+    if not session_id:
+        return JsonResponse({"error": "Session ID not found"}, status=400)
 
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
+    url = "https://100093.pythonanywhere.com/api/userinfo/"
+    response = requests.post(url, data={"session_id": session_id})
+    return response.json()
 
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
 
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-        if response.status_code == 200:
-            user_data = json.loads(response.json())
-            return user_data
-        else:
-            # where the request to the database fails
-            return None
-    return "Error Handling your request"
+def fetch_organization_user_info(org_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+
+        "collection": "user_info",
+        "document": "user_info",
+        "team_member_ID": "1071",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"org_id": org_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    if response.status_code == 200:
+        user_data = json.loads(response.json())
+        return user_data
+    else:
+        # where the request to the database fails
+        return None
 
 
 def under_maintenance(request):
@@ -280,7 +287,6 @@ def exit_view(request):
 
 
 def has_access(portfolio_info):
-
     if not portfolio_info:
         return False
     if portfolio_info[0].get('product') != PRODUCT_NAME:
@@ -316,7 +322,7 @@ def main(request):
             print('This is the user the userID: ',
                   profile_details['userinfo']['userID'])
             user_map[profile_details['userinfo']['userID']
-                     ] = profile_details['userinfo']['username']
+            ] = profile_details['userinfo']['username']
 
             # if has_access(profile_details['portfolio_info']):
 
@@ -331,7 +337,7 @@ def main(request):
                 request.session['portfolio_info'] = profile_details['portfolio_info']
                 print(profile_details['portfolio_info'])
                 user_map[profile_details['userinfo']['userID']
-                         ] = profile_details['userinfo']['username']
+                ] = profile_details['userinfo']['username']
                 # if has_access(profile_details['portfolio_info']):
                 #     messages.error(request,'You are not allowed to access this page')
                 #     return render(request, 'portofolio-logib.html')
@@ -398,11 +404,14 @@ def Logout(request):
     if session_id:
         try:
             del request.session["session_id"]
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+            return redirect(
+                "https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
         except:
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+            return redirect(
+                "https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
     else:
-        return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+        return redirect(
+            "https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
 
 
 @csrf_exempt
@@ -434,7 +443,6 @@ def register(request):
 @csrf_exempt
 @xframe_options_exempt
 def user_approval(request):
-
     session_id = request.GET.get("session_id", None)
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
@@ -488,6 +496,7 @@ def user_approval_form(request):
         date_obj = datetime.strptime(test_date, '%Y-%m-%d')
         date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
         event_id = create_event()['event_id']
+        org_id = request.session['org_id']
 
         url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -504,6 +513,7 @@ def user_approval_form(request):
             "field": {
                 "user_id": request.session['user_id'],
                 "topic": topic,
+                "org_id": org_id,
                 "post": post,
                 "article": article,
                 "schedule": schedule,
@@ -567,7 +577,6 @@ def user_approval_form_update(request):
             "field": {
                 'user_id': request.session['user_id']
 
-
             },
             "update_field": {
 
@@ -575,7 +584,6 @@ def user_approval_form_update(request):
                 "post": post,
                 "article": article,
                 "schedule": schedule,
-
 
             },
             "platform": "bangalore"
@@ -624,7 +632,8 @@ def check_connected_accounts(username):
 
 def linked_account_json(request):
     username = request.session['username']
-    linked_accounts = check_connected_accounts(username)
+    owner_name = request.session['portfolio_info'][0]['owner_name']
+    linked_accounts = check_connected_accounts(owner_name)
 
     return JsonResponse({'response': linked_accounts})
 
@@ -718,10 +727,7 @@ def aryshare_profile(request):
             "update_field": {
                 "aryshare_details": {
 
-
-
                 }
-
 
             },
             "platform": "bangalore"
@@ -1648,7 +1654,6 @@ def comments(request):
 @csrf_exempt
 @xframe_options_exempt
 def generate_comments(request):
-
     print("-------------------------generate comments function------------------------------")
     session_id = request.GET.get('session_id', None)
     if 'session_id' and 'username' in request.session:
@@ -1744,7 +1749,7 @@ def generate_comments(request):
                     'x-rapidapi-key': settings.LINGUA_KEY
                 }
                 print(requests.request("GET", url,
-                      headers=headers, params=querystring))
+                                       headers=headers, params=querystring))
                 return [requests.request("GET", url, headers=headers, params=querystring).json()['sentence'],
                         type_of_sentence]
 
@@ -1899,9 +1904,7 @@ def update_aryshare(username, org_id):
                         "aryshare_details": {
                             'social_platforms': name['activeSocialAccounts']
 
-
                         }
-
 
                     },
                     "platform": "bangalore"
@@ -1970,7 +1973,6 @@ def unscheduled_json(request):
 
         posts = post['data']
 
-
         post = []
         respond = []
         try:
@@ -2009,7 +2011,6 @@ def unscheduled_json(request):
 @csrf_exempt
 @xframe_options_exempt
 def post_scheduler(request):
-
     # url = "http://uxlivinglab.pythonanywhere.com"
 
     # # adding eddited field in article
@@ -2080,8 +2081,10 @@ def scheduled_json(request):
                 if org_id == str(row['org_id']):
                     try:
                         if status == row['status']:
-                            data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'], 'pk': row['_id'],
-                                    'source': row['source'], 'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(), 'time': row['time']}
+                            data = {'title': row['title'], 'paragraph': row['paragraph'], 'image': row['image'],
+                                    'pk': row['_id'],
+                                    'source': row['source'],
+                                    'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(), 'time': row['time']}
                             post.append(data)
                             post = list(reversed(post))
 
@@ -2150,7 +2153,6 @@ def index(request):
                     org_id = row.get('org_id')
                     # Filter the question data with the org_ids from the user's portfolio
                     if org_id in user_org_id_list:
-
                         array.append(row)
                 except Exception as e:
                     traceback.print_exc()
@@ -2228,7 +2230,7 @@ def generate_article_automatically(request):
     # try to catch the max_entries error
     try:
         # first, we create a new research request for the keyword title
-        research_request_obj = requests.post(SERVER + '/aiw/apiendpoint2/put_research_request/'+requests.utils.quote(
+        research_request_obj = requests.post(SERVER + '/aiw/apiendpoint2/put_research_request/' + requests.utils.quote(
             title), params={"api_key": API_KEY, "identifier": "test_identifier"}).json()
 
         # show output
@@ -2295,10 +2297,10 @@ def generate_article_automatically(request):
     page = wiki_language.page(title)
     page_exists = page.exists()
     if page_exists == False:
-        print("For Title: "+title+" Page does not exist.")
+        print("For Title: " + title + " Page does not exist.")
         print("Using subject: " + subject + " and verb: " +
               verb + " to create an article.")
-        title_sub_verb = subject+" "+verb
+        title_sub_verb = subject + " " + verb
         page = wiki_language.page(title_sub_verb)
         print("Page - Exists: %s" % page.exists())
         source_verb = ''
@@ -2322,7 +2324,8 @@ def generate_article_automatically(request):
                 if para_list[i] != '':
                     save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
                                                            "eventId": create_event()['event_id'],
                                                            "title": title,
                                                            "target_industry": target_industry,
@@ -2341,7 +2344,7 @@ def generate_article_automatically(request):
         if page.exists() == False:
             print("Page - Exists: %s" % page.exists())
             message = "Article for Title " + title_sub_verb + \
-                " and Title "+subject+" does not exist."
+                      " and Title " + subject + " does not exist."
             return render(request, 'article/article.html', {'message': message, 'title': title})
         else:
             article_subject = page.text
@@ -2365,7 +2368,8 @@ def generate_article_automatically(request):
                     save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
                                                            "title": title,
                                                            "target_industry": target_industry,
                                                            "qualitative_categorization": qualitative_categorization,
@@ -2388,7 +2392,7 @@ def generate_article_automatically(request):
                 # , 'article_AI': para, 'AI_src': src})
                 return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
     else:
-        print("For Title: "+title+" Page exists.")
+        print("For Title: " + title + " Page exists.")
         article = page.text
         article = article.split("See also")
         save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
@@ -2408,7 +2412,8 @@ def generate_article_automatically(request):
                 save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                        "session_id": session_id,
                                                        "eventId": create_event()['event_id'],
-                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                       'client_admin_id': request.session['userinfo'][
+                                                           'client_admin_id'],
                                                        "title": title,
                                                        "target_industry": target_industry,
                                                        "qualitative_categorization": qualitative_categorization,
@@ -2476,13 +2481,13 @@ def generate_article(request):
 
             # Modify the prompt to include the formatted user data
             prompt = (
-                f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
-                f" Generate only 3 paragraphs."
-                f" Include  {formatted_hashtags} at the end of the article."
-                f" Also, append {formatted_cities} to the end of the article ."
-                f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-                [:prompt_limit]
-                + "..."
+                    f"Write an article about {RESEARCH_QUERY} that discusses {subject} using {verb} in the {target_industry} industry."
+                    f" Generate only 3 paragraphs."
+                    f" Include  {formatted_hashtags} at the end of the article."
+                    f" Also, append {formatted_cities} to the end of the article ."
+                    f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+                    [:prompt_limit]
+                    + "..."
             )
 
             # Variables for loop control
@@ -2556,7 +2561,8 @@ def generate_article(request):
                                   step2_data, '9992828281')
 
                 except:
-                    return render(request, 'article/article.html', {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
+                    return render(request, 'article/article.html',
+                                  {'message': "Article did not save successfully.", 'title': RESEARCH_QUERY})
 
                 # Update start_time for the next iteration
                 start_time = time.time()
@@ -2617,10 +2623,10 @@ def generate_article_wiki(request):
             page = wiki_language.page(title)
             page_exists = page.exists()
             if page_exists == False:
-                print("For Title: "+title+" Page does not exist.")
+                print("For Title: " + title + " Page does not exist.")
                 print("Using subject: " + subject + " and verb: " +
                       verb + " to create an article.")
-                title_sub_verb = subject+" "+verb
+                title_sub_verb = subject + " " + verb
                 page = wiki_language.page(title_sub_verb)
                 print("Page - Exists: %s" % page.exists())
                 source_verb = ''
@@ -2631,7 +2637,8 @@ def generate_article_wiki(request):
                                                            "session_id": session_id,
                                                            "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
                                                            "title": title_sub_verb,
                                                            "target_industry": target_industry,
                                                            "paragraph": article_sub_verb[0],
@@ -2647,7 +2654,8 @@ def generate_article_wiki(request):
                                                                    "session_id": session_id,
                                                                    "org_id": org_id,
                                                                    "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                   'client_admin_id': request.session['userinfo'][
+                                                                       'client_admin_id'],
                                                                    "title": title,
                                                                    "target_industry": target_industry,
                                                                    "qualitative_categorization": qualitative_categorization,
@@ -2676,7 +2684,8 @@ def generate_article_wiki(request):
                                                            "session_id": session_id,
                                                            "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
-                                                           'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                                                               'client_admin_id'],
                                                            "title": subject,
                                                            "target_industry": target_industry,
                                                            "paragraph": article_subject[0],
@@ -2692,7 +2701,8 @@ def generate_article_wiki(request):
                                                                    "session_id": session_id,
                                                                    "org_id": org_id,
                                                                    "eventId": create_event()['event_id'],
-                                                                   'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                                   'client_admin_id': request.session['userinfo'][
+                                                                       'client_admin_id'],
                                                                    "title": title,
                                                                    "target_industry": target_industry,
                                                                    "qualitative_categorization": qualitative_categorization,
@@ -2724,14 +2734,15 @@ def generate_article_wiki(request):
                         return HttpResponseRedirect(reverse("generate_article:article-list-articles"))
 
             else:
-                print("For Title: "+title+" Page exists.")
+                print("For Title: " + title + " Page exists.")
                 article = page.text
                 article = article.split("See also")
                 save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
                                                        "session_id": session_id,
                                                        "org_id": org_id,
                                                        "eventId": create_event()['event_id'],
-                                                       'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                       'client_admin_id': request.session['userinfo'][
+                                                           'client_admin_id'],
                                                        "title": title,
                                                        "target_industry": target_industry,
                                                        "paragraph": article[0],
@@ -2745,7 +2756,8 @@ def generate_article_wiki(request):
                         save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                                "session_id": session_id,
                                                                "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo']['client_admin_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                                                                   'client_admin_id'],
                                                                "title": title,
                                                                "org_id": org_id,
                                                                "target_industry": target_industry,
@@ -2792,7 +2804,9 @@ def write_yourself(request):
             if approval['post'] == 'True':
                 async_task("automate.services.post_list", user_id,
                            hook='automate.services.hook_now')
-        return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
+        return render(request, 'article/write.html',
+                      {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry,
+                       'form': form})
     else:
         return render(request, 'error.html')
 
@@ -2825,7 +2839,9 @@ def verify_article(request):
 
             if not form.is_valid():
                 messages.success(request, 'Please fix the errors below')
-                return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
+                return render(request, 'article/write.html',
+                              {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry,
+                               'form': form})
             headers = {
                 'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
             try:
@@ -2834,11 +2850,14 @@ def verify_article(request):
                 print(str(e))
                 messages.error(
                     request, 'The url of the article has not been authorized!')
-                return render(request, 'article/write.html', {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry, 'form': form})
+                return render(request, 'article/write.html',
+                              {'title': title, 'subject': subject, 'verb': verb, 'target_industry': target_industry,
+                               'form': form})
 
             if response.status_code == 403:
                 message = "Error code 403 Forbidden: Website does not allow to verify the article."
-                return render(request, 'article/article.html', {'message': message, 'article': article, 'source': source, 'title': title})
+                return render(request, 'article/article.html',
+                              {'message': message, 'article': article, 'source': source, 'title': title})
             else:
                 text_from_page_space = text_from_html(response.text)
                 text_from_page = text_from_page_space.replace(" ", "")
@@ -3226,11 +3245,11 @@ def post_detail(request):
                     'animals', 'cars', 'History', 'Tech', 'People']
         query = title
         output = []
-        image_gen=ImageGenerator()
-        image_details=image_gen.process(prompt=title)
+        image_gen = ImageGenerator()
+        image_details = image_gen.process(prompt=title)
 
         if image_details.get('imageUrl'):
-            images=image_details.get('imageUrl')
+            images = image_details.get('imageUrl')
         else:
             api = API(PEXELS_API_KEY)
             # api.popular(results_per_page=10, page=5)
@@ -3250,7 +3269,9 @@ def post_detail(request):
         print(profile)
         messages.info(
             request, 'You are limited to use only images from Samanta AI due to security and privacy policy')
-        return render(request, 'post_detail.html', {'post': post, 'categories': categories, 'images': images, 'profile': profile, 'handles': handles})
+        return render(request, 'post_detail.html',
+                      {'post': post, 'categories': categories, 'images': images, 'profile': profile,
+                       'handles': handles})
     else:
         return render(request, 'error.html')
 
@@ -3385,6 +3406,7 @@ def User_DetailView(request, id):
     user = collection.find_one({'_id': ObjectId(id)})
     return render(request, 'step2/user_info_detail.html', {'user': user})
 
+
 # Added view function for address page
 
 
@@ -3437,7 +3459,8 @@ def most_recent_json(request):
                     try:
                         if status == row['status']:
                             data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': datetime.strptime(
-                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source'], 'time': row['time']}
+                                row["date"][:10], '%Y-%m-%d').date(), 'image': row['image'], 'source': row['source'],
+                                    'time': row['time']}
                             post.append(data)
                             post = list(reversed(post))
 
@@ -3487,15 +3510,15 @@ def update_most_recent(pk):
             "function_ID": "ABCDE",
             "command": "update",
             "field":
-            {
-                '_id': pk
-            },
+                {
+                    '_id': pk
+                },
             "update_field":
-            {
-                "status": 'posted',
-                "date": date,
-                "time": str(time),
-            },
+                {
+                    "status": 'posted',
+                    "date": date,
+                    "time": str(time),
+                },
 
             "platform": "bangalore"
         })
@@ -3523,15 +3546,15 @@ def update_schedule(pk):
             "function_ID": "ABCDE",
             "command": "update",
             "field":
-            {
-                '_id': pk
-            },
+                {
+                    '_id': pk
+                },
             "update_field":
-            {
-                "status": 'scheduled',
-                "date": date,
-                "time": str(time),
-            },
+                {
+                    "status": 'scheduled',
+                    "date": date,
+                    "time": str(time),
+                },
             "platform": "bangalore"
         })
     headers = {'Content-Type': 'application/json'}
@@ -3568,7 +3591,6 @@ def get_key(title):
 
 
 def api_call(poste, platforms, key, image, request, post_id):
-
     payload = {'post': poste,
                'platforms': platforms,
                'profileKey': key,
@@ -3598,7 +3620,6 @@ def api_call(poste, platforms, key, image, request, post_id):
 
 
 def api_call2(poste, platforms, key, image, request, post_id, formart):
-
     payload = {'post': poste,
                'platforms': platforms,
                'profileKey': key,
@@ -3673,6 +3694,29 @@ def Media_Post(request):
             print(platforms)
         except:
             pass
+        combined_social_channels = platforms + splited
+        is_owner = check_if_user_is_owner_of_organization(request)
+        if not is_owner:
+            org_id = request.session['org_id']
+            user_info = fetch_organization_user_info(org_id)
+
+            if not user_info['data']:
+                data = {
+                    'not_approved_channels': combined_social_channels
+                }
+                return JsonResponse(data, safe=False)
+
+            portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
+            portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+            approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
+
+            if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
+                not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
+                data = {
+                    'not_approved_channels': not_approved_channels
+                }
+                return JsonResponse(data, safe=False)
+
         user_id = request.session['user_id']
         owner_name = request.session['portfolio_info'][0]['owner_name']
         key = get_key(owner_name)
@@ -3747,6 +3791,28 @@ def Media_schedule(request):
         except:
             pass
         print(platforms)
+        combined_social_channels = platforms + splited
+        is_owner = check_if_user_is_owner_of_organization(request)
+        if not is_owner:
+            org_id = request.session['org_id']
+            user_info = fetch_organization_user_info(org_id)
+
+            if not user_info['data']:
+                data = {
+                    'not_approved_channels': combined_social_channels
+                }
+                return JsonResponse(data, safe=False)
+
+            portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
+            portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+            approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
+
+            if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
+                not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
+                data = {
+                    'not_approved_channels': not_approved_channels
+                }
+                return JsonResponse(data, safe=False)
         # Formatting time for utc
         formart = datetime.strptime(schedule, '%m/%d/%Y %H:%M:%S')
         current_time = pytz.timezone(timezone)
@@ -3902,14 +3968,104 @@ def create_social_media_request(request):
             return HttpResponseRedirect(reverse("generate_article:main-view"))
     else:
         return render(request, 'error.html')
-    
-    
+
 
 @csrf_exempt
 @xframe_options_exempt
 def porfolio_settings(request):
     return render(request, 'porfolio_settings.html')
 
+
+def check_if_user_is_owner_of_organization(request):
+    portfolio_info_list = request.session['portfolio_info']
+    username = request.session['username']
+    if not portfolio_info_list:
+        return False
+    for portfolio_info in portfolio_info_list:
+        if portfolio_info.get('product') == 'Social Media Automation':
+            if portfolio_info.get('member_type') == 'owner':
+                return True
+            if portfolio_info.get('member_type') == 'team_member' and portfolio_info.get('owner_name') == username:
+                return True
+    return False
+
+
+def social_media_portfolio(request):
+    if 'session_id' and 'username' in request.session:
+        if request.method == "GET":
+            if not check_if_user_is_owner_of_organization(request):
+                messages.error(request, 'Only the owner of the organization can access this page')
+                return HttpResponseRedirect(reverse("generate_article:main-view"))
+            user_portfolio = fetch_user_portfolio_data(request)
+            org_portfolios = user_portfolio['selected_product']['userportfolio']
+            org_id = request.session['org_id']
+            user_portfolio_pd = pd.DataFrame(org_portfolios)
+            portfolio_pd = pd.DataFrame(
+                [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
+            user_info = fetch_organization_user_info(org_id)
+            portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+            portfolio_info_list = portfolio_pd.to_dict('records')
+
+            portfolio_info_channel_list = []
+            print(user_info)
+
+            for portfolio_info in portfolio_info_list:
+                portfolio_info['channels'] = portfolio_code_channel_mapping.get(portfolio_info.get('portfolio_code'),
+                                                                                [])
+                portfolio_info_channel_list.append(portfolio_info)
+            context_dict = {
+                'portfolio_info_list': json.dumps(portfolio_info_channel_list),
+            }
+
+            return render(request, 'social_media_portfolio.html', context_dict)
+        elif request.method == "POST":
+            if not check_if_user_is_owner_of_organization(request.session['portfolio_info']):
+                messages.error(request, 'Only the owner of the organization can access this page')
+                return HttpResponseRedirect(reverse("generate_article:main-view"))
+            channel_portfolio_list = request.POST.getlist('channel')
+            portfolio_code_channel_mapping = {}
+            org_id = request.session['org_id']
+
+            for channel_portfolio in channel_portfolio_list:
+                channel = channel_portfolio.split(',')[0]
+                portfolio_code = channel_portfolio.split(',')[1]
+
+                if portfolio_code in portfolio_code_channel_mapping.keys():
+                    channel_list = portfolio_code_channel_mapping[portfolio_code]
+                    channel_list.append(channel)
+                    portfolio_code_channel_mapping[portfolio_code] = channel_list
+                else:
+                    portfolio_code_channel_mapping[portfolio_code] = [channel]
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            payload = json.dumps({
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "command": "update",
+
+                "field": {
+                    'user_id': request.session['user_id'],
+                },
+                "update_field": {
+                    "portfolio_code_channel_mapping": portfolio_code_channel_mapping,
+                    "org_id": org_id,
+                },
+                "platform": "bangalore"
+            })
+            headers = {
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.request("POST", url, headers=headers, data=payload)
+            print(response.json())
+            messages.success(request, "Social Media Channels for portfolios have been updated successfully")
+            return HttpResponseRedirect(reverse("generate_article:social_media_portfolio"))
+    else:
+        return render(request, 'error.html')
 
 # @login_required(login_url = '/accounts/login/')
 # @user_passes_test(lambda u: u.is_superuser)
