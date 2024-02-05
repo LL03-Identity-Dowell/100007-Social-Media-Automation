@@ -3171,7 +3171,7 @@ class GroupHashtagView(AuthenticatedBaseView):
         org_id = request.session['org_id']
         session_id = request.GET.get("session_id", None)
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         client_admin_id = request.session['userinfo']['client_admin_id']
 
         create_hashtag_data = {
