@@ -3206,7 +3206,7 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
             return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
 
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         update_type = request.GET.get('update_type', 'append')
         org_id = request.session['org_id']
 
