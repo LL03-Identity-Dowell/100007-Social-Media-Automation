@@ -49,7 +49,7 @@ from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSeri
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
-                          GroupHashtagSerializer)
+                          GroupHashtagSerializer, PortfolioChannelsSerializer)
 
 global PEXELS_API_KEY
 
@@ -3254,6 +3254,59 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
             'portfolio_info_list': portfolio_info_channel_list,
         }
         return Response(context_dict)
+
+    def post(self, request):
+        if not check_if_user_is_owner_of_organization(request):
+            response_data = {
+                'message': 'Only the owner of the organization can access this page',
+            }
+            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+        serializer = PortfolioChannelsSerializer(data=request.data, many=True)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        channel_portfolio_list = serializer.validated_data
+        portfolio_code_channel_mapping = {}
+        org_id = request.session['org_id']
+
+        for channel_portfolio in channel_portfolio_list:
+            channels = list(channel_portfolio['channels'])
+            portfolio_code = channel_portfolio['portfolio_code']
+
+            if portfolio_code in portfolio_code_channel_mapping.keys():
+                channel_list = portfolio_code_channel_mapping[portfolio_code]
+                channel_list = channel_list + channels
+                portfolio_code_channel_mapping[portfolio_code] = channel_list
+            else:
+                portfolio_code_channel_mapping[portfolio_code] = channels
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+
+            "field": {
+                'user_id': request.session['user_id'],
+            },
+            "update_field": {
+                "portfolio_code_channel_mapping": portfolio_code_channel_mapping,
+                "org_id": org_id,
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.json())
+        return Response({'message': 'Portfolio channels saved successfully'})
 
 
 class MentionUpdateView(AuthenticatedBaseView):
