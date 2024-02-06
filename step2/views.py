@@ -3232,6 +3232,8 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
             }
             return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
         user_portfolio = fetch_user_portfolio_data(request)
+        if 'error' in user_portfolio.keys():
+            return Response(user_portfolio, status=status.HTTP_401_UNAUTHORIZED)
         org_portfolios = user_portfolio['selected_product']['userportfolio']
         org_id = request.session['org_id']
         user_portfolio_pd = pd.DataFrame(org_portfolios)
@@ -3249,7 +3251,7 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
                                                                             [])
             portfolio_info_channel_list.append(portfolio_info)
         context_dict = {
-            'portfolio_info_list': json.dumps(portfolio_info_channel_list),
+            'portfolio_info_list': portfolio_info_channel_list,
         }
         return Response(context_dict)
 
