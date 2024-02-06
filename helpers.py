@@ -779,3 +779,57 @@ def filter_group_hashtag(data: dict):
     except KeyError:
         return []
     return filtered_pd.to_dict('records')
+
+
+def check_if_user_is_owner_of_organization(request):
+    portfolio_info_list = request.session['portfolio_info']
+    username = request.session['username']
+    if not portfolio_info_list:
+        return False
+    for portfolio_info in portfolio_info_list:
+        if portfolio_info.get('product') == 'Social Media Automation':
+            if portfolio_info.get('member_type') == 'owner':
+                return True
+            if portfolio_info.get('member_type') == 'team_member' and portfolio_info.get('owner_name') == username:
+                return True
+    return False
+
+
+def fetch_user_portfolio_data(request):
+    session_id = request.session.get("session_id")
+    if not session_id:
+        return {"error": "Session ID not found"}
+
+    url = "https://100093.pythonanywhere.com/api/userinfo/"
+    response = requests.post(url, data={"session_id": session_id})
+    return response.json()
+
+
+def fetch_organization_user_info(org_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+
+        "collection": "user_info",
+        "document": "user_info",
+        "team_member_ID": "1071",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"org_id": org_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    if response.status_code == 200:
+        user_data = json.loads(response.json())
+        return user_data
+    else:
+        # where the request to the database fails
+        return None

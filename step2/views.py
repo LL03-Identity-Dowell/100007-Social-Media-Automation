@@ -12,6 +12,7 @@ from itertools import chain
 
 # from website.views import get_client_approval
 import openai
+import pandas as pd
 import pytz
 import requests
 import wikipediaapi
@@ -41,7 +42,8 @@ from helpers import (download_and_upload_image,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
-                     encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
+                     encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags,
+                     check_if_user_is_owner_of_organization, fetch_user_portfolio_data, fetch_organization_user_info)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -3220,6 +3222,36 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
 
         response = update_group_hashtags(update_data)
         return Response({'detail': 'Group hashtag has been updated successfully'}, status=status.HTTP_201_CREATED)
+
+
+class SocialMediaPortfolioView(AuthenticatedBaseView):
+    def get(self, request):
+        if not check_if_user_is_owner_of_organization(request):
+            response_data = {
+                'message': 'Only the owner of the organization can access this page',
+            }
+            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+        user_portfolio = fetch_user_portfolio_data(request)
+        org_portfolios = user_portfolio['selected_product']['userportfolio']
+        org_id = request.session['org_id']
+        user_portfolio_pd = pd.DataFrame(org_portfolios)
+        portfolio_pd = pd.DataFrame(
+            [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
+        user_info = fetch_organization_user_info(org_id)
+        portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+        portfolio_info_list = portfolio_pd.to_dict('records')
+
+        portfolio_info_channel_list = []
+        print(user_info)
+
+        for portfolio_info in portfolio_info_list:
+            portfolio_info['channels'] = portfolio_code_channel_mapping.get(portfolio_info.get('portfolio_code'),
+                                                                            [])
+            portfolio_info_channel_list.append(portfolio_info)
+        context_dict = {
+            'portfolio_info_list': json.dumps(portfolio_info_channel_list),
+        }
+        return Response(context_dict)
 
 
 class MentionUpdateView(AuthenticatedBaseView):
