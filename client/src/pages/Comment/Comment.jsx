@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import ExtraSmallBtn from "../../components/ExtraSmallBtn/ExtraSmallBtn";
 
 import axios from "axios";
@@ -9,25 +9,29 @@ import PostedTo from "./_components/PostedTo";
 import Loading from "../../components/Loading";
 import ReactPaginate from "react-paginate";
 
+const pagesToDisplay = 4;
+
 function Comment({ show }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
 
   const [isEmpty, setIsEmpty] = useState("");
-  const [pagesToDisplay] = useState(4);
   const [showMorePages, setShowMorePages] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = !searchParams.get("page") ? 1 : Number(searchParams.get("page"));
 
   const [comments, setComments] = useState({
     paginatedPosts: [],
-    page: page,
+    page: 1,
     totalPages: 0,
     totalItems: 0,
   });
 
-  const redirect = useNavigate();
+  console.log("page", page);
 
+  const redirect = useNavigate();
   const count = comments.totalItems;
 
   useEffect(() => {
@@ -35,48 +39,54 @@ function Comment({ show }) {
   }, []);
 
   useEffect(() => {
-    const fetchComments = async () => {
-      setLoading(true);
-      const url = `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${
-        page + 1
-      }&order=newest`;
-      await axios
-        .get(url, {
-          withCredentials: true,
-        })
-        .then((response) => {
-          const { paginated_posts, page, total_pages, total_items } =
-            response.data;
-
-          if (Array.isArray(total_items) && total_items <= 0) {
-            setIsEmpty("You do not have any posts");
-            setSuccess("");
-            setError("You do not have any posts");
-          } else {
-            setSuccess("Successfully Fetched the posts");
-            setError("");
-            setComments({
-              paginatedPosts: paginated_posts,
-              page,
-              totalPages: total_pages,
-              totalItems: total_items,
-            });
-          }
-          setShowMorePages(comments.totalPages > pagesToDisplay);
-          window.scrollTo(0, 0);
-        })
-        .catch(() => {
-        setLoading(false);
-          setError(error?.response?.data?.platforms.join(", "));
-          setSuccess("");
-        });
-      setLoading(false);
-    };
     fetchComments();
   }, [page]);
 
   const handlePageClick = (data) => {
-    setPage(data.selected);
+    console.log(page, data.selected + 1);
+    if (page !== data.selected + 1) {
+      searchParams.set("page", data.selected + 1);
+      setSearchParams({ page: data.selected + 1 });
+    }
+  };
+  const fetchComments = async () => {
+    // if (page > 1) redirect(`/comment?page=${page + 1}`);
+    setLoading(true);
+    const url = `${
+      import.meta.env.VITE_APP_BASEURL
+    }/comments/?page=${page}&order=newest`;
+
+    await axios
+      .get(url, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        const { paginated_posts, page, total_pages, total_items } =
+          response.data;
+
+        if (Array.isArray(total_items) && total_items <= 0) {
+          setIsEmpty("You do not have any posts");
+          setSuccess("");
+          setError("You do not have any posts");
+        } else {
+          setSuccess("Successfully Fetched the posts");
+          setError("");
+          setComments({
+            paginatedPosts: paginated_posts,
+            page,
+            totalPages: total_pages,
+            totalItems: total_items,
+          });
+        }
+        setShowMorePages(comments.totalPages > pagesToDisplay);
+        window.scrollTo(0, 0);
+      })
+      .catch(() => {
+        setLoading(false);
+        setError(error?.response?.data?.platforms.join(", "));
+        setSuccess("");
+      });
+    setLoading(false);
   };
 
   return (
@@ -94,15 +104,12 @@ function Comment({ show }) {
           <ul className='mt-6 space-y-12'>
             {comments.paginatedPosts?.map((item) => {
               const redirectForComment = () => {
-                console.log(item);
+                setError("");
                 if (item?.post_response) {
                   redirect(`/comment/${item.article_id}`);
                 } else {
                   setError("The post does not have aryshare ID");
                 }
-                setTimeout(() => {
-                  setError("");
-                }, 2000);
               };
               return (
                 <li className='m-auto list-none ' key={item.article_id}>
@@ -142,8 +149,6 @@ function Comment({ show }) {
         </div>
         <ReactPaginate
           pageCount={comments.totalPages}
-          pageRangeDisplayed={pagesToDisplay}
-          marginPagesDisplayed={2}
           onPageChange={handlePageClick}
           previousLabel={
             <span className='text-xs text-black md:text-lg'>
