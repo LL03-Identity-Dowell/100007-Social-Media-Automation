@@ -71,7 +71,7 @@ class DeletePostCommentSerializer(serializers.Serializer):
 
 class GroupHashtagSerializer(serializers.Serializer):
     group_name = serializers.CharField(required=True)
-    hashtags = serializers.CharField(required=True)
+    hashtags = serializers.ListSerializer(child=serializers.CharField(required=True))
 
 
 class EditPostSerializer(serializers.Serializer):

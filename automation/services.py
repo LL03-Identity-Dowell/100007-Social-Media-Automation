@@ -16,7 +16,7 @@ from django.utils.timezone import localdate, localtime
 from pexels_api import API
 
 from create_article import settings
-from helpers import fetch_user_info
+from helpers import download_and_upload_image, fetch_user_info
 from step2.views import create_event
 from step2.views import save_data, get_key, update_schedule, check_connected_accounts
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -288,57 +288,17 @@ def post_list(user_id):
     articles = response_data_json['data'][a]
 
     client_admin_id = articles['client_admin_id']
+    paragraph = articles['paragraph']
+    print("this is the selected paragraph", paragraph)
     title = articles['title']
     source = articles["source"]
     session_id = articles['session_id']
-    Targeted_for = ["Apple-Technology", "Google-Technology", "Microsoft-Technology", "Amazon-Technology",
-                    "Facebook-Technology", "Coca-Cola-Beverages", "Disney-Leisure", "Samsung-Technology",
-                    "Louis Vuitton-Luxury",
-                    "McDonald's-Restaurants", "Toyota-Automotive", "Intel-Technology", "NIKE-Apparel", "AT&T-Telecom",
-                    "Cisco-Technology", "Oracle-Technology", "Verizon-Telecom", "Visa-Financial Services",
-                    "Walmart-Retail",
-                    "GE-Diversified", "Budweiser-Alcohol", "SAP-Technology", "Mercedes-Benz-Automotive",
-                    "IBM-Technology", "Marlboro-Tobacco",
-                    "Netflix-Technology", "BMW-Automotive", "American Express-Financial Services", "Honda-Automotive",
-                    "LOreal-Consumer Packaged Goods", "Gucci-Luxury", "Hermes-Luxury", "Nescafe-Beverages",
-                    "Home Depot-Retail",
-                    "Accenture-Business Services", "Pepsi-Beverages", "Starbucks-Restaurants",
-                    "Mastercard-Financial Services",
-                    "Frito-Lay-Consummer Packaged Goods", "IKEA-Retail", "Zara-Retail",
-                    "Gillette-Consumer Packaged Goods", "HSBC-Financial Services",
-                    "Audi-Automotive", "J.P.Morgan-Financial Services", "Deloitte-Business Services", "Sony-Technology",
-                    "UPS-Transportation",
-                    "Bank of America-Financial Services", "Chase-Financial Services", "Adidas-Apparel",
-                    "Channel-Luxuey", "Siemens-Diversified",
-                    "Nestle-Consumer Packaged Goods", "CVS-Retail", "Cartier-Luxury", "Porsche-Automotive",
-                    "ESPN-Media",
-                    "Citi-Financial Services", "Wells Fargo -Financial Servies", "Adobe-Technology",
-                    "Pampers-Consumer Packaged Goods", "Corona-Alchol",
-                    "T-Mobile-Telecom", "Ebay-Technology", "Chevrolet-Automotive", "PayPal-Financial Services",
-                    "Ford-Automotive", "Red Bull-Beveragese", "PwC-Business Services", "HP-Technology",
-                    "Colgate-Consumer Packaged Goods", "Fox-Media", "Lowe's-Retail", "Lancome-Consumer Packaged Goods",
-                    "H&M-Retail", "Lexus-Automotive", "Santander-Financial Services", "Cosotco-Retail",
-                    "Hyundai-Automotive", "Danone-Consumer Packaged Goods", "Heinenken-Alcohol",
-                    "Uniqlo-Apparel", "Goldman Sachs-Financial Services", "Hennessy-Alcohol", "Nintendo-Technology",
-                    "AXA-Financial Services", "Allianz-Financial Services", "Dell-Technology",
-                    "Caterpillar-Heavy Equipment", "LEGO-Leisure", "Huawai-Technology", "John Deere-Heavy Equipment",
-                    "UBS-Financial Services", "KFC-Restaurants", "Burger King-Restaurants", "EY-Business Services",
-                    "FedEx-Transportation", "Volkswagen-Automotive"]
-    Designed_for = ["Twitter-uxlivinglab", "Linkdin-uxliving", "Facebook-Customer stories",
-                    "Instagram-Livinglabstories", "Youtube-Dowell True Moments UX Living Lab", "Tiktok",
-                    "Vimeo-(Brand)",
-                    "Spotify podcast", "Second life", "Twitter-dowellresearch",
-                    "Linkdin-dowellresearch", "Linkdin-Company page-Germany", "Linkdin-Company page-Singapore",
-                    "Linkedin-Company page-UK", "Linkedin-Company page-Scandinavia", "Facebook-DoWell Research",
-                    "Youtube-Dowell Research", "Twitter-seeuser", "Linkedin-Intership", "Facebook-uxlivinglab team",
-                    "Instagram-uxlivinglab team", "Youtube-Team playlist", "Twitter-unpacandwin", "Linkedin-unpacandwin", "Facebook-unpacandwin", "Instagram-unpacandwin", "Youtube-unpacandwin"]
+    org_id = articles['org_id']
 
-    Targeted_category = ["Brand", "Corporate",
-                         "Team building", "Consumer contest"]
     # takes in the image
     a = random.randint(1, 5)
-
-    query = title
+    max_characters = 200
+    query = paragraph[:max_characters]
     output = []
     api = API(PEXELS_API_KEY)
     # api.popular(results_per_page=10, page=5)
@@ -352,15 +312,11 @@ def post_list(user_id):
         if wit[0] >= width:
             output.append(pictures)
     images = output[a]
-    Targeted_categorys = random.choice(Targeted_category)
-    Designed_for = random.choice(Designed_for)
-    Targeted_for = random.choice(Targeted_for)
     # takes in user_id
+    uploaded_image = download_and_upload_image(image_url=images)
+    images = uploaded_image.get('file_url')
     post = {
-        'Targeted_category': Targeted_categorys,
-        'Designed_for': Designed_for,
-        'Targeted_for': Targeted_for,
-        'images': images,
+        'image': images,
     }
     print('post:', post)
     print('article:', articles)
@@ -369,7 +325,7 @@ def post_list(user_id):
 
 
 def save_post(articles, post):
-    eventId = eventId = create_event()['event_id']
+    eventId = create_event()['event_id']
     time = localtime()
     test_date = str(localdate())
     date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -395,14 +351,11 @@ def save_post(articles, post):
             "session_id": articles['session_id'],
             "eventId": eventId,
             'client_admin_id': articles['client_admin_id'],
+            "org_id": articles['org_id'],
             "title": articles['title'],
             "paragraph": paragraph_without_commas,
             "source": articles["source"],
-            "qualitative_categorization": articles['qualitative_categorization'],
-            "targeted_for": post['Targeted_for'],
-            "designed_for": post['Designed_for'],
-            "targeted_category": post['Targeted_category'],
-            "image": post['images'],
+            "image": post['image'],
             "date": date,
             "time": str(time),
             "status": ""
