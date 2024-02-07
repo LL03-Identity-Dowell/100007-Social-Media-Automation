@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
@@ -15,6 +15,7 @@ function ViewComments({ show }) {
   const [comments, setComments] = useState({});
 
   const { id } = useParams();
+  const nav = useNavigate();
 
   const parsedDatetime = comments?.nextUpdateTwitter;
   const datetime = new Date(parsedDatetime);
@@ -46,8 +47,9 @@ function ViewComments({ show }) {
     setLoading(true);
 
     const fetchComments = async () => {
-      const url = `${import.meta.env.VITE_APP_BASEURL
-        }/comments/get-post-comments/${id}/`;
+      const url = `${
+        import.meta.env.VITE_APP_BASEURL
+      }/comments/get-post-comments/${id}/`;
       await axios
         .get(url, {
           withCredentials: true,
@@ -65,7 +67,7 @@ function ViewComments({ show }) {
           setComments(data);
         })
         .catch(() => {
-        setLoading(false);
+          setLoading(false);
           setError(error?.response?.data?.platforms.join(", "));
           setSuccess("");
         });
@@ -111,13 +113,13 @@ function ViewComments({ show }) {
         <h1 className='text-3xl text-center md:text-4xl text-customTextBlue'>
           Comments
         </h1>
-        <Link
-          to='/comment'
+        <button
+          onClick={() => nav(-1)}
           className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg max-w-max'
         >
           <MdArrowLeft />
           Go back
-        </Link>
+        </button>
         {hasComment ? (
           <div>
             {comments?.twitter?.length > 0 && (
