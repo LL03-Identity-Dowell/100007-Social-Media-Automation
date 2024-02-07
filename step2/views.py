@@ -864,7 +864,6 @@ class PostDetailView(AuthenticatedBaseView):
                 pictures = photo['src']['medium']
                 img_data = requests.get(pictures).content
                 im = Image.open(BytesIO(img_data))
-                print("Here I have", im)
                 wit = im.size
                 if wit[0] >= width:
                     output.append(pictures)
