@@ -24,13 +24,13 @@ from step2 import views as step2_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include('step2.urls')),
+    path('api/v2/', include('step2.urls')),
     path('server/', serverReports),
-    path('website/api/v1/', include('website.urls')),
+    path('website/api/v2/', include('website.urls')),
     path('credit/', include('credits.urls')),
 
-    path('api/v1/', include('article_api.urls')),
-    path('automation/api/v1/', include('automation.urls')),
+    path('api/v2/', include('article_api.urls')),
+    path('automation/api/v2/', include('automation.urls')),
 
 ]
 
