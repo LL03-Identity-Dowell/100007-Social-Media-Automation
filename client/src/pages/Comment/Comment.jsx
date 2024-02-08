@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ExtraSmallBtn from "../../components/ExtraSmallBtn/ExtraSmallBtn";
 
 import axios from "axios";
@@ -8,82 +8,127 @@ import CommentModal from "./_components/CommentModal";
 import PostedTo from "./_components/PostedTo";
 import Loading from "../../components/Loading";
 import ReactPaginate from "react-paginate";
+import { useQuery } from "react-query";
 
 function Comment({ show }) {
+  const location = useLocation();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
-
+  const [perPage] = useState(5);
+  const [activePage, setActivePage] = useState(0);
   const [isEmpty, setIsEmpty] = useState("");
   const [pagesToDisplay] = useState(4);
-  const [showMorePages, setShowMorePages] = useState(false);
+  const [count, setCount] = useState(0);
+  const [pageCount, setPageCount] = useState(0);
+  // const [comments, setComments] = useState({
+  //   paginatedPosts: [],
+  //   page: page,
+  //   totalPages: 0,
+  //   totalItems: 0,
+  // });
 
-  const [comments, setComments] = useState({
-    paginatedPosts: [],
-    page: page,
-    totalPages: 0,
-    totalItems: 0,
-  });
+  const navigate = useNavigate();
 
-  const redirect = useNavigate();
-
-  const count = comments.totalItems;
+  // const count = comments.totalItems;
 
   useEffect(() => {
     show();
   }, []);
 
-  useEffect(() => {
-    const fetchComments = async () => {
-      setLoading(true);
-      const url = `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${
-        page + 1
-      }&order=newest`;
-      await axios
-        .get(url, {
-          withCredentials: true,
-        })
-        .then((response) => {
-          const { paginated_posts, page, total_pages, total_items } =
-            response.data;
+  // useEffect(() => {
+  //   const fetchComments = async () => {
+  //     setLoading(true);
+  //     const url = `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${
+  //       page + 1
+  //     }&order=newest`;
+  //     await axios
+  //       .get(url, {
+  //         withCredentials: true,
+  //       })
+  //       .then((response) => {
+  //         const { paginated_posts, page, total_pages, total_items } =
+  //           response.data;
 
-          if (Array.isArray(total_items) && total_items <= 0) {
-            setIsEmpty("You do not have any posts");
-            setSuccess("");
-            setError("You do not have any posts");
-          } else {
-            setSuccess("Successfully Fetched the posts");
-            setError("");
-            setComments({
-              paginatedPosts: paginated_posts,
-              page,
-              totalPages: total_pages,
-              totalItems: total_items,
-            });
-          }
-          setShowMorePages(comments.totalPages > pagesToDisplay);
-          window.scrollTo(0, 0);
-        })
-        .catch(() => {
-        setLoading(false);
-          setError(error?.response?.data?.platforms.join(", "));
-          setSuccess("");
-        });
-      setLoading(false);
-    };
-    fetchComments();
-  }, [page]);
+  //         if (Array.isArray(total_items) && total_items <= 0) {
+  //           setIsEmpty("You do not have any posts");
+  //           setSuccess("");
+  //           setError("You do not have any posts");
+  //         } else {
+  //           setSuccess("Successfully Fetched the posts");
+  //           setError("");
+  //           setComments({
+  //             paginatedPosts: paginated_posts,
+  //             page,
+  //             totalPages: total_pages,
+  //             totalItems: total_items,
+  //           });
+  //         }
+  //         setShowMorePages(comments.totalPages > pagesToDisplay);
+  //         window.scrollTo(0, 0);
+  //       })
+  //       .catch(() => {
+  //       setLoading(false);
+  //         setError(error?.response?.data?.platforms.join(", "));
+  //         setSuccess("");
+  //       });
+  //     setLoading(false);
+  //   };
+  //   fetchComments();
+  // }, [page]);
+
+  const page = parseInt(new URLSearchParams(location.search).get("page")) || 0;
+
+  const { data: paginated_posts, status, isLoading, refetch } = useQuery(
+    ["comment", page],
+    async () => {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${
+          page + 1
+        }&order=newest`,
+        { withCredentials: true }
+      );
+      return response.data;
+    },
+
+    {
+      keepPreviousData: true,
+      onSettled: () => setLoading(false),
+    }
+  );
+  
+  useEffect(() => { 
+    if (status === "success") {
+      setSuccess("Comments Fetched successfully..!");
+      setCount(paginated_posts.total_items);
+      setPageCount(Math.ceil(paginated_posts.total_items / perPage));
+    } else if (status === "error") {
+      setError("Error Fetching data, Please try again");
+      setLoading(false)
+    }
+    window.scrollTo(0, 0);
+
+    setActivePage(page);
+  }, [
+    status,
+    perPage,
+    page,
+    activePage,
+    navigate,
+    location.pathname,
+  ]);
 
   const handlePageClick = (data) => {
-    setPage(data.selected);
+    setLoading(true);
+    const selectedPage = data.selected;
+    navigate(`${location.pathname}?page=${selectedPage}`);
   };
 
   return (
     <>
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
-      {loading && <Loading />}
+      {loading || isLoading ? <Loading /> : null}
       <div className='relative mx-auto mb-6 overflow-y-hidden max-w-7xl lg:h-auto lg:overflow-y-auto'>
         <div className='w-full mb-6 text-sm text-left text-gray-500 dark:text-gray-400'>
           <div className='py-2 font-semibold text-center text-customTextBlue lg:py-6'>
@@ -92,11 +137,11 @@ function Comment({ show }) {
           <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
 
           <ul className='mt-6 space-y-12'>
-            {comments.paginatedPosts?.map((item) => {
+            {paginated_posts && paginated_posts.paginated_posts.map((item) => {
               const redirectForComment = () => {
-                console.log(item);
+                // console.log(item);
                 if (item?.post_response) {
-                  redirect(`/comment/${item.article_id}`);
+                  navigate(`/comment/${item.article_id}`);
                 } else {
                   setError("The post does not have aryshare ID");
                 }
@@ -140,27 +185,29 @@ function Comment({ show }) {
             })}
           </ul>
         </div>
+
         <ReactPaginate
-          pageCount={comments.totalPages}
+          pageCount={Math.max(0, pageCount)}
           pageRangeDisplayed={pagesToDisplay}
           marginPagesDisplayed={2}
           onPageChange={handlePageClick}
+          forcePage={page}
           previousLabel={
-            <span className='text-xs text-black md:text-lg'>
+            <span className="text-black text-xs md:text-lg">
               {page > 0 ? "Previous" : ""}
             </span>
           }
           nextLabel={
-            <span className='text-xs text-black md:text-lg'>
-              {page < comments.totalPages - 1 ? "Next" : " "}
+            <span className="text-black text-xs md:text-lg">
+              {page < paginated_posts?.total_items / 5 - 1 ? "Next" : " "}
             </span>
           }
-          containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-x-auto'
-          pageClassName='p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
-          previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
-          nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
-          breakClassName='p-2'
-          activeClassName='bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 '
+          containerClassName="flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-auto "
+          pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
+          previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+          nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
+          breakClassName="p-2"
+          activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
         />
       </div>
     </>

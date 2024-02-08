@@ -12,7 +12,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
                     LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
-                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView)
+                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView)
 
 app_name = 'generate_article'
 
@@ -92,5 +92,6 @@ urlpatterns = [
     path('group-hashtags/', GroupHashtagView.as_view(), name='group-hashtag-endpoint'),
     path('group-hashtags/<str:group_hashtag_id>/', GroupHashtagDetailView.as_view(),
          name='group-hashtag-detail-endpoint'),
+    path('social-media-portfolio/', SocialMediaPortfolioView.as_view(), name='social-media-portfolio-endpoint'),
 
 ]

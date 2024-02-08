@@ -12,6 +12,7 @@ from itertools import chain
 
 # from website.views import get_client_approval
 import openai
+import pandas as pd
 import pytz
 import requests
 import wikipediaapi
@@ -41,13 +42,14 @@ from helpers import (download_and_upload_image,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
-                     encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
+                     encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags,
+                     check_if_user_is_owner_of_organization, fetch_user_portfolio_data, fetch_organization_user_info)
 from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
-                          GroupHashtagSerializer)
+                          GroupHashtagSerializer, PortfolioChannelsSerializer)
 
 global PEXELS_API_KEY
 
@@ -864,7 +866,6 @@ class PostDetailView(AuthenticatedBaseView):
                 pictures = photo['src']['medium']
                 img_data = requests.get(pictures).content
                 im = Image.open(BytesIO(img_data))
-                print("Here I have", im)
                 wit = im.size
                 if wit[0] >= width:
                     output.append(pictures)
@@ -1493,6 +1494,30 @@ class MediaPostView(AuthenticatedBaseView):
                 print(platforms)
             except:
                 pass
+
+            combined_social_channels = platforms + splited
+            is_owner = check_if_user_is_owner_of_organization(request)
+            if not is_owner:
+                org_id = request.session['org_id']
+                user_info = fetch_organization_user_info(org_id)
+
+                if not user_info['data']:
+                    data = {
+                        'not_approved_channels': combined_social_channels
+                    }
+                    return Response(data)
+
+                portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
+                portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+                approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
+
+                if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
+                    not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
+                    data = {
+                        'not_approved_channels': not_approved_channels
+                    }
+                    return Response(data)
+
             user_id = request.session['user_id']
             key = get_key(user_id)
             if len(splited) == 0:
@@ -1588,6 +1613,29 @@ class MediaScheduleView(AuthenticatedBaseView):
             string = str(shedulded)[:-6]
             formart = datetime.strptime(
                 string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
+
+            combined_social_channels = platforms + splited
+            is_owner = check_if_user_is_owner_of_organization(request)
+            if not is_owner:
+                org_id = request.session['org_id']
+                user_info = fetch_organization_user_info(org_id)
+
+                if not user_info['data']:
+                    data = {
+                        'not_approved_channels': combined_social_channels
+                    }
+                    return Response(data, )
+
+                portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
+                portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+                approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
+
+                if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
+                    not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
+                    data = {
+                        'not_approved_channels': not_approved_channels
+                    }
+                    return Response(data, )
 
             user_id = request.session['user_id']
             key = get_key(user_id)
@@ -1723,38 +1771,6 @@ class UnScheduledJsonView(AuthenticatedBaseView):
             return Response(response_data)
         else:
             return Response({'response': []})
-
-
-@csrf_exempt
-@xframe_options_exempt
-def post_scheduler(request):
-    # url = "http://uxlivinglab.pythonanywhere.com"
-
-    # # adding eddited field in article
-    # payload = json.dumps({
-    #   "cluster": cluster,
-    #   "database": "client_data",
-    #   "collection": "socialmedia_form",
-    #   "document": document,
-    #   "team_member_ID": team_member_ID,
-    #   "function_ID": "ABCDE",
-    #   "command": "update",
-    #   "field": {'_id': id},
-    #   "update_field": {
-    #     "is_scheduled": True,
-    #     "schedule": date,
-    #   },
-    #   "platform": "bangalore"
-    # })
-    # headers = {
-    #   'Content-Type': 'application/json'
-    # }
-
-    # response = requests.request("POST", url, headers=headers, data=payload)
-    # print(response.text)
-
-    return HttpResponseRedirect(reverse("generate_article:main-view"))
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
@@ -1940,298 +1956,6 @@ class DeletePostComment(AuthenticatedBaseView):
             return Response(response)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-@csrf_exempt
-@xframe_options_exempt
-def comments(request):
-    if 'session_id' and 'username' in request.session:
-
-        # fetching topics according to the user logged in
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        data = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "socialmedia",
-            "document": "socialmedia",
-            "team_member_ID": "345678977",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-
-            'update_field': {
-                "name": "Joy update",
-                "phone": "123456",
-                "age": "26",
-                "language": "English",
-
-            },
-            "platform": "bangalore",
-
-        }
-        headers = {'content-type': 'application/json'}
-
-        response = requests.post(url, json=data, headers=headers)
-        topics = response.json()
-
-        # fetching hastags from database
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = {
-            "cluster": "client_scans",
-            "database": "client_data",
-            "collection": "hashtags",
-            "document": "hashtags",
-            "team_member_ID": "10003345",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {
-                "category": "hashtags"
-            },
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.post(url, headers=headers, json=payload)
-        # print(response.text)
-        response = json.loads(response.text)
-        hashtags = []
-        for hashtag in response["data"]:
-            if 'hashtag' in hashtag:
-                hashtags.append(
-                    {'hashtag': hashtag['hashtag'], 'group_no': hashtag['group_no']})
-        print(hashtags)
-        return render(request, 'comments.html', {'topics': topics['data'], 'hashtags': hashtags})
-    else:
-        return render(request, 'error.html')
-
-
-@csrf_exempt
-@xframe_options_exempt
-def generate_comments(request):
-    print("-------------------------generate comments function------------------------------")
-    session_id = request.GET.get('session_id', None)
-    if 'session_id' and 'username' in request.session:
-        if request.method != "POST":
-            return HttpResponseRedirect(reverse("main-view"))
-        else:
-            Dowellhandler = request.POST.get("Dowellhandler")
-            Product = request.POST.get("Product")
-            Hashtag = request.POST.get("Hashtag")
-            Topic = request.POST.get("Topic")
-
-            print(
-                f" Dowellhandler : {Dowellhandler} Product : {Product} Hashtag :{Hashtag}  Topic : {Topic} ")
-
-            Hashtag = Hashtag.replace('#', '')
-            hashtag_split = Hashtag.split()
-
-            Hashtag = hashtag_split[0]
-            Hashtag_group = hashtag_split[1]
-
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            data = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "socialmedia",
-                "document": "socialmedia",
-                "team_member_ID": "345678977",
-                "function_ID": "ABCDE",
-                "command": "find",
-                "field": {"_id": Product},
-
-                'update_field': {
-                    "name": "Joy update",
-                    "phone": "123456",
-                    "age": "26",
-                    "language": "English",
-
-                },
-                "platform": "bangalore",
-
-            }
-            headers = {'content-type': 'application/json'}
-
-            response = requests.post(url, json=data, headers=headers)
-            topics = response.json()
-            # print(topics['data']['target_product'])
-
-            # print(Dowellhandler, topics['data']['target_product'], Hashtag, Topic)
-            url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
-
-            def api_call(grammar_arguments=None):
-                if grammar_arguments is None:
-                    grammar_arguments = {}
-                querystring = {
-                    "object": Dowellhandler,
-                    "subject": topics['data']['target_product'],
-                    "verb": Hashtag,
-                    'subjdet': Topic,
-                }
-                iter_sentence_type = []
-                if 'tense' in grammar_arguments:
-                    # print('Current tense is {}'.format(grammar_arguments['tense']))
-                    querystring['tense'] = grammar_arguments['tense'].capitalize()
-                    iter_sentence_type.append(
-                        grammar_arguments['tense'].capitalize())
-                if 'progressive' in grammar_arguments:
-                    querystring['progressive'] = 'progressive'
-                    iter_sentence_type.append(grammar_arguments['progressive'])
-
-                if 'perfect' in grammar_arguments:
-                    querystring['perfect'] = 'perfect'
-                    iter_sentence_type.append(grammar_arguments['perfect'])
-
-                if 'negated' in grammar_arguments:
-                    querystring['negated'] = 'negated'
-                    iter_sentence_type.append(grammar_arguments['negated'])
-
-                if 'passive' in grammar_arguments:
-                    querystring['passive'] = 'passive'
-                    iter_sentence_type.append(grammar_arguments['passive'])
-
-                if 'modal_verb' in grammar_arguments:
-                    querystring['modal'] = grammar_arguments['modal_verb']
-
-                if 'sentence_art' in grammar_arguments:
-                    querystring['sentencetype'] = grammar_arguments['sentence_art']
-                iter_sentence_type.append("sentence.")
-                type_of_sentence = ' '.join(iter_sentence_type)
-
-                headers = {
-                    'x-rapidapi-host': "linguatools-sentence-generating.p.rapidapi.com",
-                    'x-rapidapi-key': settings.LINGUA_KEY
-                }
-                print(requests.request("GET", url,
-                                       headers=headers, params=querystring))
-                return [requests.request("GET", url, headers=headers, params=querystring).json()['sentence'],
-                        type_of_sentence]
-
-            data_dictionary = {}
-            data_dictionary['Topic_id'] = request.POST.get("Product")
-            data_dictionary['Dowellhandler'] = Dowellhandler
-            data_dictionary['Product'] = topics['data']['target_product']
-            data_dictionary['Hashtag'] = Hashtag
-            data_dictionary['Topic'] = Topic
-            data_dictionary["session_id"] = request.session['session_id']
-            data_dictionary["Hashtag_group"] = Hashtag_group
-            # data_dictionary.pop('csrfmiddlewaretoken')
-            request.session['data_dictionary'] = data_dictionary
-            sentence_grammar = Sentences.objects.create(object=Dowellhandler,
-                                                        subject=topics['data']['target_product'],
-                                                        verb=Hashtag,
-                                                        subject_determinant=Topic,
-                                                        )
-            tenses = ['past', 'present', 'future']
-            other_grammar = ['passive', 'progressive', 'perfect', 'negated']
-            results = []
-            result_ids = []
-            counter = 0
-            for tense in tenses:
-                for grammar in other_grammar:
-                    counter += 1
-                    sentence_results = SentenceResults(
-                        sentence_grammar=sentence_grammar)
-                    arguments = {'tense': tense, grammar: grammar}
-                    api_result = api_call(arguments)
-                    sentence_results.sentence = api_result[0]
-                    sentence_results.sentence_type = api_result[1]
-                    sentence_results.save()
-                    results.append(sentence_results)
-                    result_ids.append(sentence_results.pk)
-                    request.session['data_dictionary'] = {
-                        **request.session['data_dictionary'], **{"api_sentence_{}".format(counter): {
-
-                            "sentence": api_result[0], 'sentence_type': api_result[1],
-                            'sentence_id': sentence_results.pk
-                        }}
-                    }
-
-            request.session['result_ids'] = result_ids
-            sentences_dictionary = {
-                'sentences': results,
-            }
-            print(sentences_dictionary)
-            # insert_form_data(request=request)
-
-            return render(request, 'comments_display.html', context=sentences_dictionary)
-    else:
-        return render(request, 'error.html')
-
-
-@csrf_exempt
-@xframe_options_exempt
-def selected_comments(request):
-    if 'session_id' and 'username' in request.session:
-        if request.method == 'POST':
-            sentence_ids = request.session.get('result_ids')
-            selected_comment = request.POST.get("comment")
-
-            # testing emoji API RiteKit
-            emoji_url = "https://api.ritekit.com/v1/emoji/suggestions?text="
-
-            # text = selected_comment
-            # text = urllib.parse.quote(text)
-
-            # using dummy text
-            text = "Why%20robots%20may%20soon%20steal%20all%20manufacturing%20jobs%20%E2%80%93%20but%20it%E2%80%99s%20not%20all%20bad%20news"
-            final_url = f'{emoji_url}{text}&client_id=a3740ebc104bf4fea425f64b8fca12babb5358d761b4'
-            payload = {}
-            headers = {}
-
-            emoji_response = requests.request(
-                "GET", final_url, headers=headers, data=payload)
-            emojis = json.loads(emoji_response.text)
-            emojis = emojis["emojis"]
-
-            counter = 1
-            print("*************************************")
-            for sentence_id in sentence_ids:
-                sentence_result = SentenceResults.objects.get(pk=sentence_id)
-                if sentence_result.sentence == selected_comment:
-                    request.session['data_dictionary']['api_sentence_{}'.format(
-                        counter)]['selected'] = True
-                    # print(True)
-                else:
-                    request.session['data_dictionary']['api_sentence_{}'.format(
-                        counter)]['selected'] = False
-                    # print(False)
-                counter += 1
-
-            print(f"----------------{counter}----------------------------")
-            data_dictionary = request.POST.dict()
-            data_dictionary.pop('csrfmiddlewaretoken')
-            request.session['data_dictionary'] = {
-                **request.session['data_dictionary'], **data_dictionary}
-            print("--------------------------------------------")
-            save_comments(request.session['data_dictionary'])
-            print(request.session['data_dictionary'])
-            del request.session['data_dictionary']
-            return render(request, 'comments_emojis.html', {'comment': selected_comment, 'emojis': emojis})
-    else:
-        return render(request, 'error.html')
-
-
-@csrf_exempt
-@xframe_options_exempt
-def comments_emojis(request):
-    if 'session_id' and 'username' in request.session:
-        if request.method == 'POST':
-            selected_comment = request.POST.get("comment")
-            selected_emoji = request.POST.get("emoji")
-
-            print(selected_comment + selected_emoji)
-            return HttpResponseRedirect(reverse("generate_article:main-view"))
-    else:
-        return render(request, 'error.html')
-
 
 '''Comments section ends here'''
 
@@ -3171,7 +2895,7 @@ class GroupHashtagView(AuthenticatedBaseView):
         org_id = request.session['org_id']
         session_id = request.GET.get("session_id", None)
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         client_admin_id = request.session['userinfo']['client_admin_id']
 
         create_hashtag_data = {
@@ -3206,7 +2930,7 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
             return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
 
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         update_type = request.GET.get('update_type', 'append')
         org_id = request.session['org_id']
 
@@ -3220,6 +2944,91 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
 
         response = update_group_hashtags(update_data)
         return Response({'detail': 'Group hashtag has been updated successfully'}, status=status.HTTP_201_CREATED)
+
+
+class SocialMediaPortfolioView(AuthenticatedBaseView):
+    def get(self, request):
+        if not check_if_user_is_owner_of_organization(request):
+            response_data = {
+                'message': 'Only the owner of the organization can access this page',
+            }
+            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+        user_portfolio = fetch_user_portfolio_data(request)
+        if 'error' in user_portfolio.keys():
+            return Response(user_portfolio, status=status.HTTP_401_UNAUTHORIZED)
+        org_portfolios = user_portfolio['selected_product']['userportfolio']
+        org_id = request.session['org_id']
+        user_portfolio_pd = pd.DataFrame(org_portfolios)
+        portfolio_pd = pd.DataFrame(
+            [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
+        user_info = fetch_organization_user_info(org_id)
+        portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+        portfolio_info_list = portfolio_pd.to_dict('records')
+
+        portfolio_info_channel_list = []
+        print(user_info)
+
+        for portfolio_info in portfolio_info_list:
+            portfolio_info['channels'] = portfolio_code_channel_mapping.get(portfolio_info.get('portfolio_code'),
+                                                                            [])
+            portfolio_info_channel_list.append(portfolio_info)
+        context_dict = {
+            'portfolio_info_list': portfolio_info_channel_list,
+        }
+        return Response(context_dict)
+
+    def post(self, request):
+        if not check_if_user_is_owner_of_organization(request):
+            response_data = {
+                'message': 'Only the owner of the organization can access this page',
+            }
+            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+        serializer = PortfolioChannelsSerializer(data=request.data, many=True)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        channel_portfolio_list = serializer.validated_data
+        portfolio_code_channel_mapping = {}
+        org_id = request.session['org_id']
+
+        for channel_portfolio in channel_portfolio_list:
+            channels = list(channel_portfolio['channels'])
+            portfolio_code = channel_portfolio['portfolio_code']
+
+            if portfolio_code in portfolio_code_channel_mapping.keys():
+                channel_list = portfolio_code_channel_mapping[portfolio_code]
+                channel_list = channel_list + channels
+                portfolio_code_channel_mapping[portfolio_code] = channel_list
+            else:
+                portfolio_code_channel_mapping[portfolio_code] = channels
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+
+            "field": {
+                'user_id': request.session['user_id'],
+            },
+            "update_field": {
+                "portfolio_code_channel_mapping": portfolio_code_channel_mapping,
+                "org_id": org_id,
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.json())
+        return Response({'message': 'Portfolio channels saved successfully'})
 
 
 class MentionUpdateView(AuthenticatedBaseView):
