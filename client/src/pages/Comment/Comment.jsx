@@ -104,6 +104,7 @@ function Comment({ show }) {
       setPageCount(Math.ceil(paginated_posts.total_items / perPage));
     } else if (status === "error") {
       setError("Error Fetching data, Please try again");
+      setLoading(false)
     }
     window.scrollTo(0, 0);
 
