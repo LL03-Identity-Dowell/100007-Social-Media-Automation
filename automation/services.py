@@ -16,7 +16,7 @@ from django.utils.timezone import localdate, localtime
 from pexels_api import API
 
 from create_article import settings
-from helpers import fetch_user_info
+from helpers import download_and_upload_image, fetch_user_info
 from step2.views import create_event
 from step2.views import save_data, get_key, update_schedule, check_connected_accounts
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -24,6 +24,7 @@ from website.views import get_client_approval
 
 global PEXELS_API_KEY
 PEXELS_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
+
 
 def hook_now(task):
     print(task.result)
@@ -51,6 +52,7 @@ def get_dowellclock():
         'https://100009.pythonanywhere.com/dowellclock')
     data = response_dowell.json()
     return data['t1']
+
 
 @transaction.atomic
 def selected_result(article_id, data_dic):
@@ -146,38 +148,24 @@ def insert_form_data(data_dict):
 
 
 @transaction.atomic
-def generate_article(data_dic, request):
+def generate_article(data_dic, user_data):
+    print("automation started.........................................................")
     start_datetime = datetime.now()
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
     api_no = random.choice(Rank)
     key = f'api_sentence_{api_no}'
-
     # getting required data
     RESEARCH_QUERY = data_dic[key]['sentence']
     user_ids = data_dic["user_id"]
     session_id = data_dic["session_id"]
     # calling user aproval
     approval = get_client_approval(user_ids)
-
-    # image = data_dic["image"]
-    org_id = request.session.get('org_id')
+    org_id = data_dic["org_id"]
     user_selected_cities = []
-    hashtags = []
-    user_tags_mentions = []
-    user_data = fetch_user_info(request)
+    user_data = user_data
     for item in user_data["data"]:
         if "target_city" in item and item["target_city"] is not None:
             user_selected_cities.extend(item["target_city"])
-
-        if "hashtag_list" in item and item["hashtag_list"] is not None:
-            hashtags.extend(item["hashtag_list"])
-
-        if "mentions_list" in item and item["mentions_list"] is not None:
-            user_tags_mentions.extend(item["mentions_list"])
-
-    formatted_hashtags = " ".join(hashtags) if hashtags else ""
-    formatted_mentions = " ".join(
-        f"@{mention}" for mention in user_tags_mentions) if user_tags_mentions else ""
     formatted_cities = " ".join(
         f"#{city}" for city in user_selected_cities) if user_selected_cities else ""
 
@@ -191,8 +179,7 @@ def generate_article(data_dic, request):
     # Modify the prompt to include the formatted user data
     prompt = (
         f"Write an article about {RESEARCH_QUERY}"
-        f" Include  {formatted_hashtags} at the end of the article."
-        f" Also, append {formatted_cities} to the end of the article."
+        f" Include {formatted_cities} to the end of the article."
         f" Ensure that the generated content is a minimum of {min_characters} characters in length."
         [:prompt_limit]
         + "..."
@@ -202,7 +189,7 @@ def generate_article(data_dic, request):
         # engine="text-davinci-003",
         engine="gpt-3.5-turbo-instruct",
         prompt=prompt,
-        temperature=0.5,
+        temperature=0,
         max_tokens=1024,
         n=1,
         stop=None,
@@ -212,12 +199,10 @@ def generate_article(data_dic, request):
     paragraphs = [p.strip()
                   for p in article.split("\n\n") if p.strip()]
     article_str = "\n\n".join(paragraphs)
-
     sources = urllib.parse.unquote("")
     event_id = create_event()['event_id']
-    user_id = request.session['user_id']
-    client_admin_id = request.session['userinfo']['client_admin_id']
-    # approval = get_client_approval(user_id)
+    user_id = data_dic["user_id"]
+    client_admin_id = data_dic["client_admin_id"]
     hashtags_in_last_paragraph = set(
         word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
     for i in range(len(paragraphs) - 1):
@@ -261,7 +246,8 @@ def generate_article(data_dic, request):
     #    seeking for approval to automate step 3
     if approval['post'] == True:
         step_3 = post_list(user_ids)
-    print('step_3 done')
+        print(step_3)
+    print('step_3 not done')
     return ('done')
 
 
@@ -302,57 +288,17 @@ def post_list(user_id):
     articles = response_data_json['data'][a]
 
     client_admin_id = articles['client_admin_id']
+    paragraph = articles['paragraph']
+    print("this is the selected paragraph", paragraph)
     title = articles['title']
     source = articles["source"]
     session_id = articles['session_id']
-    Targeted_for = ["Apple-Technology", "Google-Technology", "Microsoft-Technology", "Amazon-Technology",
-                    "Facebook-Technology", "Coca-Cola-Beverages", "Disney-Leisure", "Samsung-Technology",
-                    "Louis Vuitton-Luxury",
-                    "McDonald's-Restaurants", "Toyota-Automotive", "Intel-Technology", "NIKE-Apparel", "AT&T-Telecom",
-                    "Cisco-Technology", "Oracle-Technology", "Verizon-Telecom", "Visa-Financial Services",
-                    "Walmart-Retail",
-                    "GE-Diversified", "Budweiser-Alcohol", "SAP-Technology", "Mercedes-Benz-Automotive",
-                    "IBM-Technology", "Marlboro-Tobacco",
-                    "Netflix-Technology", "BMW-Automotive", "American Express-Financial Services", "Honda-Automotive",
-                    "LOreal-Consumer Packaged Goods", "Gucci-Luxury", "Hermes-Luxury", "Nescafe-Beverages",
-                    "Home Depot-Retail",
-                    "Accenture-Business Services", "Pepsi-Beverages", "Starbucks-Restaurants",
-                    "Mastercard-Financial Services",
-                    "Frito-Lay-Consummer Packaged Goods", "IKEA-Retail", "Zara-Retail",
-                    "Gillette-Consumer Packaged Goods", "HSBC-Financial Services",
-                    "Audi-Automotive", "J.P.Morgan-Financial Services", "Deloitte-Business Services", "Sony-Technology",
-                    "UPS-Transportation",
-                    "Bank of America-Financial Services", "Chase-Financial Services", "Adidas-Apparel",
-                    "Channel-Luxuey", "Siemens-Diversified",
-                    "Nestle-Consumer Packaged Goods", "CVS-Retail", "Cartier-Luxury", "Porsche-Automotive",
-                    "ESPN-Media",
-                    "Citi-Financial Services", "Wells Fargo -Financial Servies", "Adobe-Technology",
-                    "Pampers-Consumer Packaged Goods", "Corona-Alchol",
-                    "T-Mobile-Telecom", "Ebay-Technology", "Chevrolet-Automotive", "PayPal-Financial Services",
-                    "Ford-Automotive", "Red Bull-Beveragese", "PwC-Business Services", "HP-Technology",
-                    "Colgate-Consumer Packaged Goods", "Fox-Media", "Lowe's-Retail", "Lancome-Consumer Packaged Goods",
-                    "H&M-Retail", "Lexus-Automotive", "Santander-Financial Services", "Cosotco-Retail",
-                    "Hyundai-Automotive", "Danone-Consumer Packaged Goods", "Heinenken-Alcohol",
-                    "Uniqlo-Apparel", "Goldman Sachs-Financial Services", "Hennessy-Alcohol", "Nintendo-Technology",
-                    "AXA-Financial Services", "Allianz-Financial Services", "Dell-Technology",
-                    "Caterpillar-Heavy Equipment", "LEGO-Leisure", "Huawai-Technology", "John Deere-Heavy Equipment",
-                    "UBS-Financial Services", "KFC-Restaurants", "Burger King-Restaurants", "EY-Business Services",
-                    "FedEx-Transportation", "Volkswagen-Automotive"]
-    Designed_for = ["Twitter-uxlivinglab", "Linkdin-uxliving", "Facebook-Customer stories",
-                    "Instagram-Livinglabstories", "Youtube-Dowell True Moments UX Living Lab", "Tiktok",
-                    "Vimeo-(Brand)",
-                    "Spotify podcast", "Second life", "Twitter-dowellresearch",
-                    "Linkdin-dowellresearch", "Linkdin-Company page-Germany", "Linkdin-Company page-Singapore",
-                    "Linkedin-Company page-UK", "Linkedin-Company page-Scandinavia", "Facebook-DoWell Research",
-                    "Youtube-Dowell Research", "Twitter-seeuser", "Linkedin-Intership", "Facebook-uxlivinglab team",
-                    "Instagram-uxlivinglab team", "Youtube-Team playlist", "Twitter-unpacandwin", "Linkedin-unpacandwin", "Facebook-unpacandwin", "Instagram-unpacandwin", "Youtube-unpacandwin"]
+    org_id = articles['org_id']
 
-    Targeted_category = ["Brand", "Corporate",
-                         "Team building", "Consumer contest"]
     # takes in the image
     a = random.randint(1, 5)
-
-    query = title
+    max_characters = 200
+    query = paragraph[:max_characters]
     output = []
     api = API(PEXELS_API_KEY)
     # api.popular(results_per_page=10, page=5)
@@ -366,15 +312,11 @@ def post_list(user_id):
         if wit[0] >= width:
             output.append(pictures)
     images = output[a]
-    Targeted_categorys = random.choice(Targeted_category)
-    Designed_for = random.choice(Designed_for)
-    Targeted_for = random.choice(Targeted_for)
     # takes in user_id
+    uploaded_image = download_and_upload_image(image_url=images)
+    images = uploaded_image.get('file_url')
     post = {
-        'Targeted_category': Targeted_categorys,
-        'Designed_for': Designed_for,
-        'Targeted_for': Targeted_for,
-        'images': images,
+        'image': images,
     }
     print('post:', post)
     print('article:', articles)
@@ -383,7 +325,7 @@ def post_list(user_id):
 
 
 def save_post(articles, post):
-    eventId = eventId = create_event()['event_id']
+    eventId = create_event()['event_id']
     time = localtime()
     test_date = str(localdate())
     date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -409,14 +351,11 @@ def save_post(articles, post):
             "session_id": articles['session_id'],
             "eventId": eventId,
             'client_admin_id': articles['client_admin_id'],
+            "org_id": articles['org_id'],
             "title": articles['title'],
             "paragraph": paragraph_without_commas,
             "source": articles["source"],
-            "qualitative_categorization": articles['qualitative_categorization'],
-            "targeted_for": post['Targeted_for'],
-            "designed_for": post['Designed_for'],
-            "targeted_category": post['Targeted_category'],
-            "image": post['images'],
+            "image": post['image'],
             "date": date,
             "time": str(time),
             "status": ""

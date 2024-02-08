@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
+from helpers import fetch_user_info
 from step2.views import create_event
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
@@ -110,8 +111,8 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         # if topic['topic'] == True:
         #     async_task("automation.services.step_1", auto_strings,
         #                data_di, hook='automation.services.hook_now')
-            # return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
-    
+        # return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
+
         def api_call(grammar_arguments=None):
             if grammar_arguments is None:
                 grammar_arguments = {}
@@ -450,13 +451,10 @@ class SelectedResultAPIView(generics.CreateAPIView):
         data_dic = request.session['data_dictionary']
 
         insert_form_data(request.session['data_dictionary'])
-
-        print(topic)
-        if topic.get('article') == 'True':
-            async_task("automate.services.generate_article",
-                       data_dic, hook='automate.services.hook_now2')
-            return Response({'message': 'You sentences are being ranked in the background'})
+        if topic.get('article') == True:
+            user_data = fetch_user_info(request)
+            async_task("automation.services.generate_article",
+                       data_dic, user_data, hook='automation.services.hook_now2')
+            return Response({'message': 'Your articles are being generated in the background'})
         else:
-            pass
-
-        return Response({'message': 'Sentence ranked successfully'})
+            return Response({'message': 'Sentence ranked successfully'})
