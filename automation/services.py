@@ -203,16 +203,7 @@ def selected_result(article_id, data_dic):
             **Rank_dict
 
         }
-
-        # del request.session['data_dictionary']
-
-        # Removing industry form data and sentence forms data from the session
-        # request.session.pop('industry_form_data', None)
-        # request.session.pop('sentences_form_data', None)
-        # credit_handler = CreditHandler()
-        # credit_handler.consume_step_1_credit(request)
-
-        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
+        insert_form_data(data_dic)
         return (data_dic)
 
     except Exception as e:
@@ -289,11 +280,11 @@ def generate_article(data_dic, user_data):
 
     # Modify the prompt to include the formatted user data
     prompt = (
-        f"Write an article about {RESEARCH_QUERY}"
-        f" Include {formatted_cities} to the end of the article."
-        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-        [:prompt_limit]
-        + "..."
+            f"Write an article about {RESEARCH_QUERY}"
+            f" Include {formatted_cities} to the end of the article."
+            f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+            [:prompt_limit]
+            + "..."
     )
     # Generate article using OpenAI's GPT-3
     response = openai.Completion.create(
