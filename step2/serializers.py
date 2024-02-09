@@ -46,7 +46,7 @@ class UnScheduledJsonSerializer(serializers.Serializer):
 
 class ScheduledJsonSerializer(serializers.Serializer):
     response = serializers.ListField(child=serializers.DictField())
-    
+
 
 class MostRecentJsonSerializer(serializers.Serializer):
     response = serializers.ListField(child=serializers.DictField())
@@ -78,3 +78,15 @@ class EditPostSerializer(serializers.Serializer):
     title = serializers.CharField(required=True, )
     paragraph = serializers.CharField(required=True)
     image = serializers.URLField(required=True)
+
+
+class PortfolioChannelListSerializer(serializers.ListSerializer):
+    allow_empty = False
+
+
+class PortfolioChannelsSerializer(serializers.Serializer):
+    portfolio_code = serializers.CharField(required=True)
+    channels = serializers.MultipleChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
+
+    class Meta:
+        list_serializer_class = PortfolioChannelListSerializer
