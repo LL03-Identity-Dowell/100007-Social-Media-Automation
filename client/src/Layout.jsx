@@ -98,8 +98,11 @@ const Layout = ({ children, side, show, isUser }) => {
         })
         .then((res) => {
           const data = res.data;
-          const saveUserInfo = JSON.stringify(data);
-          localStorage.setItem("userInfo", saveUserInfo);
+          const saveUsername = data?.userinfo?.username;
+          const saveUseremail = data?.userinfo?.email;
+          const saveUserInfo = {username: saveUsername, email: saveUseremail}
+          const userInfo = JSON.stringify(saveUserInfo);
+          localStorage.setItem("userInfo", userInfo);
           const userProducts = data.portfolio_info;
           // Check if any product is "Social Media Automation"
           const hasSocialMediaAutomation = userProducts.some(
