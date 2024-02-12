@@ -1,28 +1,19 @@
-from django.shortcuts import render
-
 # Create your views here.
 
 
 import json
-import random
 from datetime import datetime
 
 import requests
-from django.db import transaction
-from django.shortcuts import render
 from django_q.tasks import async_task
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from create_article import settings
-from helpers import fetch_user_info
 from step2.views import create_event
-from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
 from website.permissions import HasBeenAuthenticated
-from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer, \
-    SelectedResultSerializer
+from website.serializers import SentenceSerializer, IndustrySerializer, SelectedResultSerializer
 
 
 def get_event_id():
@@ -136,68 +127,70 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
     serializer_class = SelectedResultSerializer
 
     def post(self, request, *args, **kwargs):
-        selected_result_serializer = SelectedResultSerializer(
-            data=request.data)
-        if not selected_result_serializer.is_valid():
-            return Response(selected_result_serializer.errors, status=HTTP_400_BAD_REQUEST)
+        session_id = request.GET.get('session_id', None)
+        email = request.session['userinfo']['email']
+        industry_serializer = IndustrySerializer(
+            email=email, data=request.data)
+        sentence_serializer = SentenceSerializer(
+            email=email, data=request.data)
+
+        if not industry_serializer.is_valid():
+            return Response(industry_serializer.errors, status=HTTP_400_BAD_REQUEST)
+        if not sentence_serializer.is_valid():
+            return Response(sentence_serializer.errors, status=HTTP_400_BAD_REQUEST)
+        try:
+            profile = str(request.session['operations_right'])
+        except:
+            profile = 'member'
+
+        url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
+        email = request.session['userinfo'].get('email')
+        user = User.objects.create(email=email)
+        industry = industry_serializer.save()
+        industry.user = user
+        industry.save()
+
+        object = sentence_serializer.data['object'].lower()
+        subject = sentence_serializer.validated_data['topic'].name
+        verb = sentence_serializer.data['verb']
+        objdet = sentence_serializer.data['object_determinant']
+        adjective = sentence_serializer.data['adjective']
+
         userid = request.session['user_id']
         topic = get_client_approval(userid)
-        sentence_ids = request.session.get('result_ids')
+        auto_strings = {
+            "object": object,
+            "subject": subject,
+            "verb": verb,
+            "objdet": objdet,
+            "objmod": adjective,
+            "email": email,
+            'user': user,
+            'approve': topic,
+            'topic': sentence_serializer.validated_data['topic'],
 
-        if not sentence_ids:
-            return Response({'message': 'The user does not have generated sentences in the session. Please generate '
-                                        'sentences again.'}, status=HTTP_400_BAD_REQUEST)
-
-        loop_counter = 1
-        Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-        used_ranks = set()
-        Rank_dict = {}  # added dictionary to store rankings
-        for sentence_id in sentence_ids:
-            available_ranks = [rank for rank in Rank if rank not in used_ranks]
-            if not available_ranks:
-                return Response({'message': 'No available ranks left.'}, status=HTTP_400_BAD_REQUEST)
-            selected_rank = random.choice(available_ranks)
-            used_ranks.add(selected_rank)
-            key = 'rank_{}'.format(loop_counter)
-            Rank_dict[key] = selected_rank
-            loop_counter += 1
-            sentence_result = SentenceResults.objects.get(
-                pk=sentence_id)
-            selected_result_obj = SentenceRank.objects.create(
-                sentence_result=sentence_result, sentence_rank=selected_rank
-            )
-
-            # Store ranking for each sentence
-            Rank_dict[sentence_result.sentence] = selected_rank
-
-            request.session['data_dictionary'] = {
-                **request.session['data_dictionary'],
-                **{
-                    "sentence_rank_{}".format(loop_counter - 1): {
-                        "sentence_rank": selected_rank,
-                        'sentence_result': sentence_result.sentence,
-                        'sentence_id': sentence_id
-                    }
-                }
-            }
-
-        data_dictionary = request.POST.dict()
-        data_dictionary['client_admin_id'] = request.session['userinfo']['client_admin_id']
-
-        request.session['data_dictionary'] = {
-            **request.session['data_dictionary'],
-            **data_dictionary
         }
 
-        # del request.session['data_dictionary']
-        data_dic = request.session['data_dictionary']
-        print(data_dic)
-
-        insert_form_data(request.session['data_dictionary'])
-        if topic.get('article') == True:
-            user_data = fetch_user_info(request)
-            async_task("automation.services.generate_article",
-                       data_dic,user_data, hook='automation.services.hook_now2')
-            return Response({'message': 'Your articles are being generated in the background'})
-        else:
-            return Response({'message': 'Sentence ranked successfully'})
+        data_di = {
+            'target_product': industry_serializer.validated_data['target_product'],
+            'target_industry': industry_serializer.validated_data['category'].name,
+            'subject_determinant': sentence_serializer.validated_data.get('subject_determinant', ''),
+            'subject': subject,
+            'subject_number': sentence_serializer.validated_data['subject_number'],
+            'object_determinant': objdet,
+            'object': object,
+            'object_number': sentence_serializer.validated_data['object_number'],
+            'adjective': adjective,
+            'verb': verb,
+            "email": email,
+            'user_id': request.session['user_id'],
+            "session_id": request.session["session_id"],
+            "org_id": request.session['org_id'],
+            'username': request.session['username'],
+            'event_id': create_event()['event_id'],
+            'client_admin_id': request.session['userinfo']['client_admin_id'],
+        }
+        if topic['topic'] == True:
+            async_task("automation.services.generate_topics",
+                       auto_strings, data_di, hook='automation.services.hook_now')
+        return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
