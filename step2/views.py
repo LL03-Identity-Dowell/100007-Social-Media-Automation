@@ -21,9 +21,8 @@ from django.contrib import messages
 from django.core import cache
 from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -38,13 +37,12 @@ from rest_framework.views import APIView
 from create_article import settings
 from create_article.views import AuthenticatedBaseView
 from helpers import (download_and_upload_image,
-                     save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
+                     save_data, create_event, fetch_user_info, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags,
                      check_if_user_is_owner_of_organization, fetch_user_portfolio_data, fetch_organization_user_info)
-from website.models import Sentences, SentenceResults
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
@@ -2963,6 +2961,7 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
             [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
         user_info = fetch_organization_user_info(org_id)
         portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+        portfolio_pd = portfolio_pd.drop_duplicates(subset=["portfolio_code"])
         portfolio_info_list = portfolio_pd.to_dict('records')
 
         portfolio_info_channel_list = []
