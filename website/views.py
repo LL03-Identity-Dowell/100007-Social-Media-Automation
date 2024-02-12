@@ -447,10 +447,11 @@ class SelectedResultAPIView(generics.CreateAPIView):
             **data_dictionary
         }
 
-        # del request.session['data_dictionary']
+
         data_dic = request.session['data_dictionary']
 
         insert_form_data(request.session['data_dictionary'])
+        del request.session['data_dictionary']
         if topic.get('article') == True:
             user_data = fetch_user_info(request)
             async_task("automation.services.generate_article",
