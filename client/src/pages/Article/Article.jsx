@@ -56,7 +56,7 @@ const Article = ({ show }) => {
 
   useEffect(() => {
     if (status === "success") {
-      setsuccess("Article Fetched successfully..!")
+      setsuccess("Article Fetched successfully")
       setCount(articleData.total_items);
       setPageCount(Math.ceil(articleData.total_items / perPage));
     }
