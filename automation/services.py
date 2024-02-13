@@ -15,7 +15,7 @@ from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
-from helpers import download_and_upload_image
+from helpers import download_and_upload_image, fetch_organization_user_info
 from step2.views import create_event
 from step2.views import save_data, get_key, update_schedule, check_connected_accounts
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -204,6 +204,9 @@ def selected_result(article_id, data_dic):
 
         }
         insert_form_data(data_dic)
+        approval = get_client_approval(data_dic['user_id'])
+        if approval['article'] == True:
+            async_task("automation.services.generate_article", data_dic, hook='automation.services.hook_now')
         return (data_dic)
 
     except Exception as e:
@@ -250,7 +253,7 @@ def insert_form_data(data_dict):
 
 
 @transaction.atomic
-def generate_article(data_dic, user_data):
+def generate_article(data_dic, ):
     print("automation started.........................................................")
     start_datetime = datetime.now()
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
@@ -264,7 +267,7 @@ def generate_article(data_dic, user_data):
     approval = get_client_approval(user_ids)
     org_id = data_dic["org_id"]
     user_selected_cities = []
-    user_data = user_data
+    user_data = fetch_organization_user_info(org_id)
     for item in user_data["data"]:
         if "target_city" in item and item["target_city"] is not None:
             user_selected_cities.extend(item["target_city"])
