@@ -4,8 +4,11 @@ import ReactPaginate from "react-paginate";
 import Loading from "../../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../../components/Messages";
 import { PostModal, ScheduleModal } from "./Modal";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const UnscheduledPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [unscheduledPost, setUnscheduledPost] = useState([]);
   const [socialArr, setSocialArr] = useState([]);
   const [sucessMessage, setSuccessMessage] = useState(null);
@@ -69,7 +72,12 @@ const UnscheduledPage = () => {
     };
     fetchUnscheduled();
     fetchLinkedAcc();
-  }, [page]);
+  }, [page, perPage, pageCount, pagesToDisplay]);
+
+  useEffect(() => {
+    // Update the URL with the selected page
+    navigate(`${location.pathname}?page=${page + 1}`);
+  }, [page, navigate, location.pathname]);
 
   const handlePageClick = (data) => {
     setPage(data.selected);
