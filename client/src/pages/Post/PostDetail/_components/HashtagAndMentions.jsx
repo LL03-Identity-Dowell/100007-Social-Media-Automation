@@ -14,6 +14,7 @@ const HashtagAndMentions = ({ onclick, data }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isFetched, setIsFetched] = useState("");
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetch = () => {
@@ -63,7 +64,7 @@ const HashtagAndMentions = ({ onclick, data }) => {
         setSuccess(resData.message);
         setTimeout(() => {
           navigate("/unscheduled");
-        }, 1000);
+        }, 2000);
       })
       .catch((error) => {
         setLoading(false);

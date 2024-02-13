@@ -398,7 +398,7 @@ function PostDetail({ show }) {
             >
               <FaTimes />
             </span>
-            <div className="">
+            <div className="pt-8">
               <h3 className="text-lg font-semibold">Do you want to add hashtags to this post?</h3>
             </div>
             <div className="flex gap-4 mt-6 w-[300px]">
