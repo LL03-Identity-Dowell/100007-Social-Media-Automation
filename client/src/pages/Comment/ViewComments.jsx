@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
@@ -15,7 +15,6 @@ function ViewComments({ show }) {
   const [comments, setComments] = useState({});
 
   const { id } = useParams();
-  const nav = useNavigate();
 
   const parsedDatetime = comments?.nextUpdateTwitter;
   const datetime = new Date(parsedDatetime);
@@ -91,7 +90,6 @@ function ViewComments({ show }) {
       })
       .then((response) => {
         if (response.statusText === "OK") {
-          console.log("Hitt");
           setSuccess("Comment deleted successfully.");
           setError("");
         }
@@ -117,8 +115,8 @@ function ViewComments({ show }) {
         <h1 className='text-3xl text-center md:text-4xl text-customTextBlue'>
           Comments
         </h1>
-        <button 
-        onClick={handleGoBack}
+        <button
+          onClick={handleGoBack}
           className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg max-w-max'
         >
           <MdArrowLeft />
@@ -256,6 +254,9 @@ function ViewComments({ show }) {
                 </ol>
               </div>
             )}
+            <p className='mt-6 text-base font-semibold text-red-700'>
+              {comments?.nextUpdateTwitter}
+            </p>
           </div>
         ) : (
           !loading &&
