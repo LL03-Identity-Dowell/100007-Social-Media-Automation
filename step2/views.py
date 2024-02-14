@@ -1062,7 +1062,6 @@ class EditPostView(AuthenticatedBaseView):
                 "details": {
                     "_id": post_id,
                     "field": {"_id": post_id},
-                    "title": "this is another title",
                     "database": "socialmedia",
                     "collection": "step3_data",
                     "team_member_ID": "34567897799",
