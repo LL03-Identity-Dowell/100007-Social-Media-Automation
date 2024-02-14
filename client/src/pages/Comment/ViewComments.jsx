@@ -255,7 +255,7 @@ function ViewComments({ show }) {
               </div>
             )}
             <p className='mt-6 text-base font-semibold text-red-700'>
-              {comments?.nextUpdateTwitter}
+              Comment will update on {humanReadableDatetime}
             </p>
           </div>
         ) : (
