@@ -524,6 +524,7 @@ def save_post(post_data, ):
     response = requests.request(
         "POST", url, headers=headers, data=payload)
     print(f'This is the response: {str(response.text)}')
+    post_data['post_id'] = response.json()['inserted_id']
     async_task("automation.services.media_post", post_data,
                hook='automation.services.hook_now')
     return (str(response.text))
@@ -617,7 +618,7 @@ def media_post(data: dict):
     # Logo in its own paragraph
     logo = "Created and posted by #samanta #uxlivinglab"
 
-    post_id = data['PK']
+    post_id = data['post_id']
 
     # Splitting the content and logo into separate paragraphs
     postes_paragraph1 = f"{paragraph[0:2000]}."
