@@ -2319,6 +2319,7 @@ def generate_article_automatically(request):
                                                    'dowelltime': dowellclock
                                                    }, "9992828281")
             para_list = article_sub_verb[0].split("\n\n")
+            para_list = para_list[::-1]
             source_verb = page.fullurl
             for i in range(len(para_list)):
                 if para_list[i] != '':
@@ -2362,6 +2363,7 @@ def generate_article_automatically(request):
                                                    'dowelltime': dowellclock
                                                    }, "9992828281")
             para_list = article_subject[0].split("\n\n")
+            para_list = para_list[::-1]
             for i in range(len(para_list)):
                 if para_list[i] != '':
                     print(para_list[i])
@@ -2407,6 +2409,7 @@ def generate_article_automatically(request):
                                                'dowelltime': dowellclock
                                                }, "9992828281")
         para_list = article[0].split("\n\n")
+        para_list = para_list[::-1]
         for i in range(len(para_list)):
             if para_list[i] != '':
                 save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
@@ -2647,6 +2650,7 @@ def generate_article_wiki(request):
                                                            # 'dowelltime': dowellclock
                                                            }, "9992828281")
                     para_list = article_sub_verb[0].split("\n\n")
+                    para_list = para_list[::-1]
                     source_verb = page.fullurl
                     for i in range(len(para_list)):
                         if para_list[i] != '':
@@ -2694,6 +2698,7 @@ def generate_article_wiki(request):
                                                            # 'dowelltime': dowellclock
                                                            }, "9992828281")
                     para_list = article_subject[0].split("\n\n")
+                    para_list = para_list[::-1]
                     for i in range(len(para_list)):
                         if para_list[i] != '':
                             print(para_list[i])
@@ -2751,6 +2756,7 @@ def generate_article_wiki(request):
                                                        # 'dowelltime': dowellclock
                                                        }, "9992828281")
                 para_list = article[0].split("\n\n")
+                para_list = para_list[::-1]
                 for i in range(len(para_list)):
                     if para_list[i] != '':
                         save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
@@ -2864,6 +2870,7 @@ def verify_article(request):
                 text_from_page = text_from_page.replace("\xa0", "")
                 print(article)
                 paragraph = article.split("\r\n")
+                paragraph = paragraph[::-1]
 
                 message = "Article Verified, "
                 for i in range(len(paragraph)):
