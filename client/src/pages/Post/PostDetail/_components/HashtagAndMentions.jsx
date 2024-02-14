@@ -17,7 +17,6 @@ const HashtagAndMentions = ({ onclick, data }) => {
   const [isFetchedMentions, setIsFetchedMentions] = useState();
   const [checkedMentionsList, setCheckedMentionsList] = useState([]);
   const [checkedHashtagList, setCheckedHashtagList] = useState([]);
-  const [mentions, setMentions] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,8 +42,10 @@ const HashtagAndMentions = ({ onclick, data }) => {
         })
         .then((response) => {
           let data = response.data.data[0].mentions_list;
-console.log(data);
-          setIsFetchedMentions(data);
+          let wordsArray = data.split(',');
+
+        
+          setIsFetchedMentions(wordsArray);
         })
         .catch((error) => {
           setError("Server error, Please try again later");
@@ -57,7 +58,6 @@ console.log(data);
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-  console.log(mentions);
 
     // data.group_name= selectOptions.group_name,
     // data.hashtags= ,
@@ -69,7 +69,7 @@ console.log(data);
     data.mentions = isFetchedMentions.filter((_, i) => checkedMentionsList[i]);
 
     const selectedHashtags = data.hashtags.map((hashtag) => `${hashtag}`).join(" ");
-    const selectedMentions = data.mentions.map((mention) => `@${mention}`).join(" ");
+    const selectedMentions = data.mentions.map((mention) => `${mention}`).join(" ");
     data.paragraphs += ` ${selectedHashtags} ${selectedMentions}`;
 
     axios
@@ -115,7 +115,7 @@ console.log(data);
       >
         <form
           onSubmit={handleSubmit}
-          className="bg-white md:w-[50%]  2xl:w-[40%] p-6 rounded-lg relative"
+          className="bg-white md:w-[50%]  2xl:w-[40%] md:p-6 px-4 pt-10 pb-4 rounded-lg relative"
         >
           <span
             className="border-2 border-gray-900 p-2 text-xs md:text-xl rounded-full absolute md:top-0 md:-right-12 right-4 top-2 cursor-pointer"
@@ -225,7 +225,7 @@ console.log(data);
                         onChange={() => handleCheckboxMentionsChange(index)}
                         className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                       />{" "}
-                        @{name}
+                        {name}
                         
                       </li>
                   ))}

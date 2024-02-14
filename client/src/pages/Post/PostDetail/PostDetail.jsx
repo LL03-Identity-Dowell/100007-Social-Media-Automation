@@ -134,7 +134,6 @@ function PostDetail({ show }) {
           let data = response.data;
           setSuccess(data.message);
           setDesignedFor(data.linked_accounts);
-          console.log(data);
           setPostDetailData(data);
 
           let isPostId = data.post._id;
