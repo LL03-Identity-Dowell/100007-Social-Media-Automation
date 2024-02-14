@@ -11,6 +11,7 @@ class ProfileSerializer(serializers.Serializer):
     timezone = serializers.CharField()
     operations_right = serializers.CharField()
     org_id = serializers.CharField()
+    product_service_status = serializers.CharField()
 
 
 class ListArticleSerializer(serializers.Serializer):
@@ -60,18 +61,21 @@ class RankedTopicListSerializer(serializers.Serializer):
 
 
 class PostCommentSerializer(serializers.Serializer):
-    platforms = serializers.MultipleChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
+    platforms = serializers.MultipleChoiceField(
+        required=True, choices=SOCIAL_PLATFORM_CHOICES)
     comment = serializers.CharField(required=True)
 
 
 class DeletePostCommentSerializer(serializers.Serializer):
-    platform = serializers.ChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
+    platform = serializers.ChoiceField(
+        required=True, choices=SOCIAL_PLATFORM_CHOICES)
     comment_id = serializers.CharField(required=True)
 
 
 class GroupHashtagSerializer(serializers.Serializer):
     group_name = serializers.CharField(required=True)
-    hashtags = serializers.ListSerializer(child=serializers.CharField(required=True))
+    hashtags = serializers.ListSerializer(
+        child=serializers.CharField(required=True))
 
 
 class EditPostSerializer(serializers.Serializer):
@@ -86,7 +90,8 @@ class PortfolioChannelListSerializer(serializers.ListSerializer):
 
 class PortfolioChannelsSerializer(serializers.Serializer):
     portfolio_code = serializers.CharField(required=True)
-    channels = serializers.MultipleChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
+    channels = serializers.MultipleChoiceField(
+        required=True, choices=SOCIAL_PLATFORM_CHOICES)
 
     class Meta:
         list_serializer_class = PortfolioChannelListSerializer
