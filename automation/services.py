@@ -108,6 +108,7 @@ def generate_topic_api(grammar_arguments=None, subject=None, verb=None, objdet=N
 
 @transaction.atomic
 def generate_topics(auto_strings, data_dic):
+    print('Start of generating sentences')
     sentence_grammar = Sentences.objects.create(
         user=auto_strings['user'],
         object=auto_strings['object'],
@@ -304,7 +305,7 @@ def generate_article(data_dic, ):
     article = response.choices[0].text
     paragraphs = [p.strip()
                   for p in article.split("\n\n") if p.strip()]
-    paragraphs = paragraphs[::-1]
+
     article_str = "\n\n".join(paragraphs)
     sources = urllib.parse.unquote("")
     event_id = create_event()['event_id']
@@ -315,6 +316,7 @@ def generate_article(data_dic, ):
     for i in range(len(paragraphs) - 1):
         paragraphs[i] += " " + " ".join(hashtags_in_last_paragraph)
     post_id_list = []
+    paragraphs = paragraphs[::-1]
     for i in range(len(paragraphs)):
         if paragraphs[i] != "":
             step3_data = {
@@ -330,8 +332,8 @@ def generate_article(data_dic, ):
 
             }
             post_data = save_data('step3_data', 'step3_data',
-                      step3_data, '34567897799')
-            post_id_list.append(post_data)
+                                  step3_data, '34567897799')
+            post_id_list.append(post_data.json())
 
     step2_data = {
         "user_id": user_id,
@@ -354,9 +356,21 @@ def generate_article(data_dic, ):
     print('step_3 starting')
     #    seeking for approval to automate step 3
     if approval['post'] == True:
-        step_3 = post_list(user_ids)
-        print(step_3)
-    print('step_3 not done')
+        picked_article = post_id_list[0]
+        post_data = {
+            'post_id': picked_article.get('inserted_id'),
+            'paragraph': paragraphs[0],
+            "user_id": user_id,
+            "org_id": org_id,
+            "session_id": session_id,
+            "eventId": event_id,
+            'client_admin_id': client_admin_id,
+            "title": RESEARCH_QUERY,
+            "source": sources,
+        }
+        async_task("automation.services.save_post", post_data,
+                   hook='automation.services.hook_now')
+    print('step_3 is done')
     return ('done')
 
 
@@ -433,16 +447,46 @@ def post_list(user_id):
     return 'done'
 
 
-def save_post(articles, post):
+def get_post_image(data: dict):
+    a = random.randint(1, 9)
+    max_characters = 200
+    if 'paragraph' in data:
+        paragraph = data.get('paragraph')
+        truncated_paragraph = paragraph[:max_characters]
+        query = truncated_paragraph
+    elif 'article' in data:
+        article = data.get("article")
+        truncated_article = article[:max_characters]
+        query = truncated_article
+    output = []
+    api = API(PEXELS_API_KEY)
+    pic = api.search(query, page=a, results_per_page=10)
+    width = 350
+    for photo in pic['photos']:
+        pictures = photo['src']['medium']
+        img_data = requests.get(pictures).content
+        im = Image.open(BytesIO(img_data))
+        wit = im.size
+        if wit[0] >= width:
+            output.append(pictures)
+    if len(output) == 0:
+        return {'message': 'No images found please try again!'}
+    images = output[0]
+    return images
+
+
+def save_post(post_data, ):
     eventId = create_event()['event_id']
     time = localtime()
     test_date = str(localdate())
     date_obj = datetime.strptime(test_date, '%Y-%m-%d')
     date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-    paragraph_list = [articles['paragraph']]
+    paragraph_list = [post_data['paragraph']]
     combined_article = "\n\n".join(paragraph_list)
     paragraph_without_commas = combined_article.replace(
         '.', '. ').replace(',.', '.')
+
+    image = get_post_image(post_data)
 
     url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -456,15 +500,15 @@ def save_post(articles, post):
         "command": "insert",
         "eventId": eventId,
         "field": {
-            "user_id": articles['user_id'],
-            "session_id": articles['session_id'],
+            "user_id": post_data['user_id'],
+            "session_id": post_data['session_id'],
             "eventId": eventId,
-            'client_admin_id': articles['client_admin_id'],
-            "org_id": articles['org_id'],
-            "title": articles['title'],
+            'client_admin_id': post_data['client_admin_id'],
+            "org_id": post_data['org_id'],
+            "title": post_data['title'],
             "paragraph": paragraph_without_commas,
-            "source": articles["source"],
-            "image": post['image'],
+            "source": post_data["source"],
+            "image": image,
             "date": date,
             "time": str(time),
             "status": ""
@@ -477,10 +521,10 @@ def save_post(articles, post):
     headers = {
         'Content-Type': 'application/json'
     }
-    print("This is payload", payload)
     response = requests.request(
         "POST", url, headers=headers, data=payload)
-    return ("data:")
+    print(f'This is the response: {str(response.text)}')
+    return (str(response.text))
 
 
 def update_most_recent(pk):
