@@ -32,11 +32,14 @@ from pexels_api import API
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_400_BAD_REQUEST
 # rest(React endpoints)
 from rest_framework.views import APIView
 
 from create_article import settings
 from create_article.views import AuthenticatedBaseView
+from credits.constants import STEP_2_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
 from helpers import (download_and_upload_image,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
@@ -45,6 +48,7 @@ from helpers import (download_and_upload_image,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags,
                      check_if_user_is_owner_of_organization, fetch_user_portfolio_data, fetch_organization_user_info)
 from website.models import Sentences, SentenceResults
+from .forms import VerifyArticleForm
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
@@ -399,6 +403,16 @@ class IndexView(AuthenticatedBaseView):
 
 class GenerateArticleView(AuthenticatedBaseView):
     def post(self, request):
+
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_2_SUB_SERVICE_ID,
+            request=request,
+        )
+
+        if not credit_response.get('success'):
+            return Response(credit_response, status=HTTP_400_BAD_REQUEST)
+
         start_datetime = datetime.now()
         session_id = request.GET.get('session_id', None)
 
@@ -444,6 +458,7 @@ class GenerateArticleView(AuthenticatedBaseView):
                         f" Ensure that the generated content is a minimum of {min_characters} characters in length."
                         [:prompt_limit]
                         + "..."
+
                 )
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
@@ -518,6 +533,14 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
             if request.method != "POST":
                 return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
             else:
+                credit_handler = CreditHandler()
+                credit_response = credit_handler.check_if_user_has_enough_credits(
+                    sub_service_id=STEP_2_SUB_SERVICE_ID,
+                    request=request,
+                )
+                if not credit_response.get('success'):
+                    return Response(credit_response, status=HTTP_400_BAD_REQUEST)
+
                 title = request.data.get("title")
                 org_id = request.session.get('org_id')
                 wiki_language = wikipediaapi.Wikipedia(
@@ -560,8 +583,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                    }, '34567897799')
                             print("step-3 data saved")
                         break
-                    # credit_handler = CreditHandler()
-                    # credit_handler.consume_step_2_credit(request)
+                    credit_handler = CreditHandler()
+                    credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
                 elif page.exists() == False:
                     return Response({
@@ -573,11 +596,50 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
 class WriteYourselfView(AuthenticatedBaseView):
 
     def post(self, request):
+        if 'session_id' and 'username' in request.session:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return Response(credit_response, status=HTTP_400_BAD_REQUEST)
+
+            if request.method != "POST":
+                return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
+            form = VerifyArticleForm(request.POST)
+
+            if form.is_valid():
+                title = request.POST.get("title")
+
+                response_data = {
+                    'title': title,
+                    'form_data': form.cleaned_data  # Serialize form data, not the form instance
+                }
+
+                return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'Form validation failed', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class VerifyArticle(AuthenticatedBaseView):
+    def pot(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
             if request.method != "POST":
                 return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
             else:
+                credit_handler = CreditHandler()
+                credit_response = credit_handler.check_if_user_has_enough_credits(
+                    sub_service_id=STEP_2_SUB_SERVICE_ID,
+                    request=request,
+                )
+                if not credit_response.get('success'):
+                    return Response(credit_response, status=HTTP_400_BAD_REQUEST)
+
                 title = request.data.get("title")
                 org_id = request.session.get('org_id')
                 article_text_area = request.data.get("articletextarea")
@@ -648,6 +710,9 @@ class WriteYourselfView(AuthenticatedBaseView):
                                                            "source": source,
                                                            # 'dowelltime': dowellclock
                                                            }, "9992828281")
+
+                    credit_handler = CreditHandler()
+                    credit_handler.consume_step_2_credit(request)
 
                     # credit_handler = CreditHandler()
                     # credit_handler.consume_step_2_credit(request)
@@ -975,6 +1040,9 @@ class SavePostView(AuthenticatedBaseView):
                 response = requests.request(
                     "POST", url, headers=headers, data=payload)
                 print("data:", response.json())
+                # make sure to alert the user that the article has been saved sucesfully. (frontend)
+                credit_handler = CreditHandler()
+                credit_handler.consume_step_3_credit(request)
                 # credit_handler = CreditHandler()
                 # credit_handler.consume_step_3_credit(request)
                 response_data = {
@@ -1045,6 +1113,65 @@ class EditPostView(AuthenticatedBaseView):
 '''step-3 Ends here'''
 
 '''step-4 starts here'''
+
+
+def api_call(postes, platforms, key, image, request, post_id):
+
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        messages.error(request, 'error in posting')
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_4_credit(request)
+        update = update_most_recent(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
+
+
+def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
+
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               'scheduleDate': str(formart),
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        for error in r1.json()['posts']:
+            for message in error['errors']:
+                messages.error(request, message['message'][:62])
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_4_credit(request)
+        update = update_most_recent(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
 
 
 @method_decorator(csrf_exempt, name='dispatch')

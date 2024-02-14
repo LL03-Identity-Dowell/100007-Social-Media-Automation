@@ -186,7 +186,7 @@ class CreditHandler:
 
         if not response.get('services'):
             credit_response.update(
-                {'success': False, 'message': 'No services found error'})
+                {'success': False, 'message': 'Please activate the social media service'})
             request.session['credit_response'] = credit_response
             return credit_response
 
