@@ -524,6 +524,8 @@ def save_post(post_data, ):
     response = requests.request(
         "POST", url, headers=headers, data=payload)
     print(f'This is the response: {str(response.text)}')
+    async_task("automation.services.media_post", post_data,
+               hook='automation.services.hook_now')
     return (str(response.text))
 
 
