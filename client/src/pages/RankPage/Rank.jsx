@@ -48,6 +48,7 @@ function Rank({show}) {
 
             setSentences(apiSentences);
         } else {
+        setLoading(false);
             setError("Cannot retrieve sentences");
             setTimeout(() => {
                 navigate('/topic');
@@ -121,7 +122,7 @@ function Rank({show}) {
             const flippedData = flipObject(data)
 
             axios
-                .post(`http://127.0.0.1:8000/website/api/v1/selected_result/`, flippedData, {
+                .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/selected_result/`, flippedData, {
                     withCredentials: true,
                 })
                 .then((response) => {

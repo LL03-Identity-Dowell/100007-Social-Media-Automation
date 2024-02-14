@@ -1,5 +1,7 @@
 from django.db import models, transaction
 from django.db.models import Q
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 class BaseModel(models.Model):
@@ -24,7 +26,6 @@ class User(models.Model):
 
     class Meta:
         verbose_name_plural = 'Users'
-        db_table = "Emails"
 
 
 class Category(BaseModel):
@@ -36,6 +37,11 @@ class Category(BaseModel):
         return self.name
 
 
+@receiver(pre_save, sender=Category)
+def validate_category_save(sender, instance, **kwargs):
+    if not instance.user and instance.is_default == False:
+        raise ValueError('A category which is not default has to be assigned to a user!')
+
 class UserTopic(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='user_topic')
     name = models.CharField(max_length=1000, blank=False, null=False)
@@ -44,6 +50,11 @@ class UserTopic(BaseModel):
     def __str__(self):
         return self.name
 
+
+@receiver(pre_save, sender=UserTopic)
+def validate_category_save(sender, instance, **kwargs):
+    if not instance.user and instance.is_default == False:
+        raise ValueError('A category which is not default has to be assigned to a user!')
 
 class IndustryData(BaseModel):
     CHOICES = (
@@ -101,12 +112,13 @@ class Sentences(models.Model):
     # subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
     topic = models.ForeignKey(UserTopic, on_delete=models.PROTECT, null=True, blank=True,
                               related_name='sentence')
-    subject_number = models.CharField(max_length=100, blank=False)
-    object_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS, default=DETERMINANTS[0][0])
+    subject_number = models.CharField(max_length=100, blank=True, null=True)
+    object_determinant = models.CharField(max_length=100, blank=True, null=True, choices=DETERMINANTS,
+                                          default=DETERMINANTS[0][0])
     object = models.CharField(max_length=100, blank=False)
     object_number = models.CharField(max_length=100, blank=False)
-    verb = models.CharField(max_length=100, blank=False)
-    adjective = models.CharField(max_length=100, blank=False)
+    verb = models.CharField(max_length=100, blank=True, null=True)
+    adjective = models.CharField(max_length=100, blank=True, null=True)
 
     # sentence = models.TextField(max_length=400)# single sentence got from database
     #     for part two of the Modelform

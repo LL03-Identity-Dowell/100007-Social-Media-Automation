@@ -2,9 +2,12 @@ import datetime
 import json
 from datetime import datetime
 
+import jwt
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from bs4.element import Comment
+from django.utils.timezone import localtime, localdate
 from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 
@@ -313,7 +316,7 @@ def get_key(user_id):
     return key
 
 
-def post_comment_to_social_media(platforms: list[str], id: str, comment: str):
+def post_comment_to_social_media(platforms: list[str], id: str, comment: str, profile_key: str):
     """
     This method posts a comment to a social media post
     """
@@ -323,6 +326,7 @@ def post_comment_to_social_media(platforms: list[str], id: str, comment: str):
         'comment': comment
     }
     headers = {'Content-Type': 'application/json',
+               'Profile-Key': profile_key,
                'Authorization': f'Bearer {str(ARYSHARE_KEY)}'}
 
     response = requests.post('https://app.ayrshare.com/api/comments',
@@ -331,12 +335,502 @@ def post_comment_to_social_media(platforms: list[str], id: str, comment: str):
     return response.json()
 
 
-def get_post_comments(post_id: str):
+def get_post_comments(post_id: str, profile_key: str):
     """
     This function returns comments for a particular post
     """
-    headers = {'Authorization': f'Bearer {str(ARYSHARE_KEY)}'}
+    headers = {
+        'Content-Type': 'application/json',
+        'Profile-Key': profile_key,
+        'Authorization': f'Bearer {str(ARYSHARE_KEY)}'
+    }
     url = f'https://app.ayrshare.com/api/comments/{str(post_id)}'
     r = requests.get(url, headers=headers)
 
     return r.json()
+
+
+def delete_post_comment(comment_id: str, profile_key: str, platform: str):
+    """
+    This function returns comments for a particular post
+    """
+    headers = {
+        'Content-Type': 'application/json',
+        'Profile-Key': profile_key,
+        'Authorization': f'Bearer {str(ARYSHARE_KEY)}'
+    }
+
+    payload = {
+        'platform': platform,
+    }
+
+    data = json.dumps(payload)
+
+    url = f'https://app.ayrshare.com/api/comments/{str(comment_id)}/?platform={str(platform)}&searchPlatformId=true'
+    r = requests.delete(url, headers=headers, data=data)
+
+    return r.json()
+
+
+def get_most_recent_posts(user_id):
+    """
+    This function returns the most recent posts made by a user
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request(
+        "POST", url, headers=headers, data=data)
+    posts = json.loads(response.json())
+
+    status = 'posted'
+    user_post = []
+
+    for row in posts['data']:
+
+        if user_id == str(row['user_id']):
+            try:
+                if status == row['status']:
+                    data = {
+                        'article_id': row['_id'],
+                        'title': row['title'],
+                        'paragraph': row['paragraph'],
+                        'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                        'image': row['image'],
+                        'source': row['source'],
+                        'time': row['time'],
+                        'post_response': row.get('post_response'),
+                    }
+                    user_post.append(data)
+            except:
+                pass
+
+    user_post = list(reversed(user_post))
+    return user_post
+
+
+def get_scheduled_posts(user_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request(
+        "POST", url, headers=headers, data=data)
+    posts = json.loads(response.json())
+
+    status = 'scheduled'
+    post_data = []
+
+    for row in posts['data']:
+        if user_id == str(row['user_id']):
+            try:
+                if status == row['status']:
+                    data = {
+                        'title': row['title'],
+                        'paragraph': row['paragraph'],
+                        'image': row['image'],
+                        'pk': row['_id'],
+                        'source': row['source'],
+                        'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                        'time': row['time']
+                    }
+                    post_data.append(data)
+
+            except:
+                pass
+    post_data = list(reversed(post_data))
+    return post_data
+
+
+def get_post_by_id(post_id, user_id):
+    """
+    This function returns the most recent posts made by a user
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request(
+        "POST", url, headers=headers, data=data)
+    posts = json.loads(response.json())
+
+    status = 'posted'
+
+    for row in posts['data']:
+
+        if user_id == str(row['user_id']):
+            try:
+                if status == row['status'] and row['_id'] == post_id:
+                    return {
+                        'article_id': row['_id'],
+                        'title': row['title'],
+                        'paragraph': row['paragraph'],
+                        'Date': datetime.strptime(row["date"][:10], '%Y-%m-%d').date(),
+                        'image': row['image'],
+                        'source': row['source'],
+                        'time': row['time'],
+                        'profile_key': row.get('profile_key'),
+                        'post_response': row.get('post_response'),
+                    }
+
+            except:
+                pass
+
+
+def get_aryshare_profile_id(user_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "ayrshare_info",
+        "document": "ayrshare_info",
+        "team_member_ID": "100007001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"user_id": user_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+
+
+def save_profile_key_to_post(profile_key, post_id, post_response, org_id):
+    url = "http://uxlivinglab.pythonanywhere.com"
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "update",
+        "field": {
+            "_id": post_id,
+        },
+        "update_field": {
+            "profile_key": profile_key,
+            "post_response": post_response,
+            "org_id": org_id,
+        },
+        "platform": "bangalore"
+    }
+
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(url, headers=headers, json=payload)
+
+    return response.json()
+
+
+def encode_json_data(data):
+    """
+    This method encodes json data
+    @param data: {}
+    @return: str
+    """
+    return jwt.encode(data, "secret", algorithm="HS256")
+
+
+def edit_article(data: dict):
+    """
+    This function updates a post data
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step3_data",
+        "document": "step3_data",
+        "team_member_ID": "34567897799",
+        "function_ID": "ABCDE",
+        "command": "update",
+        "field": {"_id": data.get('post_id')},
+        "update_field": {
+            "title": data.get('title'),
+            "paragraph": data.get('paragraph'),
+        },
+        "platform": "bangalore"
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    print(response.text)
+    return response.json()
+
+
+def create_step_4_data(data: dict):
+    """
+    This function creates step 4 data
+    """
+    time = localtime()
+    test_date = str(localdate())
+    date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+    date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+    eventId = create_event()['event_id'],
+    url = "http://uxlivinglab.pythonanywhere.com"
+    payload = json.dumps({
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "step4_data",
+        "document": "step4_data",
+        "team_member_ID": "1163",
+        "function_ID": "ABCDE",
+        "command": "insert",
+        "eventId": eventId,
+        # 'dowelltime': dowellclock,
+        "field": {
+            "user_id": data['user_id'],
+            "session_id": data['session_id'],
+            "eventId": eventId,
+            'client_admin_id': data['client_admin_id'],
+            "title": data['title'],
+            "paragraph": data['paragraph'],
+            "org_id": data['org_id'],
+            "source": data['source'],
+            "qualitative_categorization": data.get('qualitative_categorization'),
+            "targeted_for": data.get('targeted_for'),
+            "designed_for": data.get('designed_for'),
+            "targeted_category": data.get('targeted_category'),
+            "image": data['image'],
+            "date": date,
+            "time": str(time),
+            "status": "",
+            "timezone": data['timezone'],
+            "username": data['username']
+        },
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    })
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    print("This is payload", payload)
+    response = requests.request(
+        "POST", url, headers=headers, data=payload)
+    print("data:", response.json())
+    return response.json()
+
+
+def create_group_hashtags(data: dict):
+    """
+    This function returns
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    event_id = create_event()['event_id']
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "hashtags",
+        "document": "hashtags",
+        "team_member_ID": "1262001",
+        "function_ID": "ABCDE",
+        "command": "insert",
+        "field": {
+            "user_id": data['user_id'],
+            "session_id": data['session_id'],
+            "org_id": data['org_id'],
+            "eventId": event_id,
+            'client_admin_id': data['client_admin_id'],
+            "group_name": data['group_name'],
+            "hashtags": data['hashtags'],
+        },
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    return response.json()
+
+
+def update_group_hashtags(data: dict):
+    """
+    This function returns
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    event_id = create_event()['event_id']
+    update_type = data.get('update_type')
+    if update_type == 'append':
+        group_hashtag = filter_group_hashtag({
+            'org_id': data.get('org_id'),
+            'group_hashtag_id': data.get('group_hashtag_id'),
+        })
+        if group_hashtag:
+            group_hashtag = group_hashtag[0]
+            current_hashtags = group_hashtag['hashtags']
+            data['hashtags'] = data['hashtags'] + current_hashtags
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "hashtags",
+        "document": "hashtags",
+        "team_member_ID": "1262001",
+        "function_ID": "ABCDE",
+        "command": "update",
+        "field": {
+            "_id": data['group_hashtag_id'],
+        },
+        "update_field": {
+            "group_name": data['group_name'],
+            "hashtags": data['hashtags'],
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    return response.json()
+
+
+def filter_group_hashtag(data: dict):
+    """
+    This function returns
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+    org_id = data.get('org_id')
+    filter_data = {
+        'org_id': data.get('org_id'),
+    }
+    if data.get('group_hashtag_id'):
+        filter_data['_id'] = data.get('group_hashtag_id')
+    if data.get('group_name'):
+        filter_data['group_name'] = data.get('group_name')
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "hashtags",
+        "document": "hashtags",
+        "team_member_ID": "1262001",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": filter_data,
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    print(response.json())
+    response_data = json.loads(response.json())
+    group_hastag_pd = pd.DataFrame(response_data.get('data'))
+    try:
+        filtered_pd = group_hastag_pd[group_hastag_pd['org_id'] == org_id]
+    except KeyError:
+        return []
+    return filtered_pd.to_dict('records')
+
+
+def check_if_user_is_owner_of_organization(request):
+    portfolio_info_list = request.session['portfolio_info']
+    username = request.session['username']
+    if not portfolio_info_list:
+        return False
+    for portfolio_info in portfolio_info_list:
+        if portfolio_info.get('product') == 'Social Media Automation':
+            if portfolio_info.get('member_type') == 'owner':
+                return True
+            if portfolio_info.get('member_type') == 'team_member' and portfolio_info.get('owner_name') == username:
+                return True
+    return False
+
+
+def fetch_user_portfolio_data(request):
+    # TODO: Remove session id below
+    session_id = request.session.get("session_id") or 't4t3v05wrljr9obdwrid4x2efz9tbmh0'
+    if not session_id:
+        return {"error": "Session ID not found"}
+
+    url = "https://100093.pythonanywhere.com/api/userinfo/"
+    response = requests.post(url, data={"session_id": session_id})
+    return response.json()
+
+
+def fetch_organization_user_info(org_id):
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+
+        "collection": "user_info",
+        "document": "user_info",
+        "team_member_ID": "1071",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {"org_id": org_id},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    if response.status_code == 200:
+        user_data = json.loads(response.json())
+        return user_data
+    else:
+        # where the request to the database fails
+        return None

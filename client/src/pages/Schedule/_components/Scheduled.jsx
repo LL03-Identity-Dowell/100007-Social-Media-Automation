@@ -1,8 +1,8 @@
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import Loading from "/src/components/Loading.jsx";
-import {ErrorMessages, SuccessMessages} from "/src/components/Messages";
+import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
 import axios from "axios";
-import {Pagination} from "../../../components/Pagination";
+import { Pagination } from "../../../components/Pagination";
 
 const ScheduledPage = () => {
   const [articles, setArticles] = useState({
@@ -13,6 +13,7 @@ const ScheduledPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isEmpty, setIsEmpty] = useState("");
 
   const [pageNumber, setPageNumber] = useState(1);
 
@@ -21,7 +22,7 @@ const ScheduledPage = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `http://127.0.0.1:8000/api/v1/scheduled-json?page=${pageNumber}`,
+          `${import.meta.env.VITE_APP_BASEURL}/scheduled-json?page=${pageNumber}&order=newest`,
           {
             withCredentials: true,
           }
@@ -33,7 +34,11 @@ const ScheduledPage = () => {
           totalPage: data.total_page,
           totalPosts: data.total_items,
         });
-          setSuccess("Successfully fetched posts");
+
+        if(data.total_items <= 0){
+          setIsEmpty("You do not have any post scheduled")
+        }
+        setSuccess("Successfully fetched posts");
         setError("");
       } catch (error) {
         setError("Error fetching the articles");
@@ -47,54 +52,55 @@ const ScheduledPage = () => {
   }, [pageNumber]);
 
 
-    const ReadMoreParagraph = ({text}) => {
-        const [readMore, setReadMore] = useState(false);
+  const ReadMoreParagraph = ({ text }) => {
+    const [readMore, setReadMore] = useState(false);
 
-        const [isOverflowed, setIsOverflowed] = useState(false);
-        const paragraphRef = useRef(null);
+    const [isOverflowed, setIsOverflowed] = useState(false);
+    const paragraphRef = useRef(null);
 
-        useEffect(() => {
-            const paragraphElement = paragraphRef.current;
+    useEffect(() => {
+      const paragraphElement = paragraphRef.current;
 
-            // Check if the paragraph content overflows the container
-            setIsOverflowed(
-                paragraphElement.scrollHeight > paragraphElement.clientHeight
-            );
-        }, [text]);
+      // Check if the paragraph content overflows the container
+      setIsOverflowed(
+        paragraphElement.scrollHeight > paragraphElement.clientHeight
+      );
+    }, [text]);
 
-        const handleReadMore = () => {
-            setReadMore(!readMore);
-        };
-
-        return (
-            <div>
-                <p
-                    ref={paragraphRef}
-                    className={`lg:pt-4 px-2 text-md lg:text-lg text-gray-600 ${
-                        readMore ? "" : "line-clamp-4"
-                    } lg:w-[920px]`}
-                >
-                    {text}
-                </p>
-                {isOverflowed && (
-                    <span
-                        onClick={handleReadMore}
-                        className="text-md lg:text-lg text-customTextBlue cursor-pointer font-semibold px-2"
-                    >
+    const handleReadMore = () => {
+      setReadMore(!readMore);
+    };
+  
+    return (
+      <div>
+         <p
+        ref={paragraphRef}
+        className={`lg:pt-4 px-2 text-md lg:text-lg text-gray-600 ${
+          readMore ? "" : "line-clamp-4"
+        } lg:w-[920px]`}
+      >
+        {text}
+      </p>
+        {isOverflowed && (
+        <span
+          onClick={handleReadMore}
+          className="text-md lg:text-lg text-customTextBlue cursor-pointer font-semibold px-2"
+        >
           {readMore ? "Read Less..." : "Read More..."}
         </span>
-                )}
-            </div>
-        );
-    };
+      )}
+      </div>
+    );
+  }; 
 
 
   return (
-    <div className='px-6'>
+    <div className='px-6 w-full'>
       <h4 className='ml-5 italic'>Total posts count: {articles?.totalPosts}</h4>
       <ul className='space-y-4 '>
         {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
         {success !== "" && <SuccessMessages>{success}</SuccessMessages>}
+        <p className="text-red-600 mt-10 text-xl lg:mr-12">{isEmpty}</p>
         {loading ? (
           <Loading />
         ) : (
@@ -111,17 +117,22 @@ const ScheduledPage = () => {
                 <p className=' py-0 text-md lg:text-xl text-customTextBlue dark:text-white font-bold lg:w-[1000px]'>
                   {item?.title}
                 </p>
-                  {/* <p className='lg:pt-4 text-md lg:text-lg line-clamp-4 leading-loose lg:w-[980px] text-gray-500'>
+                {/* <p className='lg:pt-4 text-md lg:text-lg line-clamp-4 leading-loose lg:w-[980px] text-gray-500'>
                   {item?.paragraph}
                 </p> */}
-                  <ReadMoreParagraph text={item.paragraph}/>
+                <ReadMoreParagraph text={item.paragraph} />
+                  <img
+                className='w-full mt-6 rounded-lg md:w-40 aspect-square md:mt-20 md:hidden'
+                src={item?.image}
+                alt='image'
+              />
                 <span className='flex items-center self-end mt-3 gap-x-2'>
                   <div className='icons8-clock'></div>
                   <p className='text-[#333] text-sm'>{item?.Date}</p>
                 </span>
               </div>
               <img
-                className='w-full mt-6 rounded-lg md:w-40 aspect-square md:mt-20'
+                className='w-full mt-6 rounded-lg md:w-40 aspect-square md:mt-20 hidden md:block'
                 src={item?.image}
                 alt='image'
               />

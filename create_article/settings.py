@@ -23,7 +23,6 @@ mimetypes.add_type("text/html", ".html", True)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -56,9 +55,9 @@ INSTALLED_APPS = [
     'article_api',
     'django_q',
 
-
     'corsheaders',
     'credits',
+    'automation',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -76,9 +75,7 @@ MIDDLEWARE = [
     # 'djangobower.finders.BowerFinder',
 ]
 
-
 ROOT_URLCONF = 'create_article.urls'
-
 
 BOWER_INSTALLED_APPS = (
     'jquery#1.9',
@@ -105,7 +102,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'create_article.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
@@ -120,6 +116,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            "timeout": 20,
+        }
     }
 
 }
@@ -143,7 +142,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -157,13 +155,12 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = "/static/"
-STATICFILES_DIRS = [BASE_DIR/'static']
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -172,9 +169,7 @@ LINGUA_KEY = '1ab6a8ab35msh454e13d4febb540p1f0fe3jsn5303c2162430'
 OPENAI_KEY = config('OPENAI_KEY', '')
 ARYSHARE_KEY = config('ARYSHARE_KEY', '')
 
-
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-
 
 SESSION_COOKIE_SAMESITE = 'None'  # As a string
 SESSION_COOKIE_SECURE = True
@@ -186,10 +181,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-         
+
     ]
 }
-
 
 Q_CLUSTER = {
     'name': 'auto',

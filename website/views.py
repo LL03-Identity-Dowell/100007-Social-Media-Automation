@@ -5,13 +5,14 @@ import requests
 from django.db import transaction
 from django.shortcuts import render
 from django_q.tasks import async_task
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
 from credits.constants import STEP_1_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
+from helpers import fetch_user_info
 from step2.views import create_event
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
@@ -30,9 +31,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
     """
 
     """
-    # permission_classes = (HasBeenAuthenticated,)
-    permission_classes = ()
-    authentication_classes = ()
+    permission_classes = (HasBeenAuthenticated,)
     serializer_class = SentenceSerializer
 
     def get_serializer(self):
@@ -78,6 +77,46 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         verb = sentence_serializer.data['verb']
         objdet = sentence_serializer.data['object_determinant']
         adjective = sentence_serializer.data['adjective']
+
+        userid = request.session['user_id']
+        topic = get_client_approval(userid)
+        # auto_strings = {
+        #     "object": object,
+        #     "subject": subject,
+        #     "verb": verb,
+        #     "objdet": objdet,
+        #     "objmod": adjective,
+        #     "email": email,
+        #     'user': user,
+        #     'approve': topic,
+        #     'topic': sentence_serializer.validated_data['topic'],
+
+        # }
+
+        # data_di = {
+        #     'target_product': industry_serializer.validated_data['target_product'],
+        #     'target_industry': industry_serializer.validated_data['category'].name,
+        #     'subject_determinant': sentence_serializer.validated_data.get('subject_determinant', ''),
+        #     'subject': subject,
+        #     'subject_number': sentence_serializer.validated_data['subject_number'],
+        #     'object_determinant': objdet,
+        #     'object': object,
+        #     'object_number': sentence_serializer.validated_data['object_number'],
+        #     'adjective': adjective,
+        #     'verb': verb,
+        #     "email": email,
+        #     'user_id': request.session['user_id'],
+        #     "session_id": request.session["session_id"],
+        #     "org_id": request.session['org_id'],
+        #     'username': request.session['username'],
+        #     'event_id': create_event()['event_id'],
+        #     'client_admin_id': request.session['userinfo']['client_admin_id'],
+        # }
+        userid = request.session['user_id']
+        # if topic['topic'] == True:
+        #     async_task("automation.services.step_1", auto_strings,
+        #                data_di, hook='automation.services.hook_now')
+        # return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
 
         def api_call(grammar_arguments=None):
             if grammar_arguments is None:
@@ -134,7 +173,8 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         data_dictionary["session_id"] = session_id
         data_dictionary["org_id"] = request.session['org_id']
         data_dictionary["username"] = request.session['username']
-        data_dictionary["session_id"] = request.session.get('session_id', None)
+        data_dictionary["session_id"] = request.session.get(
+            'session_id', None)
         data_dictionary['event_id'] = create_event()['event_id']
         data_dictionary['email'] = email
 
@@ -200,9 +240,7 @@ class UserCategoriesAPIView(generics.ListCreateAPIView):
     """
 
     """
-    # permission_classes = (HasBeenAuthenticated,)
-    permission_classes = ()
-    authentication_classes = ()
+    permission_classes = (HasBeenAuthenticated,)
     serializer_class = CategorySerializer
 
     def get_queryset(self):
@@ -215,14 +253,26 @@ class UserCategoriesAPIView(generics.ListCreateAPIView):
         serializer = CategorySerializer(queryset, many=True)
         return Response(serializer.data)
 
+    def create(self, request, *args, **kwargs):
+        category_serializer = CategorySerializer(data=request.data)
+        if category_serializer.is_valid():
+            validated_data = category_serializer.validated_data
+            email = request.session['userinfo']['email']
+
+            category_list = validated_data.get('name').split(',')
+            WebsiteManager().create_user_categories_from_list(
+                {'category_list': category_list, 'email': email, 'created_by': email})
+            return Response({'message': 'Categories created successfully'})
+
+        else:
+            return Response(category_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserTopicAPIView(generics.ListCreateAPIView):
     """
 
     """
-    # permission_classes = (HasBeenAuthenticated,)
-    permission_classes = ()
-    authentication_classes = ()
+    permission_classes = (HasBeenAuthenticated,)
     serializer_class = UserTopicSerializer
 
     def get_queryset(self):
@@ -234,6 +284,19 @@ class UserTopicAPIView(generics.ListCreateAPIView):
         queryset = self.get_queryset()
         serializer = UserTopicSerializer(queryset, many=True)
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        user_topic_serializer = UserTopicSerializer(data=request.data)
+        if user_topic_serializer.is_valid():
+            validated_data = user_topic_serializer.validated_data
+            email = request.session['userinfo']['email']
+            topic_list = validated_data.get('name').split(',')
+            WebsiteManager().create_user_topics_from_list(
+                {'topic_list': topic_list, 'email': email, 'created_by': email})
+            return Response({'message': 'User Topics created successfully'})
+
+        else:
+            return Response(user_topic_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_event_id():
@@ -339,81 +402,11 @@ def get_client_approval(user):
     return (aproval)
 
 
-# added code for posts
-
-
-def posts(request):
-    return render(request, 'posts.html')
-
-
-# added code for not-scheduled
-
-
-def not_scheduled(request):
-    return render(request, 'not-scheduled.html')
-
-
-# added code for published
-
-
-def published(request):
-    return render(request, 'published.html')
-
-
-# added code for article
-
-
-def article(request):
-    return render(request, 'article.html')
-
-
-# added code for articles
-
-
-def articles(request):
-    return render(request, 'show_articles.html')
-
-
-# added code for topic
-
-
-def topic(request):
-    return render(request, 'topic.html')
-
-
-# added code for topics
-
-
-def topics(request):
-    return render(request, 'topics.html')
-
-
-# added code for new_home
-
-
-def new_home(request):
-    return render(request, 'new_main.html')
-    # return render(request, 'new_home.html')
-
-
-# added code for schedule
-
-
-def schedule(request):
-    return render(request, 'unscheduled.html')
-
-
-def login(request):
-    return render(request, 'login.html')
-
-
 class SelectedResultAPIView(generics.CreateAPIView):
     """
 
     """
-    # permission_classes = (HasBeenAuthenticated,)
-    permission_classes = ()
-    authentication_classes = ()
+    permission_classes = (HasBeenAuthenticated,)
     serializer_class = SelectedResultSerializer
 
     def post(self, request, *args, **kwargs):
@@ -471,16 +464,16 @@ class SelectedResultAPIView(generics.CreateAPIView):
             **data_dictionary
         }
 
-        # del request.session['data_dictionary']
+
         data_dic = request.session['data_dictionary']
 
         insert_form_data(request.session['data_dictionary'])
-
-        print(topic)
-        if topic.get('article') == 'True':
-            async_task("automate.services.generate_article",
-                       data_dic, hook='automate.services.hook_now2')
-            print('yes.......o')
+        del request.session['data_dictionary']
+        if topic.get('article') == True:
+            user_data = fetch_user_info(request)
+            async_task("automation.services.generate_article",
+                       data_dic, user_data, hook='automation.services.hook_now2')
+            return Response({'message': 'Your articles are being generated in the background'})
         else:
             pass
 
@@ -488,3 +481,4 @@ class SelectedResultAPIView(generics.CreateAPIView):
         credit_handler.consume_step_1_credit(request)
 
         return Response({'message': 'Sentence ranked successfully'})
+
