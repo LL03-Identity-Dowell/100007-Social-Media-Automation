@@ -41,7 +41,7 @@ export default function useDowellLogin() {
 
     if (session_id) {
       localStorage.setItem("session_id", session_id);
-      sessionStorage.setItem("session_id", session_id);
+      // sessionStorage.setItem("session_id", session_id);
 
       const newUrl = window.location.href.split("?")[0];
       window.history.replaceState({}, document.title, newUrl);
@@ -85,8 +85,7 @@ export default function useDowellLogin() {
     // }
 
     if (
-      !localStorage.getItem("session_id") &&
-      !sessionStorage.getItem("session_id")
+      !localStorage.getItem("session_id") 
     ) {
       window.location.replace(dowellLoginUrl);
     }

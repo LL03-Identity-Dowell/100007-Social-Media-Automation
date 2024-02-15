@@ -2,19 +2,21 @@ import { Link } from "react-router-dom";
 import Searchbar from "../Searchbar/Searchbar";
 import { FaUser } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import axios from "axios";
 
-function Navbar() {
-  const [username, setUserName] = useState(null);
-  const [userEmail, setUserEmail] = useState("");
+function Navbar({name}) {
+  const [username, setUserName] = useState();
+  const [userEmail, setUserEmail] = useState();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isSecondDropdownOpen, setSecondDropdownOpen] = useState(false);
 
   useEffect(() => {
-    let user = JSON.parse(localStorage.getItem("userInfo"));
-    setUserName(user?.username);
-    setUserEmail(user?.email);
+    const user = JSON.parse(localStorage.getItem("userInfo"));
+    if (user && user.username && user.email) {
+      
+      setUserName(user.username);
+      setUserEmail(user.email);
+    } 
+    
   });
 
   const dowellLogoutUrl =
@@ -153,7 +155,7 @@ function Navbar() {
               //   right: 0,
               // }}
 
-              className="z-30 absolute hidden group-hover:block top-4 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
+              className="z-30 absolute hidden group-hover:block top-4 -right-5 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
               id="user-dropdown1"
             >
               <div className="px-4 py-3">
@@ -220,7 +222,7 @@ function Navbar() {
                   </Link>
                 </li> */}
               </ul>
-              <div>
+              <div className="w-full overflow-hidden">
                 <button
                   onClick={handleLogout}
                   className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"

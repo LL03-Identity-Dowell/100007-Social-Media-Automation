@@ -15,8 +15,10 @@ const HashtagAndMentions = ({ onclick, data }) => {
   const [success, setSuccess] = useState("");
   const [isFetched, setIsFetched] = useState("");
   const [isFetchedMentions, setIsFetchedMentions] = useState();
+  const [IsFetchedCities, setIsFetchedCities] = useState();
   const [checkedMentionsList, setCheckedMentionsList] = useState([]);
   const [checkedHashtagList, setCheckedHashtagList] = useState([]);
+  const [checkedCitiesList, setCheckedCitiesList] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,11 +43,13 @@ const HashtagAndMentions = ({ onclick, data }) => {
           withCredentials: true,
         })
         .then((response) => {
-          let data = response.data.data[0].mentions_list;
-          let wordsArray = data.split(',');
+          let mentionsData = response.data.data[0].mentions_list;
+          let citiesData = response.data.data[0].target_city;
+          let wordsArray = mentionsData.split(',');
 
         
           setIsFetchedMentions(wordsArray);
+          setIsFetchedCities(citiesData)
         })
         .catch((error) => {
           setError("Server error, Please try again later");
@@ -67,10 +71,13 @@ const HashtagAndMentions = ({ onclick, data }) => {
     }
 
     data.mentions = isFetchedMentions.filter((_, i) => checkedMentionsList[i]);
+    data.target_city = IsFetchedCities.filter((_, i) => checkedCitiesList[i]);
 
     const selectedHashtags = data.hashtags.map((hashtag) => `${hashtag}`).join(" ");
     const selectedMentions = data.mentions.map((mention) => `${mention}`).join(" ");
-    data.paragraphs += ` ${selectedHashtags} ${selectedMentions}`;
+    const selectedCities = data.target_city.map((city) => `#${city}`).join(" ");
+
+    data.paragraphs += ` ${selectedHashtags} ${selectedMentions} ${selectedCities}`;
 
     axios
       .post(`${import.meta.env.VITE_APP_BASEURL}/save_post/`, data, {
@@ -102,6 +109,11 @@ const HashtagAndMentions = ({ onclick, data }) => {
     const updatedChecked = [...checkedMentionsList];
     updatedChecked[index] = !updatedChecked[index];
     setCheckedMentionsList(updatedChecked);
+  };
+  const handleCheckboxCitiesChange = (index) => {
+    const updatedChecked = [...checkedCitiesList];
+    updatedChecked[index] = !updatedChecked[index];
+    setCheckedCitiesList(updatedChecked);
   };
   
 
@@ -184,8 +196,9 @@ const HashtagAndMentions = ({ onclick, data }) => {
               </ul>
             </div>
 
-            <div>
               <hr />
+              
+            <div>
             <div className="md:flex justify-between items-center mb-4 mt-4">
               <div>
                 <p className="text-lg text-customBlue font-semibold">
@@ -206,18 +219,6 @@ const HashtagAndMentions = ({ onclick, data }) => {
               <ul className="flex flex-wrap">
                 {isFetchedMentions &&
                   isFetchedMentions.map((name, index) => (
-                    // <li key={index} className="mb-4 mr-4">
-                    //   <div className="flex items-center">
-                    //     <input
-                    //       type="checkbox"
-                    //       value={item}
-                    //       checked={setMentions[item]}
-                    //       // onChange={(e) => setMentions(e.target.value) }
-                    //       className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                    //     />
-                    //     {item}
-                    //   </div>
-                    // </li>
                     <li key={index} className='mb-4 mr-4'>
                         <input
                         type="checkbox"
@@ -226,6 +227,43 @@ const HashtagAndMentions = ({ onclick, data }) => {
                         className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                       />{" "}
                         {name}
+                        
+                      </li>
+                  ))}
+              </ul>
+            </div>
+
+              <hr />
+
+            <div>
+            <div className="md:flex justify-between items-center mb-4 mt-4">
+              <div>
+                <p className="text-lg text-customBlue font-semibold">
+                  Select Targeted Cities (Optional)
+                </p>
+                <p className="text-customDarkpuprle ">
+                  Include cities you would like to target for this post 
+                </p>
+              </div>
+              <Link
+                to="/target-cities"
+                className="float-right border rounded-xl hover:bg-customTextBlue bg-customBlue cursor-pointer text-white py-1 px-2 text-xs"
+              >
+                Add Cities
+              </Link>
+            </div>
+
+              <ul className="flex flex-wrap">
+                {IsFetchedCities &&
+                  IsFetchedCities.map((name, index) => (
+                    <li key={index} className='mb-4 mr-4'>
+                        <input
+                        type="checkbox"
+                        checked={checkedCitiesList[index]}
+                        onChange={() => handleCheckboxCitiesChange(index)}
+                        className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />{" "}
+                        #{name}
                         
                       </li>
                   ))}
