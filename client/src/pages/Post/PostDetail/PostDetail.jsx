@@ -160,9 +160,12 @@ function PostDetail({ show }) {
     }
   };
 
+  const image_data = {
+    image: selectedImage || (postDetailData ? postDetailData.images : ""),
+  };
   const handelPopup = () => {
     axios
-      .get(`${import.meta.env.VITE_APP_BASEURL}/edit_post/${postId}/`, {
+      .get(`${import.meta.env.VITE_APP_BASEURL}/edit_post/${postId}/?image=${image_data.image}`,{
         withCredentials: true,
       })
       .then((response) => {

@@ -31,7 +31,7 @@ from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
 from rest_framework import status
 from rest_framework.response import Response
-from credits.constants import STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
+from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 # rest(React endpoints)
@@ -979,13 +979,14 @@ class SavePostView(AuthenticatedBaseView):
 class EditPostView(AuthenticatedBaseView):
     def get(self, request, post_id, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
+        image_url = request.GET.get('image', None)
         if 'session_id' and 'username' in request.session:
             post_data = {
                 "product_name": "Social Media Automation",
                 "details": {
                     "_id": post_id,
                     "field": {"_id": post_id},
-                    "title": "this is another title",
+                    "image": image_url,
                     "database": "socialmedia",
                     "collection": "step3_data",
                     "team_member_ID": "34567897799",
@@ -1002,6 +1003,7 @@ class EditPostView(AuthenticatedBaseView):
                 }
             }
             token = encode_json_data(post_data)
+            print(token)
             response_data = {
                 'redirect_url': f'https://ll04-finance-dowell.github.io/100058-DowellEditor-V2/?token={str(token)}'
             }
@@ -1872,6 +1874,8 @@ class CreatePostComments(AuthenticatedBaseView):
                 comment=comment,
                 profile_key=profile_key
             )
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_5_credit(request)
             return Response(response)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -1881,6 +1885,14 @@ class CreatePostComments(AuthenticatedBaseView):
 class Comments(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=COMMENTS_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return Response(credit_response, status=HTTP_400_BAD_REQUEST)
             user_id = request.session['user_id']
             recent_posts = get_most_recent_posts(user_id=user_id)
             scheduled_post = get_scheduled_posts(user_id=user_id)
@@ -1948,7 +1960,8 @@ class DeletePostComment(AuthenticatedBaseView):
                 profile_key=profile_key,
                 platform=platform,
             )
-
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_5_credit(request)
             return Response(response)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)

@@ -5,11 +5,9 @@ class HasBeenAuthenticated(permissions.BasePermission):
     def has_permission(self, request, view):
         # Check if session_id is passed in the URL query parameters
         session_id_from_query = request.query_params.get('session_id', None)
-        print("session_id from headers",session_id_from_query)
         # Check if session_id is passed in the Authorization header
         session_id_from_header = request.headers.get(
             'Authorization', '').replace('Bearer ', '')
-        print("session_id from headers",session_id_from_header)
         # Prefer the session_id from the URL query parameters if available
         session_id = session_id_from_query or session_id_from_header
         request.session["session_id"] = session_id
