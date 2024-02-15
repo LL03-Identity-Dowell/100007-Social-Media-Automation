@@ -415,14 +415,12 @@ class GenerateArticleView(AuthenticatedBaseView):
                 openai.api_key = settings.OPENAI_KEY
 
                 # Build prompt
-                prompt_limit = 2000
+                prompt_limit = 3000
                 min_characters = 500
 
                 # Modify the prompt to include the formatted user data
                 prompt = (
                     f"Write an article about {RESEARCH_QUERY}"
-                    f" Include  {formatted_hashtags} at the end of the article."
-                    f" Also, append {formatted_cities} to the end of the article."
                     f" Ensure that the generated content is a minimum of {min_characters} characters in length."
                     [:prompt_limit]
                     + "..."
@@ -1498,12 +1496,16 @@ class MediaPostView(AuthenticatedBaseView):
                     }
                     return Response(data)
 
-                portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
-                portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
-                approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
+                portfolio_code = request.session['portfolio_info'][0].get(
+                    'portfolio_code')
+                portfolio_code_channel_mapping = user_info['data'][0].get(
+                    'portfolio_code_channel_mapping', {})
+                approved_social_accounts = portfolio_code_channel_mapping.get(
+                    portfolio_code, [])
 
                 if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
-                    not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
+                    not_approved_channels = [
+                        x for x in combined_social_channels if x not in approved_social_accounts]
                     data = {
                         'not_approved_channels': not_approved_channels
                     }
@@ -1615,12 +1617,16 @@ class MediaScheduleView(AuthenticatedBaseView):
                     }
                     return Response(data, )
 
-                portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
-                portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
-                approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
+                portfolio_code = request.session['portfolio_info'][0].get(
+                    'portfolio_code')
+                portfolio_code_channel_mapping = user_info['data'][0].get(
+                    'portfolio_code_channel_mapping', {})
+                approved_social_accounts = portfolio_code_channel_mapping.get(
+                    portfolio_code, [])
 
                 if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
-                    not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
+                    not_approved_channels = [
+                        x for x in combined_social_channels if x not in approved_social_accounts]
                     data = {
                         'not_approved_channels': not_approved_channels
                     }
@@ -3278,6 +3284,7 @@ class PostDetailDropdownView(AuthenticatedBaseView):
                 "targeted_category": targeted_category,
             }, status=status.HTTP_200_OK)
 
+
 class SocialMediaPortfolioView(AuthenticatedBaseView):
     def get(self, request):
         if not check_if_user_is_owner_of_organization(request):
@@ -3294,7 +3301,8 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         portfolio_pd = pd.DataFrame(
             [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
         user_info = fetch_organization_user_info(org_id)
-        portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
+        portfolio_code_channel_mapping = user_info['data'][0].get(
+            'portfolio_code_channel_mapping', {})
         portfolio_info_list = portfolio_pd.to_dict('records')
 
         portfolio_info_channel_list = []
@@ -3362,6 +3370,7 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         print(response.json())
         return Response({'message': 'Portfolio channels saved successfully'})
 
+
 class FetchUserInfo(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
@@ -3370,4 +3379,6 @@ class FetchUserInfo(AuthenticatedBaseView):
             return Response(user_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 '''user settings ends here'''
