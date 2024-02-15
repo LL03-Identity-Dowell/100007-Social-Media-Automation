@@ -16,7 +16,8 @@ from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
-from helpers import download_and_upload_image, fetch_organization_user_info, save_profile_key_to_post
+from helpers import download_and_upload_image, fetch_organization_user_info, save_profile_key_to_post, \
+    check_connected_accounts
 from step2.views import create_event
 from step2.views import save_data, get_key, update_schedule
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -169,6 +170,7 @@ def generate_topics(auto_strings, data_dic):
 
 @transaction.atomic
 def selected_result(article_id, data_dic):
+    print('Selecting sentences')
     try:
         print('ranking___________')
         sentence_ids = article_id
@@ -207,6 +209,7 @@ def selected_result(article_id, data_dic):
         }
         insert_form_data(data_dic)
         approval = get_client_approval(data_dic['user_id'])
+        print('Finished selecting sentences')
         if approval['article'] == True:
             async_task("automation.services.generate_article", data_dic, hook='automation.services.hook_now')
         return (data_dic)
@@ -256,7 +259,7 @@ def insert_form_data(data_dict):
 
 @transaction.atomic
 def generate_article(data_dic, ):
-    print("automation started.........................................................")
+    print("generating article.........................................................")
     start_datetime = datetime.now()
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
     api_no = random.choice(Rank)
@@ -333,7 +336,7 @@ def generate_article(data_dic, ):
             }
             post_data = save_data('step3_data', 'step3_data',
                                   step3_data, '34567897799')
-            post_id_list.append(post_data.json())
+            post_id_list.append(post_data)
 
     step2_data = {
         "user_id": user_id,
@@ -357,10 +360,12 @@ def generate_article(data_dic, ):
     #    seeking for approval to automate step 3
     if approval['post'] == True:
         picked_article = post_id_list[0]
+        picked_article = json.loads(picked_article)
         post_data = {
             'post_id': picked_article.get('inserted_id'),
             'paragraph': paragraphs[0],
             "user_id": user_id,
+            "username": data_dic['username'],
             "org_id": org_id,
             "session_id": session_id,
             "eventId": event_id,
@@ -448,6 +453,7 @@ def post_list(user_id):
 
 
 def get_post_image(data: dict):
+    print('Getting post image=====================================')
     a = random.randint(1, 9)
     max_characters = 200
     if 'paragraph' in data:
@@ -476,6 +482,7 @@ def get_post_image(data: dict):
 
 
 def save_post(post_data, ):
+    print('Saving post to step 4=========================================')
     eventId = create_event()['event_id']
     time = localtime()
     test_date = str(localdate())
@@ -524,10 +531,12 @@ def save_post(post_data, ):
     response = requests.request(
         "POST", url, headers=headers, data=payload)
     print(f'This is the response: {str(response.text)}')
-    post_data['post_id'] = response.json()['inserted_id']
+    response = json.loads(response.json())
+    post_data['post_id'] = response.get('inserted_id')
+    post_data['image'] = image
     async_task("automation.services.media_post", post_data,
                hook='automation.services.hook_now')
-    return (str(response.text))
+    return response
 
 
 def update_most_recent(pk):
@@ -608,7 +617,8 @@ def media_post(data: dict):
 
     # if not credit_response.get('success'):
     #     return JsonResponse('credit_error', safe=False)
-
+    username = data['username']
+    linked_accounts = check_connected_accounts(username)
     start_datetime = datetime.now()
     title = data['title']
     paragraph = data['paragraph']
@@ -633,32 +643,13 @@ def media_post(data: dict):
     twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
 
     print(twitter_post)
-    try:
-        platforms = data['social']
-        splited = data['special']
-        print(platforms)
-    except:
-        pass
-
     org_id = data['org_id']
 
     user_id = data['user_id']
     key = get_key(user_id)
-    if len(splited) == 0:
-        arguments = (
-            (postes, platforms, key, image, org_id, post_id),
-        )
-    if len(platforms) == 0:
-        arguments = (
-            (twitter_post, splited, key, image, org_id, post_id),
-        )
-        print(splited, twitter_post)
-    else:
-        arguments = (
-            (postes, platforms, key, image, org_id, post_id),
-            (twitter_post, splited, key, image, org_id, post_id)
-        )
-    "posting to Various social media"
+    arguments = (
+        (postes, linked_accounts, key, image, org_id, post_id),
+    )
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # Using lambda, unpacks the tuple (*f) into api_call(*args)
@@ -667,7 +658,7 @@ def media_post(data: dict):
         end_datetime = datetime.now()
         time_taken = end_datetime - start_datetime
         print(f"Total time taken: {time_taken}")
-    return results
+    return 'DONE'
 
 
 def time_converter(schedule, timezone):
