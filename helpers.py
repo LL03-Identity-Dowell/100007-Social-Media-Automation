@@ -796,7 +796,6 @@ def check_if_user_is_owner_of_organization(request):
 
 
 def fetch_user_portfolio_data(request):
-    # TODO: Remove session id below
     session_id = request.session.get("session_id")
     if not session_id:
         return {"error": "Session ID not found"}

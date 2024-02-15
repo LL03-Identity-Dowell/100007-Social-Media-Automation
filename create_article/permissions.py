@@ -11,6 +11,6 @@ class HasBeenAuthenticated(permissions.BasePermission):
         # Prefer the session_id from the URL query parameters if available
         session_id = session_id_from_query or session_id_from_header
         request.session["session_id"] = session_id
-        if 'session_id' in request.session:
+        if request.session.get('session_id'):
             return True
         return False

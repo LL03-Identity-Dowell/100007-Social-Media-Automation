@@ -173,7 +173,6 @@ class MainAPIView(AuthenticatedBaseView):
         else:
             return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
 
-            # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 '''
@@ -2946,14 +2945,17 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
 
 class SocialMediaPortfolioView(AuthenticatedBaseView):
     def get(self, request):
+
         if not check_if_user_is_owner_of_organization(request):
             response_data = {
                 'message': 'Only the owner of the organization can access this page',
             }
             return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+
         user_portfolio = fetch_user_portfolio_data(request)
         if 'error' in user_portfolio.keys():
             return Response(user_portfolio, status=status.HTTP_401_UNAUTHORIZED)
+
         org_portfolios = user_portfolio['selected_product']['userportfolio']
         org_id = request.session['org_id']
         user_portfolio_pd = pd.DataFrame(org_portfolios)
