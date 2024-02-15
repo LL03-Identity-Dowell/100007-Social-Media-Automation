@@ -782,6 +782,12 @@ def filter_group_hashtag(data: dict):
 
 
 def check_if_user_is_owner_of_organization(request):
+    print('this are the session keys')
+    print(request.session.keys())
+    print('this are the cookies keys')
+    print(request.COOKIES)
+    print('session id')
+    print(request.session['session_id'])
     portfolio_info_list = request.session['portfolio_info']
     username = request.session['username']
     if not portfolio_info_list:
