@@ -134,7 +134,6 @@ function PostDetail({ show }) {
           let data = response.data;
           setSuccess(data.message);
           setDesignedFor(data.linked_accounts);
-          console.log(data);
           setPostDetailData(data);
 
           let isPostId = data.post._id;
@@ -401,8 +400,8 @@ function PostDetail({ show }) {
             >
               <FaTimes />
             </span>
-            <div className="">
-              <h3 className="text-lg font-semibold">Do you want to add hashtags to this post?</h3>
+            <div className="pt-8">
+              <h3 className="text-lg font-semibold">Do you want to add hashtags or mentions to this post?</h3>
             </div>
             <div className="flex gap-4 mt-6 w-[300px]">
               <button

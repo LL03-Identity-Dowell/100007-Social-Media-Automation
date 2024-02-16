@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { calendarDaysSolid, calendarSolid, fileSignatureSolid, userCheckSolid } from "../../assets";
 
 const BottomBar = () => {
   return (
@@ -10,7 +11,7 @@ const BottomBar = () => {
             className='inline-flex flex-col items-center justify-center px-5 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 group'
           >
             <div className='bg-customDarkpuprle w-[30px] p-2 flex justify-center items-center rounded-md'>
-              <img src='/user-check-solid.svg' className='w-[100%]' />
+              <img src={userCheckSolid} className='w-[100%]' />
             </div>
             <span className='text-xs text-customGray dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500'>
               Topic
@@ -23,7 +24,7 @@ const BottomBar = () => {
           >
             <div className='bg-customDarkpuprle w-[30px] p-2 flex justify-center items-center rounded-md'>
               <img
-                src='/file-signature-solid.svg'
+                src={fileSignatureSolid}
                 className='w-full'
                 alt='article'
               />
@@ -39,7 +40,7 @@ const BottomBar = () => {
             className='inline-flex flex-col items-center justify-center px-5 hover:bg-gray-100 dark:hover:bg-gray-800 group'
           >
             <div className='bg-customDarkpuprle w-[30px] p-2 flex justify-center items-center rounded-md'>
-              <img src='/calendar-check-solid.svg' className='w-full' />
+              <img src={calendarSolid} className='w-full' />
             </div>
 
             <span className='text-xs text-customGray group-hover:text-blue-600 dark:group-hover:text-blue-500'>
@@ -52,7 +53,7 @@ const BottomBar = () => {
             className='inline-flex flex-col items-center justify-center px-5 hover:bg-gray-100 dark:hover:bg-gray-800 group'
           >
             <div className='bg-customDarkpuprle w-[30px] p-2 flex justify-center items-center rounded-md'>
-              <img src='/calendar-days-solid.svg' className='w-full' />
+              <img src={calendarDaysSolid} className='w-full' />
             </div>
 
             <span className='text-xs text-customGray group-hover:text-blue-600 dark:group-hover:text-blue-500'>
@@ -65,7 +66,7 @@ const BottomBar = () => {
             className='inline-flex flex-col items-center justify-center px-5 hover:bg-gray-100 dark:hover:bg-gray-800 group'
           >
             <div className='bg-customDarkpuprle w-[30px] p-2 flex justify-center items-center rounded-md'>
-              <img src='/comment-solid.svg' className='w-full' />
+              <img src={calendarSolid} className='w-full' />
             </div>
 
             <span className='text-xs text-customGray group-hover:text-blue-600 dark:group-hover:text-blue-500'>

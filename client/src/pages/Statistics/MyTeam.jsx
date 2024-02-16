@@ -4,11 +4,11 @@ import {profile} from "../../assets";
 function MyTeam({close}) {
     const [username, setUserName] = useState();
 
-    useEffect(() => {
-        let user = JSON.parse(localStorage.getItem("userInfo"));
-        setUserName(user?.userinfo?.username);
-        close();
-    }, []);
+  useEffect(() => {
+    let user = JSON.parse(localStorage.getItem("userInfo"));
+    setUserName(user?.username);
+    close();
+  }, []);
 
     return (
         <div className="bg-pens bg-cover bg-center h-[90vh]">

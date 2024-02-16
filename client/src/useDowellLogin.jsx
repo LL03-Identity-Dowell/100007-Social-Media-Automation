@@ -23,15 +23,13 @@ const dowellLoginUrl =
 //   sessionStorage.setItem("userInfo", JSON.stringify(res.data));
 // };
 
-
-
 export default function useDowellLogin() {
   const [loading, setLoading] = useState(false);
   const [product, setProduct] = useState(true);
   const [sessionCheckPerformed, setSessionCheckPerformed] = useState(false);
   const urlParams = new URLSearchParams(window.location.search);
   const session_id = urlParams.get("session_id");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   //   const localSession = sessionStorage.getItem("session_id")
   //     ? JSON.parse(sessionStorage.getItem("session_id"))
@@ -43,7 +41,7 @@ export default function useDowellLogin() {
 
     if (session_id) {
       localStorage.setItem("session_id", session_id);
-      sessionStorage.setItem("session_id", session_id);
+      // sessionStorage.setItem("session_id", session_id);
 
       const newUrl = window.location.href.split("?")[0];
       window.history.replaceState({}, document.title, newUrl);
@@ -54,7 +52,7 @@ export default function useDowellLogin() {
           const session = {
             session_id,
           };
-          setLoading(true)
+          setLoading(true);
           const res = await axios({
             method: "post",
             url: "https://100014.pythonanywhere.com/api/userinfo/",
@@ -62,8 +60,10 @@ export default function useDowellLogin() {
           });
           //   console.log(res);
           const data = res.data;
-          const saveUserInfo = JSON.stringify(data);
-          localStorage.setItem("userInfo", saveUserInfo);
+          // const saveUsername = data.userinfo.username;
+          // const saveUserInfo = JSON.stringify(saveUsername);
+          // console.log(saveUsername);
+          // localStorage.setItem("username", saveUsername);
           const userProducts = data.portfolio_info;
           // Check if any product is "Social Media Automation"
           const hasSocialMediaAutomation = userProducts.some(
@@ -74,9 +74,9 @@ export default function useDowellLogin() {
             setProduct(false);
             console.log("You do not have a portfolio", userProducts);
             navigate("/portfolio_check");
+          }
+          setLoading(false);
         }
-        setLoading(false);
-    }
       };
       checkSession();
     }
@@ -85,12 +85,11 @@ export default function useDowellLogin() {
     // }
 
     if (
-      !localStorage.getItem("session_id") &&
-      !sessionStorage.getItem("session_id")
+      !localStorage.getItem("session_id") 
     ) {
       window.location.replace(dowellLoginUrl);
     }
   }, [navigate]);
 
-  return {loading, product}
+  return { loading, product };
 }
