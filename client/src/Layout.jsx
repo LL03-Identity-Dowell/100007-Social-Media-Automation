@@ -11,7 +11,7 @@ import BottomBar from "./components/Bottombar/BottomBar";
 const Layout = ({ children, side, show, isUser }) => {
   const [product, setProduct] = useState(true);
   // const [loading, setLoading] = useState(false);
-  const [sessionCheckPerformed, setSessionCheckPerformed] = useState(false);
+  const [name, setName] = useState(false);
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
@@ -19,72 +19,7 @@ const Layout = ({ children, side, show, isUser }) => {
     initFlowbite();
   }, []);
   const { loading } = useDowellLogin();
-  // const clearLocalStorage = () => {
-  //   localStorage.clear();
-  //   sessionStorage.clear();
-  // };
-
-  // // Set a timeout to clear local storage after 24 hours
-  // const clearStorageTimeout = setTimeout(
-  //   clearLocalStorage,
-  //   24 * 60 * 60 * 1000
-  // ); // 24 hours in milliseconds
-
-  // const clearStorageOnUnload = () => {
-  //   // Clear the timeout when the user is about to leave the page
-  //   clearTimeout(clearStorageTimeout);
-  //   // Clear local storage when the user is leaving the page
-  //   clearLocalStorage();
-  // };
-
-  // useEffect(() => {
-  //   // Add event listener for beforeunload
-  //   window.addEventListener('beforeunload', clearStorageOnUnload);
-
-  //   // Cleanup: remove the event listener when the component unmounts
-  //   return () => {
-  //     window.removeEventListener('beforeunload', clearStorageOnUnload);
-  //     // Also clear the timeout to prevent it from triggering after unmount
-  //     clearTimeout(clearStorageTimeout);
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-
-  //   const fetchAndRemoveSessionId = async () => {
-  //     const urlParams = new URLSearchParams(window.location.search);
-  //     const session_id = urlParams.get("session_id");
-  //     console.log(session_id);
-
-  //     if (session_id) {
-  //       // Store the session_id in both local storage and session storage
-  //       localStorage.setItem("session_id", session_id);
-  //       sessionStorage.setItem("session_id", session_id);
-
-  //       // Remove the session_id from the URL without causing a page reload
-  //       const newUrl = window.location.href.split("?")[0];
-  //       window.history.replaceState({}, document.title, newUrl);
-
-  //       // Proceed to fetch data or handle authenticated user logic
-  //     } else {
-  //       // If no session_id, redirect to the login page with session_id as a query parameter
-
-  //       // window.location.href = `https://100014.pythonanywhere.com/?redirect_url=${window.location.origin}`;
-  //       window.location.href = 'https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/'
-  //     }
-  //   };
-
-  //   // fetchAndRemoveSessionId();
-
-  //   // Check if session_id has already been processed to avoid continuous reload
-  //   if (
-  //     !localStorage.getItem("session_id") &&
-  //     !sessionStorage.getItem("session_id")
-  //   ) {
-  //     fetchAndRemoveSessionId();
-  //   }
-  // },[]);
-
+  
   useEffect(() => {
     const checkSession = async () => {
       // if (!sessionCheckPerformed && session_id) {}
@@ -98,8 +33,13 @@ const Layout = ({ children, side, show, isUser }) => {
         })
         .then((res) => {
           const data = res.data;
-          const saveUserInfo = JSON.stringify(data);
-          localStorage.setItem("userInfo", saveUserInfo);
+          const saveUsername = data?.userinfo?.username;
+          console.log(saveUsername);
+          setName(saveUsername)
+          const saveUseremail = data?.userinfo?.email;
+          const saveUserInfo = {username: saveUsername, email: saveUseremail}
+          const userInfo = JSON.stringify(saveUserInfo);
+          localStorage.setItem("userInfo", userInfo);
           const userProducts = data.portfolio_info;
           // Check if any product is "Social Media Automation"
           const hasSocialMediaAutomation = userProducts.some(
@@ -122,7 +62,7 @@ const Layout = ({ children, side, show, isUser }) => {
   return (
     <div className='w-full '>
       {loading && <Loading />}
-      {product && <Navbar user={isUser} />}
+      {product && <Navbar user={isUser} name={name}/>}
       <div
         className={
           !side ? " grid w-full " : "grid grid-cols-10 2xl:grid-cols-12"

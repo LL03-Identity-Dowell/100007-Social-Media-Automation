@@ -165,7 +165,7 @@ const TargetCities = ({close}) => {
             </ul>
             <button
               type='submit'
-              className='self-center w-32 mt-3 text-base font-semibold text-white rounded-md h-11 bg-customBlue'
+              className='self-center w-32 mt-3 text-center text-base font-semibold text-white rounded-md h-11 bg-customBlue'
             >
               save
             </button>

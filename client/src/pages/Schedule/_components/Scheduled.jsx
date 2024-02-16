@@ -41,7 +41,7 @@ const ScheduledPage = () => {
         setSuccess("Successfully fetched posts");
         setError("");
       } catch (error) {
-        setError("Error fetching the articles");
+        setError("Error fetching the posts");
         setSuccess("");
       } finally {
         setLoading(false);

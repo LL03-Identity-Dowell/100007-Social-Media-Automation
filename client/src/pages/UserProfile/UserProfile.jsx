@@ -14,16 +14,16 @@ const UserProfile = ({ close }) => {
   useEffect(() => {
     close();
     let user = JSON.parse(localStorage.getItem("userInfo"));
-    setUserName(user?.userinfo?.username);
+    setUserName(user?.username);
   }, []);
   return (
     <UserWrapper>
       <div className='flex flex-col items-center justify-center w-full h-full'>
         <div className='flex flex-col items-center justify-center'>
-          <h2 className='pb-3 text-2xl font-bold text-customBlue xl:text-4xl'>
+          <h2 className='pb-3 text-2xl  text-customBlue xl:text-4xl'>
             Welcome!
           </h2>
-          <h4 className='pb-6 text-2xl font-semibold text-customBlue xl:text-3xl'>
+          <h4 className='pb-6 text-2xl font-bold text-customBlue xl:text-3xl'>
             {username}
           </h4>
         </div>
