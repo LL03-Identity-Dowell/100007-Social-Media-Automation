@@ -124,6 +124,9 @@ function ViewComments({ show }) {
         </button>
         {hasComment ? (
           <div>
+            <p className='my-6 text-base font-semibold text-center text-red-700'>
+              Next comments update: {humanReadableDatetime}
+            </p>
             {comments?.twitter?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
@@ -254,9 +257,6 @@ function ViewComments({ show }) {
                 </ol>
               </div>
             )}
-            <p className='mt-6 text-base font-semibold text-red-700'>
-              Comment will update on {humanReadableDatetime}
-            </p>
           </div>
         ) : (
           !loading &&
