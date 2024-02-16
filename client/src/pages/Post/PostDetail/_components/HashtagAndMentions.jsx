@@ -139,11 +139,11 @@ const HashtagAndMentions = ({ onclick, data }) => {
             <div className="md:flex justify-between items-center mb-6">
               <div>
                 <p className="text-lg text-customBlue font-semibold">
-                  Select a hastag group (Optional)
+                  Select a hashtag group (Optional)
                 </p>
                 <p className="text-customDarkpuprle ">
-                  Include your favourite hashtags to this post by selecting your
-                  saved group.
+                  Include your favourite hashtags to this post by selecting from your
+                  saved groups.
                 </p>
               </div>
               <Link
@@ -202,7 +202,7 @@ const HashtagAndMentions = ({ onclick, data }) => {
             <div className="md:flex justify-between items-center mb-4 mt-4">
               <div>
                 <p className="text-lg text-customBlue font-semibold">
-                  Select Mentions (Optional)
+                  Select Mention(s) (Optional)
                 </p>
                 <p className="text-customDarkpuprle ">
                   Include mentions to this post 
