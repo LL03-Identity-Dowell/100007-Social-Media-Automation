@@ -2951,7 +2951,6 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
                 'message': 'Only the owner of the organization can access this page',
             }
             return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
-
         user_portfolio = fetch_user_portfolio_data(request)
         if 'error' in user_portfolio.keys():
             return Response(user_portfolio, status=status.HTTP_401_UNAUTHORIZED)
