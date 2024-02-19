@@ -30,11 +30,12 @@ from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 from rest_framework.status import HTTP_404_NOT_FOUND
 # rest(React endpoints)
 from rest_framework.views import APIView
 
+from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from create_article import settings
 from create_article.views import AuthenticatedBaseView
 from credits.constants import STEP_2_SUB_SERVICE_ID
@@ -52,7 +53,7 @@ from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSeri
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
-                          GroupHashtagSerializer, PortfolioChannelsSerializer)
+                          GroupHashtagSerializer, PortfolioChannelsSerializer, SocialMediaRequestSerializer)
 
 global PEXELS_API_KEY
 
@@ -617,9 +618,11 @@ class WriteYourselfView(AuthenticatedBaseView):
                     'form_data': form.cleaned_data  # Serialize form data, not the form instance
                 }
 
-                return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
+                return Response({'message': 'Article saved successfully', 'data': response_data},
+                                status=status.HTTP_201_CREATED)
             else:
-                return Response({'error': 'Form validation failed', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Form validation failed', 'errors': form.errors},
+                                status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -1114,7 +1117,6 @@ class EditPostView(AuthenticatedBaseView):
 
 
 def api_call(postes, platforms, key, image, request, post_id):
-
     payload = {'post': postes,
                'platforms': platforms,
                'profileKey': key,
@@ -1142,7 +1144,6 @@ def api_call(postes, platforms, key, image, request, post_id):
 
 
 def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
-
     payload = {'post': postes,
                'platforms': platforms,
                'profileKey': key,
@@ -1334,6 +1335,54 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
         step_2_manager.create_social_media_request(data)
         return Response(
             {'message': 'Social media request was saved successfully. Wait for the admin to accept the request'})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
+    def get(self, request, *args, **kwargs):
+        username = request.session.get('username')
+        if username is not SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+            return Response({'message': 'You are not authorized to access this page'}, status=HTTP_401_UNAUTHORIZED)
+
+        step_2_manager = Step2Manager()
+        social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+            {
+                'org_id': request.session.get('org_id'),
+            }
+        )
+        context_data = {
+            'social_media_requests': list(
+                social_media_requests.values('id', 'username', 'email', 'name', 'org_id', 'is_approved'))
+        }
+
+        return Response(context_data)
+
+    def post(self, request, *args, **kwargs):
+        username = request.session.get('username')
+        if username is not SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+            return Response({'message': 'You are not authorized to access this page'}, status=HTTP_401_UNAUTHORIZED)
+        step_2_manager = Step2Manager()
+        serializer = SocialMediaRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        data = {
+            'social_media_request_id': serializer.validated_data['social_media_request_id']
+        }
+        approve = False
+        if serializer.validated_data.get('approve') == 'Approve Selected':
+            approve = True
+        elif serializer.validated_data.get('approve') == 'Reject Selected':
+            approve = False
+        elif serializer.validated_data.get('approve') == 'Approve All':
+            approve = True
+            social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+                {'org_id': request.session.get('org_id'), }
+            )
+            data['social_media_request_id'] = social_media_requests.values_list('id', flat=True)
+        data['is_approved'] = approve
+        step_2_manager.update_social_media_request_status(data)
+        return Response(
+            {'message': 'Status of social media has been updated successfully'})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1938,6 +1987,7 @@ class UnScheduledJsonView(AuthenticatedBaseView):
         else:
             return Response({'response': []})
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class ScheduledJsonView(AuthenticatedBaseView):
@@ -2122,6 +2172,7 @@ class DeletePostComment(AuthenticatedBaseView):
             return Response(response)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 '''Comments section ends here'''
 
@@ -3195,6 +3246,7 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.json())
         return Response({'message': 'Portfolio channels saved successfully'})
+
 
 class MentionUpdateView(AuthenticatedBaseView):
     def put(self, request):
