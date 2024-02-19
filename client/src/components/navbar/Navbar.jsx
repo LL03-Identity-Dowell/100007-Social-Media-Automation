@@ -3,7 +3,7 @@ import Searchbar from "../Searchbar/Searchbar";
 import { FaUser } from "react-icons/fa";
 import { useEffect, useState } from "react";
 
-function Navbar({name}) {
+function Navbar() {
   const [username, setUserName] = useState();
   const [userEmail, setUserEmail] = useState();
   const [isDropdownOpen, setDropdownOpen] = useState(false);

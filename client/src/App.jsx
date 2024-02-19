@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/homepage/Home";
 import Layout from "./Layout";
@@ -51,6 +51,8 @@ function App() {
     setShowSidebar(false);
     setShowBottombar(false);
   };
+
+  
 
 
   return (

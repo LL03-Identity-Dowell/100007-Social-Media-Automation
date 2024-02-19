@@ -10,11 +10,13 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from create_article import settings
+from credits.constants import STEP_1_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
 from helpers import fetch_user_info
 from step2.views import create_event
+from create_article.permissions import HasBeenAuthenticated
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
-from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer, \
     SelectedResultSerializer
 
@@ -41,9 +43,13 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
 
         session_id = request.GET.get('session_id', None)
-        # has_permission=can_view_page(request)
-        # if not has_permission:
-        #     return Response({'message':'You are not allowed to view this page'},status=HTTP_400_BAD_REQUEST)
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_1_SUB_SERVICE_ID,
+            request=request,
+        )
+        if not credit_response.get('success'):
+            return Response(credit_response, status=HTTP_400_BAD_REQUEST)
 
         email = request.session['userinfo']['email']
         industry_serializer = IndustrySerializer(
@@ -227,6 +233,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         sentences_dictionary = {
             'sentences': sentence_results,
         }
+
         return Response(request.session['data_dictionary'])
 
 
@@ -404,6 +411,14 @@ class SelectedResultAPIView(generics.CreateAPIView):
     serializer_class = SelectedResultSerializer
 
     def post(self, request, *args, **kwargs):
+        credit_handler = CreditHandler()
+        credit_response = credit_handler.check_if_user_has_enough_credits(
+            sub_service_id=STEP_1_SUB_SERVICE_ID,
+            request=request,
+        )
+        if not credit_response.get('success'):
+            return Response(credit_response, status=HTTP_400_BAD_REQUEST)
+
         selected_result_serializer = SelectedResultSerializer(
             data=request.data)
         if not selected_result_serializer.is_valid():
@@ -438,15 +453,17 @@ class SelectedResultAPIView(generics.CreateAPIView):
                     }
                 }
             }
-
-        data_dictionary = request.POST.dict()
+        try:
+            data_dictionary = request.POST.dict()
+        except Exception as e:
+            print(e)
+            data_dictionary = request.data
         data_dictionary['client_admin_id'] = request.session['userinfo']['client_admin_id']
 
         request.session['data_dictionary'] = {
             **request.session['data_dictionary'],
             **data_dictionary
         }
-
 
         data_dic = request.session['data_dictionary']
 
@@ -458,4 +475,9 @@ class SelectedResultAPIView(generics.CreateAPIView):
                        data_dic, user_data, hook='automation.services.hook_now2')
             return Response({'message': 'Your articles are being generated in the background'})
         else:
-            return Response({'message': 'Sentence ranked successfully'})
+            pass
+
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_1_credit(request)
+
+        return Response({'message': 'Sentence ranked successfully'})

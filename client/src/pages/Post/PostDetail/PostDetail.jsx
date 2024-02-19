@@ -19,6 +19,7 @@ import { FaEdit, FaTimes } from "react-icons/fa";
 import HashtagAndMentions from "./_components/HashtagAndMentions";
 
 function PostDetail({ show }) {
+  const [isProductKey, setIsProductKey] = useState();
   const [editing, setEditing] = useState(false);
   const [postId, setPostId] = useState(null);
   const [iframeSrc, setIframeSrc] = useState(null);
@@ -41,9 +42,6 @@ function PostDetail({ show }) {
     targeted_category: "Brand",
   });
 
-  // const iframeSrc =
-  //   "https://ll04-finance-dowell.github.io/100058-DowellEditor-V2/?token=eyJhbGciOiJIUzI1NiJ9.eyJwcm9kdWN0X25hbWUiOiJTb2NpYWwgTWVkaWEgQXV0b21hdGlvbiIsImRldGFpbHMiOnsiX2lkIjoiNjU3ODVmNWIzNWRhZDQzMjZlMDRiMGRjIiwiZGF0YWJhc2UiOiJzb2NpYWxtZWRpYSIsImNvbGxlY3Rpb24iOiJzdGVwM19kYXRhIiwidGVhbV9tZW1iZXJfSUQiOiIzNDU2Nzg5Nzc5OSIsImZ1bmN0aW9uX0lEIjoiQUJDREUiLCJjbHVzdGVyIjoic29jaWFsbWVkaWEiLCJkb2N1bWVudCI6InN0ZXAzX2RhdGEiLCJjb21tYW5kIjoiZmV0Y2giLCJ1cGRhdGVfZmllbGQiOnsib3JkZXJfbm9zIjoyMX19fQ.QTlwdOv7y1E6YcAe7hjyVLF9k2vNx_vdheoshLS3sOU";
-
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -54,6 +52,11 @@ function PostDetail({ show }) {
     show();
 
     fetch();
+  }, []);
+
+  useEffect(() => {
+    const productKey = localStorage.getItem("productKey");
+    setIsProductKey(productKey);
   }, []);
 
   // handle input change
@@ -83,6 +86,9 @@ function PostDetail({ show }) {
   const handleSubmit = (e) => {
     // e.preventDefault();
     console.log("clicked");
+    if (isProductKey) {
+      navigate("/");
+    } 
     setLoading(true);
 
     // Make a POST request to the API endpoint with the session_id
@@ -159,9 +165,12 @@ function PostDetail({ show }) {
     }
   };
 
+  const image_data = {
+    image: selectedImage || (postDetailData ? postDetailData.images : ""),
+  };
   const handelPopup = () => {
     axios
-      .get(`${import.meta.env.VITE_APP_BASEURL}/edit_post/${postId}/`, {
+      .get(`${import.meta.env.VITE_APP_BASEURL}/edit_post/${postId}/?image=${image_data.image}`,{
         withCredentials: true,
       })
       .then((response) => {
