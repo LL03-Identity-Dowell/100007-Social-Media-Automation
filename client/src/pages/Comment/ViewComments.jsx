@@ -259,18 +259,11 @@ function ViewComments({ show }) {
             )}
           </div>
         ) : (
-          !loading &&
-          !error && (
-            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
-              Please wait for the next update:
-              {humanReadableDatetime}
+          !loading && (
+            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
+              Comments not found
             </div>
           )
-        )}
-        {!loading && error && (
-          <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
-            Comments not found
-          </div>
         )}
       </div>
     </div>
