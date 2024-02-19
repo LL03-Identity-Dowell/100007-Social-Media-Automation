@@ -21,9 +21,8 @@ from django.contrib import messages
 from django.core import cache
 from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -31,8 +30,8 @@ from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_404_NOT_FOUND
 # rest(React endpoints)
 from rest_framework.views import APIView
 
@@ -41,14 +40,14 @@ from create_article.views import AuthenticatedBaseView
 from credits.constants import STEP_2_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from helpers import (download_and_upload_image,
-                     save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
+                     save_data, create_event, fetch_user_info, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags,
                      check_if_user_is_owner_of_organization, fetch_user_portfolio_data, fetch_organization_user_info)
-from website.models import Sentences, SentenceResults
 from .forms import VerifyArticleForm
+from .models import Step2Manager
 from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
@@ -1283,17 +1282,33 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 class SocialMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
-        username = request.session['username']
-        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
-            username)
-        linked_accounts = check_connected_accounts(username)
 
-        response_data = {
-            'user_has_social_media_profile': user_has_social_media_profile,
-            'linked_accounts': linked_accounts
+        step_2_manager = Step2Manager()
+
+        try:
+            title = request.session['portfolio_info'][0]['owner_name']
+        except KeyError:
+            title = request.session['username']
+
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(title)
+        linked_accounts = check_connected_accounts(title)
+        context_data = {'user_has_social_media_profile': user_has_social_media_profile,
+                        'linked_accounts': linked_accounts}
+        org_id = request.session['org_id']
+
+        data = {
+            'username': title,
+            'org_id': org_id,
         }
+        social_media_request = step_2_manager.get_approved_user_social_media_request(data)
+        if user_has_social_media_profile:
+            context_data['can_connect'] = True
+        elif social_media_request:
+            context_data['can_connect'] = True
+        else:
+            context_data['can_connect'] = False
 
-        return Response(response_data)
+        return Response(context_data)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -3155,7 +3170,6 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         response = requests.request("POST", url, headers=headers, data=payload)
         print(response.json())
         return Response({'message': 'Portfolio channels saved successfully'})
-
 
 class MentionUpdateView(AuthenticatedBaseView):
     def put(self, request):
