@@ -9,6 +9,7 @@ import Wikipidia from "./Wikipidia";
 import { useQuery } from "react-query";
 
 const CreateArticle = ({ show }) => {
+  const [isProductKey, setIsProductKey] = useState();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -21,7 +22,11 @@ const CreateArticle = ({ show }) => {
   const [activePage, setActivePage] = useState(0);
 
   const navigate = useNavigate();
-
+  useEffect(() => {
+    const productKey = localStorage.getItem("productKey");
+    setIsProductKey(productKey);
+  }, []);
+  
   useEffect(() => {
     show();
     // const callGenerateArticleAPI = () => {
@@ -86,7 +91,7 @@ const CreateArticle = ({ show }) => {
 
   useEffect(() => {
     if (status === "success") {
-      setSuccess("Topics Fetched successfully..!");
+      setSuccess("Topics Fetched successfully");
       setCount(topics.total_items);
       setPageCount(Math.ceil(topics.total_items / perPage));
     } else if (status === "error") {
@@ -105,6 +110,9 @@ const CreateArticle = ({ show }) => {
 
   const callGenerateArticleAI = (item) => {
     // console.log(item);
+    if (isProductKey) {
+      navigate("/");
+    } 
     const data = {
       title: item,
     };
@@ -134,6 +142,9 @@ const CreateArticle = ({ show }) => {
 
   const callGenerateArticleWiki = (item) => {
     // Make an API request to GenerateArticleView
+    if (isProductKey) {
+      navigate("/");
+    } 
     const data = {
       title: item,
     };
@@ -160,6 +171,9 @@ const CreateArticle = ({ show }) => {
   };
 
   const callGenerateArticleWriteYourself = (item) => {
+    if (isProductKey) {
+      navigate("/");
+    } 
     const data = {
       title: item,
     };

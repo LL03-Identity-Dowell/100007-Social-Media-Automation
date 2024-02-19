@@ -13,7 +13,7 @@ export const Form = ({ name }) => {
 
   const putMethod = async (data) => {
     const res = await axios.put(
-      `http://127.0.0.1:8000/api/v1/${name}-form/`,
+      `${import.meta.env.VITE_APP_BASEURL}/${name}-form/`,
       data,
       {
         withCredentials: true,
@@ -23,7 +23,7 @@ export const Form = ({ name }) => {
   };
   const postMethod = async (data) => {
     const res = await axios.post(
-      `http://127.0.0.1:8000/api/v1/${name}-form/`,
+      `${import.meta.env.VITE_APP_BASEURL}/${name}-form/`,
       data,
       {
         withCredentials: true,
@@ -64,7 +64,7 @@ export const Form = ({ name }) => {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://127.0.0.1:8000/api/v1/${name}-form/`,
+          `${import.meta.env.VITE_APP_BASEURL}/${name}-form/`,
 
           {
             withCredentials: true,

@@ -31,29 +31,27 @@ from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
 from rest_framework import status
 from rest_framework.response import Response
+from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
-from rest_framework.status import HTTP_400_BAD_REQUEST
 # rest(React endpoints)
 from rest_framework.views import APIView
 
 from create_article import settings
 from create_article.views import AuthenticatedBaseView
-from credits.constants import STEP_2_SUB_SERVICE_ID
-from credits.credit_handler import CreditHandler
-from helpers import (download_and_upload_image,
+
+from helpers import (check_if_user_is_owner_of_organization, download_and_upload_image, fetch_organization_user_info, fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
-                     encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags,
-                     check_if_user_is_owner_of_organization, fetch_user_portfolio_data, fetch_organization_user_info)
+                     encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
 from website.models import Sentences, SentenceResults
-from .forms import VerifyArticleForm
-from .serializers import (ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
+from .serializers import (PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
-                          GroupHashtagSerializer, PortfolioChannelsSerializer)
+                          GroupHashtagSerializer)
 
 global PEXELS_API_KEY
 
@@ -73,26 +71,13 @@ def frontend_api_request(request):
     return JsonResponse(response_data, status=response_data['status_code'])
 
 
-@csrf_exempt
-@xframe_options_exempt
-def login(request):
-    return render(request, 'login.html')
-    # return HttpResponseRedirect(reverse("generate_article:main-view"))
-
-
-def Logout(request):
-    session_id = request.session.get("session_id")
+def dowell_login(request):
+    session_id = request.GET.get("session_id", None)
     if session_id:
-        try:
-            del request.session["session_id"]
-            return redirect(
-                "https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
-        except:
-            return redirect(
-                "https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+        request.session["session_id"] = session_id
+        return redirect("https://100007.pythonanywhere.com/api/v2/main/")
     else:
-        return redirect(
-            "https://100014.pythonanywhere.com/sign-out?returnurl=https://www.socialmediaautomation.uxlivinglab.online")
+        return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com/")
 
 
 class LogoutUser(APIView):
@@ -101,11 +86,11 @@ class LogoutUser(APIView):
         if session_id:
             try:
                 del request.session["session_id"]
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
+                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
             except:
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
+                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
         else:
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=http://127.0.0.1:8000/")
+            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -121,7 +106,7 @@ class MainAPIView(AuthenticatedBaseView):
                 profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
                 user_map[profile_details['userinfo']['userID']
-                ] = profile_details['userinfo']['username']
+                         ] = profile_details['userinfo']['username']
             else:
                 url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
                 response_2 = requests.post(
@@ -130,7 +115,7 @@ class MainAPIView(AuthenticatedBaseView):
                     profile_details = response_2.json()
                     request.session['portfolio_info'] = profile_details['portfolio_info']
                     user_map[profile_details['userinfo']['userID']
-                    ] = profile_details['userinfo']['username']
+                             ] = profile_details['userinfo']['username']
                 else:
                     profile_details = {}
                     request.session['portfolio_info'] = []
@@ -160,8 +145,8 @@ class MainAPIView(AuthenticatedBaseView):
 
             # if not has_access(request.session['portfolio_info']):
             #     return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-            # credit_handler = CreditHandler()
-            # credit_handler.login(request)
+            credit_handler = CreditHandler()
+            credit_handler.login(request)
 
             # Serialize the response data using ProfileSerializer
             serializer = ProfileSerializer({
@@ -171,15 +156,14 @@ class MainAPIView(AuthenticatedBaseView):
                 "user_id": request.session['user_id'],
                 "timezone": request.session['timezone'],
                 "operations_right": request.session['operations_right'],
-                "org_id": request.session['org_id']
+                "org_id": request.session['org_id'],
+                "product_service_status": credit_handler.login(request)
             })
 
             return Response(serializer.data)
 
         else:
-            return redirect("https://100014.pythonanywhere.com/?redirect_url=http://127.0.0.1:8000/")
-
-            # return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+            return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
 
 
 '''
@@ -288,14 +272,14 @@ class ArticleDetailView(AuthenticatedBaseView):
 class IndexView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
-            # credit_handler = CreditHandler()
-            # credit_response = credit_handler.check_if_user_has_enough_credits(
-            #     sub_service_id=STEP_2_SUB_SERVICE_ID,
-            #     request=request,
-            # )
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_2_SUB_SERVICE_ID,
+                request=request,
+            )
 
-            # if not credit_response.get('success'):
-            #     return redirect(reverse('credit_error_view'))
+            if not credit_response.get('success'):
+                return Response(credit_response, status=HTTP_400_BAD_REQUEST)
 
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
@@ -337,9 +321,6 @@ class IndexView(AuthenticatedBaseView):
                 array = []
                 # Loops through all the data rows
                 for row in datas:
-                    # print('this is the row')
-                    # print(row)
-
                     try:
                         # Get the org_id from the question data
                         org_id = row.get('org_id')
@@ -354,21 +335,13 @@ class IndexView(AuthenticatedBaseView):
                 # Retrieving the page number from the url
                 number_of_items_per_page = 10
                 page = request.GET.get('page', 1)
-                # if isinstance(page,str) and page.isnumeric():
-                #     page=int(page)
-                # end_number=(number_of_items_per_page*page)
-                # start_number=end_number-number_of_items_per_page
-
                 array.reverse()
-
                 for counter, data in enumerate(array):
-
                     for key in data.keys():
                         if key.startswith("sentence_rank_") and data[key]['sentence_rank'] is not None:
                             topic = {"ranks": data[key]['sentence_rank'], "sentence": data[key]
-                            ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
+                                     ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
                             topics.append(topic)
-
                 # Getting the results for a certain page
                 paginator = Paginator(topics, number_of_items_per_page)
                 try:
@@ -378,9 +351,7 @@ class IndexView(AuthenticatedBaseView):
                 except EmptyPage:
                     topics = paginator.page(paginator.num_pages)
             except Exception as e:
-                print('this is the error that has occured')
                 traceback.print_exc()
-                print('================================')
                 topics = []
 
             # Extract the data to be serialized
@@ -403,7 +374,6 @@ class IndexView(AuthenticatedBaseView):
 
 class GenerateArticleView(AuthenticatedBaseView):
     def post(self, request):
-
         credit_handler = CreditHandler()
         credit_response = credit_handler.check_if_user_has_enough_credits(
             sub_service_id=STEP_2_SUB_SERVICE_ID,
@@ -412,10 +382,8 @@ class GenerateArticleView(AuthenticatedBaseView):
 
         if not credit_response.get('success'):
             return Response(credit_response, status=HTTP_400_BAD_REQUEST)
-
         start_datetime = datetime.now()
         session_id = request.GET.get('session_id', None)
-
         if 'session_id' in request.session and 'username' in request.session:
             if request.method != "POST":
                 return Response({"message": "Invalid request method"}, status=status.HTTP_400_BAD_REQUEST)
@@ -447,22 +415,18 @@ class GenerateArticleView(AuthenticatedBaseView):
                 openai.api_key = settings.OPENAI_KEY
 
                 # Build prompt
-                prompt_limit = 2000
+                prompt_limit = 3000
                 min_characters = 500
 
                 # Modify the prompt to include the formatted user data
                 prompt = (
-                        f"Write an article about {RESEARCH_QUERY}"
-                        f" Include  {formatted_hashtags} at the end of the article."
-                        f" Also, append {formatted_cities} to the end of the article."
-                        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-                        [:prompt_limit]
-                        + "..."
-
+                    f"Write an article about {RESEARCH_QUERY}"
+                    f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+                    [:prompt_limit]
+                    + "..."
                 )
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
-                    # engine="text-davinci-003",
                     engine="gpt-3.5-turbo-instruct",
                     prompt=prompt,
                     temperature=0.5,
@@ -480,7 +444,6 @@ class GenerateArticleView(AuthenticatedBaseView):
                 event_id = create_event()['event_id']
                 user_id = request.session['user_id']
                 client_admin_id = request.session['userinfo']['client_admin_id']
-                # approval = get_client_approval(user_id)
                 hashtags_in_last_paragraph = set(
                     word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
                 for i in range(len(paragraphs) - 1):
@@ -564,7 +527,6 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                    "source": page.fullurl,
                                                                    # 'dowelltime': dowellclock
                                                                    }, "9992828281")
-                            print("step-2 data saved")
                         break
 
                     para_list = article[0].split("\n\n")
@@ -581,7 +543,6 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                    "citation_and_url": page.fullurl,
                                                                    # 'dowelltime': dowellclock
                                                                    }, '34567897799')
-                            print("step-3 data saved")
                         break
                     credit_handler = CreditHandler()
                     credit_handler.consume_step_2_credit(request)
@@ -594,39 +555,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
 
 
 class WriteYourselfView(AuthenticatedBaseView):
-
     def post(self, request):
-        if 'session_id' and 'username' in request.session:
-            credit_handler = CreditHandler()
-            credit_response = credit_handler.check_if_user_has_enough_credits(
-                sub_service_id=STEP_2_SUB_SERVICE_ID,
-                request=request,
-            )
-
-            if not credit_response.get('success'):
-                return Response(credit_response, status=HTTP_400_BAD_REQUEST)
-
-            if request.method != "POST":
-                return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
-            form = VerifyArticleForm(request.POST)
-
-            if form.is_valid():
-                title = request.POST.get("title")
-
-                response_data = {
-                    'title': title,
-                    'form_data': form.cleaned_data  # Serialize form data, not the form instance
-                }
-
-                return Response({'message': 'Article saved successfully', 'data': response_data}, status=status.HTTP_201_CREATED)
-            else:
-                return Response({'error': 'Form validation failed', 'errors': form.errors}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-class VerifyArticle(AuthenticatedBaseView):
-    def pot(self, request):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
             if request.method != "POST":
@@ -713,9 +642,6 @@ class VerifyArticle(AuthenticatedBaseView):
 
                     credit_handler = CreditHandler()
                     credit_handler.consume_step_2_credit(request)
-
-                    # credit_handler = CreditHandler()
-                    # credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully', 'data': response_data},
                                     status=status.HTTP_201_CREATED)
         else:
@@ -841,14 +767,14 @@ class PostListView(AuthenticatedBaseView):
 class PostDetailView(AuthenticatedBaseView):
     def post(self, request):
         if 'session_id' and 'username' in request.session:
-            # credit_handler = CreditHandler()
-            # credit_response = credit_handler.check_if_user_has_enough_credits(
-            #     sub_service_id=STEP_3_SUB_SERVICE_ID,
-            #     request=request,
-            # )
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_3_SUB_SERVICE_ID,
+                request=request,
+            )
 
-            # if not credit_response.get('success'):
-            #     return redirect(reverse('credit_error_view'))
+            if not credit_response.get('success'):
+                return Response(credit_response, status=HTTP_400_BAD_REQUEST)
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
             payload = json.dumps({
@@ -1040,11 +966,8 @@ class SavePostView(AuthenticatedBaseView):
                 response = requests.request(
                     "POST", url, headers=headers, data=payload)
                 print("data:", response.json())
-                # make sure to alert the user that the article has been saved sucesfully. (frontend)
                 credit_handler = CreditHandler()
                 credit_handler.consume_step_3_credit(request)
-                # credit_handler = CreditHandler()
-                # credit_handler.consume_step_3_credit(request)
                 response_data = {
                     "message": "Post saved successfully",
                 }
@@ -1056,12 +979,14 @@ class SavePostView(AuthenticatedBaseView):
 class EditPostView(AuthenticatedBaseView):
     def get(self, request, post_id, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
+        image_url = request.GET.get('image', None)
         if 'session_id' and 'username' in request.session:
             post_data = {
                 "product_name": "Social Media Automation",
                 "details": {
                     "_id": post_id,
                     "field": {"_id": post_id},
+                    "image": image_url,
                     "database": "socialmedia",
                     "collection": "step3_data",
                     "team_member_ID": "34567897799",
@@ -1078,6 +1003,7 @@ class EditPostView(AuthenticatedBaseView):
                 }
             }
             token = encode_json_data(post_data)
+            print(token)
             response_data = {
                 'redirect_url': f'https://ll04-finance-dowell.github.io/100058-DowellEditor-V2/?token={str(token)}'
             }
@@ -1114,65 +1040,6 @@ class EditPostView(AuthenticatedBaseView):
 '''step-4 starts here'''
 
 
-def api_call(postes, platforms, key, image, request, post_id):
-
-    payload = {'post': postes,
-               'platforms': platforms,
-               'profileKey': key,
-               'mediaUrls': [image],
-               }
-    headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r1 = requests.post('https://app.ayrshare.com/api/post',
-                       json=payload,
-                       headers=headers)
-    print(r1.json())
-    if r1.json()['status'] == 'error':
-        messages.error(request, 'error in posting')
-    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-        messages.success(
-            request, 'post have been sucessfully posted')
-        credit_handler = CreditHandler()
-        credit_handler.consume_step_4_credit(request)
-        update = update_most_recent(post_id)
-
-    else:
-        for warnings in r1.json()['warnings']:
-            messages.error(request, warnings['message'])
-
-
-def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
-
-    payload = {'post': postes,
-               'platforms': platforms,
-               'profileKey': key,
-               'mediaUrls': [image],
-               'scheduleDate': str(formart),
-               }
-    headers = {'Content-Type': 'application/json',
-               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-    r1 = requests.post('https://app.ayrshare.com/api/post',
-                       json=payload,
-                       headers=headers)
-    print(r1.json())
-    if r1.json()['status'] == 'error':
-        for error in r1.json()['posts']:
-            for message in error['errors']:
-                messages.error(request, message['message'][:62])
-    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
-        messages.success(
-            request, 'post have been sucessfully posted')
-        credit_handler = CreditHandler()
-        credit_handler.consume_step_4_credit(request)
-        update = update_most_recent(post_id)
-
-    else:
-        for warnings in r1.json()['warnings']:
-            messages.error(request, warnings['message'])
-
-
 @method_decorator(csrf_exempt, name='dispatch')
 class AryshareProfileView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
@@ -1186,7 +1053,6 @@ class AryshareProfileView(AuthenticatedBaseView):
                           json=payload,
                           headers=headers)
         data = r.json()
-        print(data)
         if data['status'] == 'error':
             messages.error(request, data['message'])
             return Response(data['message'], status=status.HTTP_400_BAD_REQUEST)
@@ -1226,8 +1092,6 @@ class AryshareProfileView(AuthenticatedBaseView):
 
             response = requests.request(
                 "POST", url, headers=headers, data=payload)
-            print(response.text)
-            print(data)
             return Response("Social media profile created")
 
 
@@ -1261,7 +1125,7 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
             if posts['user_id'] == request.session['user_id']:
                 key = posts['profileKey']
                 print(key)
-        with open(r'C:\Users\HP 250\Desktop\code\100007-Social-Media-Automation\dowellresearch.key') as f:
+        with open(r'/home/100007/dowellresearch.key') as f:
             privateKey = f.read()
 
         payload = {'domain': 'dowellresearch',
@@ -1276,7 +1140,6 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
                           json=payload,
                           headers=headers)
         link = r.json()
-        print(link)
         return redirect(link['url'])
 
 
@@ -1402,7 +1265,6 @@ class MostRecentJSON(APIView):
                 }
             except:
                 print('no post')
-
             return Response(response_data)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -1529,6 +1391,8 @@ def api_call(postes, platforms, key, image, request, post_id):
         if response_data['status'] == 'error':
             return {'success': False, 'error_message': 'Error in posting'}
         elif response_data['status'] == 'success' and 'warnings' not in response_data:
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_4_credit(request)
             update_most_recent(post_id)
             return {'success': True, 'message': 'Successfully Posted'}
         else:
@@ -1564,6 +1428,8 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
         if response_data['status'] == 'error':
             return {'success': False, 'error_message': 'Error in posting'}
         elif response_data['status'] == 'success' and 'warning' not in response_data:
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_4_credit(request)
             update_schedule(post_id)
             return {'success': True, 'message': 'Successfully Scheduled'}
         else:
@@ -1580,14 +1446,14 @@ class MediaPostView(AuthenticatedBaseView):
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
-            # credit_handler = CreditHandler()
-            # credit_response = credit_handler.check_if_user_has_enough_credits(
-            #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-            #     request=request,
-            # )
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_4_SUB_SERVICE_ID,
+                request=request,
+            )
 
-            # if not credit_response.get('success'):
-            #     return JsonResponse('credit_error', safe=False)
+            if not credit_response.get('success'):
+                return Response(credit_response, status=HTTP_400_BAD_REQUEST)
 
             start_datetime = datetime.now()
             data = json.loads(request.body.decode("utf-8"))
@@ -1620,7 +1486,6 @@ class MediaPostView(AuthenticatedBaseView):
                 print(platforms)
             except:
                 pass
-
             combined_social_channels = platforms + splited
             is_owner = check_if_user_is_owner_of_organization(request)
             if not is_owner:
@@ -1633,17 +1498,20 @@ class MediaPostView(AuthenticatedBaseView):
                     }
                     return Response(data)
 
-                portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
-                portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
-                approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
+                portfolio_code = request.session['portfolio_info'][0].get(
+                    'portfolio_code')
+                portfolio_code_channel_mapping = user_info['data'][0].get(
+                    'portfolio_code_channel_mapping', {})
+                approved_social_accounts = portfolio_code_channel_mapping.get(
+                    portfolio_code, [])
 
                 if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
-                    not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
+                    not_approved_channels = [
+                        x for x in combined_social_channels if x not in approved_social_accounts]
                     data = {
                         'not_approved_channels': not_approved_channels
                     }
                     return Response(data)
-
             user_id = request.session['user_id']
             key = get_key(user_id)
             if len(splited) == 0:
@@ -1675,7 +1543,7 @@ class MediaPostView(AuthenticatedBaseView):
             error_messages = messages.get_messages(request)
             if error_messages:
                 error_response = {'error': True, 'error_messages': [
-                                                                       str(msg) for msg in error_messages][1:]}
+                    str(msg) for msg in error_messages][1:]}
                 return Response(error_response)
             else:
                 success_response = {'success': True,
@@ -1691,14 +1559,14 @@ class MediaScheduleView(AuthenticatedBaseView):
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         if 'session_id' and 'username' in request.session:
-            # credit_handler = CreditHandler()
-            # credit_response = credit_handler.check_if_user_has_enough_credits(
-            #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-            #     request=request,
-            # )
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=STEP_4_SUB_SERVICE_ID,
+                request=request,
+            )
 
-            # if not credit_response.get('success'):
-            #     return redirect(reverse('credit_error_view'))
+            if not credit_response.get('success'):
+                return Response(credit_response, status=HTTP_400_BAD_REQUEST)
             start_datetime = datetime.now()
             data = json.loads(request.body.decode("utf-8"))
             timezone = request.session['timezone']
@@ -1739,7 +1607,6 @@ class MediaScheduleView(AuthenticatedBaseView):
             string = str(shedulded)[:-6]
             formart = datetime.strptime(
                 string, "%Y-%m-%d %H:%M:%S").isoformat() + "Z"
-
             combined_social_channels = platforms + splited
             is_owner = check_if_user_is_owner_of_organization(request)
             if not is_owner:
@@ -1752,12 +1619,16 @@ class MediaScheduleView(AuthenticatedBaseView):
                     }
                     return Response(data, )
 
-                portfolio_code = request.session['portfolio_info'][0].get('portfolio_code')
-                portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
-                approved_social_accounts = portfolio_code_channel_mapping.get(portfolio_code, [])
+                portfolio_code = request.session['portfolio_info'][0].get(
+                    'portfolio_code')
+                portfolio_code_channel_mapping = user_info['data'][0].get(
+                    'portfolio_code_channel_mapping', {})
+                approved_social_accounts = portfolio_code_channel_mapping.get(
+                    portfolio_code, [])
 
                 if not (set(combined_social_channels).issubset(set(approved_social_accounts))):
-                    not_approved_channels = [x for x in combined_social_channels if x not in approved_social_accounts]
+                    not_approved_channels = [
+                        x for x in combined_social_channels if x not in approved_social_accounts]
                     data = {
                         'not_approved_channels': not_approved_channels
                     }
@@ -1795,7 +1666,7 @@ class MediaScheduleView(AuthenticatedBaseView):
             error_messages = messages.get_messages(request)
             if error_messages:
                 error_response = {'error': True, 'error_messages': [
-                                                                       str(msg) for msg in error_messages][1:]}
+                    str(msg) for msg in error_messages][1:]}
                 return Response(error_response)
             else:
                 success_response = {'success': True,
@@ -1897,6 +1768,7 @@ class UnScheduledJsonView(AuthenticatedBaseView):
             return Response(response_data)
         else:
             return Response({'response': []})
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(xframe_options_exempt, name='dispatch')
@@ -2002,6 +1874,8 @@ class CreatePostComments(AuthenticatedBaseView):
                 comment=comment,
                 profile_key=profile_key
             )
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_5_credit(request)
             return Response(response)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -2011,6 +1885,14 @@ class CreatePostComments(AuthenticatedBaseView):
 class Comments(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
+            credit_handler = CreditHandler()
+            credit_response = credit_handler.check_if_user_has_enough_credits(
+                sub_service_id=COMMENTS_SUB_SERVICE_ID,
+                request=request,
+            )
+
+            if not credit_response.get('success'):
+                return Response(credit_response, status=HTTP_400_BAD_REQUEST)
             user_id = request.session['user_id']
             recent_posts = get_most_recent_posts(user_id=user_id)
             scheduled_post = get_scheduled_posts(user_id=user_id)
@@ -2078,10 +1960,12 @@ class DeletePostComment(AuthenticatedBaseView):
                 profile_key=profile_key,
                 platform=platform,
             )
-
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_5_credit(request)
             return Response(response)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 '''Comments section ends here'''
 
@@ -3021,7 +2905,7 @@ class GroupHashtagView(AuthenticatedBaseView):
         org_id = request.session['org_id']
         session_id = request.GET.get("session_id", None)
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags']
+        hashtags = serializer_data.validated_data['hashtags'].split(',')
         client_admin_id = request.session['userinfo']['client_admin_id']
 
         create_hashtag_data = {
@@ -3056,7 +2940,7 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
             return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
 
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags']
+        hashtags = serializer_data.validated_data['hashtags'].split(',')
         update_type = request.GET.get('update_type', 'append')
         org_id = request.session['org_id']
 
@@ -3070,91 +2954,6 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
 
         response = update_group_hashtags(update_data)
         return Response({'detail': 'Group hashtag has been updated successfully'}, status=status.HTTP_201_CREATED)
-
-
-class SocialMediaPortfolioView(AuthenticatedBaseView):
-    def get(self, request):
-        if not check_if_user_is_owner_of_organization(request):
-            response_data = {
-                'message': 'Only the owner of the organization can access this page',
-            }
-            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
-        user_portfolio = fetch_user_portfolio_data(request)
-        if 'error' in user_portfolio.keys():
-            return Response(user_portfolio, status=status.HTTP_401_UNAUTHORIZED)
-        org_portfolios = user_portfolio['selected_product']['userportfolio']
-        org_id = request.session['org_id']
-        user_portfolio_pd = pd.DataFrame(org_portfolios)
-        portfolio_pd = pd.DataFrame(
-            [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
-        user_info = fetch_organization_user_info(org_id)
-        portfolio_code_channel_mapping = user_info['data'][0].get('portfolio_code_channel_mapping', {})
-        portfolio_info_list = portfolio_pd.to_dict('records')
-
-        portfolio_info_channel_list = []
-        print(user_info)
-
-        for portfolio_info in portfolio_info_list:
-            portfolio_info['channels'] = portfolio_code_channel_mapping.get(portfolio_info.get('portfolio_code'),
-                                                                            [])
-            portfolio_info_channel_list.append(portfolio_info)
-        context_dict = {
-            'portfolio_info_list': portfolio_info_channel_list,
-        }
-        return Response(context_dict)
-
-    def post(self, request):
-        if not check_if_user_is_owner_of_organization(request):
-            response_data = {
-                'message': 'Only the owner of the organization can access this page',
-            }
-            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
-        serializer = PortfolioChannelsSerializer(data=request.data, many=True)
-
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-        channel_portfolio_list = serializer.validated_data
-        portfolio_code_channel_mapping = {}
-        org_id = request.session['org_id']
-
-        for channel_portfolio in channel_portfolio_list:
-            channels = list(channel_portfolio['channels'])
-            portfolio_code = channel_portfolio['portfolio_code']
-
-            if portfolio_code in portfolio_code_channel_mapping.keys():
-                channel_list = portfolio_code_channel_mapping[portfolio_code]
-                channel_list = channel_list + channels
-                portfolio_code_channel_mapping[portfolio_code] = channel_list
-            else:
-                portfolio_code_channel_mapping[portfolio_code] = channels
-
-        url = "http://uxlivinglab.pythonanywhere.com"
-
-        payload = json.dumps({
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "user_info",
-            "document": "user_info",
-            "team_member_ID": "1071",
-            "function_ID": "ABCDE",
-            "command": "update",
-
-            "field": {
-                'user_id': request.session['user_id'],
-            },
-            "update_field": {
-                "portfolio_code_channel_mapping": portfolio_code_channel_mapping,
-                "org_id": org_id,
-            },
-            "platform": "bangalore"
-        })
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.json())
-        return Response({'message': 'Portfolio channels saved successfully'})
 
 
 class MentionUpdateView(AuthenticatedBaseView):
@@ -3497,6 +3296,92 @@ class PostDetailDropdownView(AuthenticatedBaseView):
                 "targeted_for": targeted_for,
                 "targeted_category": targeted_category,
             }, status=status.HTTP_200_OK)
+
+
+class SocialMediaPortfolioView(AuthenticatedBaseView):
+    def get(self, request):
+        if not check_if_user_is_owner_of_organization(request):
+            response_data = {
+                'message': 'Only the owner of the organization can access this page',
+            }
+            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+        user_portfolio = fetch_user_portfolio_data(request)
+        if 'error' in user_portfolio.keys():
+            return Response(user_portfolio, status=status.HTTP_401_UNAUTHORIZED)
+        org_portfolios = user_portfolio['selected_product']['userportfolio']
+        org_id = request.session['org_id']
+        user_portfolio_pd = pd.DataFrame(org_portfolios)
+        portfolio_pd = pd.DataFrame(
+            [user_portfolio_pd['portfolio_name'], user_portfolio_pd['portfolio_code'], ]).transpose()
+        user_info = fetch_organization_user_info(org_id)
+        portfolio_code_channel_mapping = user_info['data'][0].get(
+            'portfolio_code_channel_mapping', {})
+        portfolio_info_list = portfolio_pd.to_dict('records')
+
+        portfolio_info_channel_list = []
+        print(user_info)
+
+        for portfolio_info in portfolio_info_list:
+            portfolio_info['channels'] = portfolio_code_channel_mapping.get(portfolio_info.get('portfolio_code'),
+                                                                            [])
+            portfolio_info_channel_list.append(portfolio_info)
+        context_dict = {
+            'portfolio_info_list': portfolio_info_channel_list,
+        }
+        return Response(context_dict)
+
+    def post(self, request):
+        if not check_if_user_is_owner_of_organization(request):
+            response_data = {
+                'message': 'Only the owner of the organization can access this page',
+            }
+            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+        serializer = PortfolioChannelsSerializer(data=request.data, many=True)
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        channel_portfolio_list = serializer.validated_data
+        portfolio_code_channel_mapping = {}
+        org_id = request.session['org_id']
+
+        for channel_portfolio in channel_portfolio_list:
+            channels = list(channel_portfolio['channels'])
+            portfolio_code = channel_portfolio['portfolio_code']
+
+            if portfolio_code in portfolio_code_channel_mapping.keys():
+                channel_list = portfolio_code_channel_mapping[portfolio_code]
+                channel_list = channel_list + channels
+                portfolio_code_channel_mapping[portfolio_code] = channel_list
+            else:
+                portfolio_code_channel_mapping[portfolio_code] = channels
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+
+            "field": {
+                'user_id': request.session['user_id'],
+            },
+            "update_field": {
+                "portfolio_code_channel_mapping": portfolio_code_channel_mapping,
+                "org_id": org_id,
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.json())
+        return Response({'message': 'Portfolio channels saved successfully'})
 
 
 class FetchUserInfo(AuthenticatedBaseView):

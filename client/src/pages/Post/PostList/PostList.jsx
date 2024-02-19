@@ -115,7 +115,7 @@ const PostList = ({ show }) => {
 
   useEffect(() => {
     if (status === "success") {
-      setSuccess("Posts Fetched successfully..!");
+      setSuccess("Posts Fetched successfully");
       setCount(posts.total_items);
       setPageCount(Math.ceil(posts.total_items / perPage));
     } else if (status === "error") {

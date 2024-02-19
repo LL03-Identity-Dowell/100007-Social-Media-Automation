@@ -101,7 +101,7 @@ const ClientProfile = ({ close }) => {
   const fetch = () => {
     // Make a GET request to the API endpoint with the session_id
     axios
-      .get("http://127.0.0.1:8000/api/v1/client-form/", {
+      .get(`${import.meta.env.VITE_APP_BASEURL}/client-form/`, {
         withCredentials: true,
       })
       .then((response) => {

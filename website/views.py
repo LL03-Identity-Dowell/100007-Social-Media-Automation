@@ -14,6 +14,7 @@ from credits.constants import STEP_1_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from helpers import fetch_user_info
 from step2.views import create_event
+from create_article.permissions import HasBeenAuthenticated
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
 from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer, \
@@ -464,7 +465,6 @@ class SelectedResultAPIView(generics.CreateAPIView):
             **data_dictionary
         }
 
-
         data_dic = request.session['data_dictionary']
 
         insert_form_data(request.session['data_dictionary'])
@@ -481,4 +481,3 @@ class SelectedResultAPIView(generics.CreateAPIView):
         credit_handler.consume_step_1_credit(request)
 
         return Response({'message': 'Sentence ranked successfully'})
-

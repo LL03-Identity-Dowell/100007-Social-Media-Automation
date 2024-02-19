@@ -14,12 +14,12 @@ function MyUsage({ close }) {
             <h2 className="text-customBlue font-bold text-2xl xl:text-4xl pb-6">
               Current Plan: Startup
             </h2>
-            <Link
-              to="/"
+            <a
+              href="https://ll05-ai-dowell.github.io/100105-DowellApiKeySystem/" target="_blank"
               className="bg-customBlue px-4 py-2 text-white rounded-md "
             >
               Upgrade
-            </Link>
+            </a>
           </div>
           <div className="flex flex-col md:flex-row justify-center items-center mt-6 md:mt-10 gap-4 md:gap-8">
             <div className="bg-customBlue rounded-md py-6 px-12 flex flex-col justify-center items-center text-white w-[250px]">
