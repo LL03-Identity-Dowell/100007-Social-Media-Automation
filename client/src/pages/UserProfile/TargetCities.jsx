@@ -171,11 +171,13 @@ const TargetCities = ({ close }) => {
             </button>
           </form>
         ) : (
-          <div className='w-full h-[400px] flex justify-center '>
-            <h1 className='text-2xl font-bold text-[#333] self-center'>
-              No matching city found.
-            </h1>
-          </div>
+          !loading && (
+            <div className='w-full h-[400px] flex justify-center '>
+              <h1 className='text-2xl font-bold text-[#333] self-center'>
+                No matching city found.
+              </h1>
+            </div>
+          )
         )}
       </div>
     </UserWrapper>
