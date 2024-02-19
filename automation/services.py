@@ -1,3 +1,4 @@
+import concurrent.futures
 import json
 import random
 import urllib
@@ -15,9 +16,10 @@ from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
-from helpers import download_and_upload_image
+from helpers import download_and_upload_image, fetch_organization_user_info, save_profile_key_to_post, \
+    check_connected_accounts
 from step2.views import create_event
-from step2.views import save_data, get_key, update_schedule, check_connected_accounts
+from step2.views import save_data, get_key, update_schedule
 from website.models import Sentences, SentenceResults, SentenceRank
 from website.views import get_client_approval
 
@@ -107,6 +109,7 @@ def generate_topic_api(grammar_arguments=None, subject=None, verb=None, objdet=N
 
 @transaction.atomic
 def generate_topics(auto_strings, data_dic):
+    print('Start of generating sentences')
     sentence_grammar = Sentences.objects.create(
         user=auto_strings['user'],
         object=auto_strings['object'],
@@ -167,6 +170,7 @@ def generate_topics(auto_strings, data_dic):
 
 @transaction.atomic
 def selected_result(article_id, data_dic):
+    print('Selecting sentences')
     try:
         print('ranking___________')
         sentence_ids = article_id
@@ -204,6 +208,10 @@ def selected_result(article_id, data_dic):
 
         }
         insert_form_data(data_dic)
+        approval = get_client_approval(data_dic['user_id'])
+        print('Finished selecting sentences')
+        if approval['article'] == True:
+            async_task("automation.services.generate_article", data_dic, hook='automation.services.hook_now')
         return (data_dic)
 
     except Exception as e:
@@ -250,8 +258,8 @@ def insert_form_data(data_dict):
 
 
 @transaction.atomic
-def generate_article(data_dic, user_data):
-    print("automation started.........................................................")
+def generate_article(data_dic, ):
+    print("generating article.........................................................")
     start_datetime = datetime.now()
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
     api_no = random.choice(Rank)
@@ -264,7 +272,7 @@ def generate_article(data_dic, user_data):
     approval = get_client_approval(user_ids)
     org_id = data_dic["org_id"]
     user_selected_cities = []
-    user_data = user_data
+    user_data = fetch_organization_user_info(org_id)
     for item in user_data["data"]:
         if "target_city" in item and item["target_city"] is not None:
             user_selected_cities.extend(item["target_city"])
@@ -300,6 +308,7 @@ def generate_article(data_dic, user_data):
     article = response.choices[0].text
     paragraphs = [p.strip()
                   for p in article.split("\n\n") if p.strip()]
+
     article_str = "\n\n".join(paragraphs)
     sources = urllib.parse.unquote("")
     event_id = create_event()['event_id']
@@ -309,7 +318,8 @@ def generate_article(data_dic, user_data):
         word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
     for i in range(len(paragraphs) - 1):
         paragraphs[i] += " " + " ".join(hashtags_in_last_paragraph)
-
+    post_id_list = []
+    paragraphs = paragraphs[::-1]
     for i in range(len(paragraphs)):
         if paragraphs[i] != "":
             step3_data = {
@@ -324,8 +334,10 @@ def generate_article(data_dic, user_data):
                 "citation_and_url": sources,
 
             }
-            save_data('step3_data', 'step3_data',
-                      step3_data, '34567897799')
+            post_data = save_data('step3_data', 'step3_data',
+                                  step3_data, '34567897799')
+            post_id_list.append(post_data)
+
     step2_data = {
         "user_id": user_id,
         "session_id": session_id,
@@ -347,9 +359,23 @@ def generate_article(data_dic, user_data):
     print('step_3 starting')
     #    seeking for approval to automate step 3
     if approval['post'] == True:
-        step_3 = post_list(user_ids)
-        print(step_3)
-    print('step_3 not done')
+        picked_article = post_id_list[0]
+        picked_article = json.loads(picked_article)
+        post_data = {
+            'post_id': picked_article.get('inserted_id'),
+            'paragraph': paragraphs[0],
+            "user_id": user_id,
+            "username": data_dic['username'],
+            "org_id": org_id,
+            "session_id": session_id,
+            "eventId": event_id,
+            'client_admin_id': client_admin_id,
+            "title": RESEARCH_QUERY,
+            "source": sources,
+        }
+        async_task("automation.services.save_post", post_data,
+                   hook='automation.services.hook_now')
+    print('step_3 is done')
     return ('done')
 
 
@@ -426,16 +452,48 @@ def post_list(user_id):
     return 'done'
 
 
-def save_post(articles, post):
+def get_post_image(data: dict):
+    print('Getting post image=====================================')
+    a = random.randint(1, 9)
+    max_characters = 200
+    if 'paragraph' in data:
+        paragraph = data.get('paragraph')
+        truncated_paragraph = paragraph[:max_characters]
+        query = truncated_paragraph
+    elif 'article' in data:
+        article = data.get("article")
+        truncated_article = article[:max_characters]
+        query = truncated_article
+    output = []
+    api = API(PEXELS_API_KEY)
+    pic = api.search(query, page=a, results_per_page=10)
+    width = 350
+    for photo in pic['photos']:
+        pictures = photo['src']['medium']
+        img_data = requests.get(pictures).content
+        im = Image.open(BytesIO(img_data))
+        wit = im.size
+        if wit[0] >= width:
+            output.append(pictures)
+    if len(output) == 0:
+        return {'message': 'No images found please try again!'}
+    images = output[0]
+    return images
+
+
+def save_post(post_data, ):
+    print('Saving post to step 4=========================================')
     eventId = create_event()['event_id']
     time = localtime()
     test_date = str(localdate())
     date_obj = datetime.strptime(test_date, '%Y-%m-%d')
     date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-    paragraph_list = [articles['paragraph']]
+    paragraph_list = [post_data['paragraph']]
     combined_article = "\n\n".join(paragraph_list)
     paragraph_without_commas = combined_article.replace(
         '.', '. ').replace(',.', '.')
+
+    image = get_post_image(post_data)
 
     url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -449,15 +507,15 @@ def save_post(articles, post):
         "command": "insert",
         "eventId": eventId,
         "field": {
-            "user_id": articles['user_id'],
-            "session_id": articles['session_id'],
+            "user_id": post_data['user_id'],
+            "session_id": post_data['session_id'],
             "eventId": eventId,
-            'client_admin_id': articles['client_admin_id'],
-            "org_id": articles['org_id'],
-            "title": articles['title'],
+            'client_admin_id': post_data['client_admin_id'],
+            "org_id": post_data['org_id'],
+            "title": post_data['title'],
             "paragraph": paragraph_without_commas,
-            "source": articles["source"],
-            "image": post['image'],
+            "source": post_data["source"],
+            "image": image,
             "date": date,
             "time": str(time),
             "status": ""
@@ -470,52 +528,137 @@ def save_post(articles, post):
     headers = {
         'Content-Type': 'application/json'
     }
-    print("This is payload", payload)
     response = requests.request(
         "POST", url, headers=headers, data=payload)
-    return ("data:")
+    print(f'This is the response: {str(response.text)}')
+    response = json.loads(response.json())
+    post_data['post_id'] = response.get('inserted_id')
+    post_data['image'] = image
+    async_task("automation.services.media_post", post_data,
+               hook='automation.services.hook_now')
+    return response
 
 
-def media_post(user_id, username):
-    url = "http://uxlivinglab.pythonanywhere.com/"
-    headers = {'content-type': 'application/json'}
+def update_most_recent(pk):
+    url = "http://uxlivinglab.pythonanywhere.com"
+    time = localtime()
+    test_date = str(localdate())
+    date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+    date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
 
-    payload = {
-        "cluster": "socialmedia",
-        "database": "socialmedia",
-        "collection": "step4_data",
-        "document": "step4_data",
-        "team_member_ID": "1163",
-        "function_ID": "ABCDE",
-        "command": "fetch",
-        "field": {"user_id": user_id},
-        "update_field": {
-            "order_nos": 21
-        },
-        "platform": "bangalore"
-    }
-    data = json.dumps(payload)
-    response = requests.request("POST", url, headers=headers, data=data)
-    post = json.loads(response.json())
-    # takes in user_id
-    # takes in the json data
-    posts = post['data']
+    # adding eddited field in article
+    payload = json.dumps(
+        {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "step4_data",
+            "document": "step4_data",
+            "team_member_ID": "1163",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field":
+                {
+                    '_id': pk
+                },
+            "update_field":
+                {
+                    "status": 'posted',
+                    "date": date,
+                    "time": str(time),
+                },
 
-    post = []
+            "platform": "bangalore"
+        })
+    headers = {'Content-Type': 'application/json'}
+    response = requests.request(
+        "POST", url, headers=headers, data=payload)
+    return ('most_recent')
+
+
+def post_article_to_aryshare(postes, platforms, key, image, org_id, post_id):
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
     try:
-        for row in posts:
-            if row['status'] == '':
-                data = {'title': row['title'], 'paragraph': row['paragraph'], 'Date': row["date"],
-                        'image': row['image'], 'source': row['source'], 'PK': row['_id'], 'time': row['time']}
-                post.append(data)
-    except:
-        post = []
-    article = post[-1]
-    paragraph = article['paragraph']
-    image = article['image']
-    key = get_key(user_id)
+        r1 = requests.post('https://app.ayrshare.com/api/post',
+                           json=payload,
+                           headers=headers)
+        print(r1.json())
+        response_data = r1.json()
+        save_profile_key_to_post(
+            profile_key=key,
+            post_id=post_id,
+            post_response=response_data,
+            org_id=org_id,
+        )
+        if response_data['status'] == 'error':
+            return {'success': False, 'error_message': 'Error in posting'}
+        elif response_data['status'] == 'success' and 'warnings' not in response_data:
+            update_most_recent(post_id)
+            return {'success': True, 'message': 'Successfully Posted'}
+        else:
+            warnings = [warning['message']
+                        for warning in response_data['warnings']]
+            return {'success': False, 'error_message': warnings}
+    except Exception as e:
+        return {'success': False, 'error_message': str(e)}
+
+
+def media_post(data: dict):
+    # credit_handler = CreditHandler()
+    # credit_response = credit_handler.check_if_user_has_enough_credits(
+    #     sub_service_id=STEP_4_SUB_SERVICE_ID,
+    #     request=request,
+    # )
+
+    # if not credit_response.get('success'):
+    #     return JsonResponse('credit_error', safe=False)
+    username = data['username']
     linked_accounts = check_connected_accounts(username)
-    timezone = article['timezone']
+    start_datetime = datetime.now()
+    title = data['title']
+    paragraph = data['paragraph']
+    paragraph2 = paragraph[0:230]
+    image = data['image']
+
+    # Logo in its own paragraph
+    logo = "Created and posted by #samanta #uxlivinglab"
+
+    post_id = data['post_id']
+
+    # Splitting the content and logo into separate paragraphs
+    postes_paragraph1 = f"{paragraph[0:2000]}."
+    postes_paragraph2 = logo
+
+    # Combining the paragraphs with a newline character
+    postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
+
+    twitter_post_paragraph1 = paragraph2
+    twitter_post_paragraph2 = logo
+
+    twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
+
+    print(twitter_post)
+    org_id = data['org_id']
+
+    user_id = data['user_id']
+    key = get_key(user_id)
+    arguments = (
+        (postes, linked_accounts, key, image, org_id, post_id),
+    )
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Using lambda, unpacks the tuple (*f) into api_call(*args)
+        results = executor.map(lambda f: post_article_to_aryshare(*f), arguments)
+
+        end_datetime = datetime.now()
+        time_taken = end_datetime - start_datetime
+        print(f"Total time taken: {time_taken}")
+    return 'DONE'
 
 
 def time_converter(schedule, timezone):

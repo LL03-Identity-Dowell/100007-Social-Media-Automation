@@ -71,6 +71,7 @@ def save_data(collection, document, field, team_member_ID):
 
     response = requests.request("POST", url, headers=headers, data=payload)
     print(response.text)
+    return response.json()
 
 
 def get_image(urls):
