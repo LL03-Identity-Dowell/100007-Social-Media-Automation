@@ -86,7 +86,7 @@ const CreateArticle = ({ show }) => {
 
   useEffect(() => {
     if (status === "success") {
-      setSuccess("Topics Fetched successfully..!");
+      setSuccess("Topics Fetched successfully");
       setCount(topics.total_items);
       setPageCount(Math.ceil(topics.total_items / perPage));
     } else if (status === "error") {

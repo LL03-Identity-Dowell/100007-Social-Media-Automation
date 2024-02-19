@@ -197,7 +197,7 @@ const SocialMediaChannels = ({close}) => {
                 <ul className='mb-4 space-y-4'>
                   <li>
                     <Link
-                      to='http://127.0.0.1:8000/api/v1/link/'
+                      to={`${import.meta.env.VITE_APP_BASEURL}/link/`}
                       target='_blank'
                     >
                       <input
@@ -225,7 +225,7 @@ const SocialMediaChannels = ({close}) => {
                 </ul>
                 <Link
                   data-modal-toggle='select-modal'
-                  to='http://localhost:5173/user-profile'
+                  to='/user-profile'
                 >
                   <button className='text-white inline-flex w-full justify-center bg-customBlue hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800'>
                     Done

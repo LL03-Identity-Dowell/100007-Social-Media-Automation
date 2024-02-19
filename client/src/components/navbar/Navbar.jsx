@@ -2,19 +2,21 @@ import { Link } from "react-router-dom";
 import Searchbar from "../Searchbar/Searchbar";
 import { FaUser } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import axios from "axios";
 
-function Navbar() {
-  const [username, setUserName] = useState(null);
-  const [userEmail, setUserEmail] = useState("");
+function Navbar({name}) {
+  const [username, setUserName] = useState();
+  const [userEmail, setUserEmail] = useState();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isSecondDropdownOpen, setSecondDropdownOpen] = useState(false);
 
   useEffect(() => {
-    let user = JSON.parse(localStorage.getItem("userInfo"));
-    setUserName(user?.userinfo?.username);
-    setUserEmail(user?.userinfo?.email);
+    const user = JSON.parse(localStorage.getItem("userInfo"));
+    if (user && user.username && user.email) {
+      
+      setUserName(user.username);
+      setUserEmail(user.email);
+    } 
+    
   });
 
   const dowellLogoutUrl =
@@ -24,16 +26,6 @@ function Navbar() {
   const handleLogout = () => {
     localStorage.clear();
     window.location.replace(dowellLogoutUrl);
-    // axios
-    // .get("http://127.0.0.1:8000/api/v1/logout/", {
-    //   withCredentials: true,
-    // })
-    // .then(res=>{
-    //   console.log(res);
-    // }).catch(err=>{
-    //   console.log(err);
-
-    // })
   };
 
   const handleToggleDropdown = () => {
@@ -103,48 +95,54 @@ function Navbar() {
             <Searchbar />
           </div>
 
-          <div className='relative items-center justify-center hidden md:flex group'>
-            <span className='pr-2 text-sm font-semibold text-white'>
-              {username && username}
-            </span>
-            <button
-              data-tooltip-target='user-tooltip1'
-              data-tooltip-placement='left'
-              type='button'
-              className='flex mr-3 text-sm bg-white rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600'
-              id='user-menu-button'
-              onClick={handleToggleDropdown}
-              aria-expanded='false'
-              // data-dropdown-toggle="user-dropdown1"
-              // data-dropdown-placement="bottom"
-            >
-              <span className='sr-only'>Open user menu</span>
-              <FaUser className='w-8 h-8 p-1 rounded-full text-customBlue' />
-              <svg
-                className='w-2.5 h-2.5 ml-2.5 absolute -right-4 top-3'
-                aria-hidden='true'
-                xmlns='http://www.w3.org/2000/svg'
-                fill='none'
-                viewBox='0 0 10 6'
-              >
-                <path
-                  stroke='currentColor'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='m1 1 4 4 4-4'
-                />
-              </svg>
-            </button>
+          <div className="relative items-center justify-center hidden md:flex group">
+            <div className="flex items-center gap-2">
+              <span className="pr-2 text-sm font-semibold text-white">
+                {username && username}
+              </span>
+              <div className="flex items-center">
+                <button
+                  // data-tooltip-target="user-tooltip1"
+                  data-tooltip-placement="left"
+                  type="button"
+                  className="flex mr-3 text-sm bg-white rounded-full  md:mr-0 focus:ring-4 focus:ring-gray-300 dark-focus-ring-gray-600"
+                  id="user-menu-button"
+                  onClick={handleToggleDropdown}
+                  aria-expanded="false"
+                  // data-dropdown-toggle="user-dropdown1"
+                  // data-dropdown-placement="bottom"
+                >
+                  <span className="sr-only">Open user menu</span>
+                  <FaUser className="w-8 h-8 p-1 rounded-full text-customBlue" />
+                </button>
+                  <svg
+                    className="w-2.5 h-2.5 ml-2.5 "
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 10 6"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m1 1 4 4 4-4"
+                    />
+                  </svg>
 
-            <div
-              id='user-tooltip1'
-              role='tooltip'
-              className='absolute z-50 invisible inline-block px-3 py-2 font-medium bg-white rounded-lg shadow-sm opacity-0 text-tooltipsm text-customBlue tooltip dark:bg-gray-700'
+              </div>
+
+            </div>
+
+            {/* <div
+              id="user-tooltip1"
+              role="tooltip"
+              className="absolute z-50 invisible inline-block px-3 py-2 font-medium bg-white rounded-lg shadow-sm opacity-0 text-tooltipsm text-customBlue tooltip dark:bg-gray-700"
             >
               User profile
-              <div className='tooltip-arrow' data-popper-arrow></div>
-            </div>
+              <div className="tooltip-arrow" data-popper-arrow></div>
+            </div> */}
 
             {/* Dropdown menu */}
             <div
@@ -156,8 +154,8 @@ function Navbar() {
               //   right: 0,
               // }}
 
-              className='absolute z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow group-hover:block top-4 dark:bg-gray-700 dark:divide-gray-600'
-              id='user-dropdown1'
+              className="absolute z-30 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow group-hover:block top-4 -right-5 dark:bg-gray-700 dark:divide-gray-600"
+              id="user-dropdown1"
             >
               <div className='px-4 py-3'>
                 <span className='block text-sm text-gray-500 truncate dark:text-gray-400 hover:text-customGray'>
@@ -169,7 +167,7 @@ function Navbar() {
                   <Link
                     to='/user-profile'
                     onClick={handleLinkClick}
-                    className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-customGray dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
+                    className="block px-4 py-2 text-sm text-gray-700 whitespace-nowrap hover:bg-gray-100 hover:text-customGray dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
                   >
                     User Profile
                   </Link>
@@ -223,7 +221,7 @@ function Navbar() {
                   </Link>
                 </li> */}
               </ul>
-              <div>
+              <div className="w-full overflow-hidden">
                 <button
                   onClick={handleLogout}
                   className='block w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'

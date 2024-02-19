@@ -75,8 +75,6 @@ const Hashtags = ({ close }) => {
       })
       .then((response) => {
         let data = response.data.group_hastag_list;
-        console.log(data);
-
         setIsFetched(data);
       })
       .catch((error) => {

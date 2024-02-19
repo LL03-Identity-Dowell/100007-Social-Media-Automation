@@ -1,3 +1,5 @@
+import { facebook, instagram, linkedin, pinterest, xTwitter } from "../../../assets";
+
 const PostedTo = ({ socials }) => {
   if (!socials) return;
 
@@ -9,14 +11,14 @@ const PostedTo = ({ socials }) => {
           <li key={each}>
             {each === "twitter" && (
               <img
-                src='/x-twitter.svg'
+                src={xTwitter}
                 className='w-6 h-6 p-1 bg-black rounded-full'
                 alt='twitter'
               />
             )}
             {each === "linkedin" && (
               <img
-                src='/linkedin.svg'
+                src={linkedin}
                 className='w-6 h-6 p-1 rounded-full bg-[#0000ff]'
                 alt='linkedin'
               />
@@ -24,21 +26,21 @@ const PostedTo = ({ socials }) => {
             {each === "youtube" && <div className='small-youtube-logo '></div>}
             {each === "instagram" && (
               <img
-                src='/instagram.svg'
+                src={instagram}
                 className='w-6 h-6 p-1 rounded-full bg-[#b003c7]'
                 alt='facebook'
               />
             )}
             {each === "facebook" && (
               <img
-                src='/facebook.svg'
+                src={facebook}
                 className='w-6 h-6 p-1 rounded-full bg-customBlue'
                 alt='facebook'
               />
             )}
             {each === "pinterest" && (
               <img
-                src='/pinterest.svg'
+                src={pinterest}
                 className='bg-[#e60023] w-6 h-6 p-1 rounded-full'
                 alt='pinterest'
               />
