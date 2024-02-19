@@ -1,21 +1,19 @@
-import { useState, useEffect, Fragment } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import {useEffect, useState} from "react";
+import {useLocation, useNavigate} from 'react-router-dom';
 import axios from "axios";
 
 
 import Loading from "../../components/Loading";
-import { ErrorMessages, SuccessMessages } from "../../components/Messages";
+import {ErrorMessages, SuccessMessages} from "../../components/Messages";
 
 
-
-function Rank({ show }) {
+function Rank({show}) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
     const [sentences, setSentences] = useState([]);
     const [rank, setRank] = useState({}) // { "1": "rank_12", "3": "rank_5", "6": "rank_9" ...} before switching
     const [id, setId] = useState();
-
 
 
     const location = useLocation();
@@ -30,7 +28,6 @@ function Rank({ show }) {
         // remove duplicate values properties from rank object leaving only current selection
         const propertiesDeleted = deletePropertiesWithSameValue(rank, id);
     }, [rank]);
-
 
 
     const fetchSentences = () => {
@@ -95,7 +92,7 @@ function Rank({ show }) {
     };
 
     const handleRanking = (event) => {
-        const { id, value } = event.target;
+        const {id, value} = event.target;
 
         setRank({
             ...rank,
@@ -115,7 +112,7 @@ function Rank({ show }) {
             setError("Please rank up to three(3) sentences");
             setTimeout(() => {
                 setError("");
-                return;
+
             }, 4000);
 
         } else {
@@ -187,7 +184,7 @@ function Rank({ show }) {
 
     return (
         <div className="bg-slate-50 h-full">
-            {loading && <Loading />}
+            {loading && <Loading/>}
             {error && <ErrorMessages>{error}</ErrorMessages>}
             {success && <SuccessMessages>{success}</SuccessMessages>}
 
@@ -195,7 +192,7 @@ function Rank({ show }) {
                 <div className="lg:w-[720px] mb-5">
                     {sentences &&
                         sentences.map((sentence, index) => (
-                            <div className="pt-4" key={index} >
+                            <div className="pt-4" key={index}>
                                 <p className="block mb-2 font-semibold text-gray-900 dark:text-white">
                                     {sentence.sentenceType}
                                 </p>
@@ -231,15 +228,19 @@ function Rank({ show }) {
 
                 <div className="flex mt-4 gap-2 mr-6 md:mr-0 lg:w-[720px] text-white ">
                     <div>
-                        <button className="bg-red-500 hover:bg-red-900 rounded py-2 px-6" onClick={handleCancel}>Cancel</button>
+                        <button className="bg-red-500 hover:bg-red-900 rounded py-2 px-6"
+                                onClick={handleCancel}>Cancel
+                        </button>
                     </div>
                     <div>
-                        <button className="bg-green-500 hover:bg-green-900 rounded py-2 px-6" onClick={handleSubmit}>Submit</button>
+                        <button className="bg-green-500 hover:bg-green-900 rounded py-2 px-6"
+                                onClick={handleSubmit}>Submit
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     );
-};
+}
 
 export default Rank;

@@ -104,7 +104,7 @@ function Comment({ show }) {
 
   useEffect(() => {
     if (status === "success") {
-      setSuccess("Comments Fetched successfully..!");
+      setSuccess("Comments Fetched successfully");
       setCount(paginated_posts.total_items);
       setPageCount(Math.ceil(paginated_posts.total_items / perPage));
     } else if (status === "error") {
