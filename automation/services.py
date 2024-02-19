@@ -1,7 +1,5 @@
-import concurrent.futures
 import json
 import random
-import time
 import urllib
 import urllib.parse
 from datetime import datetime
@@ -13,10 +11,11 @@ import requests
 from PIL import Image
 from django.db import transaction
 from django.utils.timezone import localdate, localtime
+from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
-from helpers import download_and_upload_image, fetch_user_info
+from helpers import download_and_upload_image
 from step2.views import create_event
 from step2.views import save_data, get_key, update_schedule, check_connected_accounts
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -52,6 +51,118 @@ def get_dowellclock():
         'https://100009.pythonanywhere.com/dowellclock')
     data = response_dowell.json()
     return data['t1']
+
+
+def generate_topic_api(grammar_arguments=None, subject=None, verb=None, objdet=None, adjective=None, object=None):
+    url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
+    if grammar_arguments is None:
+        grammar_arguments = {}
+
+    querystring = {
+        "object": object,
+        "subject": subject,
+        "verb": verb,
+        "objdet": objdet,
+        "objmod": adjective,
+    }
+
+    iter_sentence_type = []
+    if 'tense' in grammar_arguments:
+        querystring['tense'] = grammar_arguments['tense'].capitalize()
+        iter_sentence_type.append(
+            grammar_arguments['tense'].capitalize())
+
+    if 'progressive' in grammar_arguments:
+        querystring['progressive'] = 'progressive'
+        iter_sentence_type.append(grammar_arguments['progressive'])
+
+    if 'perfect' in grammar_arguments:
+        querystring['perfect'] = 'perfect'
+        iter_sentence_type.append(grammar_arguments['perfect'])
+
+    if 'negated' in grammar_arguments:
+        querystring['negated'] = 'negated'
+        iter_sentence_type.append(grammar_arguments['negated'])
+
+    if 'passive' in grammar_arguments:
+        querystring['passive'] = 'passive'
+        iter_sentence_type.append(grammar_arguments['passive'])
+
+    if 'modal_verb' in grammar_arguments:
+        querystring['modal'] = grammar_arguments['modal_verb']
+
+    if 'sentence_art' in grammar_arguments:
+        querystring['sentencetype'] = grammar_arguments['sentence_art']
+    iter_sentence_type.append("sentence.")
+    type_of_sentence = ' '.join(iter_sentence_type)
+
+    headers = {
+        'x-rapidapi-host': "linguatools-sentence-generating.p.rapidapi.com",
+        'x-rapidapi-key': settings.LINGUA_KEY
+    }
+    response = requests.request(
+        "GET", url, headers=headers, params=querystring).json()
+    return [response['sentence'], type_of_sentence]
+
+
+@transaction.atomic
+def generate_topics(auto_strings, data_dic):
+    sentence_grammar = Sentences.objects.create(
+        user=auto_strings['user'],
+        object=auto_strings['object'],
+        topic=auto_strings['topic'],
+        verb=auto_strings['verb'],
+        adjective=data_dic['adjective'],
+    )
+
+    tenses = ['past', 'present', 'future']
+    other_grammar = ['passive', 'progressive', 'perfect', 'negated']
+    api_results = []
+
+    for tense in tenses:
+        for grammar in other_grammar:
+            arguments = {
+                'tense': tense,
+                grammar: grammar,
+            }
+            api_result = generate_topic_api(
+                grammar_arguments=arguments,
+                subject=data_dic['subject'],
+                verb=data_dic['verb'],
+                objdet=data_dic['object'],
+                adjective=data_dic['adjective'],
+                object=data_dic['object'],
+            )
+            api_results.append(api_result)
+
+    with transaction.atomic():
+        sentence_results = [
+            SentenceResults(
+                sentence_grammar=sentence_grammar,
+                sentence=api_result[0],
+                sentence_type=api_result[1]
+            )
+            for api_result in api_results
+        ]
+        SentenceResults.objects.bulk_create(sentence_results)
+
+    result_ids = SentenceResults.objects.filter(
+        sentence_grammar=sentence_grammar).values_list('pk', flat=True)
+    result_ids = list(result_ids)
+
+    data_dictionary = {
+        **data_dic,
+        **{
+            f"api_sentence_{counter}": {
+                "sentence": api_result[0],
+                'sentence_type': api_result[1],
+                'sentence_id': sentence_result.pk
+            }
+            for counter, (api_result, sentence_result) in enumerate(zip(api_results, sentence_results), start=1)
+        }
+    }
+    async_task("automation.services.selected_result", result_ids, data_dictionary, hook='automation.services.hook_now')
+    return data_dictionary
 
 
 @transaction.atomic
@@ -92,16 +203,7 @@ def selected_result(article_id, data_dic):
             **Rank_dict
 
         }
-
-        # del request.session['data_dictionary']
-
-        # Removing industry form data and sentence forms data from the session
-        # request.session.pop('industry_form_data', None)
-        # request.session.pop('sentences_form_data', None)
-        # credit_handler = CreditHandler()
-        # credit_handler.consume_step_1_credit(request)
-
-        # return redirect("https://100014.pythonanywhere.com/?redirect_url=https://www.socialmediaautomation.uxlivinglab.online")
+        insert_form_data(data_dic)
         return (data_dic)
 
     except Exception as e:
@@ -178,11 +280,11 @@ def generate_article(data_dic, user_data):
 
     # Modify the prompt to include the formatted user data
     prompt = (
-        f"Write an article about {RESEARCH_QUERY}"
-        f" Include {formatted_cities} to the end of the article."
-        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-        [:prompt_limit]
-        + "..."
+            f"Write an article about {RESEARCH_QUERY}"
+            f" Include {formatted_cities} to the end of the article."
+            f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+            [:prompt_limit]
+            + "..."
     )
     # Generate article using OpenAI's GPT-3
     response = openai.Completion.create(
