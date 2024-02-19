@@ -17,7 +17,7 @@ function Navbar() {
       setUserEmail(user.email);
     } 
     
-  });
+  }, []);
 
   const dowellLogoutUrl =
     "https://100014.pythonanywhere.com/sign-out?redirect_url=" +
