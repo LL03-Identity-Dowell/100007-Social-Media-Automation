@@ -3,6 +3,9 @@ import UserWrapper from "../UserProfile/UserWrapper";
 import PortfolioItem from "./_components/portfolio-item";
 import axios from "axios";
 
+import { ErrorMessages, SuccessMessages } from "../../components/Messages";
+import Loading from "../../components/Loading";
+
 const url = `${import.meta.env.VITE_APP_BASEURL}/social-media-portfolio/`;
 
 const Portfolio = () => {
@@ -16,26 +19,34 @@ const Portfolio = () => {
   }, []);
 
   const fetchPortfolio = async () => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
     await axios
       .get(url, {
         withCredentials: true,
       })
       .then((res) => {
         if (res?.status !== 200) {
-          console.log("Got some error");
+          setSuccess("Failed while fetching the portfolios");
           return;
         }
         setPortfolioList(res?.data?.portfolio_info_list);
-        setSuccess("Successfully fetched portfolios");
+        setSuccess("Successfully fetched the portoflios");
       })
-      .catch((error) => {
-        console.log("error", error);
+
+      .catch(() => {
         setError("something, went wrong");
       });
+
+    setLoading(false);
   };
 
+  console.log(loading);
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
 
     const formElement = document.querySelector("#portoflio-form ul");
     const ulElement = formElement.querySelectorAll("li");
@@ -58,17 +69,33 @@ const Portfolio = () => {
       data.push(port);
     });
 
+    setLoading(true);
     axios
       .post(url, data, {
         withCredentials: true,
       })
       .then((res) => {
-        console.log(res);
+        if (res?.status !== 200) {
+          console.log("Failed while saving the portfolios");
+          setLoading(false);
+
+          return;
+        }
+
+        setLoading(false);
+        setSuccess(res?.data?.message);
+      })
+      .catch(() => {
+        setError("something, went wrong");
+        setLoading(false);
       });
   };
 
   return (
     <UserWrapper>
+      {error && <ErrorMessages>{error}</ErrorMessages>}
+      {success && <SuccessMessages>{success}</SuccessMessages>}
+      {loading && <Loading />}
       <div className='flex items-center justify-center h-full text-center'>
         <form id='portoflio-form' onSubmit={handleSubmit}>
           <ul className='mb-4 space-y-8 overflow-y-auto max-h-[460px] px-14'>
