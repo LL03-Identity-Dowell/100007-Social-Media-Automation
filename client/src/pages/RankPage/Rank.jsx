@@ -8,6 +8,7 @@ import {ErrorMessages, SuccessMessages} from "../../components/Messages";
 
 
 function Rank({show}) {
+    const [isProductKey, setIsProductKey] = useState();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -18,6 +19,11 @@ function Rank({show}) {
 
     const location = useLocation();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const productKey = localStorage.getItem("productKey");
+        setIsProductKey(productKey);
+      }, []);
 
     useEffect(() => {
         show();
@@ -107,6 +113,9 @@ function Rank({show}) {
     };
 
     const handleSubmit = () => {
+        if (isProductKey) {
+            navigate("/");
+          } 
 
         if (!checkNumberRankSentence(rank)) {
             setError("Please rank up to three(3) sentences");

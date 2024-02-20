@@ -5,7 +5,7 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
 import { MdArrowLeft } from "react-icons/md";
 import CommentItem from "./_components/CommentItem";
-import { xTwitter, pinterest, instagram, facebook, linkedin } from "../../assets";
+import { facebook, instagram, linkedin, pinterest, xTwitter } from "../../assets";
 
 function ViewComments({ show }) {
   const [error, setError] = useState("");
