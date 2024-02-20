@@ -21,9 +21,8 @@ from django.contrib import messages
 from django.core import cache
 from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -37,21 +36,22 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 # rest(React endpoints)
 from rest_framework.views import APIView
 
+from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from create_article import settings
 from create_article.views import AuthenticatedBaseView
 
 from helpers import (check_if_user_is_owner_of_organization, download_and_upload_image, fetch_organization_user_info, fetch_user_portfolio_data,
-                     save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
+                     save_data, create_event, fetch_user_info, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
-from website.models import Sentences, SentenceResults
+from .models import Step2Manager
 from .serializers import (PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
-                          GroupHashtagSerializer)
+                          GroupHashtagSerializer, SocialMediaRequestSerializer)
 
 global PEXELS_API_KEY
 
@@ -1040,6 +1040,63 @@ class EditPostView(AuthenticatedBaseView):
 '''step-4 starts here'''
 
 
+def api_call(postes, platforms, key, image, request, post_id):
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        messages.error(request, 'error in posting')
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_4_credit(request)
+        update = update_most_recent(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
+
+
+def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
+    payload = {'post': postes,
+               'platforms': platforms,
+               'profileKey': key,
+               'mediaUrls': [image],
+               'scheduleDate': str(formart),
+               }
+    headers = {'Content-Type': 'application/json',
+               'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+    r1 = requests.post('https://app.ayrshare.com/api/post',
+                       json=payload,
+                       headers=headers)
+    print(r1.json())
+    if r1.json()['status'] == 'error':
+        for error in r1.json()['posts']:
+            for message in error['errors']:
+                messages.error(request, message['message'][:62])
+    elif r1.json()['status'] == 'success' and 'warnings' not in r1.json():
+        messages.success(
+            request, 'post have been sucessfully posted')
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_4_credit(request)
+        update = update_most_recent(post_id)
+
+    else:
+        for warnings in r1.json()['warnings']:
+            messages.error(request, warnings['message'])
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class AryshareProfileView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
@@ -1146,17 +1203,106 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 class SocialMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
-        username = request.session['username']
-        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
-            username)
-        linked_accounts = check_connected_accounts(username)
 
-        response_data = {
-            'user_has_social_media_profile': user_has_social_media_profile,
-            'linked_accounts': linked_accounts
+        step_2_manager = Step2Manager()
+
+        try:
+            title = request.session['portfolio_info'][0]['owner_name']
+        except KeyError:
+            title = request.session['username']
+
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(title)
+
+        linked_accounts = check_connected_accounts(title)
+        context_data = {'user_has_social_media_profile': user_has_social_media_profile,
+                        'linked_accounts': linked_accounts}
+        org_id = request.session['org_id']
+
+        data = {
+            'username': title,
+            'org_id': org_id,
+        }
+        social_media_request = step_2_manager.get_approved_user_social_media_request(data)
+        if user_has_social_media_profile:
+            context_data['can_connect'] = True
+        elif social_media_request:
+            context_data['can_connect'] = True
+        else:
+            context_data['can_connect'] = False
+
+        return Response(context_data)
+
+    def post(self, request, *args, **kwargs):
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        is_current_user_owner = False
+        if request.session['portfolio_info'][0]['member_type'] == 'owner':
+            is_current_user_owner = True
+
+        if not is_current_user_owner:
+            messages.error(request, 'You are permitted to perform this action!')
+            messages.error(request, 'Only the owner of the organization can connect to social media channels')
+            return Response({'message': 'Only the owner of the organization can connect to social media channels'})
+        email = request.session['userinfo']['email']
+        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        org_id = request.session['org_id']
+        data = {
+            'username': username,
+            'email': email,
+            'name': name,
+            'org_id': org_id,
+        }
+        step_2_manager.create_social_media_request(data)
+        return Response(
+            {'message': 'Social media request was saved successfully. Wait for the admin to accept the request'})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
+    def get(self, request, *args, **kwargs):
+        username = request.session.get('username')
+        if username is not SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+            return Response({'message': 'You are not authorized to access this page'}, status=HTTP_401_UNAUTHORIZED)
+
+        step_2_manager = Step2Manager()
+        social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+            {
+                'org_id': request.session.get('org_id'),
+            }
+        )
+        context_data = {
+            'social_media_requests': list(
+                social_media_requests.values('id', 'username', 'email', 'name', 'org_id', 'is_approved'))
         }
 
-        return Response(response_data)
+        return Response(context_data)
+
+    def post(self, request, *args, **kwargs):
+        username = request.session.get('username')
+        if username is not SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+            return Response({'message': 'You are not authorized to access this page'}, status=HTTP_401_UNAUTHORIZED)
+        step_2_manager = Step2Manager()
+        serializer = SocialMediaRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        data = {
+            'social_media_request_id': serializer.validated_data['social_media_request_id']
+        }
+        approve = False
+        if serializer.validated_data.get('approve') == 'Approve Selected':
+            approve = True
+        elif serializer.validated_data.get('approve') == 'Reject Selected':
+            approve = False
+        elif serializer.validated_data.get('approve') == 'Approve All':
+            approve = True
+            social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+                {'org_id': request.session.get('org_id'), }
+            )
+            data['social_media_request_id'] = social_media_requests.values_list('id', flat=True)
+        data['is_approved'] = approve
+        step_2_manager.update_social_media_request_status(data)
+        return Response(
+            {'message': 'Status of social media has been updated successfully'})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
