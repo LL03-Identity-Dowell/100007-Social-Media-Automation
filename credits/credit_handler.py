@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.handlers.wsgi import WSGIRequest
 
 from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
-    STEP_4_SUB_SERVICE_ID, SERVICE_ID
+    STEP_4_SUB_SERVICE_ID, SERVICE_ID,COMMENTS_SUB_SERVICE_ID
 from credits.credit_manager import Credit
 from credits.exceptions import CouldNotConsumeCreditError, CouldNotGetUserAPIKeyError
 
@@ -168,6 +168,24 @@ class CreditHandler:
             return {'success': False, 'message': 'You do not have service id'}
         credit = Credit(user_api_key)
         sub_service_ids = [STEP_4_SUB_SERVICE_ID, ]
+
+        product_type = 'product_service'
+        try:
+            response = credit.consume_credit(
+                sub_service_ids=sub_service_ids, product_type=product_type)
+        except CouldNotConsumeCreditError:
+            response = {}
+        return self.format_steps_response(request, response)
+
+    def consume_step_5_credit(self, request: WSGIRequest):
+        """
+        This method consumes credits on step 5
+        """
+        user_api_key = request.session.get('CREDIT_API_KEY')
+        if not user_api_key:
+            return {'success': False, 'message': 'You do not have service id'}
+        credit = Credit(user_api_key)
+        sub_service_ids = [COMMENTS_SUB_SERVICE_ID, ]
 
         product_type = 'product_service'
         try:

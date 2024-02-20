@@ -12,6 +12,8 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
 
   const handleSubmit = async (e) => {
     setLoading(true);
+    setError("");
+    setSuccess("");
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = {
@@ -29,7 +31,12 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
       .post(url, data, {
         withCredentials: true,
       })
-      .then(() => {
+      .then((res) => {
+        if (res.data.code === 102) {
+          setError("The  post does not have aryshare ID");
+          setLoading(false);
+          return;
+        }
         setOpen(false);
         setTimeout(() => {
           setSuccess("successfully posted");

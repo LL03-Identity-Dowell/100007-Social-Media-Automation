@@ -5,7 +5,7 @@ import axios from "axios";
 import Loading from "/src/components/Loading.jsx";
 import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
 
-const TargetCities = ({close}) => {
+const TargetCities = ({ close }) => {
   const [cityList, setCityList] = useState([]);
   const [filteredCityList, setFilteredCityList] = useState([]);
   const [status, setStatus] = useState("");
@@ -165,17 +165,19 @@ const TargetCities = ({close}) => {
             </ul>
             <button
               type='submit'
-              className='self-center w-32 mt-3 text-base font-semibold text-white rounded-md h-11 bg-customBlue'
+              className='self-center w-32 mt-3 text-base font-semibold text-center text-white rounded-md h-11 bg-customBlue'
             >
               save
             </button>
           </form>
         ) : (
-          <div className='w-full h-[400px] flex justify-center '>
-            <h1 className='text-2xl font-bold text-[#333] self-center'>
-              No matching city found.
-            </h1>
-          </div>
+          !loading && (
+            <div className='w-full h-[400px] flex justify-center '>
+              <h1 className='text-2xl font-bold text-[#333] self-center'>
+                No matching city found.
+              </h1>
+            </div>
+          )
         )}
       </div>
     </UserWrapper>

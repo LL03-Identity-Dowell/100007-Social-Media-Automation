@@ -2,6 +2,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
+import { facebook, instagram, linkedin, pinterest, xTwitter, youtube } from "../../../assets";
 
 export const SocialComponentForPost = ({
   article,
@@ -89,7 +90,7 @@ export const SocialComponentForPost = ({
             className='flex flex-row-reverse items-center'
           >
             <img
-              src='/facebook.svg'
+              src={facebook}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-customBlue'
               alt='facebook'
             />
@@ -105,7 +106,7 @@ export const SocialComponentForPost = ({
             className='flex flex-row-reverse items-center'
           >
             <img
-              src='/x-twitter.svg'
+              src={xTwitter}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-black'
               alt='twitter'
             />
@@ -121,7 +122,7 @@ export const SocialComponentForPost = ({
             className='flex flex-row-reverse items-center'
           >
             <img
-              src='/instagram.svg'
+              src={instagram}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#b003c7]'
               alt='facebook'
             />
@@ -137,7 +138,7 @@ export const SocialComponentForPost = ({
             className='flex flex-row-reverse items-center'
           >
             <img
-              src='/linkedin.svg'
+              src={linkedin}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#0000ff]'
               alt='linkedin'
             />
@@ -155,9 +156,9 @@ export const SocialComponentForPost = ({
           >
             {/* <div className='icons8-youtube-logo md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 object-cover'></div> */}
             <img
-              src='/youtube.png'
+              src={youtube}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#ae2d2d]'
-              alt='pinterest'
+              alt='youtube'
             />
             <input
               name='youtube'
@@ -171,7 +172,7 @@ export const SocialComponentForPost = ({
             className='flex flex-row-reverse items-center'
           >
             <img
-              src='/pinterest.svg'
+              src={pinterest}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#e60023]'
               alt='pinterest'
             />
@@ -287,7 +288,7 @@ export const SocialComponentForSchedule = ({
             className='flex flex-row-reverse items-center w-full'
           >
             <img
-              src='/facebook.svg'
+              src={facebook}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-customBlue'
               alt='facebook'
             />
@@ -303,7 +304,7 @@ export const SocialComponentForSchedule = ({
             className='flex flex-row-reverse items-center w-full'
           >
             <img
-              src='/x-twitter.svg'
+              src={xTwitter}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-black'
               alt='twitter'
             />
@@ -319,7 +320,7 @@ export const SocialComponentForSchedule = ({
             className='flex flex-row-reverse items-center w-full'
           >
             <img
-              src='/instagram.svg'
+              src={instagram}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#b003c7]'
               alt='facebook'
             />
@@ -335,7 +336,7 @@ export const SocialComponentForSchedule = ({
             className='flex flex-row-reverse items-center w-full'
           >
             <img
-              src='/linkedin.svg'
+              src={linkedin}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#0000ff]'
               alt='linkedin'
             />
@@ -353,7 +354,7 @@ export const SocialComponentForSchedule = ({
           >
             {/* <div className='icons8-youtube-logo md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 object-cover'></div> */}
             <img
-              src='/youtube.png'
+              src={youtube}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#ae2d2d]'
               alt='pinterest'
             />
@@ -369,7 +370,7 @@ export const SocialComponentForSchedule = ({
             className='flex flex-row-reverse items-center w-full'
           >
             <img
-              src='/pinterest.svg'
+              src={pinterest}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#e60023]'
               alt='pinterest'
             />

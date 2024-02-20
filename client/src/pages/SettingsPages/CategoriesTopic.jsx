@@ -110,8 +110,9 @@ const CategoriesTopic = ({ close }) => {
       const data = {
         name: categoriesChecked.join(","),
       };
+      console.log(data);
       await axios
-        .post(`${import.meta.env.VITE_APP_BASEURL}/category/`, data, {
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/category/`, data, {
           withCredentials: true,
         })
         .then((response) => {
@@ -132,11 +133,11 @@ const CategoriesTopic = ({ close }) => {
         name: topicsChecked.join(","),
       };
       await axios
-        .post(`${import.meta.env.VITE_APP_BASEURL}/topic/`, data, {
+        .post(`${import.meta.env.VITE_APP_WEBSITEBASEURL}/topic/`, data, {
           withCredentials: true,
         })
         .then((response) => {
-          console.log(response);
+          // console.log(response);
           setLoading(false);
 
           setSuccess(response.data.message);
@@ -157,20 +158,17 @@ const CategoriesTopic = ({ close }) => {
     const checkboxes = Array.from(
       document.querySelectorAll('input[type="checkbox"]:checked')
     );
-
-    console.log(checkboxes.length);
-    console.log(checkboxes);
     setAtLeastOneCheckboxSelected(checkboxes.length > 0);
   };
 
   useEffect(() => handleCheckboxChange, [atLeastOneCheckboxSelected]);
 
   return (
-    <div className='bg-pens bg-cover bg-center h-[90vh]'>
+    <div className='bg-pens bg-cover bg-center h-[90vh] w-full overflow-x-hidden'>
       {loading && <Loading />}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {error && <ErrorMessages>{error}</ErrorMessages>}
-      <div className='bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400'>
+      <div className='bg-overlay w-full max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400'>
         <div className='flex flex-col items-center justify-center w-full h-full'>
           <div>
             <h2 className='pb-12 text-2xl font-bold text-customBlue xl:text-3xl'>
@@ -178,7 +176,7 @@ const CategoriesTopic = ({ close }) => {
             </h2>
           </div>
           <form className='w-full px-6' onSubmit={handleSubmit}>
-            <div className='flex flex-col w-full gap-6 ml-14 lg:flex-row lg:gap-10'>
+            <div className='flex flex-col w-full gap-6  lg:flex-row lg:gap-10'>
               <div className='w-full text-center'>
                 <label
                   htmlFor='categories'

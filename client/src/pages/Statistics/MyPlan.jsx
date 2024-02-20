@@ -13,7 +13,7 @@ function MyPlan({close}) {
                 <h2 className="text-customBlue font-bold text-2xl xl:text-4xl pb-12">Choose Your Plan</h2>
             </div>
             <div className="flex justify-center items-center mt-6 md:mt-8">
-                <Link to="/" className="bg-customBlue px-10 py-2 text-white rounded-md  flex items-center gap-3">See Pricing</Link>
+                <a href="https://ll05-ai-dowell.github.io/100105-DowellApiKeySystem/" target='_blank' className="bg-customBlue px-10 py-2 text-white rounded-md  flex items-center gap-3">See Pricing</a>
             </div>
         </div>
       </div>
