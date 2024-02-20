@@ -16,7 +16,7 @@ from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
-from helpers import download_and_upload_image, fetch_organization_user_info, save_profile_key_to_post, \
+from helpers import download_and_upload_image, save_profile_key_to_post, \
     check_connected_accounts
 from step2.views import create_event
 from step2.views import save_data, get_key, update_schedule
@@ -624,18 +624,28 @@ def media_post(data: dict):
     postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
 
     twitter_post_paragraph1 = paragraph2
-    twitter_post_paragraph2 = logo
 
-    twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
+    twitter_post = f"{twitter_post_paragraph1}\n\n{logo}."
 
     print(twitter_post)
     org_id = data['org_id']
 
     user_id = data['user_id']
     key = get_key(user_id)
-    arguments = (
-        (postes, linked_accounts, key, image, org_id, post_id),
-    )
+
+    social_with_count_restrictions = [channel for channel in linked_accounts if channel in ['twitter', 'pintrest']]
+    social_without_count_restrictions = [channel for channel in linked_accounts if
+                                         channel not in ['twitter', 'pintrest']]
+    arguments = []
+    if social_with_count_restrictions:
+        truncated_post = f'{paragraph[:235]}\n\n{logo}'
+        arguments.append(
+            (truncated_post, social_with_count_restrictions, key, image, org_id, post_id),
+        )
+    if social_without_count_restrictions:
+        arguments.append(
+            (postes, social_without_count_restrictions, key, image, org_id, post_id),
+        )
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # Using lambda, unpacks the tuple (*f) into api_call(*args)
