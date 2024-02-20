@@ -10,6 +10,8 @@ import Loading from "../../components/Loading";
 import ReactPaginate from "react-paginate";
 import { useQuery } from "react-query";
 
+const pagesToDisplay = 4;
+
 function Comment({ show }) {
   const location = useLocation();
   const [error, setError] = useState("");
@@ -145,9 +147,6 @@ function Comment({ show }) {
                 } else {
                   setError("The post does not have aryshare ID");
                 }
-                setTimeout(() => {
-                  setError("");
-                }, 2000);
               };
               return (
                 <li className='m-auto list-none ' key={item.article_id}>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
@@ -47,8 +47,9 @@ function ViewComments({ show }) {
     setLoading(true);
 
     const fetchComments = async () => {
-      const url = `${import.meta.env.VITE_APP_BASEURL
-        }/comments/get-post-comments/${id}/`;
+      const url = `${
+        import.meta.env.VITE_APP_BASEURL
+      }/comments/get-post-comments/${id}/`;
       await axios
         .get(url, {
           withCredentials: true,
@@ -66,7 +67,7 @@ function ViewComments({ show }) {
           setComments(data);
         })
         .catch(() => {
-        setLoading(false);
+          setLoading(false);
           setError(error?.response?.data?.platforms.join(", "));
           setSuccess("");
         });
@@ -90,7 +91,6 @@ function ViewComments({ show }) {
       })
       .then((response) => {
         if (response.statusText === "OK") {
-          console.log("Hitt");
           setSuccess("Comment deleted successfully.");
           setError("");
         }
@@ -116,8 +116,8 @@ function ViewComments({ show }) {
         <h1 className='text-3xl text-center md:text-4xl text-customTextBlue'>
           Comments
         </h1>
-        <button 
-        onClick={handleGoBack}
+        <button
+          onClick={handleGoBack}
           className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg max-w-max'
         >
           <MdArrowLeft />
@@ -125,6 +125,9 @@ function ViewComments({ show }) {
         </button>
         {hasComment ? (
           <div>
+            <p className='my-6 text-base font-semibold text-center text-red-700'>
+              Next comments update: {humanReadableDatetime}
+            </p>
             {comments?.twitter?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
@@ -257,18 +260,11 @@ function ViewComments({ show }) {
             )}
           </div>
         ) : (
-          !loading &&
-          !error && (
-            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
-              Please wait for the next update:
-              {humanReadableDatetime}
+          !loading && (
+            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
+              Comments not found
             </div>
           )
-        )}
-        {!loading && error && (
-          <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
-            Comments not found
-          </div>
         )}
       </div>
     </div>
