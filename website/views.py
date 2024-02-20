@@ -16,6 +16,7 @@ from helpers import fetch_user_info
 from step2.views import create_event
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
+from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer, \
     SelectedResultSerializer
 
