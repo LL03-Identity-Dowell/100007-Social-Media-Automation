@@ -13,7 +13,6 @@ const Home = ({ close }) => {
   useEffect(() => {
     const productKey = localStorage.getItem("productKey");
     setIsProductKey(productKey);
-    console.log(productKey);
   }, []);
 
   return (
@@ -105,7 +104,7 @@ const Home = ({ close }) => {
             )}
 
             {isProductKey ? (
-              <img src={step4} alt="comment" className="" />
+              <img src={step5} alt="comment" className="" />
             ) : (
               <Link
                 to="/comment"
