@@ -16,6 +16,8 @@ from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
+from credits.constants import STEP_1_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
 from helpers import download_and_upload_image, save_profile_key_to_post, \
     check_connected_accounts
 from step2.views import create_event
@@ -109,6 +111,14 @@ def generate_topic_api(grammar_arguments=None, subject=None, verb=None, objdet=N
 
 @transaction.atomic
 def generate_topics(auto_strings, data_dic):
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_1_SUB_SERVICE_ID,
+        user_info=data_dic['user_info'],
+    )
+    print(credit_response)
+    if not credit_response.get('success'):
+        return credit_response
     print('Start of generating sentences')
     sentence_grammar = Sentences.objects.create(
         user=auto_strings['user'],
@@ -170,6 +180,14 @@ def generate_topics(auto_strings, data_dic):
 
 @transaction.atomic
 def selected_result(article_id, data_dic):
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_1_SUB_SERVICE_ID,
+        user_info=data_dic['user_info'],
+    )
+    print(credit_response)
+    if not credit_response.get('success'):
+        return credit_response
     print('Selecting sentences')
     try:
         print('ranking___________')
@@ -210,6 +228,8 @@ def selected_result(article_id, data_dic):
         insert_form_data(data_dic)
         approval = get_client_approval(data_dic['user_id'])
         print('Finished selecting sentences')
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_1_credit(user_info=data_dic['user_info'])
         if approval['article'] == True:
             async_task("automation.services.generate_article", data_dic, hook='automation.services.hook_now')
         return (data_dic)
