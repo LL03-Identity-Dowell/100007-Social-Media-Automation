@@ -71,6 +71,7 @@ def save_data(collection, document, field, team_member_ID):
 
     response = requests.request("POST", url, headers=headers, data=payload)
     print(response.text)
+    return response.json()
 
 
 def get_image(urls):
@@ -782,6 +783,12 @@ def filter_group_hashtag(data: dict):
 
 
 def check_if_user_is_owner_of_organization(request):
+    # print('this are the session keys')
+    # print(request.session.keys())
+    # print('this are the cookies keys')
+    # print(request.COOKIES)
+    # print('session id')
+    # print(request.session['session_id'])
     portfolio_info_list = request.session['portfolio_info']
     username = request.session['username']
     if not portfolio_info_list:
@@ -831,5 +838,4 @@ def fetch_organization_user_info(org_id):
         user_data = json.loads(response.json())
         return user_data
     else:
-        # where the request to the database fails
         return None

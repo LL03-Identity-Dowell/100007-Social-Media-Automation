@@ -37,6 +37,7 @@ import WriteYourSelf from "./pages/Article/WriteYourSelf";
 import PostDetailDropdown from "./pages/UserProfile/PostDetailDropdown";
 import Mention from "./pages/SettingsPages/Mention";
 import BaseHashMention from "./pages/SettingsPages/BaseHashMention";
+import Portfolio from "./pages/Portfolio/portfolio";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -81,6 +82,8 @@ function App() {
             path='/SpecificPost'
             element={<SpecificPost show={handleOpenSideBar} />}
           /> */}
+          <Route path='/portfolio' element={<Portfolio />} />
+
           <Route
             path='/post-detail'
             element={<PostDetail show={handleOpenSideBar} />}
@@ -163,7 +166,7 @@ function App() {
             path='/statistics/my-usage'
             element={<MyUsage close={handleCloseSideBar} />}
           />
-          
+
           <Route
             path='/settings/categoriesandtopic'
             element={<CategoriesTopic close={handleCloseSideBar} />}
@@ -192,15 +195,15 @@ function App() {
             path='/portfolio_check'
             element={<PortfolioError close={handleCloseSideBar} />}
           />
-          <Route element={<BaseHashMention/>}>
-          <Route
-            path='/settings/hastags'
-            element={<Hashtags close={handleCloseSideBar} />}
-          />
-          <Route
-          path='/settings/mentions'
-          element={<Mention close={handleCloseSideBar} />}
-        />
+          <Route element={<BaseHashMention />}>
+            <Route
+              path='/settings/hastags'
+              element={<Hashtags close={handleCloseSideBar} />}
+            />
+            <Route
+              path='/settings/mentions'
+              element={<Mention close={handleCloseSideBar} />}
+            />
           </Route>
         </Routes>
       </Layout>
