@@ -783,12 +783,12 @@ def filter_group_hashtag(data: dict):
 
 
 def check_if_user_is_owner_of_organization(request):
-    print('this are the session keys')
-    print(request.session.keys())
-    print('this are the cookies keys')
-    print(request.COOKIES)
-    print('session id')
-    print(request.session['session_id'])
+    # print('this are the session keys')
+    # print(request.session.keys())
+    # print('this are the cookies keys')
+    # print(request.COOKIES)
+    # print('session id')
+    # print(request.session['session_id'])
     portfolio_info_list = request.session['portfolio_info']
     username = request.session['username']
     if not portfolio_info_list:
@@ -809,7 +809,6 @@ def fetch_user_portfolio_data(request):
 
     url = "https://100093.pythonanywhere.com/api/userinfo/"
     response = requests.post(url, data={"session_id": session_id})
-    print(response.content)
     return response.json()
 
 
@@ -839,5 +838,4 @@ def fetch_organization_user_info(org_id):
         user_data = json.loads(response.json())
         return user_data
     else:
-        # where the request to the database fails
         return None
