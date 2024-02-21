@@ -2,7 +2,14 @@ import * as Dialog from "@radix-ui/react-dialog";
 import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
-import { facebook, instagram, linkedin, pinterest, xTwitter, youtube } from "../../../assets";
+import {
+  facebook,
+  instagram,
+  linkedin,
+  pinterest,
+  xTwitter,
+  youtube,
+} from "../../../assets";
 
 export const SocialComponentForPost = ({
   article,
@@ -13,7 +20,7 @@ export const SocialComponentForPost = ({
   socialArr,
 }) => {
   const navigate = useNavigate();
-  
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -84,7 +91,7 @@ export const SocialComponentForPost = ({
   return (
     <>
       <form className='form' onSubmit={onSubmit}>
-        <div className='flex justify-between mb-6 gap-4'>
+        <div className='flex justify-between gap-4 mb-6'>
           <label
             htmlFor='facebook'
             className='flex flex-row-reverse items-center'
@@ -281,8 +288,8 @@ export const SocialComponentForSchedule = ({
 
   return (
     <>
-      <form className='form  w-full mx-auto' onSubmit={onSubmit}>
-        <div className='flex md:justify-between items-center mb-6 gap-4'>
+      <form className='w-full mx-auto form' onSubmit={onSubmit}>
+        <div className='flex items-center gap-4 mb-6 md:justify-between'>
           <label
             htmlFor='facebook'
             className='flex flex-row-reverse items-center w-full'
@@ -350,7 +357,7 @@ export const SocialComponentForSchedule = ({
 
           <label
             htmlFor='youtube'
-            className='flex flex-row-reverse items-center  w-full '
+            className='flex flex-row-reverse items-center w-full '
           >
             {/* <div className='icons8-youtube-logo md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 object-cover'></div> */}
             <img
