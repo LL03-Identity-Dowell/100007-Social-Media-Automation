@@ -22,7 +22,8 @@ export const Banner = () => {
       </button>
 
       <p className='px-4 pt-4 text-white'>
-        Words should be less than 250 for Pinterest and Twitter.
+        Tailor your post to a maximum 250 character(s) for Pinterest and
+        X/Twitter.
       </p>
     </dialog>
   );
