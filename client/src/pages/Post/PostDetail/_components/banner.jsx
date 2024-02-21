@@ -1,30 +1,36 @@
-import { Cross2Icon } from "@radix-ui/react-icons";
-import { useRef } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 export const Banner = () => {
-  const ref = useRef();
+  const [showBanner, setShowBanner] = useState(true);
 
-  const hideBanner = () => {
-    ref.current.removeAttribute("open");
-  };
+  useEffect(() => {
+    // This effect runs after the component mounts, so it ensures that the DOM is ready before using createPortal
+    const bannerRoot = document.createElement("div");
+    document.body.appendChild(bannerRoot);
 
-  return (
-    <dialog
-      ref={ref}
-      open
-      className='pb-4 rounded-md shadow bg-customBlue opacity-95'
-    >
-      <button
-        className='cursor-pointer absolute right-[-7px] top-[-6px] '
-        onClick={hideBanner}
-      >
-        <Cross2Icon className='p-0 m-0 text-white bg-red-600 rounded-full size-4' />
-      </button>
+    return () => {
+      document.body.removeChild(bannerRoot);
+    };
+  }, []); // Empty dependency array to run this effect only once, similar to componentDidMount
 
-      <p className='px-4 pt-4 text-white'>
-        Tailor your post to a maximum 250 character(s) for Pinterest and
-        X/Twitter.
-      </p>
-    </dialog>
+  return createPortal(
+    <>
+      {showBanner && (
+        <div className='absolute w-full py-2 text-center text-white top-[72px] left-16 md:left-32 bg-customBlue flex items-center justify-center'>
+          <p className='m-0 rounded-lg font-semibold'>
+            Tailor your post to a maximum 250 character(s) for Pinterest and
+            X/Twitter
+          </p>
+          <button
+            className='absolute cursor-pointer top-1.5 left-[84%] underline text-white '
+            onClick={() => setShowBanner(false)}
+          >
+            Close
+          </button>
+        </div>
+      )}
+    </>,
+    document.body
   );
 };
