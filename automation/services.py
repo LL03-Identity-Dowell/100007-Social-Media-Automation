@@ -16,7 +16,7 @@ from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
-from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID
+from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from helpers import download_and_upload_image, save_profile_key_to_post, \
     check_connected_accounts
@@ -284,7 +284,6 @@ def generate_article(data_dic, ):
         sub_service_id=STEP_2_SUB_SERVICE_ID,
         user_info=data_dic['user_info'],
     )
-    print(credit_response)
     if not credit_response.get('success'):
         return credit_response
     print("generating article.........................................................")
@@ -388,6 +387,7 @@ def generate_article(data_dic, ):
             'client_admin_id': client_admin_id,
             "title": RESEARCH_QUERY,
             "source": sources,
+            "user_info": data_dic['user_info'],
         }
         async_task("automation.services.save_post", post_data,
                    hook='automation.services.hook_now')
@@ -498,6 +498,13 @@ def get_post_image(data: dict):
 
 
 def save_post(post_data, ):
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_3_SUB_SERVICE_ID,
+        user_info=post_data['user_info'],
+    )
+    if not credit_response.get('success'):
+        return credit_response
     print('Saving post to step 4=========================================')
     eventId = create_event()['event_id']
     time = localtime()
@@ -550,6 +557,8 @@ def save_post(post_data, ):
     response = json.loads(response.json())
     post_data['post_id'] = response.get('inserted_id')
     post_data['image'] = image
+    credit_handler = CreditHandler()
+    credit_handler.consume_step_3_credit(user_info=post_data['user_info'])
     async_task("automation.services.media_post", post_data,
                hook='automation.services.hook_now')
     return response
