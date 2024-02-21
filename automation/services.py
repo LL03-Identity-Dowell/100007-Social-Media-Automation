@@ -16,7 +16,7 @@ from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
-from credits.constants import STEP_1_SUB_SERVICE_ID
+from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from helpers import download_and_upload_image, save_profile_key_to_post, \
     check_connected_accounts
@@ -279,6 +279,14 @@ def insert_form_data(data_dict):
 
 @transaction.atomic
 def generate_article(data_dic, ):
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_2_SUB_SERVICE_ID,
+        user_info=data_dic['user_info'],
+    )
+    print(credit_response)
+    if not credit_response.get('success'):
+        return credit_response
     print("generating article.........................................................")
     start_datetime = datetime.now()
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
@@ -364,6 +372,8 @@ def generate_article(data_dic, ):
     print(f"Total time taken: {time_taken}")
     print('step_3 starting')
     #   seeking for approval to automate step 3
+    credit_handler = CreditHandler()
+    credit_handler.consume_step_2_credit(user_info=data_dic['user_info'])
     if approval['post'] == True:
         picked_article = post_id_list[0]
         picked_article = json.loads(picked_article)
