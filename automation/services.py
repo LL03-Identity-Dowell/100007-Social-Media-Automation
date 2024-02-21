@@ -16,7 +16,7 @@ from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
-from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID
+from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from helpers import download_and_upload_image, save_profile_key_to_post, \
     check_connected_accounts
@@ -600,7 +600,7 @@ def update_most_recent(pk):
     return ('most_recent')
 
 
-def post_article_to_aryshare(postes, platforms, key, image, org_id, post_id):
+def post_article_to_aryshare(postes, platforms, key, image, org_id, post_id, user_info):
     payload = {'post': postes,
                'platforms': platforms,
                'profileKey': key,
@@ -624,6 +624,9 @@ def post_article_to_aryshare(postes, platforms, key, image, org_id, post_id):
             return {'success': False, 'error_message': 'Error in posting'}
         elif response_data['status'] == 'success' and 'warnings' not in response_data:
             update_most_recent(post_id)
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_4_credit(user_info=user_info)
+            update = update_most_recent(post_id)
             return {'success': True, 'message': 'Successfully Posted'}
         else:
             warnings = [warning['message']
@@ -634,14 +637,14 @@ def post_article_to_aryshare(postes, platforms, key, image, org_id, post_id):
 
 
 def media_post(data: dict):
-    # credit_handler = CreditHandler()
-    # credit_response = credit_handler.check_if_user_has_enough_credits(
-    #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-    #     request=request,
-    # )
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_4_SUB_SERVICE_ID,
+        user_info=data['user_info'],
+    )
 
-    # if not credit_response.get('success'):
-    #     return JsonResponse('credit_error', safe=False)
+    if not credit_response.get('success'):
+        return credit_response
     username = data['username']
     linked_accounts = check_connected_accounts(username)
     start_datetime = datetime.now()
@@ -676,14 +679,15 @@ def media_post(data: dict):
     social_without_count_restrictions = [channel for channel in linked_accounts if
                                          channel not in ['twitter', 'pintrest']]
     arguments = []
+    user_info = data['user_info']
     if social_with_count_restrictions:
         truncated_post = f'{paragraph[:235]}\n\n{logo}'
         arguments.append(
-            (truncated_post, social_with_count_restrictions, key, image, org_id, post_id),
+            (truncated_post, social_with_count_restrictions, key, image, org_id, post_id, user_info),
         )
     if social_without_count_restrictions:
         arguments.append(
-            (postes, social_without_count_restrictions, key, image, org_id, post_id),
+            (postes, social_without_count_restrictions, key, image, org_id, post_id, user_info),
         )
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
