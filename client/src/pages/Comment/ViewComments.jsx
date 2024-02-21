@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
 import { MdArrowLeft } from "react-icons/md";
 import CommentItem from "./_components/CommentItem";
-import { facebook, instagram, linkedin, pinterest, xTwitter } from "../../assets";
 
 function ViewComments({ show }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [hasComment, setHasComments] = useState(false);
-  const navigate = useNavigate();
+
   const [comments, setComments] = useState({});
 
   const { id } = useParams();
+  const nav = useNavigate();
 
   const parsedDatetime = comments?.nextUpdateTwitter;
   const datetime = new Date(parsedDatetime);
@@ -91,6 +91,7 @@ function ViewComments({ show }) {
       })
       .then((response) => {
         if (response.statusText === "OK") {
+          console.log("Hitt");
           setSuccess("Comment deleted successfully.");
           setError("");
         }
@@ -100,10 +101,6 @@ function ViewComments({ show }) {
         setSuccess("");
       });
     setLoading(false);
-  };
-
-  const handleGoBack = () => {
-    navigate(-1); // Go back using react-router-dom navigate
   };
 
   return (
@@ -117,7 +114,7 @@ function ViewComments({ show }) {
           Comments
         </h1>
         <button
-          onClick={handleGoBack}
+          onClick={() => nav(-1)}
           className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg max-w-max'
         >
           <MdArrowLeft />
@@ -125,14 +122,11 @@ function ViewComments({ show }) {
         </button>
         {hasComment ? (
           <div>
-            <p className='my-6 text-base font-semibold text-center text-red-700'>
-              Next comments update: {humanReadableDatetime}
-            </p>
             {comments?.twitter?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src={xTwitter}
+                    src='/x-twitter.svg'
                     className='w-12 h-12 p-1 bg-black border rounded-full '
                     alt=''
                   />
@@ -154,7 +148,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src={pinterest}
+                    src='/pinterest.svg'
                     className='w-12 h-12 p-1 bg-[#e60023] border rounded-full '
                     alt=''
                   />
@@ -178,7 +172,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src={facebook}
+                    src='/facebook.svg'
                     className='w-12 h-12 p-1 border rounded-full bg-customBlue '
                     alt=''
                   />
@@ -218,7 +212,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src={instagram}
+                    src='/instagram.svg'
                     className='w-12 h-12 p-1 border rounded-full bg-[#b003c7] '
                     alt=''
                   />
@@ -240,7 +234,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src={linkedin}
+                    src='/linkedin.svg'
                     className='w-12 h-12 p-1 border rounded-full bg-[#0000ff] '
                     alt=''
                   />
@@ -260,11 +254,18 @@ function ViewComments({ show }) {
             )}
           </div>
         ) : (
-          !loading && (
-            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
-              Comments not found
+          !loading &&
+          !error && (
+            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
+              Please wait for the next update:
+              {humanReadableDatetime}
             </div>
           )
+        )}
+        {!loading && error && (
+          <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
+            Comments not found
+          </div>
         )}
       </div>
     </div>

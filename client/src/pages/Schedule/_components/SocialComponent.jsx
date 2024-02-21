@@ -158,7 +158,7 @@ export const SocialComponentForPost = ({
             <img
               src={youtube}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#ae2d2d]'
-              alt='youtube'
+              alt='pinterest'
             />
             <input
               name='youtube'

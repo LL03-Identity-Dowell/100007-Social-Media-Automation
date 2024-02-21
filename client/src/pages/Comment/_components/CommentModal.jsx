@@ -12,8 +12,6 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
 
   const handleSubmit = async (e) => {
     setLoading(true);
-    setError("");
-    setSuccess("");
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = {
