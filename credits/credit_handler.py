@@ -50,7 +50,7 @@ class CreditHandler:
             return credit_response
 
         # Checking if social media service is active or not
-        services = response.get('services')
+        services = response.get('services', [])
         social_media_service: dict = {}
         for service_data in services:
             if service_data.get('service_id') == SERVICE_ID:
@@ -58,7 +58,7 @@ class CreditHandler:
                 break
         if not social_media_service:
             credit_response.update(
-                {'success': False, 'message': 'Social Media service not found'})
+                {'success': False, 'message': 'Please activate the social media service'})
             if request:
                 request.session['credit_response'] = credit_response
             return credit_response
@@ -256,7 +256,7 @@ class CreditHandler:
                 break
         if not social_media_service:
             credit_response.update(
-                {'success': False, 'message': 'Social Media service not found'})
+                {'success': False, 'message': 'Please activate the social media service'})
             if request:
                 request.session['credit_response'] = credit_response
             return credit_response
