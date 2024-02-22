@@ -22,7 +22,7 @@ from django.core import cache
 from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -30,17 +30,18 @@ from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
 from rest_framework import status
 from rest_framework.response import Response
-from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
-from credits.credit_handler import CreditHandler
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 # rest(React endpoints)
 from rest_framework.views import APIView
 
 from create_article import settings
 from create_article.views import AuthenticatedBaseView
-
-from helpers import (check_if_user_is_owner_of_organization, download_and_upload_image, fetch_organization_user_info, fetch_user_portfolio_data,
-                     save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
+from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
+    STEP_4_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
+from helpers import (check_if_user_is_owner_of_organization, download_and_upload_image, fetch_organization_user_info,
+                     fetch_user_portfolio_data,
+                     save_data, create_event, fetch_user_info, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
@@ -1150,9 +1151,40 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
             username)
         linked_accounts = check_connected_accounts(username)
 
-        response_data = {
-            'user_has_social_media_profile': user_has_social_media_profile,
-            'linked_accounts': linked_accounts
+        if not is_current_user_owner:
+            messages.error(request, 'You are permitted to perform this action!')
+            messages.error(request, 'Only the owner of the organization can connect to social media channels')
+            return Response({'message': 'Only the owner of the organization can connect to social media channels'})
+        email = request.session['userinfo']['email']
+        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        org_id = request.session['org_id']
+        data = {
+            'username': username,
+            'email': email,
+            'name': name,
+            'org_id': org_id,
+        }
+        step_2_manager.create_social_media_request(data)
+        return Response(
+            {'message': 'Social media request was saved successfully. Wait for the admin to accept the request'})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
+    def get(self, request, *args, **kwargs):
+        username = request.session.get('username')
+        if username != SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+            return Response({'message': 'You are not authorized to access this page'}, status=HTTP_401_UNAUTHORIZED)
+
+        step_2_manager = Step2Manager()
+        social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+            {
+                'org_id': request.session.get('org_id'),
+            }
+        )
+        context_data = {
+            'social_media_requests': list(
+                social_media_requests.values('id', 'username', 'email', 'name', 'org_id', 'is_approved'))
         }
 
         return Response(response_data)
