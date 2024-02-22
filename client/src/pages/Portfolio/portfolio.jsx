@@ -8,13 +8,14 @@ import Loading from "../../components/Loading";
 
 const url = `${import.meta.env.VITE_APP_BASEURL}/social-media-portfolio/`;
 
-const Portfolio = () => {
+const Portfolio = ({close}) => {
   const [portfolioList, setPortfolioList] = useState([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    close()
     fetchPortfolio();
   }, []);
 
@@ -42,7 +43,6 @@ const Portfolio = () => {
     setLoading(false);
   };
 
-  console.log(loading);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");

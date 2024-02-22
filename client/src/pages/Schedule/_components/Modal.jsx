@@ -4,7 +4,7 @@ import {
   SocialComponentForPost,
   SocialComponentForSchedule,
 } from "./SocialComponent";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const PostModal = ({
   article,
@@ -14,6 +14,13 @@ export const PostModal = ({
   socialArr,
 }) => {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const productKey = localStorage.getItem("productKey");
+    if (productKey) {
+      navigate("/");
+    } 
+  }, []);
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -61,6 +68,13 @@ export const ScheduleModal = ({
   socialArr,
 }) => {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const productKey = localStorage.getItem("productKey");
+    if (productKey) {
+      navigate("/");
+    } 
+  }, []);
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
