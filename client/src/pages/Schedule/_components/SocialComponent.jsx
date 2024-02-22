@@ -10,6 +10,7 @@ import {
   xTwitter,
   youtube,
 } from "../../../assets";
+import { checkProperty } from "./function";
 
 export const SocialComponentForPost = ({
   article,
@@ -23,6 +24,9 @@ export const SocialComponentForPost = ({
 
   const onSubmit = async (e) => {
     e.preventDefault();
+
+    setError("");
+    setSuccessMessage("");
 
     const paragraph = Array.isArray(article.paragraph)
       ? article.paragraph.join(" ")
@@ -71,10 +75,14 @@ export const SocialComponentForPost = ({
         withCredentials: true,
       })
       .then((res) => {
-        setError(null);
+        console.log(res);
         setLoading(false);
+        const { isExist, data } = checkProperty(res, "not_approved_channels");
+        if (isExist) {
+          setError(`You don't have permission to post to ${data.join(" ")}`);
+          return;
+        }
         setSuccessMessage("Successfully submit for post");
-
         setTimeout(() => {
           navigate("/recent");
         }, 700);
@@ -83,7 +91,6 @@ export const SocialComponentForPost = ({
         setLoading(false);
         setError("Server error, Please try again later");
         console.error("Error fetching article:", error);
-        setSuccessMessage(null);
       });
     setOpen(false);
   };
@@ -194,7 +201,7 @@ export const SocialComponentForPost = ({
         <div className='flex justify-center mt-8'>
           <button
             type='submit'
-            className='text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95 text-center'
+            className='cursor-pointer text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95 text-center'
           >
             Done
           </button>
