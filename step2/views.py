@@ -1187,7 +1187,34 @@ class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
                 social_media_requests.values('id', 'username', 'email', 'name', 'org_id', 'is_approved'))
         }
 
-        return Response(response_data)
+        return Response(context_data)
+
+    def post(self, request, *args, **kwargs):
+        username = request.session.get('username')
+        if username != SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+            return Response({'message': 'You are not authorized to access this page'}, status=HTTP_401_UNAUTHORIZED)
+        step_2_manager = Step2Manager()
+        serializer = SocialMediaRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        data = {
+            'social_media_request_id': serializer.validated_data['social_media_request_id']
+        }
+        approve = False
+        if serializer.validated_data.get('approve') == 'Approve Selected':
+            approve = True
+        elif serializer.validated_data.get('approve') == 'Reject Selected':
+            approve = False
+        elif serializer.validated_data.get('approve') == 'Approve All':
+            approve = True
+            social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
+                {'org_id': request.session.get('org_id'), }
+            )
+            data['social_media_request_id'] = social_media_requests.values_list('id', flat=True)
+        data['is_approved'] = approve
+        step_2_manager.update_social_media_request_status(data)
+        return Response(
+            {'message': 'Status of social media has been updated successfully'})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
