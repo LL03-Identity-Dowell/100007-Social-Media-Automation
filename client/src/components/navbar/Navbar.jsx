@@ -43,7 +43,7 @@ function Navbar() {
   };
 
   return (
-    <nav className='sticky w-full h-[72px] p-0 text-white border-b border-gray-200 h20z-20 bg-customBlue dark:bg-gray-900 dark:border-gray-600'>
+    <nav className='sticky top-0 w-full h-[72px] p-0 text-white border-b border-gray-200 z-50 bg-customBlue dark:bg-gray-900 dark:border-gray-600'>
       <div className='flex flex-wrap items-center justify-between w-full p-4 '>
         <Link to='/' className='flex items-center'>
           {/* <img src={logoImage} className="h-8 mr-3" alt="Dowell Logo" /> */}

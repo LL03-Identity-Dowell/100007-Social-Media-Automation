@@ -44,19 +44,19 @@ const Layout = ({ children, side, show, isUser }) => {
 
         // Parse the modified string as JSON
         const responseObject = JSON.parse(jsonString);
-
+        console.log();
         if (responseObject.success === false) {
           setIsProductStatus(true);
           setKeyInfo(responseObject.message);
-          localStorage.setItem("productKey", responseObject.success )
+          localStorage.setItem("productKey", responseObject.success);
         } else {
-          localStorage.removeItem("productKey")
+          localStorage.removeItem("productKey");
           setIsProductStatus(false);
           setKeyInfo(null);
         }
-
+        const totalCredits = responseObject.total_credits;
         const saveUseremail = data?.userinfo?.email;
-        const saveUserInfo = { username: saveUsername, email: saveUseremail };
+        const saveUserInfo = { username: saveUsername, email: saveUseremail, credit: totalCredits };
         const userInfo = JSON.stringify(saveUserInfo);
         localStorage.setItem("userInfo", userInfo);
         const userProducts = data.portfolio_info;
@@ -76,7 +76,6 @@ const Layout = ({ children, side, show, isUser }) => {
   };
 
   useEffect(() => {
-
     checkSession();
   }, [navigate]);
 
@@ -84,7 +83,11 @@ const Layout = ({ children, side, show, isUser }) => {
     <div className="w-full ">
       {loading && <Loading />}
       {product && <Navbar user={isUser} />}
-      {isProductStatus === true ? <ServiceKey isMessages={keyInfo} check={isProductStatus}/> : ""}
+      {isProductStatus === true ? (
+        <ServiceKey isMessages={keyInfo} check={isProductStatus} />
+      ) : (
+        ""
+      )}
       <div
         className={
           !side ? " grid w-full " : "grid grid-cols-10 2xl:grid-cols-12"

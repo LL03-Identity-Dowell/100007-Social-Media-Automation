@@ -17,7 +17,7 @@ export const Banner = () => {
   return createPortal(
     <>
       {showBanner && (
-        <div className='absolute w-full py-2 text-center text-white top-[72px] left-16 md:left-32 bg-customBlue flex items-center justify-center'>
+        <div className='absolute w-full py-2 text-center text-white top-[72px] left-16 md:left-32 bg-customLightblue flex items-center justify-center'>
           <p className='m-0 rounded-lg font-semibold'>
             Tailor your post to a maximum 250 character(s) for Pinterest and
             X/Twitter

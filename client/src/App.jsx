@@ -82,7 +82,7 @@ function App() {
             path='/SpecificPost'
             element={<SpecificPost show={handleOpenSideBar} />}
           /> */}
-          <Route path='/portfolio' element={<Portfolio />} />
+          <Route path='/portfolio' element={<Portfolio  close={handleCloseSideBar}/>} />
 
           <Route
             path='/post-detail'
