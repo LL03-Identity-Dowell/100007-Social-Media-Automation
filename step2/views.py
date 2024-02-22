@@ -22,7 +22,7 @@ from django.core import cache
 from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -30,8 +30,6 @@ from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
 from rest_framework import status
 from rest_framework.response import Response
-from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
-from credits.credit_handler import CreditHandler
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 # rest(React endpoints)
 from rest_framework.views import APIView
@@ -39,8 +37,11 @@ from rest_framework.views import APIView
 from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from create_article import settings
 from create_article.views import AuthenticatedBaseView
-
-from helpers import (check_if_user_is_owner_of_organization, download_and_upload_image, fetch_organization_user_info, fetch_user_portfolio_data,
+from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
+    STEP_4_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
+from helpers import (check_if_user_is_owner_of_organization, download_and_upload_image, fetch_organization_user_info,
+                     fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
@@ -1261,7 +1262,7 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
 class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         username = request.session.get('username')
-        if username is not SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
+        if username != SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
             return Response({'message': 'You are not authorized to access this page'}, status=HTTP_401_UNAUTHORIZED)
 
         step_2_manager = Step2Manager()
