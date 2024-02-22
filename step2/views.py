@@ -36,8 +36,8 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP
 # rest(React endpoints)
 from rest_framework.views import APIView
 
-from create_article import settings
-from create_article.views import AuthenticatedBaseView
+from react_version import settings
+from react_version.views import AuthenticatedBaseView
 
 from helpers import (check_if_user_is_owner_of_organization, download_and_upload_image, fetch_organization_user_info, fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, save_comments, check_connected_accounts,
@@ -141,13 +141,9 @@ class MainAPIView(AuthenticatedBaseView):
             username = user_map.get(request.session['user_id'], None)
 
             request.session['session_id'] = session_id
-
-            # if not has_access(request.session['portfolio_info']):
-            #     return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
             credit_handler = CreditHandler()
             credit_handler.login(request)
 
-            # Serialize the response data using ProfileSerializer
             serializer = ProfileSerializer({
                 "userinfo": profile_details.get('userinfo', {}),
                 "portfolio_info": profile_details.get('portfolio_info', []),
@@ -224,7 +220,6 @@ class ListArticleView(AuthenticatedBaseView):
             except EmptyPage:
                 page_article = paginator.page(paginator.num_pages)
 
-            # Include pagination metadata in the response
             serialized_data = ListArticleSerializer(page_article, many=True)
 
             response_data = {
@@ -276,7 +271,6 @@ class IndexView(AuthenticatedBaseView):
                 sub_service_id=STEP_2_SUB_SERVICE_ID,
                 request=request,
             )
-
             if not credit_response.get('success'):
                 return Response(credit_response, status=HTTP_400_BAD_REQUEST)
 
@@ -301,16 +295,11 @@ class IndexView(AuthenticatedBaseView):
             response = requests.request(
                 "POST", url, headers=headers, data=data)
             results = json.loads(response.json())
-            # getting the operation right of a user
             try:
                 profile = str(request.session['operations_right'])
             except:
                 profile = 'member'
-
-            # drops the first 10 on the json file
-
             try:
-                # Get the user org ids from the portfolio objects of the user
                 user_org_id_list = [portfolio_info.get(
                     'org_id') for portfolio_info in request.session['portfolio_info'] if
                     portfolio_info.get('org_id', None)]
@@ -318,20 +307,15 @@ class IndexView(AuthenticatedBaseView):
                 datas = results['data']
 
                 array = []
-                # Loops through all the data rows
                 for row in datas:
                     try:
-                        # Get the org_id from the question data
                         org_id = row.get('org_id')
-                        # Filter the question data with the org_ids from the user's portfolio
                         if org_id in user_org_id_list:
                             array.append(row)
                     except Exception as e:
                         traceback.print_exc()
 
                 topics = []
-
-                # Retrieving the page number from the url
                 number_of_items_per_page = 10
                 page = request.GET.get('page', 1)
                 array.reverse()
@@ -341,7 +325,6 @@ class IndexView(AuthenticatedBaseView):
                             topic = {"ranks": data[key]['sentence_rank'], "sentence": data[key]
                                      ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
                             topics.append(topic)
-                # Getting the results for a certain page
                 paginator = Paginator(topics, number_of_items_per_page)
                 try:
                     topics = paginator.page(page)
@@ -352,8 +335,6 @@ class IndexView(AuthenticatedBaseView):
             except Exception as e:
                 traceback.print_exc()
                 topics = []
-
-            # Extract the data to be serialized
             topics_data = [{'ranks': topic['ranks'], 'sentence': topic['sentence'],
                             'key': topic['key'], 'created_by': topic.get('created_by', 'NA')} for topic in topics]
             serialized_data = RankedTopicListSerializer(
@@ -366,7 +347,6 @@ class IndexView(AuthenticatedBaseView):
                 'total_pages': paginator.num_pages,
                 'total_items': paginator.count,
             })
-
         else:
             return Response({"message": "Authentication failed"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -378,7 +358,6 @@ class GenerateArticleView(AuthenticatedBaseView):
             sub_service_id=STEP_2_SUB_SERVICE_ID,
             request=request,
         )
-
         if not credit_response.get('success'):
             return Response(credit_response, status=HTTP_400_BAD_REQUEST)
         start_datetime = datetime.now()
@@ -389,35 +368,12 @@ class GenerateArticleView(AuthenticatedBaseView):
             else:
                 org_id = request.session.get('org_id')
                 RESEARCH_QUERY = request.data.get("title")
-                user_selected_cities = []
-                hashtags = []
-                user_tags_mentions = []
                 user_data = fetch_user_info(request)
-
-                for item in user_data["data"]:
-                    if "target_city" in item and item["target_city"] is not None:
-                        user_selected_cities.extend(item["target_city"])
-
-                    if "hashtag_list" in item and item["hashtag_list"] is not None:
-                        hashtags.extend(item["hashtag_list"])
-
-                    if "mentions_list" in item and item["mentions_list"] is not None:
-                        user_tags_mentions.extend(item["mentions_list"])
-
-                formatted_hashtags = " ".join(hashtags) if hashtags else ""
-                formatted_mentions = " ".join(
-                    f"@{mention}" for mention in user_tags_mentions) if user_tags_mentions else ""
-                formatted_cities = " ".join(
-                    f"#{city}" for city in user_selected_cities) if user_selected_cities else ""
-
-                # Set your OpenAI API key here
                 openai.api_key = settings.OPENAI_KEY
 
                 # Build prompt
                 prompt_limit = 3000
                 min_characters = 500
-
-                # Modify the prompt to include the formatted user data
                 prompt = (
                     f"Write an article about {RESEARCH_QUERY}"
                     f" Ensure that the generated content is a minimum of {min_characters} characters in length."
@@ -479,8 +435,6 @@ class GenerateArticleView(AuthenticatedBaseView):
                           step2_data, '9992828281')
                 end_datetime = datetime.now()
                 time_taken = end_datetime - start_datetime
-                print(f"Task started at: {start_datetime}")
-                print(f"Task completed at: {end_datetime}")
                 print(f"Total time taken: {time_taken}")
 
                 return Response({"message": "Article saved successfully"}, status=status.HTTP_200_OK)
@@ -715,8 +669,6 @@ class PostListView(AuthenticatedBaseView):
                             'source': source,
                         })
             posts = list(reversed(posts))
-
-            # Pagination
             number_of_items_per_page = 5
             page = request.GET.get('page', 1)
 
@@ -727,8 +679,6 @@ class PostListView(AuthenticatedBaseView):
                 page_post = paginator.page(1)
             except EmptyPage:
                 page_post = paginator.page(paginator.num_pages)
-
-            # Serialize page_post to JSON-serializable format
             page_post_data = list(page_post)
             serialized_page_post = []
 
@@ -822,7 +772,6 @@ class PostDetailView(AuthenticatedBaseView):
                         "_id": post_id,
                         "title": title,
                         "paragraph": paragraph,
-                        # "source": source
                     }
                 elif 'article' in data:
                     article = data.get("article")
@@ -831,7 +780,6 @@ class PostDetailView(AuthenticatedBaseView):
                         "_id": post_id,
                         "title": title,
                         "article": article,
-                        # "source": source
                     }
                 else:
                     return Response({'error': 'Invalid data format'}, status=400)
@@ -1118,7 +1066,6 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
         data = json.dumps(payload)
         response = requests.request("POST", url, headers=headers, data=data)
         print(response.json())
-        # profile = request.session['operations_right']
         post = json.loads(response.json())
         for posts in post['data']:
             if posts['user_id'] == request.session['user_id']:
@@ -1226,7 +1173,6 @@ class MostRecentJSON(APIView):
 
             try:
                 for row in posts['data']:
-
                     if org_id == str(row['org_id']):
                         try:
                             if status == row['status']:
@@ -1275,8 +1221,6 @@ def update_most_recent(pk):
     test_date = str(localdate())
     date_obj = datetime.strptime(test_date, '%Y-%m-%d')
     date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-
-    # adding eddited field in article
     payload = json.dumps(
         {
             "cluster": "socialmedia",
@@ -1311,8 +1255,6 @@ def update_schedule(pk):
     test_date = str(localdate())
     date_obj = datetime.strptime(test_date, '%Y-%m-%d')
     date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-
-    # adding eddited field in article
     payload = json.dumps(
         {
             "cluster": "socialmedia",
@@ -1390,9 +1332,9 @@ def api_call(postes, platforms, key, image, request, post_id):
         if response_data['status'] == 'error':
             return {'success': False, 'error_message': 'Error in posting'}
         elif response_data['status'] == 'success' and 'warnings' not in response_data:
+            update_most_recent(post_id)
             credit_handler = CreditHandler()
             credit_handler.consume_step_4_credit(request)
-            update_most_recent(post_id)
             return {'success': True, 'message': 'Successfully Posted'}
         else:
             warnings = [warning['message']
@@ -1460,17 +1402,10 @@ class MediaPostView(AuthenticatedBaseView):
             paragraph = data['paragraph']
             paragraph2 = paragraph[0:230]
             image = data['image']
-
-            # Logo in its own paragraph
             logo = "Created and posted by #samanta #uxlivinglab"
-
             post_id = data['PK']
-
-            # Splitting the content and logo into separate paragraphs
             postes_paragraph1 = f"{paragraph[0:2000]}."
             postes_paragraph2 = logo
-
-            # Combining the paragraphs with a newline character
             postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
 
             twitter_post_paragraph1 = paragraph2
@@ -1530,24 +1465,11 @@ class MediaPostView(AuthenticatedBaseView):
             "posting to Various social media"
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 # Using lambda, unpacks the tuple (*f) into api_call(*args)
-                results = executor.map(lambda f: api_call(*f), arguments)
-
-                for result in results:
-                    if not result['success']:
-                        error_message = result['error_message']
-                        messages.error(request, error_message)
+                executor.map(lambda f: api_call(*f), arguments)
                 end_datetime = datetime.now()
                 time_taken = end_datetime - start_datetime
                 print(f"Total time taken: {time_taken}")
-            error_messages = messages.get_messages(request)
-            if error_messages:
-                error_response = {'error': True, 'error_messages': [
-                    str(msg) for msg in error_messages][1:]}
-                return Response(error_response)
-            else:
-                success_response = {'success': True,
-                                    'message': 'Successfully Posted'}
-                return Response(success_response)
+            return Response('Successfully Posted')
         else:
             return Response('social_media_channels')
 
@@ -1563,7 +1485,6 @@ class MediaScheduleView(AuthenticatedBaseView):
                 sub_service_id=STEP_4_SUB_SERVICE_ID,
                 request=request,
             )
-
             if not credit_response.get('success'):
                 return Response(credit_response, status=HTTP_400_BAD_REQUEST)
             start_datetime = datetime.now()
@@ -1576,19 +1497,11 @@ class MediaScheduleView(AuthenticatedBaseView):
             logo = "Created and posted by #samanta #uxlivinglab"
             post_id = data['PK']
             schedule = data['schedule']
-
-            # Adding a period to the end of the content before "Created and posted by"
             postes_paragraph1 = f"{paragraph[0:2000]}."
             postes_paragraph2 = logo
-
-            # Combining the paragraphs with a newline character
             postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
-
-            # Adding a period to the end of the content before "Created and posted by"
             twitter_post_paragraph1 = f"{paragraph2[0:235]}."
             twitter_post_paragraph2 = logo
-
-            # Combining the paragraphs with a newline character
             twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}"
 
             try:
@@ -1652,27 +1565,11 @@ class MediaScheduleView(AuthenticatedBaseView):
                 )
             "posting to Various social media"
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                # Using lambda, unpacks the tuple (*f) into api_call_schedule(*args)
-                results = executor.map(
-                    lambda f: api_call_schedule(*f), arguments)
-                for result in results:
-                    if not result['success']:
-                        error_message = result['error_message']
-                        messages.error(request, error_message)
+                executor.map(lambda f: api_call_schedule(*f), arguments)
                 end_datetime = datetime.now()
                 time_taken = end_datetime - start_datetime
                 print(f"Total time taken: {time_taken}")
-            error_messages = messages.get_messages(request)
-            if error_messages:
-                error_response = {'error': True, 'error_messages': [
-                    str(msg) for msg in error_messages][1:]}
-                return Response(error_response)
-            else:
-                success_response = {'success': True,
-                                    'message': 'Successfully Scheduled'}
-                return Response(success_response)
-        else:
-            return Response('social_media_channels')
+            return Response('Successfully Scheduled')
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -1716,18 +1613,11 @@ class UnScheduledJsonView(AuthenticatedBaseView):
             data = json.dumps(payload)
             response = requests.request(
                 "POST", url, headers=headers, data=data)
-
             profile = request.session['operations_right']
-
             post = json.loads(response.json())
-            # takes in user_id
             user = str(request.session['user_id'])
-
-            # takes in the JSON data
             datas = post
-
             posts = post['data']
-
             post_data = []
             try:
                 for row in posts:
@@ -1742,8 +1632,6 @@ class UnScheduledJsonView(AuthenticatedBaseView):
                             'time': row['time']
                         }
                         post_data.append(data)
-
-                # Reverse the order of the posts list
                 post_data = list(reversed(post_data))
                 number_of_items_per_page = 5
                 page = request.GET.get('page', 1)
@@ -1776,9 +1664,7 @@ class ScheduledJsonView(AuthenticatedBaseView):
         if 'session_id' and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
-
             org_id = request.session.get('org_id')
-
             payload = {
                 "cluster": "socialmedia",
                 "database": "socialmedia",
@@ -1815,7 +1701,6 @@ class ScheduledJsonView(AuthenticatedBaseView):
                                     'time': row['time']
                                 }
                                 post_data.append(data)
-
                         except:
                             pass
                 post_data = list(reversed(post_data))
@@ -1831,7 +1716,6 @@ class ScheduledJsonView(AuthenticatedBaseView):
             except:
                 pass
             serializer = ScheduledJsonSerializer({'response': page_article})
-
             response_data = {
                 'Scheduled Posts': serializer.data,
                 'page': page_article.number,
@@ -1860,7 +1744,6 @@ class CreatePostComments(AuthenticatedBaseView):
             post_data = get_post_by_id(post_id=post_id, user_id=user_id)
             user_id = request.session['user_id']
             profile_key = get_key(user_id)
-
             if not post_data or not post_data.get('post_response'):
                 return Response({'message': 'The post does not have aryshare ID'}, status=HTTP_400_BAD_REQUEST)
             platforms = list(serializer_data.validated_data.get('platforms'))
@@ -1889,7 +1772,6 @@ class Comments(AuthenticatedBaseView):
                 sub_service_id=COMMENTS_SUB_SERVICE_ID,
                 request=request,
             )
-
             if not credit_response.get('success'):
                 return Response(credit_response, status=HTTP_400_BAD_REQUEST)
             user_id = request.session['user_id']
@@ -2276,10 +2158,7 @@ class XFormAPI(AuthenticatedBaseView):
         }
 
         response = requests.post(url, headers=headers, data=payload)
-        print(response.text)
         messages.success(request, "X details updated successfully.")
-        print('page_id:', page_id, 'page_link:', page_link,
-              'page_password:', page_password, 'post_no:', posts_no)
         if response.status_code == 200:
             return Response({'message': 'X details updated successfully'})
         else:
@@ -2337,9 +2216,7 @@ class LinkedInFormAPI(AuthenticatedBaseView):
         }
 
         response = requests.post(url, headers=headers, data=payload)
-        print(response.text)
         messages.success(request, "LinkedIn details updated successfully.")
-        print(page_id, page_link, page_password, posts_no)
         if response.status_code == 200:
             return Response({'message': 'LinkedIn details updated successfully'})
         else:
@@ -2383,9 +2260,7 @@ class LinkedInFormAPI(AuthenticatedBaseView):
         }
 
         response = requests.post(url, headers=headers, data=payload)
-        print(response.text)
         messages.success(request, "LinkedIn details updated successfully.")
-        print(page_id, page_link, page_password, posts_no)
         if response.status_code == 200:
             return Response({'message': 'LinkedIn details updated successfully'})
         else:
@@ -2445,9 +2320,7 @@ class YoutubeFormView(AuthenticatedBaseView):
             }
 
             response = requests.post(url, headers=headers, json=payload)
-            print(response.text)
             messages.success(request, "Youtube details updated successfully.")
-            print(page_id, page_link, page_password, posts_no)
             if response.status_code == 200:
                 return Response({'message': 'Youtube details updated successfully'})
             else:
@@ -2492,9 +2365,7 @@ class YoutubeFormView(AuthenticatedBaseView):
             }
 
             response = requests.post(url, headers=headers, json=payload)
-            print(response.text)
             messages.success(request, "Youtube details updated successfully.")
-            print(page_id, page_link, page_password, posts_no)
             if response.status_code == 200:
                 return Response({'message': 'Youtube details updated successfully'})
             else:
@@ -2554,10 +2425,8 @@ class PinterestFormView(AuthenticatedBaseView):
 
             response = requests.request(
                 "POST", url, headers=headers, data=payload)
-            print(response.text)
             messages.success(
                 request, "Pinterest details updated successfully.")
-            print(page_id, page_link, page_password, posts_no)
             if response.status_code == 200:
                 return Response({'message': 'Pinterest details updated successfully'})
             else:
@@ -2602,10 +2471,8 @@ class PinterestFormView(AuthenticatedBaseView):
 
             response = requests.request(
                 "POST", url, headers=headers, data=payload)
-            print(response.text)
             messages.success(
                 request, "Pinterest details updated successfully.")
-            print(page_id, page_link, page_password, posts_no)
             if response.status_code == 200:
                 return Response({'message': 'Pinterest details updated successfully'})
             else:
@@ -2664,7 +2531,6 @@ class ClientProfileFormView(AuthenticatedBaseView):
 
             response = requests.request(
                 "POST", url, headers=headers, data=payload)
-            print(address, business, product)
             if response.status_code == 200:
                 return Response({'message': 'Client details updated successfully'})
             else:
@@ -2710,7 +2576,6 @@ class ClientProfileFormView(AuthenticatedBaseView):
 
             response = requests.request(
                 "POST", url, headers=headers, data=payload)
-            print(address, business, product)
             if response.status_code == 200:
                 return Response({'message': 'Client details updated successfully'})
             else:
@@ -2729,7 +2594,6 @@ class TargetedCitiesListView(AuthenticatedBaseView):
                 cities = response.json()
                 serialized_cities = CitySerializer(cities, many=True).data
             except Exception as e:
-                print('An error occurred:', str(e))
                 return Response('An error occurred:', str(e))
 
             user_data = fetch_user_info(request)
@@ -2750,8 +2614,6 @@ class TargetedCitiesCreateView(AuthenticatedBaseView):
         if request.method != "POST":
             return Response({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            # Receive selected cities from the form
-            # target_cities = request.data.getlist('target_cities[]')
             target_cities = request.data
             time = localtime()
             test_date = str(localdate())
@@ -2799,8 +2661,6 @@ class TargetedCitiesUpdateView(AuthenticatedBaseView):
         if request.method != "PUT":
             return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            # Receive selected cities from the form
-            # target_cities = request.data.getlist('target_cities[]')
             target_cities = request.data
             url = "http://uxlivinglab.pythonanywhere.com"
 
@@ -2826,7 +2686,6 @@ class TargetedCitiesUpdateView(AuthenticatedBaseView):
 
             response = requests.post(url, headers=headers, data=payload)
             user_data = fetch_user_info(request)
-            print(user_data)
             messages.success(
                 request, "target_cities details updated successfully.")
             return Response({'detail': 'Targeted cities updated successfully'}, status=status.HTTP_200_OK)
@@ -2837,7 +2696,6 @@ class MentionView(AuthenticatedBaseView):
         session_id = request.GET.get("session_id", None)
         if 'session_id' in request.session and 'username' in request.session:
             user_data = fetch_user_info(request)
-            print(user_data)
             if len(user_data['data']) == 0:
                 status = 'insert'
             else:
@@ -2926,7 +2784,6 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
             'org_id': org_id,
             'group_hashtag_id': group_hashtag_id,
         }
-        print(data)
         group_hashtag_list = filter_group_hashtag(data)
         if not group_hashtag_list:
             return Response({'message': 'Item not found'}, status=HTTP_404_NOT_FOUND)
@@ -2963,7 +2820,6 @@ class MentionUpdateView(AuthenticatedBaseView):
                 return JsonResponse({'detail': 'Bad Request'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 mentions_list = request.data.get('mentions_list')
-                print("Here we have", mentions_list)
                 url = "http://uxlivinglab.pythonanywhere.com/"
                 headers = {'content-type': 'application/json'}
 
@@ -2986,9 +2842,7 @@ class MentionUpdateView(AuthenticatedBaseView):
 
                 data = json.dumps(payload)
                 response = requests.post(url, headers=headers, data=data)
-                print(response)
                 user_data = fetch_user_info(request)
-                print(user_data)
                 return Response({'detail': 'Hashtags and Mentions updated successfully'}, status=status.HTTP_200_OK)
 
 
@@ -3016,8 +2870,6 @@ class UserApprovalView(AuthenticatedBaseView):
 
         data = json.dumps(payload)
         response = requests.request("POST", url, headers=headers, data=data)
-
-        print(response)
         response_data_json = json.loads(response.json())
         user_id = str(request.session['user_id'])
         if len(response_data_json['data']) == 0:
@@ -3083,7 +2935,6 @@ class UserApprovalView(AuthenticatedBaseView):
 
             # Use the json parameter to send JSON data
             response = requests.post(url, headers=headers, json=payload)
-            print(response.text)
             messages.success(request, ".")
 
             return Response({
@@ -3099,9 +2950,8 @@ class UserApprovalView(AuthenticatedBaseView):
         if request.method != "PUT":
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
-            data = request.data  # Use request.data to access JSON data
+            data = request.data
             topic = data.get("topic")
-            print("I got", topic)
             article = data.get("article")
             post = data.get("post")
             schedule = data.get("schedule")
@@ -3138,7 +2988,6 @@ class UserApprovalView(AuthenticatedBaseView):
 
             data = json.dumps(payload)
             response = requests.post(url, headers=headers, data=data)
-            print(response.text)
             return Response({
                 'message': 'Approvals updated successfully',
                 'topic': topic,
@@ -3172,10 +3021,7 @@ class PostDetailDropdownView(AuthenticatedBaseView):
 
         data = json.dumps(payload)
         response = requests.request("POST", url, headers=headers, data=data)
-
-        print(response)
         response_data_json = json.loads(response.json())
-        print("Here we have data from this page", response_data_json)
         user_id = str(request.session['user_id'])
         if len(response_data_json['data']) == 0:
             status = 'insert'
@@ -3234,12 +3080,7 @@ class PostDetailDropdownView(AuthenticatedBaseView):
             headers = {
                 'Content-Type': 'application/json'
             }
-
-            # Use the json parameter to send JSON data
             response = requests.post(url, headers=headers, json=payload)
-            print(response.text)
-            messages.success(request, ".")
-
             return Response({
                 'message': 'Details inserted successfully',
                 "qualitative_categorization": qualitative_categorization,
@@ -3288,7 +3129,6 @@ class PostDetailDropdownView(AuthenticatedBaseView):
 
             data = json.dumps(payload)
             response = requests.post(url, headers=headers, data=data)
-            print(response.text)
             return Response({
                 'message': 'Details updated successfully',
                 "qualitative_categorization": qualitative_categorization,
@@ -3316,10 +3156,7 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         portfolio_code_channel_mapping = user_info['data'][0].get(
             'portfolio_code_channel_mapping', {})
         portfolio_info_list = portfolio_pd.to_dict('records')
-
         portfolio_info_channel_list = []
-        print(user_info)
-
         for portfolio_info in portfolio_info_list:
             portfolio_info['channels'] = portfolio_code_channel_mapping.get(portfolio_info.get('portfolio_code'),
                                                                             [])
@@ -3377,9 +3214,7 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         headers = {
             'Content-Type': 'application/json'
         }
-
         response = requests.request("POST", url, headers=headers, data=payload)
-        print(response.json())
         return Response({'message': 'Portfolio channels saved successfully'})
 
 
@@ -3387,7 +3222,6 @@ class FetchUserInfo(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             user_data = fetch_user_info(request)
-            print(user_data)
             return Response(user_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)

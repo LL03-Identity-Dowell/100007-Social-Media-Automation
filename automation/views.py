@@ -41,13 +41,10 @@ def get_dowellclock():
 
 
 def insert_form_data(data_dict):
-    print("----------------> insert form data-- start---------")
-
     url = "http://uxlivinglab.pythonanywhere.com/"
     if not data_dict.get('eventId'):
         data_dict['eventId'] = get_event_id()
     # data_dict['dowelltime'] = get_dowellclock()
-    print("data", data_dict)
 
     data = {
         "cluster": "socialmedia",
@@ -73,12 +70,8 @@ def insert_form_data(data_dict):
     headers = {'content-type': 'application/json'}
 
     response = requests.post(url, json=data, headers=headers)
-    print(response.json())
-    print("-------------end of insert function---------------")
     return response.json()
 
-
-# get user aproval
 def get_client_approval(user):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
@@ -100,10 +93,7 @@ def get_client_approval(user):
 
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
-
-    print(response)
     response_data_json = json.loads(response.json())
-    print(response_data_json)
 
     try:
         for value in response_data_json['data']:

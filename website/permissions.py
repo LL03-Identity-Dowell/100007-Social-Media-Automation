@@ -12,7 +12,6 @@ class HasBeenAuthenticated(permissions.BasePermission):
             return False
 
         url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-        # headers = {"Authorization": f"Bearer {session_id}"}
         response_1 = requests.post(url_1, data={"session_id": session_id})
         if response_1.status_code == 200 and "portfolio_info" in response_1.json():
 
@@ -20,7 +19,6 @@ class HasBeenAuthenticated(permissions.BasePermission):
             request.session['portfolio_info'] = profile_details['portfolio_info']
 
         else:
-            # Second API
             url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
             response_2 = requests.post(
                 url_2, data={"session_id": session_id})
@@ -30,7 +28,6 @@ class HasBeenAuthenticated(permissions.BasePermission):
                 request.session['portfolio_info'] = profile_details['portfolio_info']
 
             else:
-                # Neither API returned portfolio_info data
                 profile_details = {}
                 request.session['portfolio_info'] = []
                 return False
@@ -65,7 +62,6 @@ def can_view_page(request, ):
         return False
 
     url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
-    # headers = {"Authorization": f"Bearer {session_id}"}
     response_1 = requests.post(url_1, data={"session_id": session_id})
     if response_1.status_code == 200 and "portfolio_info" in response_1.json():
 
@@ -83,7 +79,6 @@ def can_view_page(request, ):
             request.session['portfolio_info'] = profile_details['portfolio_info']
 
         else:
-            # Neither API returned portfolio_info data
             profile_details = {}
             request.session['portfolio_info'] = []
             return False
@@ -107,7 +102,7 @@ def can_view_page(request, ):
             request.session['operations_right'] = 'member'
             request.session['org_id'] = info['org_id'] if info else ''
 
-    # Adding session id to the session
+
     request.session['session_id'] = session_id
     return True
 

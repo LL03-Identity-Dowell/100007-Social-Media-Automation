@@ -12,8 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 from mega import Mega
 
 from config_master import UPLOAD_IMAGE_ENDPOINT
-from create_article import settings
-from create_article.settings import ARYSHARE_KEY
+from react_version import settings
+from react_version.settings import ARYSHARE_KEY
 
 PRODUCT_NAME = 'Social Media Automation'
 
@@ -29,26 +29,22 @@ def has_access(portfolio_info):
 def download_and_upload_image(image_url):
     try:
         response = requests.get(image_url, stream=True)
-        response.raise_for_status()  # Check if the request was successful
+        response.raise_for_status()
 
         image_content = response.content
 
         image_name = image_url.split('/')[-1].split('?')[0]
-
-        # Upload the image content to the specified endpoint
         files = {'image': (image_name, image_content)}
         upload_response = requests.post(UPLOAD_IMAGE_ENDPOINT, files=files)
 
         return upload_response.json()
     except Exception as e:
-        print(f"Error: {e}")
         return {'file_url': image_url}
 
 
 def save_data(collection, document, field, team_member_ID):
     url = "http://uxlivinglab.pythonanywhere.com"
 
-    # adding eddited field in article
     field['edited'] = 0
     field['eventId'] = create_event()['event_id']
     payload = json.dumps({
@@ -86,8 +82,6 @@ def get_image(urls):
 
 
 def save_comments(field):
-    print("-------------start save comments function------------")
-    print(field)
     with open("save_comments.txt", 'w') as f:
         f.write(str(field))
 
@@ -112,8 +106,6 @@ def save_comments(field):
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
-    print(response.text)
-    print("-------------------end save comments function-----------------")
 
 
 def tag_visible(element):
@@ -783,12 +775,6 @@ def filter_group_hashtag(data: dict):
 
 
 def check_if_user_is_owner_of_organization(request):
-    # print('this are the session keys')
-    # print(request.session.keys())
-    # print('this are the cookies keys')
-    # print(request.COOKIES)
-    # print('session id')
-    # print(request.session['session_id'])
     portfolio_info_list = request.session['portfolio_info']
     username = request.session['username']
     if not portfolio_info_list:

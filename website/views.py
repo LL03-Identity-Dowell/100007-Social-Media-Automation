@@ -9,12 +9,12 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from create_article import settings
+from react_version import settings
 from credits.constants import STEP_1_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from helpers import fetch_user_info
 from step2.views import create_event
-from create_article.permissions import HasBeenAuthenticated
+from react_version.permissions import HasBeenAuthenticated
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
 from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer, \
@@ -78,47 +78,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         verb = sentence_serializer.data['verb']
         objdet = sentence_serializer.data['object_determinant']
         adjective = sentence_serializer.data['adjective']
-
-        userid = request.session['user_id']
-        topic = get_client_approval(userid)
-        # auto_strings = {
-        #     "object": object,
-        #     "subject": subject,
-        #     "verb": verb,
-        #     "objdet": objdet,
-        #     "objmod": adjective,
-        #     "email": email,
-        #     'user': user,
-        #     'approve': topic,
-        #     'topic': sentence_serializer.validated_data['topic'],
-
-        # }
-
-        # data_di = {
-        #     'target_product': industry_serializer.validated_data['target_product'],
-        #     'target_industry': industry_serializer.validated_data['category'].name,
-        #     'subject_determinant': sentence_serializer.validated_data.get('subject_determinant', ''),
-        #     'subject': subject,
-        #     'subject_number': sentence_serializer.validated_data['subject_number'],
-        #     'object_determinant': objdet,
-        #     'object': object,
-        #     'object_number': sentence_serializer.validated_data['object_number'],
-        #     'adjective': adjective,
-        #     'verb': verb,
-        #     "email": email,
-        #     'user_id': request.session['user_id'],
-        #     "session_id": request.session["session_id"],
-        #     "org_id": request.session['org_id'],
-        #     'username': request.session['username'],
-        #     'event_id': create_event()['event_id'],
-        #     'client_admin_id': request.session['userinfo']['client_admin_id'],
-        # }
-        userid = request.session['user_id']
-        # if topic['topic'] == True:
-        #     async_task("automation.services.step_1", auto_strings,
-        #                data_di, hook='automation.services.hook_now')
-        # return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
-
+        
         def api_call(grammar_arguments=None):
             if grammar_arguments is None:
                 grammar_arguments = {}
@@ -229,18 +189,13 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
                 for counter, (api_result, sentence_result) in enumerate(zip(api_results, sentence_results), start=1)
             }
         }
-
         sentences_dictionary = {
             'sentences': sentence_results,
         }
-
         return Response(request.session['data_dictionary'])
 
 
 class UserCategoriesAPIView(generics.ListCreateAPIView):
-    """
-
-    """
     permission_classes = (HasBeenAuthenticated,)
     serializer_class = CategorySerializer
 
@@ -270,9 +225,6 @@ class UserCategoriesAPIView(generics.ListCreateAPIView):
 
 
 class UserTopicAPIView(generics.ListCreateAPIView):
-    """
-
-    """
     permission_classes = (HasBeenAuthenticated,)
     serializer_class = UserTopicSerializer
 
@@ -325,13 +277,10 @@ def get_dowellclock():
 
 
 def insert_form_data(data_dict):
-    print("----------------> insert form data-- start---------")
-
     url = "http://uxlivinglab.pythonanywhere.com/"
     if not data_dict.get('eventId'):
         data_dict['eventId'] = get_event_id()
     # data_dict['dowelltime'] = get_dowellclock()
-    print("data", data_dict)
 
     data = {
         "cluster": "socialmedia",
@@ -357,12 +306,8 @@ def insert_form_data(data_dict):
     headers = {'content-type': 'application/json'}
 
     response = requests.post(url, json=data, headers=headers)
-    print(response.json())
-    print("-------------end of insert function---------------")
     return response.json()
 
-
-# get user aproval
 def get_client_approval(user):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
@@ -384,10 +329,7 @@ def get_client_approval(user):
 
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
-
-    print(response)
     response_data_json = json.loads(response.json())
-    print(response_data_json)
 
     try:
         for value in response_data_json['data']:
@@ -479,5 +421,4 @@ class SelectedResultAPIView(generics.CreateAPIView):
 
         credit_handler = CreditHandler()
         credit_handler.consume_step_1_credit(request)
-
         return Response({'message': 'Sentence ranked successfully'})
