@@ -1,5 +1,3 @@
-import { facebook, instagram, linkedin, pinterest, xTwitter, youtube } from "../../../assets";
-
 const SocialIcons = ({ socialArray }) => {
   return (
     <ul className='flex justify-center gap-8 mb-4'>
@@ -11,7 +9,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src={facebook}
+                src='/facebook.svg'
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-customBlue'
                 alt='facebook'
               />
@@ -29,7 +27,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src={xTwitter}
+                src='/x-twitter.svg'
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-black'
                 alt='twitter'
               />
@@ -47,7 +45,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src={instagram}
+                src='/instagram.svg'
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-[#b003c7]'
                 alt='facebook'
               />
@@ -65,7 +63,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src={linkedin}
+                src='/linkedin.svg'
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-[#0000ff]'
                 alt='linkedin'
               />
@@ -82,11 +80,7 @@ const SocialIcons = ({ socialArray }) => {
               htmlFor='youtube'
               className='flex flex-row-reverse items-center'
             >
-              <img
-              src={youtube}
-              className='w-14 h-[65px] ml-1 p-2 rounded-md bg-[#ae2d2d]'
-              alt='youtube'
-            />
+              <div className='medium-youtube-logo '></div>
               <input
                 name='youtube'
                 className='w-3 h-3'
@@ -101,7 +95,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src={pinterest}
+                src='/pinterest.svg'
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-[#e60023]'
                 alt='pinterest'
               />

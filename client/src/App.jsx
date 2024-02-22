@@ -37,8 +37,7 @@ import WriteYourSelf from "./pages/Article/WriteYourSelf";
 import PostDetailDropdown from "./pages/UserProfile/PostDetailDropdown";
 import Mention from "./pages/SettingsPages/Mention";
 import BaseHashMention from "./pages/SettingsPages/BaseHashMention";
-import AdminApproval from "./pages/UserProfile/AdminApproval";
-
+import Portfolio from "./pages/Portfolio/portfolio";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -83,7 +82,7 @@ function App() {
             path='/SpecificPost'
             element={<SpecificPost show={handleOpenSideBar} />}
           /> */}
-          {/* <Route path='/portfolio' element={<Portfolio />} /> */}
+          <Route path='/portfolio' element={<Portfolio />} />
 
           <Route
             path='/post-detail'
@@ -179,10 +178,6 @@ function App() {
           <Route
             path='/target-cities'
             element={<TargetCities close={handleCloseSideBar} />}
-          />
-          <Route
-            path='/admin-approval'
-            element={<AdminApproval close={handleCloseSideBar} />}
           />
           <Route
             path='/createarticle'
