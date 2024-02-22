@@ -16,7 +16,9 @@ from django_q.tasks import async_task
 from pexels_api import API
 
 from create_article import settings
-from helpers import download_and_upload_image, fetch_organization_user_info, save_profile_key_to_post, \
+from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
+from credits.credit_handler import CreditHandler
+from helpers import download_and_upload_image, save_profile_key_to_post, \
     check_connected_accounts
 from step2.views import create_event
 from step2.views import save_data, get_key, update_schedule
@@ -109,6 +111,14 @@ def generate_topic_api(grammar_arguments=None, subject=None, verb=None, objdet=N
 
 @transaction.atomic
 def generate_topics(auto_strings, data_dic):
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_1_SUB_SERVICE_ID,
+        user_info=data_dic['user_info'],
+    )
+    print(credit_response)
+    if not credit_response.get('success'):
+        return credit_response
     print('Start of generating sentences')
     sentence_grammar = Sentences.objects.create(
         user=auto_strings['user'],
@@ -170,6 +180,14 @@ def generate_topics(auto_strings, data_dic):
 
 @transaction.atomic
 def selected_result(article_id, data_dic):
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_1_SUB_SERVICE_ID,
+        user_info=data_dic['user_info'],
+    )
+    print(credit_response)
+    if not credit_response.get('success'):
+        return credit_response
     print('Selecting sentences')
     try:
         print('ranking___________')
@@ -210,6 +228,8 @@ def selected_result(article_id, data_dic):
         insert_form_data(data_dic)
         approval = get_client_approval(data_dic['user_id'])
         print('Finished selecting sentences')
+        credit_handler = CreditHandler()
+        credit_handler.consume_step_1_credit(user_info=data_dic['user_info'])
         if approval['article'] == True:
             async_task("automation.services.generate_article", data_dic, hook='automation.services.hook_now')
         return (data_dic)
@@ -259,6 +279,13 @@ def insert_form_data(data_dict):
 
 @transaction.atomic
 def generate_article(data_dic, ):
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_2_SUB_SERVICE_ID,
+        user_info=data_dic['user_info'],
+    )
+    if not credit_response.get('success'):
+        return credit_response
     print("generating article.........................................................")
     start_datetime = datetime.now()
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
@@ -344,6 +371,8 @@ def generate_article(data_dic, ):
     print(f"Total time taken: {time_taken}")
     print('step_3 starting')
     #   seeking for approval to automate step 3
+    credit_handler = CreditHandler()
+    credit_handler.consume_step_2_credit(user_info=data_dic['user_info'])
     if approval['post'] == True:
         picked_article = post_id_list[0]
         picked_article = json.loads(picked_article)
@@ -358,6 +387,7 @@ def generate_article(data_dic, ):
             'client_admin_id': client_admin_id,
             "title": RESEARCH_QUERY,
             "source": sources,
+            "user_info": data_dic['user_info'],
         }
         async_task("automation.services.save_post", post_data,
                    hook='automation.services.hook_now')
@@ -468,6 +498,13 @@ def get_post_image(data: dict):
 
 
 def save_post(post_data, ):
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_3_SUB_SERVICE_ID,
+        user_info=post_data['user_info'],
+    )
+    if not credit_response.get('success'):
+        return credit_response
     print('Saving post to step 4=========================================')
     eventId = create_event()['event_id']
     time = localtime()
@@ -520,6 +557,8 @@ def save_post(post_data, ):
     response = json.loads(response.json())
     post_data['post_id'] = response.get('inserted_id')
     post_data['image'] = image
+    credit_handler = CreditHandler()
+    credit_handler.consume_step_3_credit(user_info=post_data['user_info'])
     async_task("automation.services.media_post", post_data,
                hook='automation.services.hook_now')
     return response
@@ -561,7 +600,7 @@ def update_most_recent(pk):
     return ('most_recent')
 
 
-def post_article_to_aryshare(postes, platforms, key, image, org_id, post_id):
+def post_article_to_aryshare(postes, platforms, key, image, org_id, post_id, user_info):
     payload = {'post': postes,
                'platforms': platforms,
                'profileKey': key,
@@ -585,6 +624,9 @@ def post_article_to_aryshare(postes, platforms, key, image, org_id, post_id):
             return {'success': False, 'error_message': 'Error in posting'}
         elif response_data['status'] == 'success' and 'warnings' not in response_data:
             update_most_recent(post_id)
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_4_credit(user_info=user_info)
+            update = update_most_recent(post_id)
             return {'success': True, 'message': 'Successfully Posted'}
         else:
             warnings = [warning['message']
@@ -595,14 +637,14 @@ def post_article_to_aryshare(postes, platforms, key, image, org_id, post_id):
 
 
 def media_post(data: dict):
-    # credit_handler = CreditHandler()
-    # credit_response = credit_handler.check_if_user_has_enough_credits(
-    #     sub_service_id=STEP_4_SUB_SERVICE_ID,
-    #     request=request,
-    # )
+    credit_handler = CreditHandler()
+    credit_response = credit_handler.check_if_user_has_enough_credits(
+        sub_service_id=STEP_4_SUB_SERVICE_ID,
+        user_info=data['user_info'],
+    )
 
-    # if not credit_response.get('success'):
-    #     return JsonResponse('credit_error', safe=False)
+    if not credit_response.get('success'):
+        return credit_response
     username = data['username']
     linked_accounts = check_connected_accounts(username)
     start_datetime = datetime.now()
@@ -624,18 +666,29 @@ def media_post(data: dict):
     postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
 
     twitter_post_paragraph1 = paragraph2
-    twitter_post_paragraph2 = logo
 
-    twitter_post = f"{twitter_post_paragraph1}\n\n{twitter_post_paragraph2}."
+    twitter_post = f"{twitter_post_paragraph1}\n\n{logo}."
 
     print(twitter_post)
     org_id = data['org_id']
 
     user_id = data['user_id']
     key = get_key(user_id)
-    arguments = (
-        (postes, linked_accounts, key, image, org_id, post_id),
-    )
+
+    social_with_count_restrictions = [channel for channel in linked_accounts if channel in ['twitter', 'pintrest']]
+    social_without_count_restrictions = [channel for channel in linked_accounts if
+                                         channel not in ['twitter', 'pintrest']]
+    arguments = []
+    user_info = data['user_info']
+    if social_with_count_restrictions:
+        truncated_post = f'{paragraph[:235]}\n\n{logo}'
+        arguments.append(
+            (truncated_post, social_with_count_restrictions, key, image, org_id, post_id, user_info),
+        )
+    if social_without_count_restrictions:
+        arguments.append(
+            (postes, social_without_count_restrictions, key, image, org_id, post_id, user_info),
+        )
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # Using lambda, unpacks the tuple (*f) into api_call(*args)
