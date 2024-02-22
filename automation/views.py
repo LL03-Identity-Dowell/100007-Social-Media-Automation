@@ -189,6 +189,7 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
             'username': request.session['username'],
             'event_id': create_event()['event_id'],
             'client_admin_id': request.session['userinfo']['client_admin_id'],
+            'user_info': request.session.get('userinfo'),
         }
         if topic['topic'] == True:
             async_task("automation.services.generate_topics",
