@@ -493,3 +493,15 @@ button {
   transform: translateX(-30%) translateY(var(--translate-y, 0))
     scale(var(--scale));
 }
+
+*::-webkit-scrollbar {
+  width: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgb(107, 106, 106);
+}

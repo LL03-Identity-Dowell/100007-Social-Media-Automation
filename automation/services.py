@@ -291,25 +291,39 @@ def generate_article(data_dic, ):
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
     api_no = random.choice(Rank)
     key = f'api_sentence_{api_no}'
+    # getting required data
     RESEARCH_QUERY = data_dic[key]['sentence']
     user_ids = data_dic["user_id"]
     session_id = data_dic["session_id"]
+    # calling user aproval
     approval = get_client_approval(user_ids)
     org_id = data_dic["org_id"]
+    user_selected_cities = []
+    user_data = fetch_organization_user_info(org_id)
+    for item in user_data["data"]:
+        if "target_city" in item and item["target_city"] is not None:
+            user_selected_cities.extend(item["target_city"])
+    formatted_cities = " ".join(
+        f"#{city}" for city in user_selected_cities) if user_selected_cities else ""
+
+    # Set your OpenAI API key here
     openai.api_key = settings.OPENAI_KEY
 
+    # Build prompt
     prompt_limit = 2000
     min_characters = 500
 
     # Modify the prompt to include the formatted user data
     prompt = (
             f"Write an article about {RESEARCH_QUERY}"
+            f" Include {formatted_cities} to the end of the article."
             f" Ensure that the generated content is a minimum of {min_characters} characters in length."
             [:prompt_limit]
             + "..."
     )
     # Generate article using OpenAI's GPT-3
     response = openai.Completion.create(
+        # engine="text-davinci-003",
         engine="gpt-3.5-turbo-instruct",
         prompt=prompt,
         temperature=0,
@@ -693,6 +707,7 @@ def media_post(data: dict):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # Using lambda, unpacks the tuple (*f) into api_call(*args)
         results = executor.map(lambda f: post_article_to_aryshare(*f), arguments)
+
         end_datetime = datetime.now()
         time_taken = end_datetime - start_datetime
         print(f"Total time taken: {time_taken}")

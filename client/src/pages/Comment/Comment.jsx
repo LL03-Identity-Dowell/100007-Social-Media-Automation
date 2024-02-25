@@ -10,8 +10,6 @@ import Loading from "../../components/Loading";
 import ReactPaginate from "react-paginate";
 import { useQuery } from "react-query";
 
-const pagesToDisplay = 4;
-
 function Comment({ show }) {
   const location = useLocation();
   const [error, setError] = useState("");
@@ -81,7 +79,12 @@ function Comment({ show }) {
 
   const page = parseInt(new URLSearchParams(location.search).get("page")) || 0;
 
-  const { data: paginated_posts, status, isLoading, refetch } = useQuery(
+  const {
+    data: paginated_posts,
+    status,
+    isLoading,
+    refetch,
+  } = useQuery(
     ["comment", page],
     async () => {
       const response = await axios.get(
@@ -98,27 +101,20 @@ function Comment({ show }) {
       onSettled: () => setLoading(false),
     }
   );
-  
-  useEffect(() => { 
+
+  useEffect(() => {
     if (status === "success") {
       setSuccess("Comments Fetched successfully");
       setCount(paginated_posts.total_items);
       setPageCount(Math.ceil(paginated_posts.total_items / perPage));
     } else if (status === "error") {
       setError("Error Fetching data, Please try again");
-      setLoading(false)
+      setLoading(false);
     }
     window.scrollTo(0, 0);
 
     setActivePage(page);
-  }, [
-    status,
-    perPage,
-    page,
-    activePage,
-    navigate,
-    location.pathname,
-  ]);
+  }, [status, perPage, page, activePage, navigate, location.pathname]);
 
   const handlePageClick = (data) => {
     setLoading(true);
@@ -139,49 +135,53 @@ function Comment({ show }) {
           <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
 
           <ul className='mt-6 space-y-12'>
-            {paginated_posts && paginated_posts.paginated_posts.map((item) => {
-              const redirectForComment = () => {
-                // console.log(item);
-                if (item?.post_response) {
-                  navigate(`/comment/${item.article_id}`);
-                } else {
-                  setError("The post does not have aryshare ID");
-                }
-              };
-              return (
-                <li className='m-auto list-none ' key={item.article_id}>
-                  <p className='mt-10 text-xl text-red-600 lg:mr-12'>
-                    {isEmpty}
-                  </p>
-                  <div className='flex items-center justify-between'>
-                    <p className='px-2 py-0 font-bold lg:px-6 text-md lg:text-xl text-customTextBlue dark:text-white '>
-                      {item.title}
+            {paginated_posts &&
+              paginated_posts.paginated_posts.map((item) => {
+                const redirectForComment = () => {
+                  // console.log(item);
+                  if (item?.post_response) {
+                    navigate(`/comment/${item.article_id}`);
+                  } else {
+                    setError("The post does not have aryshare ID");
+                  }
+                  setTimeout(() => {
+                    setError("");
+                  }, 2000);
+                };
+                return (
+                  <li className='m-auto list-none ' key={item.article_id}>
+                    <p className='mt-10 text-xl text-red-600 lg:mr-12'>
+                      {isEmpty}
                     </p>
-                    <PostedTo
-                      socials={item?.post_response?.posts[0]?.postIds}
-                    />
-                  </div>
-                  <div className='flex flex-col items-baseline justify-between py-0 md:flex-row'>
-                    <p className='w-full px-2 leading-loose lg:px-6 lg:pt-4 text-md lg:text-lg line-clamp-4'>
-                      {item.paragraph}
-                    </p>
-                  </div>
+                    <div className='flex items-center justify-between'>
+                      <p className='px-2 py-0 font-bold lg:px-6 text-md lg:text-xl text-customTextBlue dark:text-white '>
+                        {item.title}
+                      </p>
+                      <PostedTo
+                        socials={item?.post_response?.posts[0]?.postIds}
+                      />
+                    </div>
+                    <div className='flex flex-col items-baseline justify-between py-0 md:flex-row'>
+                      <p className='w-full px-2 leading-loose lg:px-6 lg:pt-4 text-md lg:text-lg line-clamp-4'>
+                        {item.paragraph}
+                      </p>
+                    </div>
 
-                  <div className='flex justify-end gap-8 mt-2 lg:pt-2 md:mr-6 md:mt-4'>
-                    <CommentModal
-                      id={item.article_id}
-                      socials={item?.post_response?.posts[0]?.postIds}
-                      setError={setError}
-                      setSuccess={setSuccess}
-                      setLoading={setLoading}
-                    />
-                    <button onClick={redirectForComment}>
-                      <ExtraSmallBtn title={"View Comments"} />
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
+                    <div className='flex justify-end gap-8 mt-2 lg:pt-2 md:mr-6 md:mt-4'>
+                      <CommentModal
+                        id={item.article_id}
+                        socials={item?.post_response?.posts[0]?.postIds}
+                        setError={setError}
+                        setSuccess={setSuccess}
+                        setLoading={setLoading}
+                      />
+                      <button onClick={redirectForComment}>
+                        <ExtraSmallBtn title={"View Comments"} />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
           </ul>
         </div>
 
@@ -192,21 +192,21 @@ function Comment({ show }) {
           onPageChange={handlePageClick}
           forcePage={page}
           previousLabel={
-            <span className="text-black text-xs md:text-lg">
+            <span className='text-xs text-black md:text-lg'>
               {page > 0 ? "Previous" : ""}
             </span>
           }
           nextLabel={
-            <span className="text-black text-xs md:text-lg">
+            <span className='text-xs text-black md:text-lg'>
               {page < paginated_posts?.total_items / 5 - 1 ? "Next" : " "}
             </span>
           }
-          containerClassName="flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-auto "
-          pageClassName="p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center"
-          previousClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-          nextClassName="p-2 rounded-full cursor-pointer hover:bg-gray-300"
-          breakClassName="p-2"
-          activeClassName="bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 "
+          containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-auto '
+          pageClassName='p-2 rounded-full cursor-pointer text-lg hover:bg-gray-300 w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center'
+          previousClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
+          nextClassName='p-2 rounded-full cursor-pointer hover:bg-gray-300'
+          breakClassName='p-2'
+          activeClassName='bg-customBlue w-[30px] h-[30px] md:w-[40px] md:h-[40px] flex justify-center items-center text-white hover:bg-blue-600 '
         />
       </div>
     </>

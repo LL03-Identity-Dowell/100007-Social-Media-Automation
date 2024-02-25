@@ -1,19 +1,18 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import SocialIcons from "./SocialIcons";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
   const socialArray = socials?.map((each) => each.platform);
   const [open, setOpen] = useState(false);
-
+  const navigate = useNavigate();
   const formRef = useRef(null);
 
   const handleSubmit = async (e) => {
     setLoading(true);
-    setError("");
-    setSuccess("");
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = {
@@ -50,6 +49,13 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
       });
     setLoading(false);
   };
+
+  useEffect(() => {
+    const productKey = localStorage.getItem("productKey");
+    if (productKey) {
+      navigate("/");
+    } 
+  }, []);
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>

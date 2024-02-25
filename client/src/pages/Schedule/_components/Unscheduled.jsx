@@ -54,8 +54,8 @@ const UnscheduledPage = () => {
           setSuccess("Successfully fetched posts");
           let unscheduledData = response.data.Unscheduled_Posts.response;
           setUnscheduledPost(unscheduledData);
-          if(response.data.total_items <= 0){
-            setIsEmpty("You do not have any post")
+          if (response.data.total_items <= 0) {
+            setIsEmpty("You do not have any post");
           }
           setCount(response.data.total_items);
           setPageCount(Math.ceil(response.data.total_items / perPage));
@@ -125,20 +125,20 @@ const UnscheduledPage = () => {
   };
 
   return (
-    <div className='relative max-w-7xl mx-auto lg:h-auto overflow-y-hidden lg:overflow-y-auto mb-6'>
+    <div className='relative mx-auto mb-6 overflow-y-hidden max-w-7xl lg:h-auto lg:overflow-y-auto'>
       {loading && <Loading />}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {sucessMessage && <SuccessMessages>{sucessMessage}</SuccessMessages>}
-      <p className="text-red-600 mt-10 text-xl lg:mr-12">{isEmpty}</p>
+      <p className='mt-10 text-xl text-red-600 lg:mr-12'>{isEmpty}</p>
 
       <h3 className='px-4 py-3 italic'>Total posts count: {count}</h3>
-      <ul className=' lg:h-auto grid gap-6 lg:mb-10 mb-6 '>
+      <ul className='grid gap-6 mb-6  lg:h-auto lg:mb-10'>
         {unscheduledPost.map((item) => (
           <li
             id={item.PK}
             key={item.PK}
-            className='flex flex-col justify-between md:flex-row gap-x-14 mt-4'
+            className='flex flex-col justify-between mt-4 md:flex-row gap-x-14'
           >
             <div className='flex flex-col md:w-9/12 gap-y-7 '>
               <p className='px-2 lg:py-4 text-md lg:text-lg'>{item.source}</p>
@@ -147,13 +147,13 @@ const UnscheduledPage = () => {
               </p>
 
               <ReadMoreParagraph text={item.paragraph} />
-              <div className="mr-4 lg:mr-8 block md:hidden">
-                      <img
-                        className="w-full h-50 rounded-lg mt-6 md:mt-20"
-                        src={item.image}
-                        alt="image"
-                      />
-                    </div>
+              <div className='block mr-4 lg:mr-8 md:hidden'>
+                <img
+                  className='w-full mt-6 rounded-lg h-50 md:mt-20 '
+                  src={item.image}
+                  alt='image'
+                />
+              </div>
               <div className='self-end space-x-8'>
                 <PostModal
                   article={item}
@@ -171,15 +171,15 @@ const UnscheduledPage = () => {
                 ></ScheduleModal>
               </div>
             </div>
-            <div className="mr-4 lg:mr-8 hidden md:block">
-                      <img
-                        className="w-50 h-40 rounded-lg mt-6 md:mt-20 "
-                        src={item.image}
-                        alt="image"
-                      />
-                    </div>
+            <div className='hidden mr-4 lg:mr-8 md:block'>
+              <img
+                className='h-40 mt-6 rounded-lg w-50 md:mt-20 '
+                src={item.image}
+                alt='image'
+              />
+            </div>
             {/* <img
-              className='w-40 h-40 mt-6 md:mt-20 rounded-lg'
+              className='w-40 h-40 mt-6 rounded-lg md:mt-20'
               src={item.image}
               alt='image'
             /> */}
@@ -192,10 +192,12 @@ const UnscheduledPage = () => {
         marginPagesDisplayed={2}
         onPageChange={handlePageClick}
         previousLabel={
-          <span className='text-black text-xs md:text-lg'>{page > 0 ? "Previous" : ""}</span>
+          <span className='text-xs text-black md:text-lg'>
+            {page > 0 ? "Previous" : ""}
+          </span>
         }
         nextLabel={
-          <span className='text-black text-xs md:text-lg'>
+          <span className='text-xs text-black md:text-lg'>
             {page < pageCount - 1 ? "Next" : " "}
           </span>
         }

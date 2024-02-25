@@ -95,12 +95,3 @@ class PortfolioChannelsSerializer(serializers.Serializer):
 
     class Meta:
         list_serializer_class = PortfolioChannelListSerializer
-
-
-class SocialMediaRequestSerializer(serializers.Serializer):
-    approve = serializers.ChoiceField(required=True, choices=(
-        ('Approve Selected', 'Approve Selected'),
-        ('Reject Selected', 'Reject Selected'),
-        ('Approve All', 'Approve All'),
-    ))
-    social_media_request_id = serializers.ListField(child=serializers.IntegerField(required=True), required=True)

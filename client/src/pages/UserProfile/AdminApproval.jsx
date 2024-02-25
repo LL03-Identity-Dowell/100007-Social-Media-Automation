@@ -4,23 +4,7 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
 
 const AdminApproval = ({ close }) => {
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      username: "NobleChinonso",
-      name: "Noble Chinonoso",
-    },
-    {
-      id: 2,
-      username: "Wilfex",
-      name: "wilfex",
-    },
-    {
-      id: 3,
-      username: "Enouch",
-      name: "Enouch",
-    },
-  ]);
+  const [requests, setRequests] = useState();
   const [selectedUser, setSelectedUser] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -28,23 +12,24 @@ const AdminApproval = ({ close }) => {
 
   useEffect(() => {
     close();
-    // axios
-    //   .get(
-    //     `${import.meta.env.VITE_APP_BASEURL}/social_media_channels/approve/`,
-    //     {
-    //       withCredentials: true,
-    //     }
-    //   )
-    //   .then((response) => {
-    //     // setLoading(false);
-    //     console.log(response.data.social_media_requests);
-    //     setRequests(response.data.social_media_requests);
-    //   })
-    //   .catch((error) => {
-    //     // setLoading(false);
-    //     setError("Error fetching Social Media Channels");
-    //     console.error("Error fetching Social Media Channels:", error);
-    //   });
+    axios
+      .get(
+        `${import.meta.env.VITE_APP_BASEURL}/social_media_channels/approve/`,
+        {
+          withCredentials: true,
+        }
+      )
+      .then((response) => {
+        // setLoading(false);
+        console.log(response.data.social_media_requests);
+        setRequests(response.data.social_media_requests);
+      })
+      .catch((error) => {
+        // setLoading(false);
+        setError("Error fetching Social Media Channels");
+        console.error("Error fetching Social Media Channels:", error);
+      });
+
   }, []);
 
   const handleCheckboxChange = (id) => {
