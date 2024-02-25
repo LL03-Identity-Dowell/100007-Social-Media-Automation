@@ -149,7 +149,7 @@ const UnscheduledPage = () => {
               <ReadMoreParagraph text={item.paragraph} />
               <div className="mr-4 lg:mr-8 block md:hidden">
                       <img
-                        className="w-full h-50 rounded-lg mt-6 md:mt-20 "
+                        className="w-full h-50 rounded-lg mt-6 md:mt-20"
                         src={item.image}
                         alt="image"
                       />

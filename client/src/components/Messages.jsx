@@ -16,7 +16,7 @@ export const SuccessMessages = ({ children }) => {
       theme: "light",
     });
 
-  }, [children])
+  }, [])
 
   return (
     <div>
@@ -38,7 +38,7 @@ export const ErrorMessages = ({ children }) => {
       theme: "light",
     });
 
-  }, [children])
+  }, [])
 
   return (
     <div>

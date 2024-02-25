@@ -154,6 +154,9 @@ function PostDetail({ show }) {
         })
         .catch((error) => {
           setLoading(false);
+          if (error.response.data.success === false) {
+            setSuccess(error.response.data.message);
+          }
           setError("Server error, Please try again later");
           console.error("Error fetching post:", error);
         });
