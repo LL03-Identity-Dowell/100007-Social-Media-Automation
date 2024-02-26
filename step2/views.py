@@ -1091,6 +1091,7 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
         link = r.json()
         return redirect(link['url'])
 
+
 class SocialMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
 
@@ -1101,7 +1102,8 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
         except KeyError:
             title = request.session['username']
 
-        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(title)
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
+            title)
 
         linked_accounts = check_connected_accounts(title)
         context_data = {'user_has_social_media_profile': user_has_social_media_profile,
@@ -1112,7 +1114,8 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
             'username': title,
             'org_id': org_id,
         }
-        social_media_request = step_2_manager.get_approved_user_social_media_request(data)
+        social_media_request = step_2_manager.get_approved_user_social_media_request(
+            data)
         if user_has_social_media_profile:
             context_data['can_connect'] = True
         elif social_media_request:
@@ -1121,6 +1124,7 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
             context_data['can_connect'] = False
 
         return Response(context_data)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
@@ -1164,7 +1168,8 @@ class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
             social_media_requests = step_2_manager.get_all_unapproved_social_media_request(
                 {'org_id': request.session.get('org_id'), }
             )
-            data['social_media_request_id'] = social_media_requests.values_list('id', flat=True)
+            data['social_media_request_id'] = social_media_requests.values_list(
+                'id', flat=True)
         data['is_approved'] = approve
         step_2_manager.update_social_media_request_status(data)
         return Response(
@@ -1275,7 +1280,7 @@ class MostRecentJSON(APIView):
                     'total_items': paginator.count,
                 }
             except:
-                print('no post')
+                pass
             return Response(response_data)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -1401,6 +1406,7 @@ def api_call(postes, platforms, key, image, request, post_id):
             update_most_recent(post_id)
             credit_handler = CreditHandler()
             credit_handler.consume_step_4_credit(request)
+            update = update_most_recent(post_id)
             return {'success': True, 'message': 'Successfully Posted'}
         else:
             warnings = [warning['message']
@@ -1790,7 +1796,7 @@ class ScheduledJsonView(AuthenticatedBaseView):
             }
             return Response(response_data)
         else:
-            return Response({'response': []})
+            return Response({'detail': 'Unauthorized'}, status=401)
 
 
 '''step-4 Ends here'''
