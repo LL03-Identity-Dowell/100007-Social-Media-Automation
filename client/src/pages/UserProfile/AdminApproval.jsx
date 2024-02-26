@@ -1,28 +1,149 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { ErrorMessages, SuccessMessages } from "../../components/Messages";
+import Loading from "../../components/Loading";
 
 const AdminApproval = ({ close }) => {
+  const [requests, setRequests] = useState();
+  const [selectedUser, setSelectedUser] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
+
   useEffect(() => {
     close();
     axios
-      .get(`${import.meta.env.VITE_APP_BASEURL}/social_media_channels/approve/`,{
-        withCredentials: true,
-      })
+      .get(
+        `${import.meta.env.VITE_APP_BASEURL}/social_media_channels/approve/`,
+        {
+          withCredentials: true,
+        }
+      )
       .then((response) => {
         // setLoading(false);
-        console.log(response);
+        console.log(response.data.social_media_requests);
+        setRequests(response.data.social_media_requests);
       })
       .catch((error) => {
         // setLoading(false);
+        setError("Error fetching Social Media Channels");
         console.error("Error fetching Social Media Channels:", error);
       });
+
   }, []);
+
+  const handleCheckboxChange = (id) => {
+    // Toggle the selected state for the given id
+    setSelectedUser((prevSelectedUser) => {
+      if (prevSelectedUser.includes(id)) {
+        return prevSelectedUser.filter((user) => user !== id);
+      } else {
+        return [...prevSelectedUser, id];
+      }
+    });
+  };
+
+  const handleApproveSelected = () => {
+    console.log("Selected Users:", selectedUser);
+    const data = {
+      approve: "Approve Selected",
+      social_media_request_id: selectedUser,
+    };
+    if (selectedUser) {
+      setLoading(true);
+      axios
+        .post(
+          `${import.meta.env.VITE_APP_BASEURL}/social_media_channels/approve/`,
+          data,
+          {
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          setLoading(false);
+          console.log(response.data.message);
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Error fetching Social Media Channels");
+          console.error("Error fetching Social Media Channels:", error);
+        });
+    }
+  };
+
+  const handleApproveAll = () => {
+    const selectedItemsData = requests.filter((item) =>
+      selectedUser.includes(item.id)
+    );
+
+    // const data = {
+    //   approve: "Approve Selected",
+    //   social_media_request_id: selectedItemsData.id,
+    // }
+    const data = selectedItemsData.map((item) => ({
+      approve: "Approve All",
+      social_media_request_id: item.id,
+    }));
+
+    if (selectedItemsData) {
+      setLoading(true);
+      axios
+        .post(
+          `${import.meta.env.VITE_APP_BASEURL}/social_media_channels/approve/`,
+          data,
+          {
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          setLoading(false);
+          console.log(response.data.message);
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Error fetching Social Media Channels");
+          console.error("Error fetching Social Media Channels:", error);
+        });
+    }
+  };
+
+  const handleRejected = () => {
+    const selectedItemsData = requests.filter((item) =>
+      selectedUser.includes(item.id)
+    );
+    
+    const data = selectedItemsData.map((item) => ({
+      approve: "Reject Selected",
+      social_media_request_id: item.id,
+    }));
+    
+    if (selectedItemsData) {
+      setLoading(true);
+      axios
+        .post(
+          `${import.meta.env.VITE_APP_BASEURL}/social_media_channels/approve/`,
+          data,
+          {
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          setLoading(false);
+          console.log(response.data.message);
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Error fetching Social Media Channels");
+          console.error("Error fetching Social Media Channels:", error);
+        });
+    }
+  };
 
   return (
     <div className="bg-pens bg-cover bg-center">
-      {/* {loading && <Loading />}
-    {success && <SuccessMessages>{success}</SuccessMessages>}
-    {error && <ErrorMessages>{error}</ErrorMessages>} */}
+      {loading && <Loading />}
+      {success && <SuccessMessages>{success}</SuccessMessages>}
+      {error && <ErrorMessages>{error}</ErrorMessages>}
       <div className="bg-overlay w-full lg:max-w-5xl mx-auto px-4 my-6 h-[85vh] shadow-lg shadow-gray-400 ">
         <div className="flex flex-col items-center  w-full h-full">
           <div className="pt-10">
@@ -31,31 +152,42 @@ const AdminApproval = ({ close }) => {
             </h2>
           </div>
           <form className="text-left mt-4 w-full grid gap-2 text-customBlue">
-            <label htmlFor="">
-              <input
-                type="checkbox"
-                className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              Testing
-            </label>
-            <label htmlFor="">
-              <input
-                type="checkbox"
-                className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              Testing
-            </label>
-            <label htmlFor="">
-              <input
-                type="checkbox"
-                className="w-4 h-4 mr-2 text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              Testing
-            </label>
-            <div className="flex flex-col gap-3 md:flex-row mt-4 md:justify-between ">
-              <button className="py-2 px-6 md:w-full bg-customBlue rounded-lg text-white text-center text-[15px]">Approve Selected</button>
-              <button className="py-2 px-6 md:w-full bg-red-600 rounded-lg text-white text-center text-[15px]">Reject Selected</button>
-              <button className="py-2 px-6 md:w-full bg-customTextBlue rounded-lg text-white text-center text-[15px]">Approve All</button>
+            <div className="flex md:flex-row flex-col gap-2 md:gap-10 flex-wrap md:mt-6">
+              {requests &&
+                requests.map((item) => (
+                  <label htmlFor="" key={item.username}>
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 mr-2 font-semibold text-blue-600 bg-gray-100 border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      onChange={() => handleCheckboxChange(item.id)}
+                    />
+                    {item.username}
+                  </label>
+                ))}
+            </div>
+
+            <div className="flex flex-col gap-3 md:flex-row mt-4 md:mt-10 md:justify-between ">
+              <button
+                type="button"
+                onClick={handleApproveSelected}
+                className="py-2 px-6 md:w-full bg-customBlue rounded-lg text-white text-center text-[15px] cursor-pointer"
+              >
+                Approve Selected
+              </button>
+              <button
+                type="button"
+                onClick={handleRejected}
+                className="py-2 px-6 md:w-full bg-red-600 rounded-lg text-white text-center text-[15px] cursor-pointer"
+              >
+                Reject Selected
+              </button>
+              <button
+                type="button"
+                onClick={handleApproveAll}
+                className="py-2 px-6 md:w-full bg-customTextBlue rounded-lg text-white text-center text-[15px] cursor-pointer"
+              >
+                Approve All
+              </button>
             </div>
           </form>
         </div>

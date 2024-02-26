@@ -89,8 +89,12 @@ export const SocialComponentForPost = ({
       })
       .catch((error) => {
         setLoading(false);
-        setError("Server error, Please try again later");
-        console.error("Error fetching article:", error);
+        if (error.response.data.success === false) {
+          setSuccessMessage(error.response.data.message);
+        }else{
+          setError("Server error, Please try again later");
+        }
+        console.error("Error making posts:", error);
       });
     setOpen(false);
   };
@@ -221,6 +225,7 @@ export const SocialComponentForSchedule = ({
 }) => {
   const socialArr = ["twitter"];
   const navigate = useNavigate();
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -286,9 +291,12 @@ export const SocialComponentForSchedule = ({
       })
       .catch((error) => {
         setLoading(false);
-        setError("Server error, Please try again later");
+        if (error.response.data.success === false) {
+          setSuccessMessage(error.response.data.message);
+        }else{
+          setError("Server error, Please try again later");
+        }
         console.error("Error fetching article:", error);
-        setSuccessMessage(null);
       });
     setOpen(false);
   };
