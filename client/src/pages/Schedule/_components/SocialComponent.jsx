@@ -12,6 +12,7 @@ import {
 } from "../../../assets";
 import { checkProperty } from "./function";
 
+
 export const SocialComponentForPost = ({
   article,
   setError,
@@ -76,25 +77,29 @@ export const SocialComponentForPost = ({
       })
       .then((res) => {
         console.log(res);
-        setLoading(false);
-        const { isExist, data } = checkProperty(res, "not_approved_channels");
+        const { isExist = false, data } = checkProperty(
+          res?.data,
+          "not_approved_channels"
+        );
+
         if (isExist) {
-          setError(`You don't have permission to post to ${data.join(" ")}`);
+          setError(`You don't have permission to post to ${data?.join(" ")}`);
           return;
         }
         setSuccessMessage("Successfully submit for post");
+        setLoading(false);
         setTimeout(() => {
           navigate("/recent");
         }, 700);
       })
       .catch((error) => {
-        setLoading(false);
-        if (error.response.data.success === false) {
-          setSuccessMessage(error.response.data.message);
-        }else{
+        if (error?.response?.data?.success === false) {
+          setSuccessMessage(error?.response?.data?.message);
+        } else {
           setError("Server error, Please try again later");
         }
         console.error("Error making posts:", error);
+        setLoading(false);
       });
     setOpen(false);
   };
@@ -293,7 +298,7 @@ export const SocialComponentForSchedule = ({
         setLoading(false);
         if (error.response.data.success === false) {
           setSuccessMessage(error.response.data.message);
-        }else{
+        } else {
           setError("Server error, Please try again later");
         }
         console.error("Error fetching article:", error);
