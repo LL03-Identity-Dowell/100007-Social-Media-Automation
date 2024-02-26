@@ -11,6 +11,5 @@ export function checkProperty(obj, propertyName) {
       return { exists: false, data: null };
     }
   }
-  // If the property is not found, return false
   return { exists: false, data: null };
 }

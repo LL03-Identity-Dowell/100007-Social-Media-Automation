@@ -76,7 +76,6 @@ export const SocialComponentForPost = ({
         withCredentials: true,
       })
       .then((res) => {
-        console.log(res);
         const { isExist = false, data } = checkProperty(
           res?.data,
           "not_approved_channels"
@@ -287,21 +286,20 @@ export const SocialComponentForSchedule = ({
       })
       .then((res) => {
         setError(null);
-        setLoading(false);
         setSuccessMessage("Successfully submit for schedule");
-        console.log(res);
+        setLoading(false);
         setTimeout(() => {
           navigate("/unscheduled");
         }, 1000);
       })
       .catch((error) => {
-        setLoading(false);
-        if (error.response.data.success === false) {
-          setSuccessMessage(error.response.data.message);
+        if (error?.response?.data?.success === false) {
+          setSuccessMessage(error?.response?.data?.message);
         } else {
           setError("Server error, Please try again later");
         }
-        console.error("Error fetching article:", error);
+        console.error("Error making posts:", error);
+        setLoading(false);
       });
     setOpen(false);
   };
