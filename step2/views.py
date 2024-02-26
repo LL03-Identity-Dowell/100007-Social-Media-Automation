@@ -1191,6 +1191,7 @@ class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
 
     def post(self, request, *args, **kwargs):
         username = request.session.get('username')
+
         if username != SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
             return Response({'message': 'You are not authorized to access this page'}, status=HTTP_401_UNAUTHORIZED)
         step_2_manager = Step2Manager()
