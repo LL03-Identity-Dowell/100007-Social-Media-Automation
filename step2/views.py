@@ -1091,32 +1091,36 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
         link = r.json()
         return redirect(link['url'])
 
-
-@method_decorator(csrf_exempt, name='dispatch')
 class SocialMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
-        username = request.session['username']
-        is_current_user_owner = False
-        if request.session['portfolio_info'][0]['member_type'] == 'owner':
-            is_current_user_owner = True
 
-        if not is_current_user_owner:
-            messages.error(request, 'You are permitted to perform this action!')
-            messages.error(request, 'Only the owner of the organization can connect to social media channels')
-            return Response({'message': 'Only the owner of the organization can connect to social media channels'})
-        email = request.session['userinfo']['email']
-        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        step_2_manager = Step2Manager()
+
+        try:
+            title = request.session['portfolio_info'][0]['owner_name']
+        except KeyError:
+            title = request.session['username']
+
+        user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(title)
+
+        linked_accounts = check_connected_accounts(title)
+        context_data = {'user_has_social_media_profile': user_has_social_media_profile,
+                        'linked_accounts': linked_accounts}
         org_id = request.session['org_id']
+
         data = {
-            'username': username,
-            'email': email,
-            'name': name,
+            'username': title,
             'org_id': org_id,
         }
-        step_2_manager.create_social_media_request(data)
-        return Response(
-            {'message': 'Social media request was saved successfully. Wait for the admin to accept the request'})
+        social_media_request = step_2_manager.get_approved_user_social_media_request(data)
+        if user_has_social_media_profile:
+            context_data['can_connect'] = True
+        elif social_media_request:
+            context_data['can_connect'] = True
+        else:
+            context_data['can_connect'] = False
 
+        return Response(context_data)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
@@ -1140,11 +1144,7 @@ class AdminApproveSocialMediaRequestView(AuthenticatedBaseView):
 
     def post(self, request, *args, **kwargs):
         username = request.session.get('username')
-<<<<<<< HEAD
-        if username is not SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
-=======
         if username != SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME:
->>>>>>> 5a736c1715605324292141a7f9c1bc2a45ae4369
             return Response({'message': 'You are not authorized to access this page'}, status=HTTP_401_UNAUTHORIZED)
         step_2_manager = Step2Manager()
         serializer = SocialMediaRequestSerializer(data=request.data)
