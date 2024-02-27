@@ -12,6 +12,8 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
   const formRef = useRef(null);
 
   const handleSubmit = async (e) => {
+    setError("");
+    setSuccess("");
     setLoading(true);
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -31,30 +33,30 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
         withCredentials: true,
       })
       .then((res) => {
+        console.log(res);
         if (res.data.code === 102) {
           setError("The  post does not have aryshare ID");
           setLoading(false);
           return;
         }
-        setOpen(false);
-        setTimeout(() => {
-          setSuccess("successfully posted");
-        }, 1000);
-        setError("");
+        setLoading(false);
+        setSuccess("successfully posted");
         formRef.current.reset();
+        setTimeout(() => {
+          setOpen(false);
+        }, 1000);
       })
       .catch((error) => {
+        setLoading(false);
         setError(error?.response?.data?.platforms.join(", "));
-        setSuccess("");
       });
-    setLoading(false);
   };
 
   useEffect(() => {
     const productKey = localStorage.getItem("productKey");
     if (productKey) {
       navigate("/");
-    } 
+    }
   }, []);
 
   return (

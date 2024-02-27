@@ -1,3 +1,11 @@
+import {
+  facebook,
+  instagram,
+  linkedin,
+  pinterest,
+  xTwitter,
+} from "/src/assets";
+
 const SocialIcons = ({ socialArray }) => {
   return (
     <ul className='flex justify-center gap-8 mb-4'>
@@ -9,7 +17,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src='/facebook.svg'
+                src={facebook}
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-customBlue'
                 alt='facebook'
               />
@@ -27,7 +35,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src='/x-twitter.svg'
+                src={xTwitter}
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-black'
                 alt='twitter'
               />
@@ -45,7 +53,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src='/instagram.svg'
+                src={instagram}
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-[#b003c7]'
                 alt='facebook'
               />
@@ -63,7 +71,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src='/linkedin.svg'
+                src={linkedin}
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-[#0000ff]'
                 alt='linkedin'
               />
@@ -95,7 +103,7 @@ const SocialIcons = ({ socialArray }) => {
               className='flex flex-row-reverse items-center'
             >
               <img
-                src='/pinterest.svg'
+                src={pinterest}
                 className='w-14 h-[65px] ml-1 p-2 rounded-md bg-[#e60023]'
                 alt='pinterest'
               />
