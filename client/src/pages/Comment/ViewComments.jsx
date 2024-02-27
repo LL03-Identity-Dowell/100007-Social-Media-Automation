@@ -31,6 +31,8 @@ function ViewComments({ show }) {
   };
   const humanReadableDatetime = datetime.toLocaleString(undefined, options);
 
+  console.log({ humanReadableDatetime });
+
   useEffect(() => {
     show();
   }, []);
@@ -121,6 +123,11 @@ function ViewComments({ show }) {
           <MdArrowLeft />
           Go back
         </button>
+
+        <div className='text-center text-sm font-bold text-rose-500 flex justify-center items-center text-balance'>
+          Please wait for the next update:
+          {" "}{humanReadableDatetime}
+        </div>
         {hasComment ? (
           <div>
             {comments?.twitter?.length > 0 && (
@@ -256,17 +263,11 @@ function ViewComments({ show }) {
           </div>
         ) : (
           !loading &&
-          !error && (
-            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
-              Please wait for the next update:
-              {humanReadableDatetime}
+          error && (
+            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
+              Comments not found
             </div>
           )
-        )}
-        {!loading && error && (
-          <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
-            Comments not found
-          </div>
         )}
       </div>
     </div>
