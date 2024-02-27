@@ -16,7 +16,7 @@ const AdminApproval = ({ close }) => {
     close();
     setLoading(true);
     const user = JSON.parse(localStorage.getItem("userInfo"));
-    if (user && user.username !== "wilfex") {
+    if (user && user.username !== "uxliveadmin") {
       
       navigate('/');
     }

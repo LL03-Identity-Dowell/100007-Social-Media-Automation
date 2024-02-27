@@ -361,7 +361,7 @@ function Navbar() {
                     </Link>
                   </li>
                   {
-                   username === "wilfex" &&  
+                   username === "uxliveadmin" &&  
                   <li>
                     <Link
                       to='/admin-approval'
