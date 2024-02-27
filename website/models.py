@@ -119,16 +119,7 @@ class Sentences(models.Model):
     object_number = models.CharField(max_length=100, blank=False)
     verb = models.CharField(max_length=100, blank=True, null=True)
     adjective = models.CharField(max_length=100, blank=True, null=True)
-
-    # sentence = models.TextField(max_length=400)# single sentence got from database
-    #     for part two of the Modelform
-    # tense = models.CharField(max_length=100, blank=False, choices=TENSES, default=TENSES[0][0])
-    # sentence_art = models.CharField(max_length=100, blank=False, choices=SENTENCE_ARTS, default=SENTENCE_ARTS[0][0])
-    # modal_verb = models.CharField(max_length=100, blank=False, choices=MODAL_VERBS, default=MODAL_VERBS[0][0])
-    # progressive = models.BooleanField(default=False)
-    # negated = models.BooleanField(default=False)
-    # perfect = models.BooleanField(default=False)
-    # passive = models.BooleanField(default=False)
+    
     def __str__(self):
         return self.pk.__str__()
 
@@ -140,9 +131,7 @@ class SentenceResults(models.Model):
     sentence_grammar = models.ForeignKey(Sentences, on_delete=models.CASCADE)
     sentence = models.TextField(max_length=400)
     sentence_type = models.CharField(max_length=100)
-
-    # sentence_art = models.CharField(max_length=100, blank=False, choices=SENTENCE_ARTS, default=SENTENCE_ARTS[0][0])
-    # modal_verb = models.CharField(max_length=100, blank=False, choices=MODAL_VERBS, default=MODAL_VERBS[0][0])
+    
     def __str__(self):
         return self.sentence
 
@@ -158,7 +147,7 @@ class SentenceRank(models.Model):
         return self.sentence_result.sentence
 
 
-# to not to be used
+# not to be used
 class Topic(models.Model):
     owner = models.CharField(max_length=100, primary_key=True, default=None)
     rank = models.CharField(null=True, max_length=2)
@@ -171,22 +160,6 @@ class Topic(models.Model):
 
     class Meta:
         ordering = ['-updated']
-
-
-# class MyTopic (models.Model):
-#     owner = models.CharField(max_length=100,primary_key=True,default=None)
-#     ranks = models.IntegerField(blank=True,null=True)
-#     sentence = models.TextField(max_length=400)
-#     keyes = models.CharField(null=True,max_length=100,blank=True)
-#     username=models.CharField(null=True,max_length=100,blank=True)
-#     updated = models.DateTimeField(auto_now=True)
-
-
-#     def __str__(self):
-#         return self.owner
-
-#     class Meta:
-#          ordering = ['-updated']
 
 class MTopic(models.Model):
     username = models.CharField(null=True, max_length=100, blank=True)
