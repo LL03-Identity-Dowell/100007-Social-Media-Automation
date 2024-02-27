@@ -1,4 +1,10 @@
-import { facebook, instagram, linkedin, pinterest, xTwitter } from "../../../assets";
+import {
+  facebook,
+  instagram,
+  linkedin,
+  pinterest,
+  xTwitter,
+} from "/src/assets";
 
 const PostedTo = ({ socials }) => {
   if (!socials) return;
