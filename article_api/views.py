@@ -7,7 +7,7 @@ from step2.views import create_event
 
 from article_api.permissions import HasBeenAuthenticated
 from article_api.serializers import GenerateArticleSerializer, IndustrySerializer, SentenceSerializer
-from create_article import settings
+from react_version import settings
 from website.models import User, Sentences, SentenceResults
 
 from rest_framework import status
