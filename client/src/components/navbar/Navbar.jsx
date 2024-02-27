@@ -17,7 +17,7 @@ function Navbar() {
       setUserEmail(user.email);
     } 
     
-  }, []);
+  });
 
   const dowellLogoutUrl =
     "https://100014.pythonanywhere.com/sign-out?redirect_url=" +
@@ -224,7 +224,7 @@ function Navbar() {
               <div className="w-full overflow-hidden">
                 <button
                   onClick={handleLogout}
-                  className='block w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
+                  className='cursor-pointer block w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
                 >
                   Sign out
                 </button>
@@ -357,9 +357,24 @@ function Navbar() {
                       }}
                       className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
                     >
-                      Portfolio
+                      Portfolio Approvals
                     </Link>
                   </li>
+                  {
+                   username === "wilfex" &&  
+                  <li>
+                    <Link
+                      to='/admin-approval'
+                      onClick={() => {
+                        handleSecondLinkClick();
+                        handleLinkClick();
+                      }}
+                      className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'
+                    >
+                      Admin Approvals
+                    </Link>
+                  </li>
+                  }
                   <li>
                     <Link
                       to='/settings/categoriesandtopic'

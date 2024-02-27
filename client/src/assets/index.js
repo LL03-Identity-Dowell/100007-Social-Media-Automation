@@ -10,6 +10,7 @@ import pens from "./images/pens.jpg";
 import teacherImg from "./images/teacher image.png";
 import magnifyingGlass from "./images/magnifying-glass.png";
 import youtube from "./images/youtube.png";
+import Social_media_automation from "./images/Social_media_automation.png";
 
 import calendarSolid from "./images/calendar-check-solid.svg";
 import calendarDaysSolid from "./images/calendar-days-solid.svg";
@@ -50,4 +51,5 @@ export {
   searchIcon,
   pinterest,
   linkedin,
+  Social_media_automation,
 };

@@ -38,7 +38,7 @@ export const Pagination = ({ currentPage, setPageNumber, totalPage }) => {
                 <button
                   onClick={() => setPageNumber(item)}
                   className={`${
-                    currentPage === item && "bg-customBlue text-white"
+                    currentPage === item && "bg-customBlue text-white text-center"
                   } rounded-full md:w-10 aspect-square w-6 text-xs md:text-base hover:bg-[#333]/20`}
                 >
                   {item}

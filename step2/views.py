@@ -1900,7 +1900,7 @@ class ScheduledJsonView(AuthenticatedBaseView):
             }
             return Response(response_data)
         else:
-            return Response({'response': []})
+            return Response({'detail': 'Unauthorized'}, status=401)
 
 
 '''step-4 Ends here'''

@@ -5,6 +5,7 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
 import { MdArrowLeft } from "react-icons/md";
 import CommentItem from "./_components/CommentItem";
+import { facebook, instagram, linkedin, pinterest, xTwitter } from "../../assets";
 
 function ViewComments({ show }) {
   const [error, setError] = useState("");
@@ -126,7 +127,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/x-twitter.svg'
+                    src={xTwitter}
                     className='w-12 h-12 p-1 bg-black border rounded-full '
                     alt=''
                   />
@@ -148,7 +149,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/pinterest.svg'
+                    src={pinterest}
                     className='w-12 h-12 p-1 bg-[#e60023] border rounded-full '
                     alt=''
                   />
@@ -172,7 +173,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/facebook.svg'
+                    src={facebook}
                     className='w-12 h-12 p-1 border rounded-full bg-customBlue '
                     alt=''
                   />
@@ -212,7 +213,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/instagram.svg'
+                    src={instagram}
                     className='w-12 h-12 p-1 border rounded-full bg-[#b003c7] '
                     alt=''
                   />
@@ -234,7 +235,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/linkedin.svg'
+                    src={linkedin}
                     className='w-12 h-12 p-1 border rounded-full bg-[#0000ff] '
                     alt=''
                   />

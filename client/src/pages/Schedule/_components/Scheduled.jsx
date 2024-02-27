@@ -22,7 +22,7 @@ const ScheduledPage = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_BASEURL}/scheduled-json?page=${pageNumber}&order=newest`,
+          `${import.meta.env.VITE_APP_BASEURL}/scheduled-json/?page=${pageNumber}&order=newest`,
           {
             withCredentials: true,
           }
@@ -43,6 +43,7 @@ const ScheduledPage = () => {
       } catch (error) {
         setError("Error fetching the posts");
         setSuccess("");
+        console.log(error);
       } finally {
         setLoading(false);
       }
