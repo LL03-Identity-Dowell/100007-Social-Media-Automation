@@ -478,6 +478,43 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     title_sub_verb = subject + " " + verb
                     page = wiki_language.page(title_sub_verb)
                     print("Page - Exists: %s" % page.exists())
+                    if page.exists() == True:
+                        article_sub_verb = page.text
+                        article_sub_verb = article_sub_verb.split("See also")
+                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "org_id": org_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                                                                   'client_admin_id'],
+                                                               "title": title_sub_verb,
+                                                               "paragraph": article_sub_verb[0],
+                                                               "source": page.fullurl,
+                                                               'subject': subject,
+                                                               # 'dowelltime': dowellclock
+                                                               }, "9992828281")
+                        para_list = article_sub_verb[0].split("\n\n")
+                        para_list = para_list[::-1]
+                        source_verb = page.fullurl
+                        for i in range(len(para_list)):
+                            if para_list[i] != '':
+                                save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                                       "session_id": session_id,
+                                                                       "org_id": org_id,
+                                                                       "eventId": create_event()['event_id'],
+                                                                       'client_admin_id': request.session['userinfo'][
+                                                                           'client_admin_id'],
+                                                                       "title": title,
+
+                                                                       "paragraph": para_list[i],
+                                                                       "citation_and_url": page.fullurl,
+                                                                       'subject': subject,
+                                                                       # 'dowelltime': dowellclock
+                                                                       }, '34567897799')
+                    print("Using subject: " + subject + " to create an article.")
+                    page = wiki_language.page(title_sub_verb)
+                    if page.exists() == False:
+                        print("Page - Exists: %s" % page.exists())
                 if page.exists():
                     print("For Title: " + title + " Page exists.")
                     article = page.text
