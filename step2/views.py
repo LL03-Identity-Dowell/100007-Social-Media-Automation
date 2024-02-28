@@ -474,6 +474,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     article = page.text
                     article = article.split("See also")
                     para_list = article[0].split("\n\n")
+                    para_list = para_list[::-1]
                     for i in range(len(para_list)):
                         if para_list[i] != '':
                             save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
@@ -974,14 +975,14 @@ class EditPostView(APIView):
     def post(self, request, post_id, *args, **kwargs):
         """ 
         This point saves a post
-        """   
+        """
         token = request.data.get('token', None)
         if not token:
             return Response({'error': 'Token not provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             decoded_token = decode_json_data(token)
-            
+
             serializer = EditPostSerializer(data=decoded_token)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -994,7 +995,7 @@ class EditPostView(APIView):
                 'paragraph': validated_data['paragraph'],
                 'image': validated_data['image'],
             }
-            
+
             cache_key = f'post_id{str(post_id)}'
             cache.set(cache_key, updated_data, timeout=3600)
 
