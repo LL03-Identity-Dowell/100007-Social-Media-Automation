@@ -252,15 +252,15 @@ class ArticleDetailView(AuthenticatedBaseView):
                 title = data.get("title")
                 paragraph = data.get("paragraph")
                 paragraph = paragraph.split('\r\n')
-                source = data.get("source")
-                if "\r\n" in source:
-                    source = source.split('\r\n')
+                # source = data.get("source", '')
+                # if "\r\n" in source:
+                #     source = source.split('\r\n')
 
                 post = {
                     "post_id": article_id,
                     "title": title,
                     "paragraph": paragraph,
-                    "source": source
+                    # "source": source
                 }
             response_data = {'post': post, 'profile': profile}
             return Response(response_data)
@@ -533,79 +533,80 @@ class WriteYourselfView(AuthenticatedBaseView):
                 title = request.data.get("title")
                 org_id = request.session.get('org_id')
                 article_text_area = request.data.get("articletextarea")
-                source = request.data.get("url")
+                # source = request.data.get("url")
+                source = ""
                 response_data = {
                     'title': title,
                     'articletextarea': article_text_area,
                     'url': source,
                 }
-                headers = {
-                    'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
-                try:
-                    response = requests.get(source, headers=headers)
-                except Exception as e:
-                    print(str(e))
-                    return Response({'error': 'The url of the article has not been authorized!', 'data': response_data},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                if response.status_code == 403:
-                    return Response(
-                        {'error': 'Error code 403 Forbidden: Website does not allow verification of the article!',
-                         'data': response_data}, status=status.HTTP_403_FORBIDDEN)
-                else:
+                # headers = {
+                #     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
+                # try:
+                #     response = requests.get(source, headers=headers)
+                # except Exception as e:
+                #     print(str(e))
+                #     return Response({'error': 'The url of the article has not been authorized!', 'data': response_data},
+                #                     status=status.HTTP_400_BAD_REQUEST)
+                # if response.status_code == 403:
+                #     return Response(
+                #         {'error': 'Error code 403 Forbidden: Website does not allow verification of the article!',
+                #          'data': response_data}, status=status.HTTP_403_FORBIDDEN)
+                # else:
 
-                    text_from_page_space = text_from_html(response.text)
-                    text_from_page = text_from_page_space.replace(" ", "")
-                    text_from_page = text_from_page.replace("\xa0", "")
-                    print(article_text_area)
-                    paragraph = article_text_area.split("\r\n")
-                    double_line_paragraphs = article_text_area.split("\n\n")
-                    if len(double_line_paragraphs) > len(paragraph):
-                        paragraph = double_line_paragraphs
+                # text_from_page_space = text_from_html(response.text)
+                # text_from_page = text_from_page_space.replace(" ", "")
+                # text_from_page = text_from_page.replace("\xa0", "")
+                print(article_text_area)
+                paragraph = article_text_area.split("\r\n")
+                double_line_paragraphs = article_text_area.split("\n\n")
+                if len(double_line_paragraphs) > len(paragraph):
+                    paragraph = double_line_paragraphs
 
-                    message = "Article Verified, "
-                    paragraph = paragraph[::-1]
-                    for i in range(len(paragraph)):
-                        if paragraph[i] == "":
-                            continue
-                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "org_id": org_id,
-                                                               "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo'][
-                                                                   'client_admin_id'],
-                                                               "title": title,
-                                                               "paragraph": paragraph[i],
-                                                               "article": article_text_area,
-                                                               "source": source,
-                                                               # 'dowelltime': dowellclock
-                                                               }, '34567897799')
-                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "org_id": org_id,
-                                                               "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo'][
-                                                                   'client_admin_id'],
-                                                               "title": title,
-                                                               "paragraph": paragraph[i],
-                                                               "source": source,
-
-                                                               }, '34567897799')
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                message = "Article Verified, "
+                paragraph = paragraph[::-1]
+                for i in range(len(paragraph)):
+                    if paragraph[i] == "":
+                        continue
+                    save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo'][
-                                                               'client_admin_id'],
-                                                           "title": title,
-                                                           "paragraph": article_text_area,
-                                                           "source": source,
-                                                           # 'dowelltime': dowellclock
-                                                           }, "9992828281")
+                        'client_admin_id'],
+                        "title": title,
+                        "paragraph": paragraph[i],
+                        "article": article_text_area,
+                        "source": source,
+                        # 'dowelltime': dowellclock
+                    }, '34567897799')
+                    save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                                                           "session_id": session_id,
+                                                           "org_id": org_id,
+                                                           "eventId": create_event()['event_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                        'client_admin_id'],
+                        "title": title,
+                        "paragraph": paragraph[i],
+                        "source": source,
 
-                    credit_handler = CreditHandler()
-                    credit_handler.consume_step_2_credit(request)
-                    return Response({'message': 'Article saved successfully', 'data': response_data},
-                                    status=status.HTTP_201_CREATED)
+                    }, '34567897799')
+                save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                       "session_id": session_id,
+                                                       "org_id": org_id,
+                                                       "eventId": create_event()['event_id'],
+                                                       'client_admin_id': request.session['userinfo'][
+                    'client_admin_id'],
+                    "title": title,
+                    "paragraph": article_text_area,
+                    "source": source,
+                    # 'dowelltime': dowellclock
+                }, "9992828281")
+
+                credit_handler = CreditHandler()
+                credit_handler.consume_step_2_credit(request)
+                return Response({'message': 'Article saved successfully', 'data': response_data},
+                                status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
