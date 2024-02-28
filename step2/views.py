@@ -9,6 +9,7 @@ from datetime import datetime
 # image resizing
 from io import BytesIO
 from itertools import chain
+import jwt
 
 # from website.views import get_client_approval
 import openai
@@ -36,11 +37,12 @@ from rest_framework.views import APIView
 from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 
 from react_version import settings
+from react_version.permissions import EditPostPermission
 from react_version.views import AuthenticatedBaseView
 from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
     STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import (check_if_user_is_owner_of_organization, download_and_upload_image, fetch_organization_user_info,
+from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image, fetch_organization_user_info,
                      fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
@@ -407,6 +409,8 @@ class GenerateArticleView(AuthenticatedBaseView):
                 for i in range(len(paragraphs) - 1):
                     paragraphs[i] += " " + " ".join(hashtags_in_last_paragraph)
 
+                paragraphs = paragraphs[::-1]
+
                 for i in range(len(paragraphs)):
                     if paragraphs[i] != "":
                         step3_data = {
@@ -470,6 +474,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     article = page.text
                     article = article.split("See also")
                     para_list = article[0].split("\n\n")
+                    para_list = para_list[::-1]
                     for i in range(len(para_list)):
                         if para_list[i] != '':
                             save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
@@ -558,6 +563,7 @@ class WriteYourselfView(AuthenticatedBaseView):
                         paragraph = double_line_paragraphs
 
                     message = "Article Verified, "
+                    paragraph = paragraph[::-1]
                     for i in range(len(paragraph)):
                         if paragraph[i] == "":
                             continue
@@ -926,7 +932,9 @@ class SavePostView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class EditPostView(AuthenticatedBaseView):
+class EditPostView(APIView):
+    permission_classes = (EditPostPermission,)
+
     def get(self, request, post_id, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         image_url = request.GET.get('image', None)
@@ -965,24 +973,40 @@ class EditPostView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def post(self, request, post_id, *args, **kwargs):
-        """
+        """ 
         This point saves a post
-        """
-        serializer = EditPostSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-        updated_data = {
-            'post_id': post_id,
-            'title': serializer.validated_data['title'],
-            'paragraph': serializer.validated_data['paragraph'],
-            'image': serializer.validated_data['image'],
-        }
-        cache_key = f'post_id{str(post_id)}'
-        cache.set(cache_key, updated_data, timeout=3600)
-        response_data = {
-            'message': 'Post has been updated'
-        }
-        return Response(response_data, status=status.HTTP_201_CREATED)
+        """   
+        token = request.data.get('token', None)
+        if not token:
+            return Response({'error': 'Token not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            decoded_token = decode_json_data(token)
+            
+            serializer = EditPostSerializer(data=decoded_token)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            validated_data = serializer.validated_data
+
+            updated_data = {
+                'post_id': post_id,
+                'title': validated_data['title'],
+                'paragraph': validated_data['paragraph'],
+                'image': validated_data['image'],
+            }
+            
+            cache_key = f'post_id{str(post_id)}'
+            cache.set(cache_key, updated_data, timeout=3600)
+
+            # Return the response
+            response_data = {'message': 'Post has been updated'}
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
+        except jwt.ExpiredSignatureError:
+            return Response({'error': 'Token has expired'}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.DecodeError:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 '''step-3 Ends here'''
@@ -1092,6 +1116,7 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
         return redirect(link['url'])
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SocialMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
 
@@ -1124,6 +1149,32 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
             context_data['can_connect'] = False
 
         return Response(context_data)
+
+    def post(self, request, *args, **kwargs):
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        is_current_user_owner = False
+        if request.session['portfolio_info'][0]['member_type'] == 'owner':
+            is_current_user_owner = True
+
+        if not is_current_user_owner:
+            messages.error(
+                request, 'You are permitted to perform this action!')
+            messages.error(
+                request, 'Only the owner of the organization can connect to social media channels')
+            return Response({'message': 'Only the owner of the organization can connect to social media channels'})
+        email = request.session['userinfo']['email']
+        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        org_id = request.session['org_id']
+        data = {
+            'username': username,
+            'email': email,
+            'name': name,
+            'org_id': org_id,
+        }
+        step_2_manager.create_social_media_request(data)
+        return Response(
+            {'message': 'Social media request was saved successfully. Wait for the admin to accept the request'})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -3228,7 +3279,10 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         portfolio_code_channel_mapping = user_info['data'][0].get(
             'portfolio_code_channel_mapping', {})
         portfolio_info_list = portfolio_pd.to_dict('records')
+
         portfolio_info_channel_list = []
+        print(user_info)
+
         for portfolio_info in portfolio_info_list:
             portfolio_info['channels'] = portfolio_code_channel_mapping.get(portfolio_info.get('portfolio_code'),
                                                                             [])
@@ -3286,7 +3340,9 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         headers = {
             'Content-Type': 'application/json'
         }
+
         response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.json())
         return Response({'message': 'Portfolio channels saved successfully'})
 
 
