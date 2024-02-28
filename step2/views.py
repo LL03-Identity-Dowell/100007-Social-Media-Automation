@@ -9,8 +9,8 @@ from datetime import datetime
 # image resizing
 from io import BytesIO
 from itertools import chain
-import jwt
 
+import jwt
 # from website.views import get_client_approval
 import openai
 import pandas as pd
@@ -34,22 +34,22 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 # rest(React endpoints)
 from rest_framework.views import APIView
-from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 
-from react_version import settings
-from react_version.permissions import EditPostPermission
-from react_version.views import AuthenticatedBaseView
+from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
     STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image, fetch_organization_user_info,
+from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image,
+                     fetch_organization_user_info,
                      fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
-from website.models import Sentences, SentenceResults
+from react_version import settings
+from react_version.permissions import EditPostPermission
+from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
 from .serializers import (PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -469,6 +469,15 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                 wiki_language = wikipediaapi.Wikipedia(
                     language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
                 page = wiki_language.page(title)
+                subject = request.data.get('subject', '')
+                verb = request.data.get('verb')
+                if page == False:
+                    print("For Title: " + title + " Page does not exist.")
+                    print("Using subject: " + subject + " and verb: " +
+                          verb + " to create an article.")
+                    title_sub_verb = subject + " " + verb
+                    page = wiki_language.page(title_sub_verb)
+                    print("Page - Exists: %s" % page.exists())
                 if page.exists():
                     print("For Title: " + title + " Page exists.")
                     article = page.text
