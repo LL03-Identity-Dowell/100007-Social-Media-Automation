@@ -15,10 +15,10 @@ from django.utils.timezone import localdate, localtime
 from django_q.tasks import async_task
 from pexels_api import API
 
-from create_article import settings
+from react_version import settings
 from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import download_and_upload_image, save_profile_key_to_post, \
+from helpers import download_and_upload_image, fetch_organization_user_info, save_profile_key_to_post, \
     check_connected_accounts
 from step2.views import create_event
 from step2.views import save_data, get_key, update_schedule
@@ -119,7 +119,6 @@ def generate_topics(auto_strings, data_dic):
     print(credit_response)
     if not credit_response.get('success'):
         return credit_response
-    print('Start of generating sentences')
     sentence_grammar = Sentences.objects.create(
         user=auto_strings['user'],
         object=auto_strings['object'],
@@ -174,7 +173,8 @@ def generate_topics(auto_strings, data_dic):
             for counter, (api_result, sentence_result) in enumerate(zip(api_results, sentence_results), start=1)
         }
     }
-    async_task("automation.services.selected_result", result_ids, data_dictionary, hook='automation.services.hook_now')
+    async_task("automation.services.selected_result", result_ids,
+               data_dictionary, hook='automation.services.hook_now')
     return data_dictionary
 
 
@@ -188,9 +188,7 @@ def selected_result(article_id, data_dic):
     print(credit_response)
     if not credit_response.get('success'):
         return credit_response
-    print('Selecting sentences')
     try:
-        print('ranking___________')
         sentence_ids = article_id
         Rank = ['1', '2', '3', '4', '5', ' 6',
                 '7', ' 8', '9', '10', '11', '12', ]
@@ -219,7 +217,6 @@ def selected_result(article_id, data_dic):
                 }
             }
             Rank.remove(selected_rank)
-        print('_____done ranking----')
         data_dic = {
             **data_dic,
             **Rank_dict
@@ -231,7 +228,8 @@ def selected_result(article_id, data_dic):
         credit_handler = CreditHandler()
         credit_handler.consume_step_1_credit(user_info=data_dic['user_info'])
         if approval['article'] == True:
-            async_task("automation.services.generate_article", data_dic, hook='automation.services.hook_now')
+            async_task("automation.services.generate_article",
+                       data_dic, hook='automation.services.hook_now')
         return (data_dic)
 
     except Exception as e:
@@ -239,15 +237,11 @@ def selected_result(article_id, data_dic):
 
 
 def insert_form_data(data_dict):
-    print("----------------> insert form data-- start---------")
-
     url = "http://uxlivinglab.pythonanywhere.com/"
     if not data_dict.get('eventId'):
         print('none')
         data_dict['eventId'] = get_event_id()
     # data_dict['dowelltime'] = get_dowellclock()
-    print("data", data_dict)
-
     data = {
         "cluster": "socialmedia",
         "database": "socialmedia",
@@ -272,8 +266,6 @@ def insert_form_data(data_dict):
     headers = {'content-type': 'application/json'}
 
     response = requests.post(url, json=data, headers=headers)
-    print(response.json())
-    print("-------------end of insert function---------------")
     return (data_dict)
 
 
@@ -286,30 +278,36 @@ def generate_article(data_dic, ):
     )
     if not credit_response.get('success'):
         return credit_response
-    print("generating article.........................................................")
     start_datetime = datetime.now()
     Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
     api_no = random.choice(Rank)
     key = f'api_sentence_{api_no}'
+    # getting required data
     RESEARCH_QUERY = data_dic[key]['sentence']
     user_ids = data_dic["user_id"]
     session_id = data_dic["session_id"]
+    # calling user aproval
     approval = get_client_approval(user_ids)
     org_id = data_dic["org_id"]
+    user_selected_cities = []
+    user_data = fetch_organization_user_info(org_id)
+    # Set your OpenAI API key here
     openai.api_key = settings.OPENAI_KEY
 
+    # Build prompt
     prompt_limit = 2000
     min_characters = 500
 
     # Modify the prompt to include the formatted user data
     prompt = (
-            f"Write an article about {RESEARCH_QUERY}"
-            f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-            [:prompt_limit]
-            + "..."
+        f"Write an article about {RESEARCH_QUERY}"
+        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+        [:prompt_limit]
+        + "..."
     )
     # Generate article using OpenAI's GPT-3
     response = openai.Completion.create(
+        # engine="text-davinci-003",
         engine="gpt-3.5-turbo-instruct",
         prompt=prompt,
         temperature=0,
@@ -366,11 +364,7 @@ def generate_article(data_dic, ):
               step2_data, '9992828281')
     end_datetime = datetime.now()
     time_taken = end_datetime - start_datetime
-    print(f"Task started at: {start_datetime}")
-    print(f"Task completed at: {end_datetime}")
     print(f"Total time taken: {time_taken}")
-    print('step_3 starting')
-    #   seeking for approval to automate step 3
     credit_handler = CreditHandler()
     credit_handler.consume_step_2_credit(user_info=data_dic['user_info'])
     if approval['post'] == True:
@@ -391,7 +385,6 @@ def generate_article(data_dic, ):
         }
         async_task("automation.services.save_post", post_data,
                    hook='automation.services.hook_now')
-    print('step_3 is done')
     return ('done')
 
 
@@ -424,8 +417,6 @@ def post_list(user_id):
 
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
-    # api_no =  random.choice(Rank)
-    print(response)
     user_id = str(user_id)
     a = random.randint(-5, -1)
     response_data_json = json.loads(response.json())
@@ -433,7 +424,6 @@ def post_list(user_id):
 
     client_admin_id = articles['client_admin_id']
     paragraph = articles['paragraph']
-    print("this is the selected paragraph", paragraph)
     title = articles['title']
     source = articles["source"]
     session_id = articles['session_id']
@@ -456,7 +446,6 @@ def post_list(user_id):
         if wit[0] >= width:
             output.append(pictures)
     images = output[a]
-    # takes in user_id
     uploaded_image = download_and_upload_image(image_url=images)
     images = uploaded_image.get('file_url')
     post = {
@@ -469,7 +458,6 @@ def post_list(user_id):
 
 
 def get_post_image(data: dict):
-    print('Getting post image=====================================')
     a = random.randint(1, 9)
     max_characters = 200
     if 'paragraph' in data:
@@ -505,7 +493,6 @@ def save_post(post_data, ):
     )
     if not credit_response.get('success'):
         return credit_response
-    print('Saving post to step 4=========================================')
     eventId = create_event()['event_id']
     time = localtime()
     test_date = str(localdate())
@@ -668,14 +655,13 @@ def media_post(data: dict):
     twitter_post_paragraph1 = paragraph2
 
     twitter_post = f"{twitter_post_paragraph1}\n\n{logo}."
-
-    print(twitter_post)
     org_id = data['org_id']
 
     user_id = data['user_id']
     key = get_key(user_id)
 
-    social_with_count_restrictions = [channel for channel in linked_accounts if channel in ['twitter', 'pintrest']]
+    social_with_count_restrictions = [
+        channel for channel in linked_accounts if channel in ['twitter', 'pintrest']]
     social_without_count_restrictions = [channel for channel in linked_accounts if
                                          channel not in ['twitter', 'pintrest']]
     arguments = []
@@ -683,16 +669,20 @@ def media_post(data: dict):
     if social_with_count_restrictions:
         truncated_post = f'{paragraph[:235]}\n\n{logo}'
         arguments.append(
-            (truncated_post, social_with_count_restrictions, key, image, org_id, post_id, user_info),
+            (truncated_post, social_with_count_restrictions,
+             key, image, org_id, post_id, user_info),
         )
     if social_without_count_restrictions:
         arguments.append(
-            (postes, social_without_count_restrictions, key, image, org_id, post_id, user_info),
+            (postes, social_without_count_restrictions,
+             key, image, org_id, post_id, user_info),
         )
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         # Using lambda, unpacks the tuple (*f) into api_call(*args)
-        results = executor.map(lambda f: post_article_to_aryshare(*f), arguments)
+        results = executor.map(
+            lambda f: post_article_to_aryshare(*f), arguments)
+
         end_datetime = datetime.now()
         time_taken = end_datetime - start_datetime
         print(f"Total time taken: {time_taken}")

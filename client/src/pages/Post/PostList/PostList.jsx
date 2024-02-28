@@ -9,6 +9,7 @@ import { ErrorMessages, SuccessMessages } from "../../../components/Messages";
 import { useQuery } from "react-query";
 
 const PostList = ({ show }) => {
+  const [isProductKey, setIsProductKey] = useState();
   const location = useLocation();
   // const [postData, setPostData] = useState();
   const [loading, setLoading] = useState(false);
@@ -31,6 +32,11 @@ const PostList = ({ show }) => {
     show();
 
     // fetch();
+  }, []);
+
+  useEffect(() => {
+    const productKey = localStorage.getItem("productKey");
+    setIsProductKey(productKey);
   }, []);
 
   // const fetch = () => {
@@ -93,6 +99,9 @@ const PostList = ({ show }) => {
   );
 
   const handlePostdetailNavigate = (post_id, title, paragraphs, article, source) => {
+    if (isProductKey) {
+      navigate("/");
+    } 
     const dataToSend = {
       post_id: post_id,
       title: title,

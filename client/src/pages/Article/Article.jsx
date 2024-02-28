@@ -19,10 +19,7 @@ const Article = ({ show }) => {
   const [pageCount, setPageCount] = useState(0);
   const [pagesToDisplay] = useState(4);
   const [activePage, setActivePage] = useState(0);
-  const [showMorePages, setShowMorePages] = useState(false);
-
-  const [buttonClicked, setButtonClicked] = useState(false);
-  const [clickedPost, setClickedPost] = useState(null);
+  
   const navigate = useNavigate();
 
   const page = parseInt(new URLSearchParams(location.search).get("page")) || 0;

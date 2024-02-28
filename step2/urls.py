@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
+from .views import (AdminApproveSocialMediaRequestView, MainAPIView, UserApprovalView, GenerateArticleView,
                     TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
                     MentionView, MentionUpdateView, UnScheduledView, UnScheduledJsonView,
@@ -12,8 +12,7 @@ from .views import (MainAPIView, UserApprovalView, GenerateArticleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
                     LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
-                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,
-                    AdminApproveSocialMediaRequestView)
+                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView)
 
 app_name = 'generate_article'
 
@@ -74,10 +73,10 @@ urlpatterns = [
     path('scheduled-json/',
          ScheduledJsonView.as_view(), name='scheduled-json'),
     path('recent_posts/', MostRecentJSON.as_view(), name='recent_post'),
-    path('social_media_channels/',
-         SocialMediaChannelsView.as_view(), name='social_media_channels'),
     path('social_media_channels/approve/',
          AdminApproveSocialMediaRequestView.as_view(), name='approve_social_media_channels'),
+    path('social_media_channels/',
+         SocialMediaChannelsView.as_view(), name='social_media_channels'),
     path('linked-account/',
          LinkedAccountsJson.as_view(), name='linked-account'),
     path('can-post/',
@@ -92,9 +91,11 @@ urlpatterns = [
          PostComments.as_view(), name='post-comments-endpoint'),
     path('comments/delete-comment/<str:post_id>/', DeletePostComment.as_view(),
          name='delete-post-comments-endpoint'),
-    path('group-hashtags/', GroupHashtagView.as_view(), name='group-hashtag-endpoint'),
+    path('group-hashtags/', GroupHashtagView.as_view(),
+         name='group-hashtag-endpoint'),
     path('group-hashtags/<str:group_hashtag_id>/', GroupHashtagDetailView.as_view(),
          name='group-hashtag-detail-endpoint'),
-    path('social-media-portfolio/', SocialMediaPortfolioView.as_view(), name='social-media-portfolio-endpoint'),
+    path('social-media-portfolio/', SocialMediaPortfolioView.as_view(),
+         name='social-media-portfolio-endpoint'),
 
 ]

@@ -2,7 +2,16 @@ import * as Dialog from "@radix-ui/react-dialog";
 import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
-import { facebook, instagram, linkedin, pinterest, xTwitter, youtube } from "../../../assets";
+import {
+  facebook,
+  instagram,
+  linkedin,
+  pinterest,
+  xTwitter,
+  youtube,
+} from "../../../assets";
+import { checkProperty } from "./function";
+
 
 export const SocialComponentForPost = ({
   article,
@@ -13,9 +22,12 @@ export const SocialComponentForPost = ({
   socialArr,
 }) => {
   const navigate = useNavigate();
-  
+
   const onSubmit = async (e) => {
     e.preventDefault();
+
+    setError("");
+    setSuccessMessage("");
 
     const paragraph = Array.isArray(article.paragraph)
       ? article.paragraph.join(" ")
@@ -64,19 +76,29 @@ export const SocialComponentForPost = ({
         withCredentials: true,
       })
       .then((res) => {
-        setError(null);
-        setLoading(false);
-        setSuccessMessage("Successfully submit for post");
+        const { isExist = false, data } = checkProperty(
+          res?.data,
+          "not_approved_channels"
+        );
 
+        if (isExist) {
+          setError(`You don't have permission to post to ${data?.join(" ")}`);
+          return;
+        }
+        setSuccessMessage("Successfully submit for post");
+        setLoading(false);
         setTimeout(() => {
           navigate("/recent");
         }, 700);
       })
       .catch((error) => {
+        if (error?.response?.data?.success === false) {
+          setSuccessMessage(error?.response?.data?.message);
+        } else {
+          setError("Server error, Please try again later");
+        }
+        console.error("Error making posts:", error);
         setLoading(false);
-        setError("Server error, Please try again later");
-        console.error("Error fetching article:", error);
-        setSuccessMessage(null);
       });
     setOpen(false);
   };
@@ -84,7 +106,7 @@ export const SocialComponentForPost = ({
   return (
     <>
       <form className='form' onSubmit={onSubmit}>
-        <div className='flex justify-between mb-6 gap-4'>
+        <div className='flex justify-between gap-4 mb-6'>
           <label
             htmlFor='facebook'
             className='flex flex-row-reverse items-center'
@@ -158,7 +180,7 @@ export const SocialComponentForPost = ({
             <img
               src={youtube}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#ae2d2d]'
-              alt='youtube'
+              alt='pinterest'
             />
             <input
               name='youtube'
@@ -187,7 +209,7 @@ export const SocialComponentForPost = ({
         <div className='flex justify-center mt-8'>
           <button
             type='submit'
-            className='text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95 text-center'
+            className='cursor-pointer text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95 text-center'
           >
             Done
           </button>
@@ -207,6 +229,7 @@ export const SocialComponentForSchedule = ({
 }) => {
   const socialArr = ["twitter"];
   const navigate = useNavigate();
+
   const onSubmit = async (e) => {
     e.preventDefault();
 
@@ -263,26 +286,28 @@ export const SocialComponentForSchedule = ({
       })
       .then((res) => {
         setError(null);
-        setLoading(false);
         setSuccessMessage("Successfully submit for schedule");
-        console.log(res);
+        setLoading(false);
         setTimeout(() => {
           navigate("/unscheduled");
         }, 1000);
       })
       .catch((error) => {
+        if (error?.response?.data?.success === false) {
+          setSuccessMessage(error?.response?.data?.message);
+        } else {
+          setError("Server error, Please try again later");
+        }
+        console.error("Error making posts:", error);
         setLoading(false);
-        setError("Server error, Please try again later");
-        console.error("Error fetching article:", error);
-        setSuccessMessage(null);
       });
     setOpen(false);
   };
 
   return (
     <>
-      <form className='form  w-full mx-auto' onSubmit={onSubmit}>
-        <div className='flex md:justify-between items-center mb-6 gap-4'>
+      <form className='w-full mx-auto form' onSubmit={onSubmit}>
+        <div className='flex items-center gap-4 mb-6 md:justify-between'>
           <label
             htmlFor='facebook'
             className='flex flex-row-reverse items-center w-full'
@@ -350,7 +375,7 @@ export const SocialComponentForSchedule = ({
 
           <label
             htmlFor='youtube'
-            className='flex flex-row-reverse items-center  w-full '
+            className='flex flex-row-reverse items-center w-full '
           >
             {/* <div className='icons8-youtube-logo md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 object-cover'></div> */}
             <img

@@ -12,7 +12,7 @@ const CreateArticle = ({ show }) => {
   const [isProductKey, setIsProductKey] = useState();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [errors, setError] = useState(false);
   const [success, setSuccess] = useState(false);
   const [count, setCount] = useState(0);
   const [perPage] = useState(5);
@@ -42,22 +42,11 @@ const CreateArticle = ({ show }) => {
     //       }
     //     )
     //     .then((response) => {
-    //       setError(null);
-    //       setLoading(false);
-    //       setSuccess("Topics Fetched Successfully...!");
-    //       // Handle the response here
-    //       const data = response.data.topics;
-    //       // console.log(data);
-    //       setTopics(data);
-    //       setCount(response.data.total_items);
-    //       setPageCount(Math.ceil(response.data.total_items / perPage));
-    //       setShowMorePages(pageCount > pagesToDisplay);
-    //       window.scrollTo(0, 0);
-    //       // console.log(response.data);
+          
+    //       console.log(response.data);
     //     })
     //     .catch((error) => {
-    //       setLoading(false);
-    //       setError("Server error, Please try again later");
+          
     //       console.error(error);
     //     });
     // };
@@ -69,6 +58,7 @@ const CreateArticle = ({ show }) => {
   const {
     data: topics,
     status,
+    error,
     isLoading,
     refetch,
   } = useQuery(
@@ -95,7 +85,12 @@ const CreateArticle = ({ show }) => {
       setCount(topics.total_items);
       setPageCount(Math.ceil(topics.total_items / perPage));
     } else if (status === "error") {
-      setError("Error Fetching data, Please try again");
+      if (error.response.data.success === false) {
+        setSuccess(error.response.data.message);
+      }else{
+
+        setError("Error Fetching data, Please try again");
+      }
     }
     window.scrollTo(0, 0);
 
@@ -183,7 +178,7 @@ const CreateArticle = ({ show }) => {
   return (
     <div className="overflow-y-hidden lg:flex lg:flex-col lg:justify-center lg:items-center lg:article-container lg:relative lg:max-w-7xl lg:mx-auto lg:h-auto lg:overflow-y-visible ">
       {loading || isLoading ? <Loading /> : null}
-      {error && <ErrorMessages>{error}</ErrorMessages>}
+      {errors && <ErrorMessages>{errors}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {/* <ToastContainer /> */}
       <h1 className="text-2xl font-semibold text-customTextBlue">

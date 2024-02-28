@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 
-from create_article.permissions import HasBeenAuthenticated
+from react_version.permissions import HasBeenAuthenticated
 
 
 class AuthenticatedBaseView(APIView):

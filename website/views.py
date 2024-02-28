@@ -9,15 +9,14 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from create_article import settings
+from react_version import settings
 from credits.constants import STEP_1_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from helpers import fetch_user_info
 from step2.views import create_event
-from create_article.permissions import HasBeenAuthenticated
+from react_version.permissions import HasBeenAuthenticated
 from website.models import Sentences, SentenceResults, SentenceRank, WebsiteManager
 from website.models import User
-from website.permissions import HasBeenAuthenticated
 from website.serializers import SentenceSerializer, IndustrySerializer, CategorySerializer, UserTopicSerializer, \
     SelectedResultSerializer
 
@@ -79,11 +78,7 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
         verb = sentence_serializer.data['verb']
         objdet = sentence_serializer.data['object_determinant']
         adjective = sentence_serializer.data['adjective']
-
-        userid = request.session['user_id']
-        topic = get_client_approval(userid)
-        userid = request.session['user_id']
-
+        
         def api_call(grammar_arguments=None):
             if grammar_arguments is None:
                 grammar_arguments = {}
@@ -194,18 +189,13 @@ class GenerateSentencesAPIView(generics.CreateAPIView):
                 for counter, (api_result, sentence_result) in enumerate(zip(api_results, sentence_results), start=1)
             }
         }
-
         sentences_dictionary = {
             'sentences': sentence_results,
         }
-
         return Response(request.session['data_dictionary'])
 
 
 class UserCategoriesAPIView(generics.ListCreateAPIView):
-    """
-
-    """
     permission_classes = (HasBeenAuthenticated,)
     serializer_class = CategorySerializer
 
@@ -235,9 +225,6 @@ class UserCategoriesAPIView(generics.ListCreateAPIView):
 
 
 class UserTopicAPIView(generics.ListCreateAPIView):
-    """
-
-    """
     permission_classes = (HasBeenAuthenticated,)
     serializer_class = UserTopicSerializer
 
@@ -290,13 +277,10 @@ def get_dowellclock():
 
 
 def insert_form_data(data_dict):
-    print("----------------> insert form data-- start---------")
-
     url = "http://uxlivinglab.pythonanywhere.com/"
     if not data_dict.get('eventId'):
         data_dict['eventId'] = get_event_id()
     # data_dict['dowelltime'] = get_dowellclock()
-    print("data", data_dict)
 
     data = {
         "cluster": "socialmedia",
@@ -322,12 +306,8 @@ def insert_form_data(data_dict):
     headers = {'content-type': 'application/json'}
 
     response = requests.post(url, json=data, headers=headers)
-    print(response.json())
-    print("-------------end of insert function---------------")
     return response.json()
 
-
-# get user aproval
 def get_client_approval(user):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
@@ -349,10 +329,7 @@ def get_client_approval(user):
 
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
-
-    print(response)
     response_data_json = json.loads(response.json())
-    print(response_data_json)
 
     try:
         for value in response_data_json['data']:
@@ -444,5 +421,4 @@ class SelectedResultAPIView(generics.CreateAPIView):
 
         credit_handler = CreditHandler()
         credit_handler.consume_step_1_credit(request)
-
         return Response({'message': 'Sentence ranked successfully'})
