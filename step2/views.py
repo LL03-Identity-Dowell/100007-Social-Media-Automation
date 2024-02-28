@@ -485,6 +485,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                 page = wiki_language.page(title)
                 subject = request.data.get('subject', '')
                 verb = request.data.get('verb')
+
                 if page == False:
                     print("For Title: " + title + " Page does not exist.")
                     print("Using subject: " + subject + " and verb: " +
@@ -519,7 +520,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                        'client_admin_id': request.session['userinfo'][
                                                                            'client_admin_id'],
                                                                        "title": title,
-
+                                                                       "source": source_verb,
                                                                        "paragraph": para_list[i],
                                                                        "citation_and_url": page.fullurl,
                                                                        'subject': subject,
@@ -529,6 +530,12 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     page = wiki_language.page(title_sub_verb)
                     if page.exists() == False:
                         print("Page - Exists: %s" % page.exists())
+                        return Response({
+                            'message': f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"})
+
+                    credit_handler = CreditHandler()
+                    credit_handler.consume_step_2_credit(request)
+                    return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
                 if page.exists():
                     print("For Title: " + title + " Page exists.")
                     article = page.text
