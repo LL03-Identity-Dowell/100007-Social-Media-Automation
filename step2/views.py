@@ -474,7 +474,6 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     article = page.text
                     article = article.split("See also")
                     para_list = article[0].split("\n\n")
-                    para_list = para_list[::-1]
                     for i in range(len(para_list)):
                         if para_list[i] != '':
                             save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
