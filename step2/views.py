@@ -90,9 +90,11 @@ class LogoutUser(APIView):
         if session_id:
             try:
                 del request.session["session_id"]
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
+                return redirect(
+                    "https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
             except:
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
+                return redirect(
+                    "https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
         else:
             return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
 
@@ -110,7 +112,7 @@ class MainAPIView(AuthenticatedBaseView):
                 profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
                 user_map[profile_details['userinfo']['userID']
-                         ] = profile_details['userinfo']['username']
+                ] = profile_details['userinfo']['username']
             else:
                 url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
                 response_2 = requests.post(
@@ -119,7 +121,7 @@ class MainAPIView(AuthenticatedBaseView):
                     profile_details = response_2.json()
                     request.session['portfolio_info'] = profile_details['portfolio_info']
                     user_map[profile_details['userinfo']['userID']
-                             ] = profile_details['userinfo']['username']
+                    ] = profile_details['userinfo']['username']
                 else:
                     profile_details = {}
                     request.session['portfolio_info'] = []
@@ -327,8 +329,14 @@ class IndexView(AuthenticatedBaseView):
                 for counter, data in enumerate(array):
                     for key in data.keys():
                         if key.startswith("sentence_rank_") and data[key]['sentence_rank'] is not None:
-                            topic = {"ranks": data[key]['sentence_rank'], "sentence": data[key]
-                                     ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
+                            topic = {
+                                "ranks": data[key]['sentence_rank'],
+                                "sentence": data[key]['sentence_result'],
+                                "key": key,
+                                'created_by': data.get('username', 'NA'),
+                                'subject': data.get('subject'),
+                                'verb': data.get('verb'),
+                            }
                             topics.append(topic)
                 paginator = Paginator(topics, number_of_items_per_page)
                 try:
@@ -340,8 +348,14 @@ class IndexView(AuthenticatedBaseView):
             except Exception as e:
                 traceback.print_exc()
                 topics = []
-            topics_data = [{'ranks': topic['ranks'], 'sentence': topic['sentence'],
-                            'key': topic['key'], 'created_by': topic.get('created_by', 'NA')} for topic in topics]
+            topics_data = [{'ranks': topic['ranks'],
+                            'sentence': topic['sentence'],
+                            'key': topic['key'],
+                            'created_by': topic.get('created_by', 'NA'),
+                            'subject': topic.get('subject'),
+                            'verb': topic.get('verb'),
+                            } for topic in topics]
+
             serialized_data = RankedTopicListSerializer(
                 topics_data, many=True).data
 
@@ -380,10 +394,10 @@ class GenerateArticleView(AuthenticatedBaseView):
                 prompt_limit = 3000
                 min_characters = 500
                 prompt = (
-                    f"Write an article about {RESEARCH_QUERY}"
-                    f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-                    [:prompt_limit]
-                    + "..."
+                        f"Write an article about {RESEARCH_QUERY}"
+                        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+                        [:prompt_limit]
+                        + "..."
                 )
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
