@@ -58,6 +58,8 @@ class RankedTopicListSerializer(serializers.Serializer):
     sentence = serializers.CharField()
     key = serializers.CharField()
     created_by = serializers.CharField()
+    subject = serializers.CharField(allow_blank=True, )
+    verb = serializers.CharField()
 
 
 class PostCommentSerializer(serializers.Serializer):
