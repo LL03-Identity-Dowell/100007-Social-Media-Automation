@@ -29,28 +29,6 @@ const CreateArticle = ({ show }) => {
   
   useEffect(() => {
     show();
-    // const callGenerateArticleAPI = () => {
-    //   // Make an API request to GenerateArticleView
-    //   setLoading(true);
-    //   axios
-    //     .get(
-    //       `${import.meta.env.VITE_APP_BASEURL}/article/generate/?page=${
-    //         page + 1
-    //       }&order=newest`,
-    //       {
-    //         withCredentials: true,
-    //       }
-    //     )
-    //     .then((response) => {
-          
-    //       console.log(response.data);
-    //     })
-    //     .catch((error) => {
-          
-    //       console.error(error);
-    //     });
-    // };
-    // callGenerateArticleAPI();
   }, []);
 
   const page = parseInt(new URLSearchParams(location.search).get("page")) || 0;
@@ -121,7 +99,7 @@ const CreateArticle = ({ show }) => {
         // console.log(response);
         setLoading(false);
         // Handle the response here
-        setSuccess("Articles created successfully...!");
+        setSuccess("Articles created successfully");
         setTimeout(() => {
           navigate("/article");
         }, 2000);

@@ -38,7 +38,7 @@ const ScheduledPage = () => {
         if(data.total_items <= 0){
           setIsEmpty("You do not have any post scheduled")
         }
-        setSuccess("Successfully fetched posts");
+        setSuccess("Posts fetched successfully");
         setError("");
       } catch (error) {
         setError("Error fetching the posts");

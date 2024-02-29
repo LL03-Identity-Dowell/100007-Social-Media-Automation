@@ -34,11 +34,11 @@ const MostRecent = () => {
         .then((response) => {
           setError(null);
           setLoading(false);
-          setSuccess('Successfully fetched posts')
+          setSuccess('Posts fetched successfully')
           let data = response.data.MostRecentPosts.response;
           setArticles(data);
           // console.log(response.data);
-          if(data.total_items <= 0){
+          if(response.data.total_items <= 0){
             setIsEmpty("You do not have any recent posts")
           }
           setCount(response.data.total_items);
