@@ -5,6 +5,7 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
 import { MdArrowLeft } from "react-icons/md";
 import CommentItem from "./_components/CommentItem";
+import { facebook, instagram, linkedin, pinterest, xTwitter } from "../../assets";
 
 function ViewComments({ show }) {
   const [error, setError] = useState("");
@@ -29,6 +30,8 @@ function ViewComments({ show }) {
     hour12: false,
   };
   const humanReadableDatetime = datetime.toLocaleString(undefined, options);
+
+  console.log({ humanReadableDatetime });
 
   useEffect(() => {
     show();
@@ -120,13 +123,18 @@ function ViewComments({ show }) {
           <MdArrowLeft />
           Go back
         </button>
+
+        <div className='text-center text-sm font-bold text-rose-500 flex justify-center items-center text-balance'>
+          Please wait for the next update:
+          {" "}{humanReadableDatetime}
+        </div>
         {hasComment ? (
           <div>
             {comments?.twitter?.length > 0 && (
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/x-twitter.svg'
+                    src={xTwitter}
                     className='w-12 h-12 p-1 bg-black border rounded-full '
                     alt=''
                   />
@@ -148,7 +156,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/pinterest.svg'
+                    src={pinterest}
                     className='w-12 h-12 p-1 bg-[#e60023] border rounded-full '
                     alt=''
                   />
@@ -172,7 +180,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/facebook.svg'
+                    src={facebook}
                     className='w-12 h-12 p-1 border rounded-full bg-customBlue '
                     alt=''
                   />
@@ -212,7 +220,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/instagram.svg'
+                    src={instagram}
                     className='w-12 h-12 p-1 border rounded-full bg-[#b003c7] '
                     alt=''
                   />
@@ -234,7 +242,7 @@ function ViewComments({ show }) {
               <div>
                 <div className='flex items-center gap-4 mt-8'>
                   <img
-                    src='/linkedin.svg'
+                    src={linkedin}
                     className='w-12 h-12 p-1 border rounded-full bg-[#0000ff] '
                     alt=''
                   />
@@ -255,17 +263,11 @@ function ViewComments({ show }) {
           </div>
         ) : (
           !loading &&
-          !error && (
-            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance'>
-              Please wait for the next update:
-              {humanReadableDatetime}
+          error && (
+            <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
+              Comments not found
             </div>
           )
-        )}
-        {!loading && error && (
-          <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
-            Comments not found
-          </div>
         )}
       </div>
     </div>

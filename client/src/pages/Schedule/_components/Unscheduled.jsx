@@ -51,7 +51,7 @@ const UnscheduledPage = () => {
         .then((response) => {
           setError(null);
           setLoading(false);
-          setSuccess("Successfully fetched posts");
+          setSuccess("Posts fetched successfully");
           let unscheduledData = response.data.Unscheduled_Posts.response;
           setUnscheduledPost(unscheduledData);
           if (response.data.total_items <= 0) {
