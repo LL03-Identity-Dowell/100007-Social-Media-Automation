@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
+import { useNavigate } from "react-router-dom";
 
 const AdminApproval = ({ close }) => {
   const [requests, setRequests] = useState();
@@ -9,27 +10,35 @@ const AdminApproval = ({ close }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate()
 
   useEffect(() => {
     close();
-    axios
-      .get(
-        `${import.meta.env.VITE_APP_BASEURL}/social_media_channels/approve/`,
-        {
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        // setLoading(false);
-        console.log(response.data.social_media_requests);
-        setRequests(response.data.social_media_requests);
-      })
-      .catch((error) => {
-        // setLoading(false);
-        setError("Error fetching Social Media Channels");
-        console.error("Error fetching Social Media Channels:", error);
-      });
-
+    setLoading(true);
+    const user = JSON.parse(localStorage.getItem("userInfo"));
+    if (user && user.username !== "uxliveadmin") {
+      
+      navigate('/');
+    }
+    const fetchRequests = () => {
+      axios
+        .get(
+          `${import.meta.env.VITE_APP_BASEURL}/social_media_channels/approve/`,
+          {
+            withCredentials: true,
+          }
+        )
+        .then((response) => {
+          setLoading(false);
+          setRequests(response.data.social_media_requests);
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Error fetching Social Media Channels");
+          console.error("Error fetching Social Media Channels:", error);
+        });
+    };
+    fetchRequests();
   }, []);
 
   const handleCheckboxChange = (id) => {
@@ -61,7 +70,7 @@ const AdminApproval = ({ close }) => {
         )
         .then((response) => {
           setLoading(false);
-          console.log(response.data.message);
+          setSuccess(response.data.message);
         })
         .catch((error) => {
           setLoading(false);
@@ -97,7 +106,7 @@ const AdminApproval = ({ close }) => {
         )
         .then((response) => {
           setLoading(false);
-          console.log(response.data.message);
+          setSuccess(response.data.message);
         })
         .catch((error) => {
           setLoading(false);
@@ -111,12 +120,12 @@ const AdminApproval = ({ close }) => {
     const selectedItemsData = requests.filter((item) =>
       selectedUser.includes(item.id)
     );
-    
+
     const data = selectedItemsData.map((item) => ({
       approve: "Reject Selected",
       social_media_request_id: item.id,
     }));
-    
+
     if (selectedItemsData) {
       setLoading(true);
       axios
@@ -129,7 +138,7 @@ const AdminApproval = ({ close }) => {
         )
         .then((response) => {
           setLoading(false);
-          console.log(response.data.message);
+          setSuccess(response.data.message);
         })
         .catch((error) => {
           setLoading(false);

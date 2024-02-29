@@ -21,6 +21,7 @@ const SocialMediaChannels = ({ close }) => {
   const [success, setSuccess] = useState(false);
   const [linkedSocials, setLinkedSocials] = useState([]);
   const [visible, setVisible] = useState(false);
+  const [checkConnect, isCheckConnect] = useState(false);
   const [activateLink, setActivateLink] = useState({
     activate: "Activate",
     info: "Click to activate",
@@ -48,7 +49,9 @@ const SocialMediaChannels = ({ close }) => {
         setLoading(false);
         let resData = response.data;
         let linked_accounts = resData.linked_accounts;
-        console.log(linked_accounts);
+        let can_connect = resData.can_connect;
+        isCheckConnect(can_connect)
+        // console.log(can_connect);
         if (!linked_accounts) {
           setLinkedSocials([]);
         } else if (linked_accounts) {
@@ -162,7 +165,7 @@ const SocialMediaChannels = ({ close }) => {
           )}
         </div>
         <div className="flex items-center justify-center mt-6 md:mt-8">
-          {linkedSocials.length == 0 ? (
+          {!checkConnect ? (
             <button
               onClick={handelRequest}
               className="flex items-center gap-3 px-10 py-2 text-white rounded-md bg-customBlue"

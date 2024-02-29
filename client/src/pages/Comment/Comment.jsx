@@ -171,8 +171,6 @@ function Comment({ show }) {
                       <CommentModal
                         id={item.article_id}
                         socials={item?.post_response?.posts[0]?.postIds}
-                        setError={setError}
-                        setSuccess={setSuccess}
                         setLoading={setLoading}
                       />
                       <button onClick={redirectForComment}>

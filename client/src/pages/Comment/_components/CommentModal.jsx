@@ -4,18 +4,21 @@ import { useState, useRef, useEffect } from "react";
 import SocialIcons from "./SocialIcons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { SuccessMessages } from "../../../components/Messages";
 
-const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
+const CommentModal = ({ id, socials, setLoading }) => {
   const socialArray = socials?.map((each) => each.platform);
   const [open, setOpen] = useState(false);
+  const [isSuccessful, setIsSuccessful] = useState()
+  const [isError, setIsError] = useState()
   const navigate = useNavigate();
   const formRef = useRef(null);
 
+ 
+
   const handleSubmit = async (e) => {
-    setError("");
-    setSuccess("");
-    setLoading(true);
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData(e.currentTarget);
     const data = {
       platforms: Array.from(formData.entries())
@@ -33,22 +36,21 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
         withCredentials: true,
       })
       .then((res) => {
-        console.log(res);
         if (res.data.code === 102) {
-          setError("The  post does not have aryshare ID");
+          setIsError("The  post does not have aryshare ID");
           setLoading(false);
           return;
         }
-        setLoading(false);
-        setSuccess("successfully posted");
+        setIsSuccessful("successfully posted");
+        setIsError("");
         formRef.current.reset();
-        setTimeout(() => {
-          setOpen(false);
-        }, 1000);
+        setOpen(false);
+        setLoading(false);
       })
       .catch((error) => {
         setLoading(false);
-        setError(error?.response?.data?.platforms.join(", "));
+        setIsError(error?.response?.data?.platforms.join(", "));
+        setIsSuccessful("");
       });
   };
 
@@ -61,6 +63,8 @@ const CommentModal = ({ id, socials, setError, setSuccess, setLoading }) => {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
+      {isSuccessful && <SuccessMessages>{isSuccessful}</SuccessMessages>}
+      {isError && <SuccessMessages>{isError}</SuccessMessages>}
       <Dialog.Trigger asChild>
         <button
           type='button'

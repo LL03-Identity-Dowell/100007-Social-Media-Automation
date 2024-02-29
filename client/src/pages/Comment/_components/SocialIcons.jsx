@@ -1,10 +1,4 @@
-import {
-  facebook,
-  instagram,
-  linkedin,
-  pinterest,
-  xTwitter,
-} from "/src/assets";
+import { facebook, instagram, linkedin, pinterest, xTwitter, youtube } from "../../../assets";
 
 const SocialIcons = ({ socialArray }) => {
   return (
@@ -88,7 +82,12 @@ const SocialIcons = ({ socialArray }) => {
               htmlFor='youtube'
               className='flex flex-row-reverse items-center'
             >
-              <div className='medium-youtube-logo '></div>
+              {/* <div className='medium-youtube-logo '></div> */}
+              <img
+              src={youtube}
+              className='w-14 h-[65px] ml-1 p-2 rounded-md bg-[#ae2d2d]'
+              alt='youtube'
+            />
               <input
                 name='youtube'
                 className='w-3 h-3'
