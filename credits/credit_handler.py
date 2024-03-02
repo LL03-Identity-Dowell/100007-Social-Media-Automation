@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.core.handlers.wsgi import WSGIRequest
 
+from config_master import CREDITS_EXEMPTED_USERNAMES
 from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
     STEP_4_SUB_SERVICE_ID, SERVICE_ID, COMMENTS_SUB_SERVICE_ID
 from credits.credit_manager import Credit
@@ -14,6 +15,13 @@ class CreditHandler:
             response = {}
         data = response
         credit_response = {}
+
+        if request.session['username'] in CREDITS_EXEMPTED_USERNAMES:
+            if request.session.get('credit_response', ):
+                del request.session['credit_response']
+            response['success'] = True
+            return response
+
         if not data:
             credit_response.update(
                 {'success': False, 'message': 'Please create a service/api Key for this workspace', 'error_code': 1})
@@ -82,6 +90,11 @@ class CreditHandler:
         if response is None:
             response = {}
         data = response
+        if request.session['username'] in CREDITS_EXEMPTED_USERNAMES:
+            if request.session.get('credit_response', ):
+                del request.session['credit_response']
+            response['success'] = True
+            return response
 
         if not data:
             return {'success': False, 'message': 'An error occurred'}
@@ -239,6 +252,10 @@ class CreditHandler:
         This method check if a user has enough credits to perform a step
         """
         credit_response = {}
+        if request.session['username'] in CREDITS_EXEMPTED_USERNAMES:
+            if request.session.get('credit_response', ):
+                del request.session['credit_response']
+            return {'success': True, 'message': 'You have enough credits to perform this action'}
         response = self.login(request=request, user_info=user_info)
 
         if not response.get('services'):
