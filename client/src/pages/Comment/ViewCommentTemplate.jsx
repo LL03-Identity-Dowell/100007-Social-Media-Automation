@@ -126,7 +126,7 @@ function ViewCommentTemplate({ show }) {
         </h1>
         <button
           // onClick={() => nav(-1)}
-          className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg max-w-max'
+          className='cursor-pointer text-[15px] flex gap-2 items-center bg-customBlue hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg max-w-max'
         >
           <MdArrowLeft />
           Go back
