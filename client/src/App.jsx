@@ -39,6 +39,7 @@ import Mention from "./pages/SettingsPages/Mention";
 import BaseHashMention from "./pages/SettingsPages/BaseHashMention";
 import Portfolio from "./pages/Portfolio/portfolio";
 import AdminApproval from "./pages/UserProfile/AdminApproval";
+import ViewCommentTemplate from "./pages/Comment/ViewCommentTemplate";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -52,9 +53,6 @@ function App() {
     setShowSidebar(false);
     setShowBottombar(false);
   };
-
-  
-
 
   return (
     <>
@@ -83,7 +81,10 @@ function App() {
             path='/SpecificPost'
             element={<SpecificPost show={handleOpenSideBar} />}
           /> */}
-          <Route path='/portfolio' element={<Portfolio  close={handleCloseSideBar}/>} />
+          <Route
+            path='/portfolio'
+            element={<Portfolio close={handleCloseSideBar} />}
+          />
 
           <Route
             path='/post-detail'
@@ -108,6 +109,10 @@ function App() {
           <Route
             path='/comment/:id'
             element={<ViewComments show={handleOpenSideBar} />}
+          />
+          <Route
+            path='/comment/template'
+            element={<ViewCommentTemplate show={handleOpenSideBar} />}
           />
           <Route
             path='/address'
