@@ -5,7 +5,13 @@ import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import Loading from "../../components/Loading";
 import { MdArrowLeft } from "react-icons/md";
 import CommentItem from "./_components/CommentItem";
-import { facebook, instagram, linkedin, pinterest, xTwitter } from "../../assets";
+import {
+  facebook,
+  instagram,
+  linkedin,
+  pinterest,
+  xTwitter,
+} from "../../assets";
 
 function ViewComments({ show }) {
   const [error, setError] = useState("");
@@ -29,9 +35,9 @@ function ViewComments({ show }) {
     second: "numeric",
     hour12: false,
   };
-  const humanReadableDatetime = datetime.toLocaleString(undefined, options);
+  const humanReadableDatetime = datetime.toLocaleString(datetime, options);
 
-  console.log({ humanReadableDatetime });
+  console.log({ humanReadableDatetime, parsedDatetime, datetime });
 
   useEffect(() => {
     show();
@@ -124,10 +130,11 @@ function ViewComments({ show }) {
           Go back
         </button>
 
-        <div className='text-center text-sm font-bold text-rose-500 flex justify-center items-center text-balance'>
-          Please wait for the next update:
-          {" "}{humanReadableDatetime}
-        </div>
+        {parsedDatetime && (
+          <div className='text-center text-sm font-bold text-rose-500 flex justify-center items-center text-balance'>
+            Please wait for the next update: {humanReadableDatetime}
+          </div>
+        )}
         {hasComment ? (
           <div>
             {comments?.twitter?.length > 0 && (

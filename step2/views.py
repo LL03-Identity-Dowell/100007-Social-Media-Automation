@@ -10,6 +10,7 @@ from datetime import datetime
 from io import BytesIO
 from itertools import chain
 
+import jwt
 # from website.views import get_client_approval
 import openai
 import pandas as pd
@@ -33,21 +34,22 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 # rest(React endpoints)
 from rest_framework.views import APIView
-from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 
-from react_version import settings
-from react_version.views import AuthenticatedBaseView
+from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
     STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import (check_if_user_is_owner_of_organization, download_and_upload_image, fetch_organization_user_info,
+from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image,
+                     fetch_organization_user_info,
                      fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, text_from_html,
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
-from website.models import Sentences, SentenceResults
+from react_version import settings
+from react_version.permissions import EditPostPermission
+from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
 from .serializers import (PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -88,9 +90,11 @@ class LogoutUser(APIView):
         if session_id:
             try:
                 del request.session["session_id"]
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
+                return redirect(
+                    "https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
             except:
-                return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
+                return redirect(
+                    "https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
         else:
             return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
 
@@ -108,7 +112,7 @@ class MainAPIView(AuthenticatedBaseView):
                 profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
                 user_map[profile_details['userinfo']['userID']
-                         ] = profile_details['userinfo']['username']
+                ] = profile_details['userinfo']['username']
             else:
                 url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
                 response_2 = requests.post(
@@ -117,7 +121,7 @@ class MainAPIView(AuthenticatedBaseView):
                     profile_details = response_2.json()
                     request.session['portfolio_info'] = profile_details['portfolio_info']
                     user_map[profile_details['userinfo']['userID']
-                             ] = profile_details['userinfo']['username']
+                    ] = profile_details['userinfo']['username']
                 else:
                     profile_details = {}
                     request.session['portfolio_info'] = []
@@ -325,8 +329,14 @@ class IndexView(AuthenticatedBaseView):
                 for counter, data in enumerate(array):
                     for key in data.keys():
                         if key.startswith("sentence_rank_") and data[key]['sentence_rank'] is not None:
-                            topic = {"ranks": data[key]['sentence_rank'], "sentence": data[key]
-                                     ['sentence_result'], "key": key, 'created_by': data.get('username', 'NA')}
+                            topic = {
+                                "ranks": data[key]['sentence_rank'],
+                                "sentence": data[key]['sentence_result'],
+                                "key": key,
+                                'created_by': data.get('username', 'NA'),
+                                'subject': data.get('subject'),
+                                'verb': data.get('verb'),
+                            }
                             topics.append(topic)
                 paginator = Paginator(topics, number_of_items_per_page)
                 try:
@@ -338,8 +348,14 @@ class IndexView(AuthenticatedBaseView):
             except Exception as e:
                 traceback.print_exc()
                 topics = []
-            topics_data = [{'ranks': topic['ranks'], 'sentence': topic['sentence'],
-                            'key': topic['key'], 'created_by': topic.get('created_by', 'NA')} for topic in topics]
+            topics_data = [{'ranks': topic['ranks'],
+                            'sentence': topic['sentence'],
+                            'key': topic['key'],
+                            'created_by': topic.get('created_by', 'NA'),
+                            'subject': topic.get('subject'),
+                            'verb': topic.get('verb'),
+                            } for topic in topics]
+
             serialized_data = RankedTopicListSerializer(
                 topics_data, many=True).data
 
@@ -378,10 +394,10 @@ class GenerateArticleView(AuthenticatedBaseView):
                 prompt_limit = 3000
                 min_characters = 500
                 prompt = (
-                    f"Write an article about {RESEARCH_QUERY}"
-                    f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-                    [:prompt_limit]
-                    + "..."
+                        f"Write an article about {RESEARCH_QUERY}"
+                        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+                        [:prompt_limit]
+                        + "..."
                 )
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
@@ -406,6 +422,8 @@ class GenerateArticleView(AuthenticatedBaseView):
                     word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
                 for i in range(len(paragraphs) - 1):
                     paragraphs[i] += " " + " ".join(hashtags_in_last_paragraph)
+
+                paragraphs = paragraphs[::-1]
 
                 for i in range(len(paragraphs)):
                     if paragraphs[i] != "":
@@ -465,11 +483,65 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                 wiki_language = wikipediaapi.Wikipedia(
                     language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
                 page = wiki_language.page(title)
+                subject = request.data.get('subject', '')
+                verb = request.data.get('verb')
+
+                if page == False:
+                    print("For Title: " + title + " Page does not exist.")
+                    print("Using subject: " + subject + " and verb: " +
+                          verb + " to create an article.")
+                    title_sub_verb = subject + " " + verb
+                    page = wiki_language.page(title_sub_verb)
+                    print("Page - Exists: %s" % page.exists())
+                    if page.exists() == True:
+                        article_sub_verb = page.text
+                        article_sub_verb = article_sub_verb.split("See also")
+                        save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                               "session_id": session_id,
+                                                               "org_id": org_id,
+                                                               "eventId": create_event()['event_id'],
+                                                               'client_admin_id': request.session['userinfo'][
+                                                                   'client_admin_id'],
+                                                               "title": title_sub_verb,
+                                                               "paragraph": article_sub_verb[0],
+                                                               "source": page.fullurl,
+                                                               'subject': subject,
+                                                               # 'dowelltime': dowellclock
+                                                               }, "9992828281")
+                        para_list = article_sub_verb[0].split("\n\n")
+                        para_list = para_list[::-1]
+                        source_verb = page.fullurl
+                        for i in range(len(para_list)):
+                            if para_list[i] != '':
+                                save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
+                                                                       "session_id": session_id,
+                                                                       "org_id": org_id,
+                                                                       "eventId": create_event()['event_id'],
+                                                                       'client_admin_id': request.session['userinfo'][
+                                                                           'client_admin_id'],
+                                                                       "title": title,
+                                                                       "source": source_verb,
+                                                                       "paragraph": para_list[i],
+                                                                       "citation_and_url": page.fullurl,
+                                                                       'subject': subject,
+                                                                       # 'dowelltime': dowellclock
+                                                                       }, '34567897799')
+                    print("Using subject: " + subject + " to create an article.")
+                    page = wiki_language.page(title_sub_verb)
+                    if page.exists() == False:
+                        print("Page - Exists: %s" % page.exists())
+                        return Response({
+                            'message': f"There were no results matching the query as the page '{title}' does not exist in Wikipedia"})
+
+                    credit_handler = CreditHandler()
+                    credit_handler.consume_step_2_credit(request)
+                    return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
                 if page.exists():
                     print("For Title: " + title + " Page exists.")
                     article = page.text
                     article = article.split("See also")
                     para_list = article[0].split("\n\n")
+                    para_list = para_list[::-1]
                     for i in range(len(para_list)):
                         if para_list[i] != '':
                             save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
@@ -558,6 +630,7 @@ class WriteYourselfView(AuthenticatedBaseView):
                         paragraph = double_line_paragraphs
 
                     message = "Article Verified, "
+                    paragraph = paragraph[::-1]
                     for i in range(len(paragraph)):
                         if paragraph[i] == "":
                             continue
@@ -926,7 +999,9 @@ class SavePostView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class EditPostView(AuthenticatedBaseView):
+class EditPostView(APIView):
+    permission_classes = (EditPostPermission,)
+
     def get(self, request, post_id, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         image_url = request.GET.get('image', None)
@@ -965,24 +1040,40 @@ class EditPostView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def post(self, request, post_id, *args, **kwargs):
-        """
+        """ 
         This point saves a post
         """
-        serializer = EditPostSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-        updated_data = {
-            'post_id': post_id,
-            'title': serializer.validated_data['title'],
-            'paragraph': serializer.validated_data['paragraph'],
-            'image': serializer.validated_data['image'],
-        }
-        cache_key = f'post_id{str(post_id)}'
-        cache.set(cache_key, updated_data, timeout=3600)
-        response_data = {
-            'message': 'Post has been updated'
-        }
-        return Response(response_data, status=status.HTTP_201_CREATED)
+        token = request.data.get('token', None)
+        if not token:
+            return Response({'error': 'Token not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            decoded_token = decode_json_data(token)
+
+            serializer = EditPostSerializer(data=decoded_token)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            validated_data = serializer.validated_data
+
+            updated_data = {
+                'post_id': post_id,
+                'title': validated_data['title'],
+                'paragraph': validated_data['paragraph'],
+                'image': validated_data['image'],
+            }
+
+            cache_key = f'post_id{str(post_id)}'
+            cache.set(cache_key, updated_data, timeout=3600)
+
+            # Return the response
+            response_data = {'message': 'Post has been updated'}
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
+        except jwt.ExpiredSignatureError:
+            return Response({'error': 'Token has expired'}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.DecodeError:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 '''step-3 Ends here'''
@@ -1092,6 +1183,7 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
         return redirect(link['url'])
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SocialMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
 
@@ -1124,6 +1216,32 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
             context_data['can_connect'] = False
 
         return Response(context_data)
+
+    def post(self, request, *args, **kwargs):
+        step_2_manager = Step2Manager()
+        username = request.session['username']
+        is_current_user_owner = False
+        if request.session['portfolio_info'][0]['member_type'] == 'owner':
+            is_current_user_owner = True
+
+        if not is_current_user_owner:
+            messages.error(
+                request, 'You are permitted to perform this action!')
+            messages.error(
+                request, 'Only the owner of the organization can connect to social media channels')
+            return Response({'message': 'Only the owner of the organization can connect to social media channels'})
+        email = request.session['userinfo']['email']
+        name = f"{str(request.session['userinfo']['first_name'])} {str(request.session['userinfo']['last_name'])}"
+        org_id = request.session['org_id']
+        data = {
+            'username': username,
+            'email': email,
+            'name': name,
+            'org_id': org_id,
+        }
+        step_2_manager.create_social_media_request(data)
+        return Response(
+            {'message': 'Social media request was saved successfully. Wait for the admin to accept the request'})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -3228,7 +3346,10 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         portfolio_code_channel_mapping = user_info['data'][0].get(
             'portfolio_code_channel_mapping', {})
         portfolio_info_list = portfolio_pd.to_dict('records')
+
         portfolio_info_channel_list = []
+        print(user_info)
+
         for portfolio_info in portfolio_info_list:
             portfolio_info['channels'] = portfolio_code_channel_mapping.get(portfolio_info.get('portfolio_code'),
                                                                             [])
@@ -3286,7 +3407,9 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
         headers = {
             'Content-Type': 'application/json'
         }
+
         response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.json())
         return Response({'message': 'Portfolio channels saved successfully'})
 
 

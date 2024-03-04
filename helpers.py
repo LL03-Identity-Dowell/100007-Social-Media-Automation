@@ -571,6 +571,14 @@ def encode_json_data(data):
     """
     return jwt.encode(data, "secret", algorithm="HS256")
 
+def decode_json_data(data):
+    """
+    This method encodes json data
+    @param data: {}
+    @return: str
+    """
+    return jwt.encode(data, "secret", algorithm="HS256")
+
 
 def edit_article(data: dict):
     """
