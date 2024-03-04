@@ -14,13 +14,92 @@ import {
 
 import CommentItem from './_components/CommentItem';
 
+const comment = {
+  twitter: [
+    {
+      comment: 'This is second comment!!',
+      commentId: '1764608891969548704',
+      created: '2024-03-04T11:08:39.000Z',
+      description: '',
+      followersCount: 0,
+      followingCount: 3,
+      id: '1764608084821897540',
+      likeCount: 0,
+      listedCount: 0,
+      name: 'Rohit Tomar',
+      platform: 'twitter',
+      profileImageUrl:
+        'https://pbs.twimg.com/profile_images/1764584071374438400/tUXWg4XW_normal.jpg',
+      replyTo: {
+        createdAt: '2024-03-04T09:30:01.000Z',
+        description: '',
+        id: '1764583972040810496',
+        lastUpdated: '2024-03-04T12:30:41.242Z',
+        name: 'Rohit Tomar',
+        nextUpdate: '2024-03-04T12:41:41.242Z',
+        profileImageUrl:
+          'https://pbs.twimg.com/profile_images/1764584071374438400/tUXWg4XW_normal.jpg',
+        publicMetrics: {
+          followersCount: 0,
+          followingCount: 3,
+          tweetCount: 3,
+          listedCount: 0,
+          likeCount: 0,
+        },
+        username: 'zunnzaraa',
+      },
+      tweetCount: 3,
+      userName: 'zunnzaraa',
+    },
+    {
+      comment: 'Hey this new comment!!',
+      commentId: '1764608309800095828',
+      created: '2024-03-04T11:06:20.000Z',
+      description: '',
+      followersCount: 0,
+      followingCount: 3,
+      id: '1764608084821897540',
+      likeCount: 0,
+      listedCount: 0,
+      name: 'Rohit Tomar',
+      platform: 'twitter',
+      profileImageUrl:
+        'https://pbs.twimg.com/profile_images/1764584071374438400/tUXWg4XW_normal.jpg',
+      replyTo: {
+        createdAt: '2024-03-04T09:30:01.000Z',
+        description: '',
+        id: '1764583972040810496',
+        lastUpdated: '2024-03-04T12:30:41.242Z',
+        name: 'Rohit Tomar',
+        nextUpdate: '2024-03-04T12:41:41.242Z',
+        profileImageUrl:
+          'https://pbs.twimg.com/profile_images/1764584071374438400/tUXWg4XW_normal.jpg',
+        publicMetrics: {
+          followersCount: 0,
+          followingCount: 3,
+          tweetCount: 3,
+          listedCount: 0,
+          likeCount: 0,
+        },
+        username: 'zunnzaraa',
+      },
+      tweetCount: 3,
+      userName: 'zunnzaraa',
+    },
+  ],
+  lastUpdatedTwitter: '2024-03-04T12:30:41.368Z',
+  nextUpdateTwitter: '2024-03-04T13:00:41.368Z',
+  status: 'success',
+  id: 'zayRuWvPFA9iZs9yuaok',
+};
+
 function ViewComments({ show }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const [hasComment, setHasComments] = useState(false);
+  const [hasComment, setHasComments] = useState(true);
 
-  const [comment, setComments] = useState({});
+  // const [comment, setComments] = useState({});
 
   const { id } = useParams();
   const nav = useNavigate();
@@ -38,53 +117,51 @@ function ViewComments({ show }) {
   };
   const humanReadableDatetime = datetime.toLocaleString(datetime, options);
 
-  console.log({ humanReadableDatetime, parsedDatetime, datetime });
-
   useEffect(() => {
     show();
   }, []);
 
-  useEffect(() => {
-    const socialMediaKeys = Object.keys(comment).filter((key) =>
-      Array.isArray(comment[key])
-    );
+  // useEffect(() => {
+  //   const socialMediaKeys = Object.keys(comment).filter((key) =>
+  //     Array.isArray(comment[key])
+  //   );
 
-    const hasComments = socialMediaKeys.some((key) => comment[key].length > 0);
-    setHasComments(hasComments);
-  }, [comment]);
+  //   const hasComments = socialMediaKeys.some((key) => comment[key].length > 0);
+  //   setHasComments(hasComments);
+  // }, [comment]);
 
-  useEffect(() => {
-    setLoading(true);
+  // useEffect(() => {
+  //   setLoading(true);
 
-    const fetchComments = async () => {
-      const url = `${
-        import.meta.env.VITE_APP_BASEURL
-      }/comments/get-post-comments/${id}/`;
-      await axios
-        .get(url, {
-          withCredentials: true,
-        })
-        .then((response) => {
-          const { data } = response;
+  //   const fetchComments = async () => {
+  //     const url = `${
+  //       import.meta.env.VITE_APP_BASEURL
+  //     }/comments/get-post-comments/${id}/`;
+  //     await axios
+  //       .get(url, {
+  //         withCredentials: true,
+  //       })
+  //       .then((response) => {
+  //         const { data } = response;
 
-          if (data.status === 'error') {
-            setError('The  post does not have aryshare ID');
-            setSuccess('');
-          } else {
-            setSuccess('Comments fetched successfully');
-            setError('');
-          }
-          setComments(data);
-        })
-        .catch(() => {
-          setLoading(false);
-          setError(error?.response?.data?.platforms.join(', '));
-          setSuccess('');
-        });
-      setLoading(false);
-    };
-    fetchComments();
-  }, [id]);
+  //         if (data.status === 'error') {
+  //           setError('The  post does not have aryshare ID');
+  //           setSuccess('');
+  //         } else {
+  //           setSuccess('Comments fetched successfully');
+  //           setError('');
+  //         }
+  //         setComments(data);
+  //       })
+  //       .catch(() => {
+  //         setLoading(false);
+  //         setError(error?.response?.data?.platforms.join(', '));
+  //         setSuccess('');
+  //       });
+  //     setLoading(false);
+  //   };
+  //   fetchComments();
+  // }, [id]);
 
   const handleDelete = async (commentId, platform) => {
     setLoading(true);
@@ -146,20 +223,7 @@ function ViewComments({ show }) {
                         src={t.profileImageUrl}
                         handleDelete={handleDelete}
                       />
-                      <ol className='w-1/5 flex justify-center flex-col pl-8 bg-customTextBlue rounded-lg h-24'>
-                        <li className='font-semibold text-white/80'>
-                          Followers{' '}
-                          <span className='ml-2'>
-                            {t.replyTo.publicMetrics.followersCount}
-                          </span>
-                        </li>
-                        <li className='font-semibold text-white/80'>
-                          Following{' '}
-                          <span className='ml-2'>
-                            {t.replyTo.publicMetrics.followingCount}
-                          </span>
-                        </li>
-                      </ol>
+                     
                     </li>
                   ))}
                 </ul>
