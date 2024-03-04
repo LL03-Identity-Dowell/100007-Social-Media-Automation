@@ -12,7 +12,6 @@ import {
 } from "../../../assets";
 import { checkProperty } from "./function";
 
-
 export const SocialComponentForPost = ({
   article,
   setError,
