@@ -1,3 +1,5 @@
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import generics
 import concurrent.futures
 import datetime
 import json
@@ -55,7 +57,7 @@ from .serializers import (PortfolioChannelsSerializer, ProfileSerializer, CitySe
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
-                          GroupHashtagSerializer, SocialMediaRequestSerializer)
+                          GroupHashtagSerializer, SocialMediaRequestSerializer, ImageUploadSerializer)
 
 global PEXELS_API_KEY
 
@@ -112,7 +114,7 @@ class MainAPIView(AuthenticatedBaseView):
                 profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
                 user_map[profile_details['userinfo']['userID']
-                ] = profile_details['userinfo']['username']
+                         ] = profile_details['userinfo']['username']
             else:
                 url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
                 response_2 = requests.post(
@@ -121,7 +123,7 @@ class MainAPIView(AuthenticatedBaseView):
                     profile_details = response_2.json()
                     request.session['portfolio_info'] = profile_details['portfolio_info']
                     user_map[profile_details['userinfo']['userID']
-                    ] = profile_details['userinfo']['username']
+                             ] = profile_details['userinfo']['username']
                 else:
                     profile_details = {}
                     request.session['portfolio_info'] = []
@@ -394,10 +396,10 @@ class GenerateArticleView(AuthenticatedBaseView):
                 prompt_limit = 3000
                 min_characters = 500
                 prompt = (
-                        f"Write an article about {RESEARCH_QUERY}"
-                        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-                        [:prompt_limit]
-                        + "..."
+                    f"Write an article about {RESEARCH_QUERY}"
+                    f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+                    [:prompt_limit]
+                    + "..."
                 )
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
@@ -526,7 +528,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                        'subject': subject,
                                                                        # 'dowelltime': dowellclock
                                                                        }, '34567897799')
-                    print("Using subject: " + subject + " to create an article.")
+                    print("Using subject: " + subject +
+                          " to create an article.")
                     page = wiki_language.page(title_sub_verb)
                     if page.exists() == False:
                         print("Page - Exists: %s" % page.exists())
@@ -3421,6 +3424,72 @@ class FetchUserInfo(AuthenticatedBaseView):
             return Response(user_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class ImageLibrary(generics.CreateAPIView):
+    parser_classes = [MultiPartParser, FormParser]
+    serializer_class = ImageUploadSerializer
+
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        serializer = ImageUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.validated_data
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            org_id = request.session.get('org_id')
+            
+            uploaded_image = download_and_upload_image(
+                serializer.validated_data['image'])
+            if not uploaded_image:
+                return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+            processed_image = download_and_upload_image(
+                image_url=uploaded_image)
+
+            if not processed_image:
+                return Response({"error": "Failed to process the image"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            image_url = processed_image.get('file_url')
+            print("image_url::::", image_url)
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            # payload = {
+            #     "cluster": "socialmedia",
+            #     "database": "socialmedia",
+            #     "collection": "user_info",
+            #     "document": "user_info",
+            #     "team_member_ID": "1071",
+            #     "function_ID": "ABCDE",
+            #     "eventId": event_id,
+            #     "command": "insert",
+            #     "field": {
+            #         "user_id": request.session.get('user_id'),
+            #         "session_id": session_id,
+            #         "eventId": event_id,
+            #         "org_id": org_id,
+            #         'client_admin_id': request.session.get('userinfo', {}).get('client_admin_id'),
+            #         "date": date,
+            #         "time": str(time),
+            #         "image": image_url,
+            #     },
+            #     "platform": "bangalore"
+            # }
+            # headers = {'Content-Type': 'application/json'}
+            # try:
+            #     response = requests.post(url, headers=headers, json=payload)
+            #     if response.status_code == status.HTTP_201_CREATED:
+            #         return Response({"message": "Image saved successfully"}, status=status.HTTP_201_CREATED)
+            #     else:
+            #         return Response({"error": "Failed to save image"}, status=response.status_code)
+            # except requests.RequestException as e:
+            #     return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 '''user settings ends here'''

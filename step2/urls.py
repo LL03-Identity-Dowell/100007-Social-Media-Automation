@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import (AdminApproveSocialMediaRequestView, MainAPIView, UserApprovalView, GenerateArticleView,
+from .views import (AdminApproveSocialMediaRequestView, ImageLibrary, MainAPIView, UserApprovalView, GenerateArticleView,
                     TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
                     MentionView, MentionUpdateView, UnScheduledView, UnScheduledJsonView,
@@ -97,5 +97,7 @@ urlpatterns = [
          name='group-hashtag-detail-endpoint'),
     path('social-media-portfolio/', SocialMediaPortfolioView.as_view(),
          name='social-media-portfolio-endpoint'),
+    path('upload_image/', ImageLibrary.as_view(),
+         name='upload-image-endpoint'),
 
 ]
