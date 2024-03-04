@@ -119,3 +119,8 @@ class ImageUploadSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 "Invalid image format. Only PNG and JPEG are allowed.")
         return value
+    
+    
+class DataSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    platform = serializers.CharField()

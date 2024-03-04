@@ -7,7 +7,7 @@ from .views import (AdminApproveSocialMediaRequestView, ImageLibrary, MainAPIVie
                     ScheduledJsonView, IndexView, MostRecentJSON, FacebookFormAPI,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
                     ClientProfileFormView, ListArticleView,
-                    ArticleDetailView, PostListView, PostDetailView, SavePostView,
+                    ArticleDetailView, Analytics,PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
@@ -99,5 +99,7 @@ urlpatterns = [
          name='social-media-portfolio-endpoint'),
     path('upload_image/', ImageLibrary.as_view(),
          name='upload-image-endpoint'),
+     path('post_analytics/', Analytics.as_view(),
+         name='post-analytics-endpoint'),
 
 ]

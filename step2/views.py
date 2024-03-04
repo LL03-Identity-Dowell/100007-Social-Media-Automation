@@ -52,7 +52,7 @@ from react_version import settings
 from react_version.permissions import EditPostPermission
 from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
-from .serializers import (PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
+from .serializers import (DataSerializer, PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
@@ -3567,6 +3567,43 @@ class ImageLibrary(generics.CreateAPIView):
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Analytics(generics.CreateAPIView):
+    serializer_class = DataSerializer
+
+    def post(self, request):
+        if 'session_id' and 'username' in request.session:
+            data = request.data
+            if data:
+                second_id = data['id']
+                platform = data['platform']
+                payload = {
+                    'id': second_id,
+                    'platforms': platform,
+                }
+                print("payload", payload)
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization':  F"Bearer {str(settings.ARYSHARE_KEY)}"
+                }
+                r = requests.post('https://app.ayrshare.com/api/analytics/social',
+                                  json=payload,
+                                  headers=headers)
+                r.json()
+                analytics_data = r.json()
+                print("Analytics Data:", analytics_data)
+
+                response_data = {
+                    'platform': platform,
+                    'analytics_data': analytics_data
+                }
+
+                return Response(response_data, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'No post data was provided'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 '''user settings ends here'''
