@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Home from './pages/homepage/Home';
 import Layout from './Layout';
@@ -39,7 +39,7 @@ import Mention from './pages/SettingsPages/Mention';
 import BaseHashMention from './pages/SettingsPages/BaseHashMention';
 import Portfolio from './pages/Portfolio/portfolio';
 import AdminApproval from './pages/UserProfile/AdminApproval';
-import ViewCommentTemplate from './pages/Comment/ViewCommentTemplate';
+
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -108,7 +108,7 @@ function App() {
           />
           <Route
             path='/comment/:id'
-            element={<ViewCommentTemplate show={handleOpenSideBar} />}
+            element={<ViewComments show={handleOpenSideBar} />}
           />
           <Route
             path='/address'
