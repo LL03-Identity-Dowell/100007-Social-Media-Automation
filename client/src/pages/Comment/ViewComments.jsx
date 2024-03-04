@@ -148,11 +148,10 @@ function ViewComments({ show }) {
                   <h2 className='text-2xl font-bold'>Twitter</h2>
                 </div>
                 <ol className='pl-20 space-y-4 mt-7'>
-                  {comments?.twitter?.map((t, i) => (
+                  {comments?.twitter?.map((t) => (
                     <CommentItem
                       t={t}
-                      i={i}
-                      key={i}
+                      key={i.commentId}
                       handleDelete={handleDelete}
                     />
                   ))}

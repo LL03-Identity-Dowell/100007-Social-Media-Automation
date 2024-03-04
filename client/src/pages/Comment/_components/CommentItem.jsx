@@ -1,22 +1,36 @@
-import { getDate } from "../utils/getDate";
+import { MdDelete } from 'react-icons/md';
+import { getDate } from '../utils/getDate';
+import CommentPostedTo from './CommentPostedTo';
 
-const CommentItem = ({ t, i, handleDelete }) => {
+const CommentItem = ({ t, handleDelete, src }) => {
   const date = getDate(t.created);
 
   return (
-    <li className='flex gap-6' key={t.commentId}>
-      <h4 className='mt-1'>{i + 1}.</h4>
-      <div>
-        <p className='text-xl'>{t.comment}</p>
-        <span className='text-sm'>{date}</span>
+    <div className='w-4/5 p-2'>
+      <div className='flex gap-x-4'>
+        <img src={src} className='size-10 rounded-full mt-2 shrink-0' />
+        <p className='line-clamp-3 shrink'>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius,
+          similique animi! Ab id placeat perspiciatis! Quis perferendis illum
+          eum! Deleniti, alias. Atque, consequatur suscipit distinctio delectus
+          ratione pariatur ad praesentium obcaecati tempore quod quibusdam, ex
+          enim aperiam nostrum. Provident odit veritatis soluta quisquam unde
+          quas minima nam aliquam placeat inventore.
+        </p>
       </div>
-      <button
-        onClick={() => handleDelete(t.commentId, t.platform)}
-        className='px-6 py-2.5 rounded-sm ml-auto text-sm font-bold text-red-600 bg-red-300 cursor-pointer'
-      >
-        Delete
-      </button>
-    </li>
+      <div className='w-full flex justify-around ml-3 mt-6'>
+        <p className='text-sm'>{date}</p>
+        <hr className='w-0.5 h-6 bg-gray-400' />
+        <button
+          className='flex items-center gap-x-1 bg-red-600 rounded-md p-1 pr-2 cursor-pointer'
+          onClick={() => handleDelete(t.commentId, t.platform)}>
+          <MdDelete className='text-white' />
+          <span className='text-xs text-white'>Delete</span>
+        </button>
+        <hr className='w-0.5 h-6 bg-gray-400' />
+        <CommentPostedTo />
+      </div>
+    </div>
   );
 };
 

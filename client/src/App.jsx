@@ -1,45 +1,45 @@
-import { useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
-import Home from "./pages/homepage/Home";
-import Layout from "./Layout";
-import Topic from "./pages/Topic/Topic";
-import Article from "./pages/Article/Article";
-import PostList from "./pages/Post/PostList/PostList";
-import ScheduleSection from "./pages/Schedule/Schedule";
-import Comment from "./pages/Comment/Comment";
-import ViewComments from "./pages/Comment/ViewComments";
-import NotFound from "./pages/NotFound/NotFound";
-import MyPlan from "./pages/Statistics/MyPlan";
-import MyTeam from "./pages/Statistics/MyTeam";
-import MyUsage from "./pages/Statistics/MyUsage";
-import Hashtags from "./pages/SettingsPages/Hashtags";
-import CategoriesTopic from "./pages/SettingsPages/CategoriesTopic";
-import Address from "./pages/Address/Address";
-import UserProfile from "./pages/UserProfile/UserProfile";
-import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
-import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
-import SpecificArticle from "./pages/Article/SpecificArticle";
+import { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Home from './pages/homepage/Home';
+import Layout from './Layout';
+import Topic from './pages/Topic/Topic';
+import Article from './pages/Article/Article';
+import PostList from './pages/Post/PostList/PostList';
+import ScheduleSection from './pages/Schedule/Schedule';
+import Comment from './pages/Comment/Comment';
+import ViewComments from './pages/Comment/ViewComments';
+import NotFound from './pages/NotFound/NotFound';
+import MyPlan from './pages/Statistics/MyPlan';
+import MyTeam from './pages/Statistics/MyTeam';
+import MyUsage from './pages/Statistics/MyUsage';
+import Hashtags from './pages/SettingsPages/Hashtags';
+import CategoriesTopic from './pages/SettingsPages/CategoriesTopic';
+import Address from './pages/Address/Address';
+import UserProfile from './pages/UserProfile/UserProfile';
+import SocialMediaChannels from './pages/UserProfile/SocialMediaChannels';
+import ApprovalByClient from './pages/UserProfile/ApprovalByClient';
+import SpecificArticle from './pages/Article/SpecificArticle';
 // import SpecificPost from "./pages/Post/PostList/SpecificPost";
-import PostDetail from "./pages/Post/PostDetail/PostDetail";
-import ClientProfile from "./pages/UserProfile/ClientProfile";
-import TargetCities from "./pages/UserProfile/TargetCities";
-import Fackbook from "./pages/UserProfile/_components/facebook";
-import Instagram from "./pages/UserProfile/_components/instagram";
-import Twitter from "./pages/UserProfile/_components/twitter";
-import Youtube from "./pages/UserProfile/_components/youtube";
-import Pinterest from "./pages/UserProfile/_components/pinterest";
-import Linkedin from "./pages/UserProfile/_components/linkedin";
-import CreateArticle from "./pages/Article/CreateArticle";
-import Rank from "./pages/RankPage/Rank";
-import PortfolioError from "./pages/NotFound/PortfolioError";
-import Wikipidia from "./pages/Article/Wikipidia";
-import WriteYourSelf from "./pages/Article/WriteYourSelf";
-import PostDetailDropdown from "./pages/UserProfile/PostDetailDropdown";
-import Mention from "./pages/SettingsPages/Mention";
-import BaseHashMention from "./pages/SettingsPages/BaseHashMention";
-import Portfolio from "./pages/Portfolio/portfolio";
-import AdminApproval from "./pages/UserProfile/AdminApproval";
-import ViewCommentTemplate from "./pages/Comment/ViewCommentTemplate";
+import PostDetail from './pages/Post/PostDetail/PostDetail';
+import ClientProfile from './pages/UserProfile/ClientProfile';
+import TargetCities from './pages/UserProfile/TargetCities';
+import Fackbook from './pages/UserProfile/_components/facebook';
+import Instagram from './pages/UserProfile/_components/instagram';
+import Twitter from './pages/UserProfile/_components/twitter';
+import Youtube from './pages/UserProfile/_components/youtube';
+import Pinterest from './pages/UserProfile/_components/pinterest';
+import Linkedin from './pages/UserProfile/_components/linkedin';
+import CreateArticle from './pages/Article/CreateArticle';
+import Rank from './pages/RankPage/Rank';
+import PortfolioError from './pages/NotFound/PortfolioError';
+import Wikipidia from './pages/Article/Wikipidia';
+import WriteYourSelf from './pages/Article/WriteYourSelf';
+import PostDetailDropdown from './pages/UserProfile/PostDetailDropdown';
+import Mention from './pages/SettingsPages/Mention';
+import BaseHashMention from './pages/SettingsPages/BaseHashMention';
+import Portfolio from './pages/Portfolio/portfolio';
+import AdminApproval from './pages/UserProfile/AdminApproval';
+import ViewCommentTemplate from './pages/Comment/ViewCommentTemplate';
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -108,10 +108,6 @@ function App() {
           />
           <Route
             path='/comment/:id'
-            element={<ViewComments show={handleOpenSideBar} />}
-          />
-          <Route
-            path='/comment/template'
             element={<ViewCommentTemplate show={handleOpenSideBar} />}
           />
           <Route
