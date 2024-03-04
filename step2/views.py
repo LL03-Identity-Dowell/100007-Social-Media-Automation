@@ -1,4 +1,3 @@
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics
 import concurrent.futures
 import datetime
@@ -41,7 +40,7 @@ from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
     STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image,
+from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image, download_and_upload_users_image,
                      fetch_organization_user_info,
                      fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, check_connected_accounts,
@@ -3427,8 +3426,19 @@ class FetchUserInfo(AuthenticatedBaseView):
 
 
 class ImageLibrary(generics.CreateAPIView):
-    parser_classes = [MultiPartParser, FormParser]
     serializer_class = ImageUploadSerializer
+
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            context_dict = {'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
     def post(self, request):
         session_id = request.GET.get("session_id", None)
@@ -3440,54 +3450,121 @@ class ImageLibrary(generics.CreateAPIView):
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
             date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
             event_id = create_event()['event_id']
-            org_id = request.session.get('org_id')
-            
-            uploaded_image = download_and_upload_image(
-                serializer.validated_data['image'])
-            if not uploaded_image:
+            image = data.get("image")
+            if not image:
                 return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
-
-            processed_image = download_and_upload_image(
-                image_url=uploaded_image)
-
-            if not processed_image:
-                return Response({"error": "Failed to process the image"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            image_url = processed_image.get('file_url')
-            print("image_url::::", image_url)
 
             url = "http://uxlivinglab.pythonanywhere.com"
 
-            # payload = {
-            #     "cluster": "socialmedia",
-            #     "database": "socialmedia",
-            #     "collection": "user_info",
-            #     "document": "user_info",
-            #     "team_member_ID": "1071",
-            #     "function_ID": "ABCDE",
-            #     "eventId": event_id,
-            #     "command": "insert",
-            #     "field": {
-            #         "user_id": request.session.get('user_id'),
-            #         "session_id": session_id,
-            #         "eventId": event_id,
-            #         "org_id": org_id,
-            #         'client_admin_id': request.session.get('userinfo', {}).get('client_admin_id'),
-            #         "date": date,
-            #         "time": str(time),
-            #         "image": image_url,
-            #     },
-            #     "platform": "bangalore"
-            # }
-            # headers = {'Content-Type': 'application/json'}
-            # try:
-            #     response = requests.post(url, headers=headers, json=payload)
-            #     if response.status_code == status.HTTP_201_CREATED:
-            #         return Response({"message": "Image saved successfully"}, status=status.HTTP_201_CREATED)
-            #     else:
-            #         return Response({"error": "Failed to save image"}, status=response.status_code)
-            # except requests.RequestException as e:
-            #     return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            uploaded_image = download_and_upload_users_image(image_url=image)
+
+            if not uploaded_image:
+                return Response({"error": "Failed to process the image"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            image = uploaded_image.get('file_url')
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "eventId": event_id,
+                "command": "insert",
+                "field": {
+                    "user_id": request.session.get('user_id'),
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    "org_id": request.session.get('org_id'),
+                    'client_admin_id': request.session.get('userinfo', {}).get('client_admin_id'),
+                    "date": date,
+                    "time": str(time),
+                    "image_library": image,
+                },
+                "update_field": {
+                    "uploaded_images": {
+                        "image_library": image,
+                    },
+                },
+                "platform": "bangalore"
+            }
+            headers = {'Content-Type': 'application/json'}
+            data = json.dumps(payload)
+            try:
+                response = requests.request(
+                    "POST", url, headers=headers, data=data)
+                if response.status_code == status.HTTP_201_CREATED:
+                    return Response({"message": "Image saved successfully"}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({"error": "Failed to save image"}, status=response.status_code)
+            except requests.RequestException as e:
+                print({"error": str(e)})
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        serializer = ImageUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.validated_data
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            image = data.get("image")
+            if not image:
+                return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            uploaded_image = download_and_upload_users_image(image_url=image)
+
+            if not uploaded_image:
+                return Response({"error": "Failed to process the image"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            image = uploaded_image.get('file_url')
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "eventId": event_id,
+                "command": "update",
+                "field": {
+                    "user_id": request.session.get('user_id'),
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    "org_id": request.session.get('org_id'),
+                    'client_admin_id': request.session.get('userinfo', {}).get('client_admin_id'),
+                    "date": date,
+                    "time": str(time),
+                    "image_library": image,
+                },
+                "update_field": {
+                    "uploaded_images": {
+                        "image_library": image,
+                    },
+                },
+                "platform": "bangalore"
+            }
+            headers = {'Content-Type': 'application/json'}
+            data = json.dumps(payload)
+            try:
+                response = requests.request(
+                    "POST", url, headers=headers, data=data)
+                if response.status_code == status.HTTP_201_CREATED:
+                    return Response({"message": "Image saved successfully"}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({"error": "Failed to save image"}, status=response.status_code)
+            except requests.RequestException as e:
+                print({"error": str(e)})
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
