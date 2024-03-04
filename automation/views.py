@@ -10,6 +10,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from automation.automate import Automate
 from step2.views import create_event
 from website.models import User
 from website.permissions import HasBeenAuthenticated
@@ -71,6 +72,7 @@ def insert_form_data(data_dict):
 
     response = requests.post(url, json=data, headers=headers)
     return response.json()
+
 
 def get_client_approval(user):
     url = "http://uxlivinglab.pythonanywhere.com/"
@@ -182,6 +184,8 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
             'user_info': request.session.get('userinfo'),
         }
         if topic['topic'] == True:
-            async_task("automation.services.generate_topics",
+            session = {**request.session}
+            automate = Automate(session=session)
+            async_task(automate.generate_topics,
                        auto_strings, data_di, hook='automation.services.hook_now')
         return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
