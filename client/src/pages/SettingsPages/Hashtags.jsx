@@ -91,10 +91,19 @@ const Hashtags = ({ close }) => {
     e.preventDefault();
     setLoading(true);
 
+    const selectedHashtags = inputHashtagList
+      .filter((_, index) => checkedHashtags[index])
+      .map((hashtag) => `${hashtag}`);
+
     const data = {
       group_name: groupInput,
-      hashtags: checkedHashtags.join(","),
+      hashtags: selectedHashtags,
     };
+
+    // const data = {
+    //   group_name: groupInput,
+    //   hashtags: checkedHashtags.join(","),
+    // };
 
     axios
       .post(
