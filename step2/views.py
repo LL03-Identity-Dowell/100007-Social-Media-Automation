@@ -3574,6 +3574,8 @@ class Analytics(generics.CreateAPIView):
 
     def post(self, request):
         if 'session_id' and 'username' in request.session:
+            user_id = request.session['user_id']
+            key = get_key(user_id)
             data = request.data
             if data:
                 second_id = data['id']
@@ -3581,13 +3583,14 @@ class Analytics(generics.CreateAPIView):
                 payload = {
                     'id': second_id,
                     'platforms': platform,
+                    'profileKey':key,
                 }
                 print("payload", payload)
                 headers = {
                     'Content-Type': 'application/json',
                     'Authorization':  F"Bearer {str(settings.ARYSHARE_KEY)}"
                 }
-                r = requests.post('https://app.ayrshare.com/api/analytics/social',
+                r = requests.post('https://app.ayrshare.com/api/analytics/post',
                                   json=payload,
                                   headers=headers)
                 r.json()
