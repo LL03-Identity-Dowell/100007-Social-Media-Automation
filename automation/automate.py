@@ -27,12 +27,14 @@ class Automate:
     """
     """
 
-    def __init__(self, session: dict):
+    def __init__(self, session: dict, is_daily_automation: bool = False):
         logging.info('Initializing automate class')
         self.credit_handler = CreditHandler()
         self.user_info = session.get('user_info')
         self.session = session
         self.pexels_api_key = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
+        self.is_daily_automation = is_daily_automation
+        self.approval = get_client_approval(self.session['user_id'])
 
     def __str__(self):
         return f'Automate Social media posting'
@@ -206,7 +208,7 @@ class Automate:
             approval = get_client_approval(data_dic['user_id'])
             print('Finished selecting sentences')
             credit_handler = CreditHandler()
-            credit_handler.consume_step_1_credit(user_info=data_dic['user_info'])
+            credit_handler.consume_step_1_credit(user_info=self.user_info)
             if approval['article'] == True:
                 async_task(self.generate_article,
                            data_dic, hook='automation.services.hook_now')
@@ -216,7 +218,10 @@ class Automate:
             print(str(e))
 
     @transaction.atomic
-    def generate_article(self, data_dic, ):
+    def generate_article(self, data_dic, number_articles: int = 1):
+        """
+        This method generated articles according to the number of article required. The default is one article
+        """
         credit_handler = CreditHandler()
         credit_response = credit_handler.check_if_user_has_enough_credits(
             sub_service_id=STEP_2_SUB_SERVICE_ID,
@@ -226,114 +231,146 @@ class Automate:
             return credit_response
         start_datetime = datetime.now()
         Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
-        api_no = random.choice(Rank)
-        key = f'api_sentence_{api_no}'
-        # getting required data
-        RESEARCH_QUERY = data_dic[key]['sentence']
-        user_ids = data_dic["user_id"]
-        session_id = data_dic["session_id"]
-        # calling user aproval
-        approval = get_client_approval(user_ids)
-        org_id = data_dic["org_id"]
-        user_selected_cities = []
-        user_data = fetch_organization_user_info(org_id)
-        # Set your OpenAI API key here
-        openai.api_key = settings.OPENAI_KEY
+        topic_rank = 0
+        generated_articles = []
 
-        # Build prompt
-        prompt_limit = 2000
-        min_characters = 500
+        while len(generated_articles) < number_articles and topic_rank <= len(data_dic):
+            # getting required data
+            topic_data = {
+                'sentence': data_dic[topic_rank]['sentence']
+            }
+            article_data = self.generate_topic_article(topic_data)
+            if 'error' in article_data.keys():
+                return {'status': 'FAILED', 'response': article_data}
+            topic_rank += 1
 
-        # Modify the prompt to include the formatted user data
-        prompt = (
-                f"Write an article about {RESEARCH_QUERY}"
-                f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-                [:prompt_limit]
-                + "..."
-        )
-        # Generate article using OpenAI's GPT-3
-        response = openai.Completion.create(
-            # engine="text-davinci-003",
-            engine="gpt-3.5-turbo-instruct",
-            prompt=prompt,
-            temperature=0,
-            max_tokens=1024,
-            n=1,
-            stop=None,
-            timeout=60,
-        )
-        article = response.choices[0].text
-        paragraphs = [p.strip()
-                      for p in article.split("\n\n") if p.strip()]
+        if self.approval['post'] == False:
+            return {'status': 'SUCCESS', 'response': generated_articles}
 
-        article_str = "\n\n".join(paragraphs)
-        sources = urllib.parse.unquote("")
-        event_id = create_event()['event_id']
-        user_id = data_dic["user_id"]
-        client_admin_id = data_dic["client_admin_id"]
-        hashtags_in_last_paragraph = set(
-            word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
-        for i in range(len(paragraphs) - 1):
-            paragraphs[i] += " " + " ".join(hashtags_in_last_paragraph)
-        post_id_list = []
-        paragraphs = paragraphs[::-1]
-        for i in range(len(paragraphs)):
-            if paragraphs[i] != "":
-                step3_data = {
-                    "user_id": user_id,
-                    "org_id": org_id,
-                    "session_id": session_id,
-                    "eventId": event_id,
-                    'client_admin_id': client_admin_id,
-                    "title": RESEARCH_QUERY,
-                    "source": sources,
-                    "paragraph": paragraphs[i],
-                    "citation_and_url": sources,
-
-                }
-                post_data = save_data('step3_data', 'step3_data',
-                                      step3_data, '34567897799')
-                post_id_list.append(post_data)
-
-        step2_data = {
-            "user_id": user_id,
-            "session_id": session_id,
-            "org_id": org_id,
-            "eventId": event_id,
-            'client_admin_id': client_admin_id,
-            "title": RESEARCH_QUERY,
-            "paragraph": article_str,
-            "source": sources,
-            "citation_and_url": sources,
-        }
-        save_data('step2_data', 'step2_data',
-                  step2_data, '9992828281')
-        end_datetime = datetime.now()
-        time_taken = end_datetime - start_datetime
-        print(f"Total time taken: {time_taken}")
-        credit_handler = CreditHandler()
-        credit_handler.consume_step_2_credit(user_info=data_dic['user_info'])
-        if approval['post'] == True:
-            picked_article = post_id_list[0]
-            picked_article = json.loads(picked_article)
+        for article in generated_articles:
             post_data = {
-                'post_id': picked_article.get('inserted_id'),
-                'paragraph': paragraphs[0],
+                'post_id': article.get('id'),
+                'paragraph': article.get('paragraph'),
+                "user_id": self.session['user_id'],
+                "username": self.session['username'],
+                "org_id": self.session['org_id'],
+                "session_id": self.session['session_id'],
+                'client_admin_id': self.session['client_admin_id'],
+                "title": article.get('title'),
+                "event_id": article.get('event_id'),
+                "source": article.get('source'),
+            }
+            task_id = async_task(self.save_post, post_data,
+                                 hook='automation.services.hook_now')
+            article['task_id'] = task_id
+
+        return {'status': 'SUCCESS', 'response': generated_articles}
+
+    def generate_topic_article(self, data):
+        """
+        This method generates articles for a single topic using chatgpt
+        """
+        try:
+            start_datetime = datetime.now()
+            RESEARCH_QUERY = data['sentence']
+            user_id = self.session['user_id']
+            session_id = self.session["session_id"]
+            # calling user aproval
+            approval = get_client_approval(user_id)
+            org_id = self.session["org_id"]
+            user_selected_cities = []
+            user_data = fetch_organization_user_info(org_id)
+            # Set your OpenAI API key here
+            openai.api_key = settings.OPENAI_KEY
+            # Build prompt
+            prompt_limit = 2000
+            min_characters = 500
+            # Modify the prompt to include the formatted user data
+            prompt = (
+                    f"Write an article about {RESEARCH_QUERY}"
+                    f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+                    [:prompt_limit]
+                    + "..."
+            )
+            # Generate article using OpenAI's GPT-3
+            response = openai.Completion.create(
+                # engine="text-davinci-003",
+                engine="gpt-3.5-turbo-instruct",
+                prompt=prompt,
+                temperature=0,
+                max_tokens=1024,
+                n=1,
+                stop=None,
+                timeout=60,
+            )
+            article = response.choices[0].text
+            paragraphs = [p.strip()
+                          for p in article.split("\n\n") if p.strip()]
+            article_str = "\n\n".join(paragraphs)
+            source = urllib.parse.unquote("")
+            event_id = create_event()['event_id']
+            user_id = self.session["user_id"]
+            client_admin_id = self.session["client_admin_id"]
+            hashtags_in_last_paragraph = set(
+                word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
+            for i in range(len(paragraphs) - 1):
+                paragraphs[i] += " " + " ".join(hashtags_in_last_paragraph)
+            article_data_list = []
+            paragraphs = paragraphs[::-1]
+            for i in range(len(paragraphs)):
+                if paragraphs[i] != "":
+                    step3_data = {
+                        "user_id": user_id,
+                        "org_id": org_id,
+                        "session_id": session_id,
+                        "eventId": event_id,
+                        'client_admin_id': client_admin_id,
+                        "title": RESEARCH_QUERY,
+                        "source": source,
+                        "paragraph": paragraphs[i],
+                        "citation_and_url": source,
+
+                    }
+                    saved_article = save_data('step3_data', 'step3_data',
+                                              step3_data, '34567897799')
+                    saved_article = json.loads(saved_article)
+                    article_data_list.append({
+                        "id": saved_article.get('inserted_id'),
+                        "title": RESEARCH_QUERY,
+                        "paragraph": paragraphs[i],
+                        "source": source,
+                        "event_id": event_id,
+                    })
+            step2_data = {
                 "user_id": user_id,
-                "username": data_dic['username'],
-                "org_id": org_id,
                 "session_id": session_id,
+                "org_id": org_id,
                 "eventId": event_id,
                 'client_admin_id': client_admin_id,
                 "title": RESEARCH_QUERY,
-                "source": sources,
-                "user_info": data_dic['user_info'],
+                "paragraph": article_str,
+                "source": source,
+                "citation_and_url": source,
             }
-            async_task(self.save_post, post_data,
-                       hook='automation.services.hook_now')
-        return ('done')
+            save_data('step2_data', 'step2_data',
+                      step2_data, '9992828281')
+            end_datetime = datetime.now()
+            time_taken = end_datetime - start_datetime
+            print(f"Total time taken: {time_taken}")
+            credit_handler = CreditHandler()
+            credit_handler.consume_step_2_credit(user_info=self.user_info)
+            return {
+                'article_data_list': article_data_list,
+
+            }
+        except Exception as e:
+            logging.exception(e)
+            return {'error': f'{str(e)}'}
 
     def save_post(self, post_data, ):
+        """
+        This method saves a post to step 4. It also gets an image for the post
+        """
         credit_handler = CreditHandler()
         credit_response = credit_handler.check_if_user_has_enough_credits(
             sub_service_id=STEP_3_SUB_SERVICE_ID,
