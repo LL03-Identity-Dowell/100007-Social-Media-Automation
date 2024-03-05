@@ -5,13 +5,12 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import Loading from '../../components/Loading';
 import { SuccessMessages, ErrorMessages } from '../../components/Messages';
 import { TwitterAnalytics } from './_components/analytics/TwitterAnalytics';
-import { facebookData, instagram } from './utils/fakedata';
 import { FacebookAnalytics } from './_components/analytics/FacebookAnalytics';
 import { InstagramAnalytics } from './_components/analytics/InstagramAnalytics';
 const url = `${import.meta.env.VITE_APP_BASEURL}/post_analytics/`;
 
 const CommentStats = ({ show }) => {
-  const [stats, setStats] = useState({ facebook: facebookData, instagram });
+  const [stats, setStats] = useState({});
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,8 +19,6 @@ const CommentStats = ({ show }) => {
   const { id } = useParams();
   const searchPlatform = search.get('platforms');
   const platforms = searchPlatform.split(',');
-
-  console.log(stats);
 
   useEffect(() => {
     fetchStats();
@@ -57,17 +54,15 @@ const CommentStats = ({ show }) => {
 
   const twitterAnalytics = stats?.twitter?.analytics_data?.twitter?.analytics;
   const facebookAnalytics =
-    // facebook?.analytics_data?.
-    stats?.facebook?.analytics;
+    stats?.facebook?.analytics_data?.facebook?.analytics;
   const instagramAnalytics =
-    // instagram?.analytics_data?.
-    stats?.instagram?.analytics;
+    stats?.instagram?.analytics_data?.instagram?.analytics;
 
   return (
     <div className='w-[calc(100%-128px)] min-h-full mx-auto'>
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
-      {loading ? <Loading /> : null}
+      {loading && <Loading />}
       <div className='w-full text-center'>
         <h1 className='text-3xl font-bold text-customBlue'>Analytics</h1>
         <ul className='flex gap-x-6 pt-10 px-6 flex-wrap'>

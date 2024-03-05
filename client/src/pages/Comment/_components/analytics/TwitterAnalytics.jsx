@@ -7,7 +7,7 @@ export const TwitterAnalytics = ({ twitterAnalytics, twitter }) => {
         Stats for Twitter
         <img src={xTwitter} alt='' className='size-8 bg-black p-1' />
       </h2>
-      <div className='mb-auto text-black/80'>
+      <div className='mb-8 text-black/80'>
         <p>
           User profile clicks -{' '}
           {twitterAnalytics?.nonPublicMetrics?.userProfileClicks}
