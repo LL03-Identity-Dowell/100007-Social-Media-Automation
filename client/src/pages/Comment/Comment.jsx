@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { redirect, useLocation, useNavigate } from 'react-router-dom';
 import ExtraSmallBtn from '../../components/ExtraSmallBtn/ExtraSmallBtn';
 
 import axios from 'axios';
@@ -148,6 +148,10 @@ function Comment({ show }) {
                     setError('');
                   }, 2000);
                 };
+
+                const socials = item?.post_response?.posts[0]?.postIds;
+                const socialArray = socials?.map((each) => each.platform);
+
                 return (
                   <li className='m-auto list-none ' key={item.article_id}>
                     <p className='mt-10 text-xl text-red-600 lg:mr-12'>
@@ -157,9 +161,7 @@ function Comment({ show }) {
                       <p className='px-2 py-0 font-bold lg:px-6 text-md lg:text-xl text-customTextBlue dark:text-white '>
                         {item.title}
                       </p>
-                      <PostedTo
-                        socials={item?.post_response?.posts[0]?.postIds}
-                      />
+                      <PostedTo socials={socialArray} />
                     </div>
                     <div className='flex flex-col items-baseline justify-between py-0 md:flex-row'>
                       <p className='w-full px-2 leading-loose lg:px-6 lg:pt-4 text-md lg:text-lg line-clamp-4'>
@@ -167,7 +169,16 @@ function Comment({ show }) {
                       </p>
                     </div>
 
-                    <div className='flex justify-end gap-8 mt-2 lg:pt-2 md:mr-6 md:mt-4'>
+                    <div className='flex justify-end gap-8 mt-2 lg:pt-2 md:mr-6 md:mt-4 '>
+                      <button
+                        className='bg-green-500 py-2 px-4 rounded-md text-white cursor-pointer hover:bg-green-500/95'
+                        onClick={() =>
+                          navigate(
+                            `/comment/${item?.post_response?.posts[0]?.id}/stats?platforms=${socialArray.join(',')}`
+                          )
+                        }>
+                        Get stats
+                      </button>
                       <CommentModal
                         id={item.article_id}
                         socials={item?.post_response?.posts[0]?.postIds}
