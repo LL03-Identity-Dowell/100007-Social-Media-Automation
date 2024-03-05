@@ -39,6 +39,7 @@ import Mention from "./pages/SettingsPages/Mention";
 import BaseHashMention from "./pages/SettingsPages/BaseHashMention";
 import Portfolio from "./pages/Portfolio/portfolio";
 import AdminApproval from "./pages/UserProfile/AdminApproval";
+import UploadAssets from "./pages/SettingsPages/UploadAssets";
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -179,6 +180,10 @@ function App() {
           <Route
             path='/settings/postdetaildropdowns'
             element={<PostDetailDropdown close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/settings/upload-assets'
+            element={<UploadAssets close={handleCloseSideBar} />}
           />
           <Route
             path='/target-cities'

@@ -505,3 +505,7 @@ button {
 *::-webkit-scrollbar-thumb {
   background-color: rgb(107, 106, 106);
 }
+
+.dragover {
+  background-color: #f59898; /* Change this color as needed */
+}
