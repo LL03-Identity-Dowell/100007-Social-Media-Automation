@@ -2,6 +2,7 @@
 
 
 import json
+import logging
 from datetime import datetime
 
 import requests
@@ -99,14 +100,17 @@ def get_client_approval(user):
 
     try:
         for value in response_data_json['data']:
-            aproval = {
-                'topic': value['topic'],
-                'post': value['post'],
-                'article': value['article'],
-                'schedule': value['schedule']
-            }
-        return (aproval)
-    except:
+            if 'topic' in value.keys():
+                aproval = {
+                    'topic': value.get('topic', 'False'),
+                    'post': value.get('post', 'False'),
+                    'article': value.get('article', 'False'),
+                    'schedule': value.get('schedule', 'False')
+                }
+                return (aproval)
+        return ({'topic': 'False'})
+    except Exception as e:
+        logging.exception(e)
         aproval = {'topic': 'False'}
     return (aproval)
 
@@ -188,4 +192,5 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
             automate = Automate(session=session)
             async_task(automate.generate_topics,
                        auto_strings, data_di, hook='automation.services.hook_now')
+
         return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
