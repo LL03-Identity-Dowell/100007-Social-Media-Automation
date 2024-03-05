@@ -54,7 +54,6 @@ const ApprovalByClient = ({close}) => {
           .then((response) => {
             let data = response.data.status;
             setGetStatus(data);
-            console.log(data);
           })
           .catch((error) => {
             setError("Server error, Please try again later");

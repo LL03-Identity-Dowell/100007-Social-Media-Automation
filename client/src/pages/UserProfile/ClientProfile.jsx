@@ -12,7 +12,7 @@ const ClientProfile = ({ close }) => {
 
   useEffect(() => {
     let user = JSON.parse(localStorage.getItem("userInfo"));
-    setUserName(user?.userinfo?.username);
+    setUserName(user?.username);
     close();
     fetch();
   }, []);

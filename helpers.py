@@ -41,6 +41,13 @@ def download_and_upload_image(image_url):
     except Exception as e:
         return {'file_url': image_url}
 
+def download_and_upload_users_image(image_url):
+    try:
+        files = {'image': image_url}
+        upload_response = requests.post(UPLOAD_IMAGE_ENDPOINT, files=files)
+        return upload_response.json()
+    except Exception as e:
+        return {'error': str(e)}
 
 def save_data(collection, document, field, team_member_ID):
     url = "http://uxlivinglab.pythonanywhere.com"

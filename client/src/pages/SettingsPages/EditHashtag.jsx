@@ -114,7 +114,7 @@ const EditHashtag = ({ close }) => {
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {error && <ErrorMessages>{error}</ErrorMessages>}
       <div
-        className={`bg-overlay w-full h-full fixed z-50 top-0 left-0 flex justify-center items-center `}
+        className={`bg-overlay w-full h-full fixed z-40 top-0 left-0 flex justify-center items-center `}
       >
         <form
           onSubmit={handleGroupSubmit}

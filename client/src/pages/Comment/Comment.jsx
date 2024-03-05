@@ -1,23 +1,23 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import ExtraSmallBtn from "../../components/ExtraSmallBtn/ExtraSmallBtn";
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ExtraSmallBtn from '../../components/ExtraSmallBtn/ExtraSmallBtn';
 
-import axios from "axios";
-import { ErrorMessages, SuccessMessages } from "../../components/Messages";
-import CommentModal from "./_components/CommentModal";
-import PostedTo from "./_components/PostedTo";
-import Loading from "../../components/Loading";
-import ReactPaginate from "react-paginate";
-import { useQuery } from "react-query";
+import axios from 'axios';
+import { ErrorMessages, SuccessMessages } from '../../components/Messages';
+import CommentModal from './_components/CommentModal';
+import PostedTo from './_components/PostedTo';
+import Loading from '../../components/Loading';
+import ReactPaginate from 'react-paginate';
+import { useQuery } from 'react-query';
 
 function Comment({ show }) {
   const location = useLocation();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [perPage] = useState(5);
   const [activePage, setActivePage] = useState(0);
-  const [isEmpty, setIsEmpty] = useState("");
+  const [isEmpty, setIsEmpty] = useState('');
   const [pagesToDisplay] = useState(4);
   const [count, setCount] = useState(0);
   const [pageCount, setPageCount] = useState(0);
@@ -77,7 +77,7 @@ function Comment({ show }) {
   //   fetchComments();
   // }, [page]);
 
-  const page = parseInt(new URLSearchParams(location.search).get("page")) || 0;
+  const page = parseInt(new URLSearchParams(location.search).get('page')) || 0;
 
   const {
     data: paginated_posts,
@@ -85,7 +85,7 @@ function Comment({ show }) {
     isLoading,
     refetch,
   } = useQuery(
-    ["comment", page],
+    ['comment', page],
     async () => {
       const response = await axios.get(
         `${import.meta.env.VITE_APP_BASEURL}/comments/?page=${
@@ -103,12 +103,12 @@ function Comment({ show }) {
   );
 
   useEffect(() => {
-    if (status === "success") {
-      setSuccess("Comments Fetched successfully");
+    if (status === 'success') {
+      setSuccess('Comments Fetched successfully');
       setCount(paginated_posts.total_items);
       setPageCount(Math.ceil(paginated_posts.total_items / perPage));
-    } else if (status === "error") {
-      setError("Error Fetching data, Please try again");
+    } else if (status === 'error') {
+      setError('Error Fetching data, Please try again');
       setLoading(false);
     }
     window.scrollTo(0, 0);
@@ -142,10 +142,10 @@ function Comment({ show }) {
                   if (item?.post_response) {
                     navigate(`/comment/${item.article_id}`);
                   } else {
-                    setError("The post does not have aryshare ID");
+                    setError('The post does not have aryshare ID');
                   }
                   setTimeout(() => {
-                    setError("");
+                    setError('');
                   }, 2000);
                 };
                 return (
@@ -171,12 +171,10 @@ function Comment({ show }) {
                       <CommentModal
                         id={item.article_id}
                         socials={item?.post_response?.posts[0]?.postIds}
-                        setError={setError}
-                        setSuccess={setSuccess}
                         setLoading={setLoading}
                       />
                       <button onClick={redirectForComment}>
-                        <ExtraSmallBtn title={"View Comments"} />
+                        <ExtraSmallBtn title={'View Comments'} />
                       </button>
                     </div>
                   </li>
@@ -193,12 +191,12 @@ function Comment({ show }) {
           forcePage={page}
           previousLabel={
             <span className='text-xs text-black md:text-lg'>
-              {page > 0 ? "Previous" : ""}
+              {page > 0 ? 'Previous' : ''}
             </span>
           }
           nextLabel={
             <span className='text-xs text-black md:text-lg'>
-              {page < paginated_posts?.total_items / 5 - 1 ? "Next" : " "}
+              {page < paginated_posts?.total_items / 5 - 1 ? 'Next' : ' '}
             </span>
           }
           containerClassName='flex justify-center items-center my-4 md:space-x-2 overflow-x-scroll md:overflow-auto '

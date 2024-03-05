@@ -1,3 +1,4 @@
+from rest_framework import generics
 import concurrent.futures
 import datetime
 import json
@@ -39,7 +40,7 @@ from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
     STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image,
+from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image, download_and_upload_users_image,
                      fetch_organization_user_info,
                      fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, check_connected_accounts,
@@ -51,11 +52,11 @@ from react_version import settings
 from react_version.permissions import EditPostPermission
 from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
-from .serializers import (PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
+from .serializers import (DataSerializer, PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
-                          GroupHashtagSerializer, SocialMediaRequestSerializer)
+                          GroupHashtagSerializer, SocialMediaRequestSerializer, ImageUploadSerializer)
 
 global PEXELS_API_KEY
 
@@ -112,7 +113,7 @@ class MainAPIView(AuthenticatedBaseView):
                 profile_details = response_1.json()
                 request.session['portfolio_info'] = profile_details['portfolio_info']
                 user_map[profile_details['userinfo']['userID']
-                ] = profile_details['userinfo']['username']
+                         ] = profile_details['userinfo']['username']
             else:
                 url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
                 response_2 = requests.post(
@@ -121,7 +122,7 @@ class MainAPIView(AuthenticatedBaseView):
                     profile_details = response_2.json()
                     request.session['portfolio_info'] = profile_details['portfolio_info']
                     user_map[profile_details['userinfo']['userID']
-                    ] = profile_details['userinfo']['username']
+                             ] = profile_details['userinfo']['username']
                 else:
                     profile_details = {}
                     request.session['portfolio_info'] = []
@@ -254,15 +255,15 @@ class ArticleDetailView(AuthenticatedBaseView):
                 title = data.get("title")
                 paragraph = data.get("paragraph")
                 paragraph = paragraph.split('\r\n')
-                source = data.get("source")
-                if "\r\n" in source:
-                    source = source.split('\r\n')
+                # source = data.get("source", '')
+                # if "\r\n" in source:
+                #     source = source.split('\r\n')
 
                 post = {
                     "post_id": article_id,
                     "title": title,
                     "paragraph": paragraph,
-                    "source": source
+                    # "source": source
                 }
             response_data = {'post': post, 'profile': profile}
             return Response(response_data)
@@ -394,10 +395,10 @@ class GenerateArticleView(AuthenticatedBaseView):
                 prompt_limit = 3000
                 min_characters = 500
                 prompt = (
-                        f"Write an article about {RESEARCH_QUERY}"
-                        f" Ensure that the generated content is a minimum of {min_characters} characters in length."
-                        [:prompt_limit]
-                        + "..."
+                    f"Write an article about {RESEARCH_QUERY}"
+                    f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+                    [:prompt_limit]
+                    + "..."
                 )
                 # Generate article using OpenAI's GPT-3
                 response = openai.Completion.create(
@@ -526,7 +527,8 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                                                                        'subject': subject,
                                                                        # 'dowelltime': dowellclock
                                                                        }, '34567897799')
-                    print("Using subject: " + subject + " to create an article.")
+                    print("Using subject: " + subject +
+                          " to create an article.")
                     page = wiki_language.page(title_sub_verb)
                     if page.exists() == False:
                         print("Page - Exists: %s" % page.exists())
@@ -600,79 +602,80 @@ class WriteYourselfView(AuthenticatedBaseView):
                 title = request.data.get("title")
                 org_id = request.session.get('org_id')
                 article_text_area = request.data.get("articletextarea")
-                source = request.data.get("url")
+                # source = request.data.get("url")
+                source = ""
                 response_data = {
                     'title': title,
                     'articletextarea': article_text_area,
                     'url': source,
                 }
-                headers = {
-                    'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
-                try:
-                    response = requests.get(source, headers=headers)
-                except Exception as e:
-                    print(str(e))
-                    return Response({'error': 'The url of the article has not been authorized!', 'data': response_data},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                if response.status_code == 403:
-                    return Response(
-                        {'error': 'Error code 403 Forbidden: Website does not allow verification of the article!',
-                         'data': response_data}, status=status.HTTP_403_FORBIDDEN)
-                else:
+                # headers = {
+                #     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36"}
+                # try:
+                #     response = requests.get(source, headers=headers)
+                # except Exception as e:
+                #     print(str(e))
+                #     return Response({'error': 'The url of the article has not been authorized!', 'data': response_data},
+                #                     status=status.HTTP_400_BAD_REQUEST)
+                # if response.status_code == 403:
+                #     return Response(
+                #         {'error': 'Error code 403 Forbidden: Website does not allow verification of the article!',
+                #          'data': response_data}, status=status.HTTP_403_FORBIDDEN)
+                # else:
 
-                    text_from_page_space = text_from_html(response.text)
-                    text_from_page = text_from_page_space.replace(" ", "")
-                    text_from_page = text_from_page.replace("\xa0", "")
-                    print(article_text_area)
-                    paragraph = article_text_area.split("\r\n")
-                    double_line_paragraphs = article_text_area.split("\n\n")
-                    if len(double_line_paragraphs) > len(paragraph):
-                        paragraph = double_line_paragraphs
+                # text_from_page_space = text_from_html(response.text)
+                # text_from_page = text_from_page_space.replace(" ", "")
+                # text_from_page = text_from_page.replace("\xa0", "")
+                print(article_text_area)
+                paragraph = article_text_area.split("\r\n")
+                double_line_paragraphs = article_text_area.split("\n\n")
+                if len(double_line_paragraphs) > len(paragraph):
+                    paragraph = double_line_paragraphs
 
-                    message = "Article Verified, "
-                    paragraph = paragraph[::-1]
-                    for i in range(len(paragraph)):
-                        if paragraph[i] == "":
-                            continue
-                        save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "org_id": org_id,
-                                                               "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo'][
-                                                                   'client_admin_id'],
-                                                               "title": title,
-                                                               "paragraph": paragraph[i],
-                                                               "article": article_text_area,
-                                                               "source": source,
-                                                               # 'dowelltime': dowellclock
-                                                               }, '34567897799')
-                        save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
-                                                               "session_id": session_id,
-                                                               "org_id": org_id,
-                                                               "eventId": create_event()['event_id'],
-                                                               'client_admin_id': request.session['userinfo'][
-                                                                   'client_admin_id'],
-                                                               "title": title,
-                                                               "paragraph": paragraph[i],
-                                                               "source": source,
-
-                                                               }, '34567897799')
-                    save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                message = "Article Verified, "
+                paragraph = paragraph[::-1]
+                for i in range(len(paragraph)):
+                    if paragraph[i] == "":
+                        continue
+                    save_data('step3_data', 'step3_data', {"user_id": request.session['user_id'],
                                                            "session_id": session_id,
                                                            "org_id": org_id,
                                                            "eventId": create_event()['event_id'],
                                                            'client_admin_id': request.session['userinfo'][
-                                                               'client_admin_id'],
-                                                           "title": title,
-                                                           "paragraph": article_text_area,
-                                                           "source": source,
-                                                           # 'dowelltime': dowellclock
-                                                           }, "9992828281")
+                        'client_admin_id'],
+                        "title": title,
+                        "paragraph": paragraph[i],
+                        "article": article_text_area,
+                        "source": source,
+                        # 'dowelltime': dowellclock
+                    }, '34567897799')
+                    save_data('step4_data', 'step4_data', {"user_id": request.session['user_id'],
+                                                           "session_id": session_id,
+                                                           "org_id": org_id,
+                                                           "eventId": create_event()['event_id'],
+                                                           'client_admin_id': request.session['userinfo'][
+                        'client_admin_id'],
+                        "title": title,
+                        "paragraph": paragraph[i],
+                        "source": source,
 
-                    credit_handler = CreditHandler()
-                    credit_handler.consume_step_2_credit(request)
-                    return Response({'message': 'Article saved successfully', 'data': response_data},
-                                    status=status.HTTP_201_CREATED)
+                    }, '34567897799')
+                save_data('step2_data', "step2_data", {"user_id": request.session['user_id'],
+                                                       "session_id": session_id,
+                                                       "org_id": org_id,
+                                                       "eventId": create_event()['event_id'],
+                                                       'client_admin_id': request.session['userinfo'][
+                    'client_admin_id'],
+                    "title": title,
+                    "paragraph": article_text_area,
+                    "source": source,
+                    # 'dowelltime': dowellclock
+                }, "9992828281")
+
+                credit_handler = CreditHandler()
+                credit_handler.consume_step_2_credit(request)
+                return Response({'message': 'Article saved successfully', 'data': response_data},
+                                status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -3420,6 +3423,190 @@ class FetchUserInfo(AuthenticatedBaseView):
             return Response(user_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class ImageLibrary(generics.CreateAPIView):
+    serializer_class = ImageUploadSerializer
+
+    def get(self, request):
+        if 'session_id' in request.session and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            if len(user_data['data']) == 0:
+                status = 'insert'
+            else:
+                status = 'update'
+            context_dict = {'status': status}
+            return Response(context_dict)
+        else:
+            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    def post(self, request):
+        session_id = request.GET.get("session_id", None)
+        serializer = ImageUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.validated_data
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            image = data.get("image")
+            if not image:
+                return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            uploaded_image = download_and_upload_users_image(image_url=image)
+
+            if not uploaded_image:
+                return Response({"error": "Failed to process the image"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            image = uploaded_image.get('file_url')
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "eventId": event_id,
+                "command": "insert",
+                "field": {
+                    "user_id": request.session.get('user_id'),
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    "org_id": request.session.get('org_id'),
+                    'client_admin_id': request.session.get('userinfo', {}).get('client_admin_id'),
+                    "date": date,
+                    "time": str(time),
+                    "image_library": image,
+                },
+                "update_field": {
+                    "uploaded_images": {
+                        "image_library": image,
+                    },
+                },
+                "platform": "bangalore"
+            }
+            headers = {'Content-Type': 'application/json'}
+            data = json.dumps(payload)
+            try:
+                response = requests.request(
+                    "POST", url, headers=headers, data=data)
+                if response.status_code == status.HTTP_201_CREATED:
+                    return Response({"message": "Image saved successfully"}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({"error": "Failed to save image"}, status=response.status_code)
+            except requests.RequestException as e:
+                print({"error": str(e)})
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request):
+        session_id = request.GET.get("session_id", None)
+        serializer = ImageUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.validated_data
+            time = localtime()
+            test_date = str(localdate())
+            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
+            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
+            event_id = create_event()['event_id']
+            image = data.get("image")
+            if not image:
+                return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+            url = "http://uxlivinglab.pythonanywhere.com"
+
+            uploaded_image = download_and_upload_users_image(image_url=image)
+
+            if not uploaded_image:
+                return Response({"error": "Failed to process the image"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            image = uploaded_image.get('file_url')
+
+            payload = {
+                "cluster": "socialmedia",
+                "database": "socialmedia",
+                "collection": "user_info",
+                "document": "user_info",
+                "team_member_ID": "1071",
+                "function_ID": "ABCDE",
+                "eventId": event_id,
+                "command": "update",
+                "field": {
+                    "user_id": request.session.get('user_id'),
+                    "session_id": session_id,
+                    "eventId": event_id,
+                    "org_id": request.session.get('org_id'),
+                    'client_admin_id': request.session.get('userinfo', {}).get('client_admin_id'),
+                    "date": date,
+                    "time": str(time),
+                    "image_library": image,
+                },
+                "update_field": {
+                    "uploaded_images": {
+                        "image_library": image,
+                    },
+                },
+                "platform": "bangalore"
+            }
+            headers = {'Content-Type': 'application/json'}
+            data = json.dumps(payload)
+            try:
+                response = requests.request(
+                    "POST", url, headers=headers, data=data)
+                if response.status_code == status.HTTP_201_CREATED:
+                    return Response({"message": "Image saved successfully"}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({"error": "Failed to save image"}, status=response.status_code)
+            except requests.RequestException as e:
+                print({"error": str(e)})
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Analytics(generics.CreateAPIView):
+    serializer_class = DataSerializer
+
+    def post(self, request):
+        if 'session_id' and 'username' in request.session:
+            user_id = request.session['user_id']
+            key = get_key(user_id)
+            data = request.data
+            if data:
+                second_id = data['id']
+                platform = data['platform']
+                payload = {
+                    'id': second_id,
+                    'platforms': platform,
+                    'profileKey':key,
+                }
+                print("payload", payload)
+                headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization':  F"Bearer {str(settings.ARYSHARE_KEY)}"
+                }
+                r = requests.post('https://app.ayrshare.com/api/analytics/post',
+                                  json=payload,
+                                  headers=headers)
+                r.json()
+                analytics_data = r.json()
+                print("Analytics Data:", analytics_data)
+
+                response_data = {
+                    'platform': platform,
+                    'analytics_data': analytics_data
+                }
+
+                return Response(response_data, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'No post data was provided'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 '''user settings ends here'''
