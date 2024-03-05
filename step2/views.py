@@ -33,10 +33,8 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 # rest(React endpoints)
 from rest_framework.views import APIView
-from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 
-from react_version import settings
-from react_version.views import AuthenticatedBaseView
+from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
     STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
@@ -47,7 +45,8 @@ from helpers import (check_if_user_is_owner_of_organization, download_and_upload
                      update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
-from website.models import Sentences, SentenceResults
+from react_version import settings
+from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
 from .serializers import (PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
@@ -2834,7 +2833,7 @@ class GroupHashtagView(AuthenticatedBaseView):
         org_id = request.session['org_id']
         session_id = request.GET.get("session_id", None)
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         client_admin_id = request.session['userinfo']['client_admin_id']
 
         create_hashtag_data = {
@@ -2868,7 +2867,7 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
             return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
 
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         update_type = request.GET.get('update_type', 'append')
         org_id = request.session['org_id']
 
