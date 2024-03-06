@@ -216,6 +216,34 @@ class AutomationAPIView(generics.ListCreateAPIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
         user_info = fetch_user_info(request=request)
-        import pdb
-        pdb.set_trace()
-        return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
+        automations = user_info['data'][0].get('automations', [])
+        automations.append(serializer.validated_data)
+        org_id = request.session['org_id']
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+
+            "field": {
+                'user_id': request.session['user_id'],
+            },
+            "update_field": {
+                "automations": automations,
+                "org_id": org_id,
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.json())
+        return Response({"message": "Automation saved successfully"}, status=status.HTTP_200_OK)
