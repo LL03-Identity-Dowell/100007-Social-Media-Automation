@@ -41,6 +41,13 @@ def download_and_upload_image(image_url):
     except Exception as e:
         return {'file_url': image_url}
 
+def download_and_upload_users_image(image_url):
+    try:
+        files = {'image': image_url}
+        upload_response = requests.post(UPLOAD_IMAGE_ENDPOINT, files=files)
+        return upload_response.json()
+    except Exception as e:
+        return {'error': str(e)}
 
 def save_data(collection, document, field, team_member_ID):
     url = "http://uxlivinglab.pythonanywhere.com"
@@ -564,6 +571,14 @@ def save_profile_key_to_post(profile_key, post_id, post_response, org_id):
 
 
 def encode_json_data(data):
+    """
+    This method encodes json data
+    @param data: {}
+    @return: str
+    """
+    return jwt.encode(data, "secret", algorithm="HS256")
+
+def decode_json_data(data):
     """
     This method encodes json data
     @param data: {}

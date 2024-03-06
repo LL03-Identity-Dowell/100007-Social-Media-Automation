@@ -1,24 +1,24 @@
-import { useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
-import Home from "./pages/homepage/Home";
-import Layout from "./Layout";
-import Topic from "./pages/Topic/Topic";
-import Article from "./pages/Article/Article";
-import PostList from "./pages/Post/PostList/PostList";
-import ScheduleSection from "./pages/Schedule/Schedule";
-import Comment from "./pages/Comment/Comment";
-import ViewComments from "./pages/Comment/ViewComments";
-import NotFound from "./pages/NotFound/NotFound";
-import MyPlan from "./pages/Statistics/MyPlan";
-import MyTeam from "./pages/Statistics/MyTeam";
-import MyUsage from "./pages/Statistics/MyUsage";
-import Hashtags from "./pages/SettingsPages/Hashtags";
-import CategoriesTopic from "./pages/SettingsPages/CategoriesTopic";
-import Address from "./pages/Address/Address";
-import UserProfile from "./pages/UserProfile/UserProfile";
-import SocialMediaChannels from "./pages/UserProfile/SocialMediaChannels";
-import ApprovalByClient from "./pages/UserProfile/ApprovalByClient";
-import SpecificArticle from "./pages/Article/SpecificArticle";
+import {  useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Home from './pages/homepage/Home';
+import Layout from './Layout';
+import Topic from './pages/Topic/Topic';
+import Article from './pages/Article/Article';
+import PostList from './pages/Post/PostList/PostList';
+import ScheduleSection from './pages/Schedule/Schedule';
+import Comment from './pages/Comment/Comment';
+import ViewComments from './pages/Comment/ViewComments';
+import NotFound from './pages/NotFound/NotFound';
+import MyPlan from './pages/Statistics/MyPlan';
+import MyTeam from './pages/Statistics/MyTeam';
+import MyUsage from './pages/Statistics/MyUsage';
+import Hashtags from './pages/SettingsPages/Hashtags';
+import CategoriesTopic from './pages/SettingsPages/CategoriesTopic';
+import Address from './pages/Address/Address';
+import UserProfile from './pages/UserProfile/UserProfile';
+import SocialMediaChannels from './pages/UserProfile/SocialMediaChannels';
+import ApprovalByClient from './pages/UserProfile/ApprovalByClient';
+import SpecificArticle from './pages/Article/SpecificArticle';
 // import SpecificPost from "./pages/Post/PostList/SpecificPost";
 import PostDetail from "./pages/Post/PostDetail/PostDetail";
 import ClientProfile from "./pages/UserProfile/ClientProfile";
@@ -41,6 +41,7 @@ import Portfolio from "./pages/Portfolio/portfolio";
 import AdminApproval from "./pages/UserProfile/AdminApproval";
 import UploadAssets from "./pages/SettingsPages/UploadAssets";
 
+
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showBottombar, setShowBottombar] = useState(false);
@@ -53,9 +54,6 @@ function App() {
     setShowSidebar(false);
     setShowBottombar(false);
   };
-
-  
-
 
   return (
     <>
@@ -84,7 +82,10 @@ function App() {
             path='/SpecificPost'
             element={<SpecificPost show={handleOpenSideBar} />}
           /> */}
-          <Route path='/portfolio' element={<Portfolio  close={handleCloseSideBar}/>} />
+          <Route
+            path='/portfolio'
+            element={<Portfolio close={handleCloseSideBar} />}
+          />
 
           <Route
             path='/post-detail'

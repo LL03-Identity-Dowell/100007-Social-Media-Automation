@@ -58,6 +58,8 @@ class RankedTopicListSerializer(serializers.Serializer):
     sentence = serializers.CharField()
     key = serializers.CharField()
     created_by = serializers.CharField()
+    subject = serializers.CharField(allow_blank=True, )
+    verb = serializers.CharField()
 
 
 class PostCommentSerializer(serializers.Serializer):
@@ -103,4 +105,22 @@ class SocialMediaRequestSerializer(serializers.Serializer):
         ('Reject Selected', 'Reject Selected'),
         ('Approve All', 'Approve All'),
     ))
-    social_media_request_id = serializers.ListField(child=serializers.IntegerField(required=True), required=True)
+    social_media_request_id = serializers.ListField(
+        child=serializers.IntegerField(required=True), required=True)
+
+
+class ImageUploadSerializer(serializers.Serializer):
+    image = serializers.ImageField()
+    def validate_image(self, value):
+        if value.size > 5 * 1024 * 1024:
+            raise serializers.ValidationError("Image size should be 5MB.")
+        file_extension = value.name.split('.')[-1].lower()
+        if file_extension not in ['png', 'jpg', 'jpeg']:
+            raise serializers.ValidationError(
+                "Invalid image format. Only PNG and JPEG are allowed.")
+        return value
+    
+    
+class DataSerializer(serializers.Serializer):
+    id = serializers.CharField()
+    platform = serializers.CharField()
