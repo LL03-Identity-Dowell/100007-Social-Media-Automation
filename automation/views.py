@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from automation.automate import Automate
+from automation.serializers import AutomationSerializer
+from helpers import fetch_user_info
 from step2.views import create_event
 from website.models import User
 from website.permissions import HasBeenAuthenticated
@@ -193,4 +195,27 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
             # async_task(automate.generate_topics,
             #            auto_strings, data_di, hook='automation.services.hook_now')
 
+        return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
+
+
+class AutomationAPIView(generics.ListCreateAPIView):
+    """
+
+    """
+    permission_classes = (HasBeenAuthenticated,)
+    serializer_class = AutomationSerializer
+
+    def get(self, request, *args, **kwargs):
+        user_info = fetch_user_info(request=self.request)
+        automations = user_info['data'][0].get('automations', [])
+        response = AutomationSerializer(automations, many=True)
+        return Response(response.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = AutomationSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        user_info = fetch_user_info(request=request)
+        import pdb
+        pdb.set_trace()
         return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
