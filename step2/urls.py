@@ -12,7 +12,7 @@ from .views import (AdminApproveSocialMediaRequestView, ImageLibrary, MainAPIVie
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
                     LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
-                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView)
+                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,NewPostGeneration)
 
 app_name = 'generate_article'
 
@@ -101,5 +101,8 @@ urlpatterns = [
          name='upload-image-endpoint'),
      path('post_analytics/', Analytics.as_view(),
          name='post-analytics-endpoint'),
+     path('post_generation/', NewPostGeneration.as_view(),
+         name='post-generation-endpoint'),
+     
 
 ]
