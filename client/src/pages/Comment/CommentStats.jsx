@@ -7,6 +7,9 @@ import { SuccessMessages, ErrorMessages } from '../../components/Messages';
 import { TwitterAnalytics } from './_components/analytics/TwitterAnalytics';
 import { FacebookAnalytics } from './_components/analytics/FacebookAnalytics';
 import { InstagramAnalytics } from './_components/analytics/InstagramAnalytics';
+import { PinterestAnalytics } from './_components/analytics/PinterestAnalytics';
+import { LinkedinAnalytics } from './_components/analytics/LinkedinAnalytics';
+import { YoutubeAnalytics } from './_components/analytics/youtubeAnalytics';
 const url = `${import.meta.env.VITE_APP_BASEURL}/post_analytics/`;
 
 const CommentStats = ({ show }) => {
@@ -15,7 +18,7 @@ const CommentStats = ({ show }) => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [search, setSearch] = useSearchParams();
+  const [search] = useSearchParams();
   const { id } = useParams();
   const searchPlatform = search.get('platforms');
   const platforms = searchPlatform.split(',');
@@ -29,10 +32,10 @@ const CommentStats = ({ show }) => {
   }, []);
 
   const fetchStats = async () => {
-    setLoading(true);
     setError('');
     setSuccess('');
 
+    setLoading(true);
     platforms.forEach((platform) => {
       const body = { id, platform };
       axios
@@ -44,19 +47,28 @@ const CommentStats = ({ show }) => {
           setStats((prevStats) => {
             return { ...prevStats, [data.platform]: data };
           });
+          setSuccess('Successfully fetched analytics');
+          setLoading(false);
         })
         .catch(() => {
           setError('Something went wrong');
+          setLoading(false);
         });
     });
-    setLoading(false);
   };
 
+  console.log(stats);
+
   const twitterAnalytics = stats?.twitter?.analytics_data?.twitter?.analytics;
+  const pinterestAnalytics =
+    stats?.pinterest?.analytics_data?.pinterest?.analytics;
   const facebookAnalytics =
     stats?.facebook?.analytics_data?.facebook?.analytics;
   const instagramAnalytics =
     stats?.instagram?.analytics_data?.instagram?.analytics;
+  const linkedinAnalytics =
+    stats?.linkedin?.analytics_data?.linkedin?.analytics;
+  const youtubeAnalytics = stats?.youtube?.analytics_data?.youtube?.analytics;
 
   return (
     <div className='w-[calc(100%-128px)] min-h-full mx-auto'>
@@ -83,6 +95,24 @@ const CommentStats = ({ show }) => {
             <InstagramAnalytics
               instagramData={stats?.instagram}
               instagramAnalytics={instagramAnalytics}
+            />
+          )}
+          {stats.pinterest && (
+            <PinterestAnalytics
+              pinterestData={stats?.pinterest}
+              pinterestAnalytics={pinterestAnalytics}
+            />
+          )}
+          {stats.linkedin && (
+            <LinkedinAnalytics
+              linkedinData={stats?.linkedin}
+              linkedinAnalytics={linkedinAnalytics}
+            />
+          )}
+          {stats.youtube && (
+            <YoutubeAnalytics
+              youtubeData={stats?.youtube}
+              youtubeAnalytics={youtubeAnalytics}
             />
           )}
         </ul>
