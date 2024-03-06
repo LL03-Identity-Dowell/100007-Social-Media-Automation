@@ -9,7 +9,6 @@ from io import BytesIO
 import openai
 import requests
 from PIL import Image
-from django.conf import settings
 from django.db import transaction
 from django.utils.timezone import localtime, localdate
 from django_q.tasks import async_task
@@ -19,6 +18,7 @@ from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP
 from credits.credit_handler import CreditHandler
 from helpers import fetch_organization_user_info, create_event, save_data, check_connected_accounts, get_key, \
     save_profile_key_to_post
+from react_version import settings
 from website.models import Sentences, SentenceResults, SentenceRank
 from website.views import get_client_approval
 
@@ -26,6 +26,7 @@ from website.views import get_client_approval
 class Automate:
     """
     """
+    __name__ = 'Automate'
 
     def __init__(self, session: dict, is_daily_automation: bool = False):
         logging.info('Initializing automate class')
@@ -89,6 +90,9 @@ class Automate:
         }
         response = requests.request(
             "GET", url, headers=headers, params=querystring).json()
+        print(response)
+        if 'sentence' not in response.keys():
+            return {'status': 'FAILED', 'response': response}
         return [response['sentence'], type_of_sentence]
 
     @transaction.atomic

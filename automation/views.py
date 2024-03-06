@@ -6,7 +6,6 @@ import logging
 from datetime import datetime
 
 import requests
-from django_q.tasks import async_task
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
@@ -190,7 +189,8 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
         if topic['topic'] == True:
             session = {**request.session}
             automate = Automate(session=session)
-            async_task(automate.generate_topics,
-                       auto_strings, data_di, hook='automation.services.hook_now')
+            automate.generate_topics(auto_strings, data_dic=data_di)
+            # async_task(automate.generate_topics,
+            #            auto_strings, data_di, hook='automation.services.hook_now')
 
         return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
