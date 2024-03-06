@@ -1,4 +1,5 @@
 import { linkedin } from '../../../../assets';
+import { Date } from './Dates';
 
 export const LinkedinAnalytics = ({ linkedinAnalytics, linkedinData }) => {
   console.log(linkedinAnalytics);
@@ -24,6 +25,10 @@ export const LinkedinAnalytics = ({ linkedinAnalytics, linkedinData }) => {
               Unique Impressions - {linkedinAnalytics?.uniqueImpressionsCount}
             </p>
             <p>Video views - {linkedinAnalytics?.videoViews}</p>
+            <Date
+              next={linkedinData?.analytics_data?.linkedin?.lastUpdated}
+              last={linkedinData?.analytics_data?.linkedin?.lastUpdated}
+            />
           </div>
           <a
             href={linkedinData?.analytics_data?.linkedin?.postUrl}
@@ -48,6 +53,10 @@ export const LinkedinAnalytics = ({ linkedinAnalytics, linkedinData }) => {
             <p>Share - 0</p>
             <p>Unique Impressions - 0</p>
             <p>Video views - 0</p>
+            <Date
+              next={linkedinData?.analytics_data?.linkedin?.lastUpdated}
+              last={linkedinData?.analytics_data?.linkedin?.lastUpdated}
+            />
           </div>
           <a
             href={linkedinData?.analytics_data?.linkedin?.postUrl}
@@ -62,24 +71,3 @@ export const LinkedinAnalytics = ({ linkedinAnalytics, linkedinData }) => {
   );
 };
 
-const dj = {
-  analytics: {
-    clickCount: 0, // Clicks on a post
-    commentCount: 0, // Comments count
-    engagement: 0, // Organic clicks, likes, comments, and shares over impressions
-    impressionCount: 0, // Impressions on a post
-    likeCount: 1, // Likes on a count
-    reactions: {
-      // Get reactions on a LinkedIn share
-      like: 1, // "Like in the UI
-      praise: 2, // "Celebrate" in the UI
-      maybe: 3, // "Curious" in the UI
-      empathy: 3, // "Love" in the UI
-      interest: 2, // "Insightful" in the UI
-      appreciation: 5, // "Support" in the UI
-    },
-    shareCount: 0, // Shares on a post
-    uniqueImpressionsCount: 0, // Unique impressions for a post
-    videoViews: 1, // Number of times video viewed
-  },
-};

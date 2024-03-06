@@ -17,6 +17,10 @@ export const FacebookAnalytics = ({ facebookData, facebookAnalytics }) => {
         <p>Avg Watch Time - {facebookAnalytics?.postVideoAvgTimeWatched}</p>
         <p>Reactions - {facebookAnalytics?.reactions?.total}</p>
         <p>Shares - {facebookAnalytics?.sharesCount}</p>
+        <Date
+          next={facebookData?.analytics_data?.facebook?.lastUpdated}
+          last={facebookData?.analytics_data?.facebook?.lastUpdated}
+        />
       </div>
       <a
         href={facebookData?.analytics_data?.facebook?.postUrl}

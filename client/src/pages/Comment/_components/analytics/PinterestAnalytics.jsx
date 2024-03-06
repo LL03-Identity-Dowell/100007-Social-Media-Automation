@@ -1,4 +1,5 @@
 import { pinterest } from '../../../../assets';
+import { Date } from './Dates';
 
 export const PinterestAnalytics = ({ pinterestData, pinterestAnalytics }) => {
   return (
@@ -16,6 +17,10 @@ export const PinterestAnalytics = ({ pinterestData, pinterestAnalytics }) => {
         <p>
           Quartile 95 Percent View - {pinterestAnalytics.quartile95PercentView}
         </p>
+        <Date
+          next={pinterestData?.analytics_data?.pinterest?.lastUpdated}
+          last={pinterestData?.analytics_data?.pinterest?.lastUpdated}
+        />
       </div>
       <a
         href={pinterestData?.analytics_data?.pinterest?.postUrl}

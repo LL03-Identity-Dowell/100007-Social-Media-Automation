@@ -1,4 +1,5 @@
 import { youtube } from '../../../../assets';
+import { Date } from './Dates';
 
 export const YoutubeAnalytics = ({ youtubeAnalytics, youtubeData }) => {
   return (
@@ -27,7 +28,13 @@ export const YoutubeAnalytics = ({ youtubeAnalytics, youtubeData }) => {
         <p>
           Videos Added To Playlists - {youtubeAnalytics?.videosAddedToPlaylists}
         </p>
+
+        <Date
+          next={youtubeData?.analytics_data?.youtube?.lastUpdated}
+          last={youtubeData?.analytics_data?.youtube?.lastUpdated}
+        />
       </div>
+
       <a
         href={youtubeData?.analytics_data?.youtube?.postUrl}
         className='absolute bottom-5  underline text-customTextBlue text-lg leading-3 self-end'
