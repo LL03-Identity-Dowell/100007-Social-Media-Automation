@@ -30,7 +30,7 @@ export const YoutubeAnalytics = ({ youtubeAnalytics, youtubeData }) => {
         </p>
 
         <Date
-          next={youtubeData?.analytics_data?.youtube?.lastUpdated}
+          next={youtubeData?.analytics_data?.youtube?.nextUpdate}
           last={youtubeData?.analytics_data?.youtube?.lastUpdated}
         />
       </div>

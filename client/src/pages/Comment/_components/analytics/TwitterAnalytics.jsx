@@ -21,7 +21,7 @@ export const TwitterAnalytics = ({ twitterAnalytics, twitter }) => {
         <p>Retweets - {twitterAnalytics?.organicMetrics?.retweetCount}</p>
         <p>Quote - {twitterAnalytics?.publicMetrics?.quoteCount}</p>
         <Date
-          next={twitter?.analytics_data?.twitter?.lastUpdated}
+          next={twitter?.analytics_data?.twitter?.nextUpdate}
           last={twitter?.analytics_data?.twitter?.lastUpdated}
         />
       </div>
