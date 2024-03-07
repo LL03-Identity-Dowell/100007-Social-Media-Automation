@@ -1,4 +1,4 @@
-import {  useState } from 'react';
+import { useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Home from './pages/homepage/Home';
 import Layout from './Layout';
@@ -40,7 +40,7 @@ import BaseHashMention from "./pages/SettingsPages/BaseHashMention";
 import Portfolio from "./pages/Portfolio/portfolio";
 import AdminApproval from "./pages/UserProfile/AdminApproval";
 import UploadAssets from "./pages/SettingsPages/UploadAssets";
-
+import CommentStats from './pages/Comment/CommentStats';
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -110,6 +110,10 @@ function App() {
           <Route
             path='/comment/:id'
             element={<ViewComments show={handleOpenSideBar} />}
+          />
+          <Route
+            path='/comment/:id/stats'
+            element={<CommentStats show={handleOpenSideBar} />}
           />
           <Route
             path='/address'
