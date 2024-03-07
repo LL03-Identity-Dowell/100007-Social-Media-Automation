@@ -44,6 +44,12 @@ const CommentStats = ({ show }) => {
         })
         .then((res) => {
           const { data } = res;
+          if (data.analytics_data?.code === 102) {
+            setError('Post ID not found');
+            setLoading(false);
+
+            return;
+          }
           setStats((prevStats) => {
             return { ...prevStats, [data.platform]: data };
           });
@@ -56,8 +62,6 @@ const CommentStats = ({ show }) => {
         });
     });
   };
-
-  console.log(stats);
 
   const twitterAnalytics = stats?.twitter?.analytics_data?.twitter?.analytics;
   const pinterestAnalytics =
