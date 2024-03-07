@@ -198,8 +198,10 @@ class Automate:
             }
         }
 
-        async_task(self.selected_result, result_ids,
-                   data_dictionary, hook='automation.services.hook_now')
+        # async_task(self.selected_result, result_ids,
+        #            data_dictionary, hook='automation.services.hook_now')
+        # ToDo: Cahange this
+        self.selected_result(result_ids, data_dictionary)
         return data_dictionary
 
     @transaction.atomic
@@ -247,17 +249,19 @@ class Automate:
 
             }
             self.insert_form_data(data_dic)
-            approval = get_client_approval(data_dic['user_id'])
             print('Finished selecting sentences')
             credit_handler = CreditHandler()
             credit_handler.consume_step_1_credit(user_info=self.user_info)
-            if approval['article'] == True:
-                async_task(self.generate_article,
-                           data_dic, hook='automation.services.hook_now')
-            return (data_dic)
+            if self.approval['article'] == True:
+                # TODO: change this
+                # async_task(self.generate_article,
+                #            data_dic, hook='automation.services.hook_now')
+                self.generate_article(data_dic=data_dic)
+            return {'status': 'SUCCESS', 'response': data_dic}
 
         except Exception as e:
             print(str(e))
+            return {'status': 'FAILED', 'response': e}
 
     @transaction.atomic
     def generate_article(self, data_dic, number_articles: int = 1):
