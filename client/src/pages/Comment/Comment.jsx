@@ -142,11 +142,18 @@ function Comment({ show }) {
                   if (item?.post_response) {
                     navigate(`/comment/${item.article_id}`);
                   } else {
-                    setError('The post does not have aryshare ID');
+                    setError('Post ID not found');
                   }
-                  setTimeout(() => {
-                    setError('');
-                  }, 2000);
+                };
+
+                const redirectForStats = () => {
+                  if (item?.post_response) {
+                    navigate(
+                      `/comment/${item?.post_response?.posts[0]?.id}/stats?platforms=${socialArray.join(',')}`
+                    );
+                  } else {
+                    setError('Post ID not found');
+                  }
                 };
 
                 const socials = item?.post_response?.posts[0]?.postIds;
@@ -172,11 +179,7 @@ function Comment({ show }) {
                     <div className='flex justify-end gap-8 mt-2 lg:pt-2 md:mr-6 md:mt-4 '>
                       <button
                         className='bg-green-500 py-2 px-4 rounded-md text-white cursor-pointer hover:bg-green-500/95'
-                        onClick={() =>
-                          navigate(
-                            `/comment/${item?.post_response?.posts[0]?.id}/stats?platforms=${socialArray.join(',')}`
-                          )
-                        }>
+                        onClick={() => redirectForStats(item, socialArray)}>
                         Get stats
                       </button>
                       <CommentModal
