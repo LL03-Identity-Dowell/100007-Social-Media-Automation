@@ -49,6 +49,7 @@ from helpers import (check_if_user_is_owner_of_organization, decode_json_data, d
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
 from react_version import settings
+
 from react_version.permissions import EditPostPermission
 from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
@@ -2955,7 +2956,7 @@ class GroupHashtagView(AuthenticatedBaseView):
         org_id = request.session['org_id']
         session_id = request.GET.get("session_id", None)
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         client_admin_id = request.session['userinfo']['client_admin_id']
 
         create_hashtag_data = {
@@ -2989,7 +2990,7 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
             return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
 
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         update_type = request.GET.get('update_type', 'append')
         org_id = request.session['org_id']
 
@@ -3427,19 +3428,6 @@ class FetchUserInfo(AuthenticatedBaseView):
 
 class ImageLibrary(generics.CreateAPIView):
     serializer_class = ImageUploadSerializer
-
-    def get(self, request):
-        if 'session_id' in request.session and 'username' in request.session:
-            user_data = fetch_user_info(request)
-            if len(user_data['data']) == 0:
-                status = 'insert'
-            else:
-                status = 'update'
-            context_dict = {'status': status}
-            return Response(context_dict)
-        else:
-            return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
-
     def post(self, request):
         session_id = request.GET.get("session_id", None)
         serializer = ImageUploadSerializer(data=request.data)
@@ -3483,85 +3471,15 @@ class ImageLibrary(generics.CreateAPIView):
                     "image_library": image,
                 },
                 "update_field": {
-                    "uploaded_images": {
-                        "image_library": image,
-                    },
+                    "order_nos": 21
                 },
                 "platform": "bangalore"
             }
             headers = {'Content-Type': 'application/json'}
-            data = json.dumps(payload)
+            payload = json.dumps(payload)
             try:
-                response = requests.request(
-                    "POST", url, headers=headers, data=data)
-                if response.status_code == status.HTTP_201_CREATED:
-                    return Response({"message": "Image saved successfully"}, status=status.HTTP_201_CREATED)
-                else:
-                    return Response({"error": "Failed to save image"}, status=response.status_code)
-            except requests.RequestException as e:
-                print({"error": str(e)})
-                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request):
-        session_id = request.GET.get("session_id", None)
-        serializer = ImageUploadSerializer(data=request.data)
-        if serializer.is_valid():
-            data = serializer.validated_data
-            time = localtime()
-            test_date = str(localdate())
-            date_obj = datetime.strptime(test_date, '%Y-%m-%d')
-            date = datetime.strftime(date_obj, '%Y-%m-%d %H:%M:%S')
-            event_id = create_event()['event_id']
-            image = data.get("image")
-            if not image:
-                return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
-
-            url = "http://uxlivinglab.pythonanywhere.com"
-
-            uploaded_image = download_and_upload_users_image(image_url=image)
-
-            if not uploaded_image:
-                return Response({"error": "Failed to process the image"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            image = uploaded_image.get('file_url')
-
-            payload = {
-                "cluster": "socialmedia",
-                "database": "socialmedia",
-                "collection": "user_info",
-                "document": "user_info",
-                "team_member_ID": "1071",
-                "function_ID": "ABCDE",
-                "eventId": event_id,
-                "command": "update",
-                "field": {
-                    "user_id": request.session.get('user_id'),
-                    "session_id": session_id,
-                    "eventId": event_id,
-                    "org_id": request.session.get('org_id'),
-                    'client_admin_id': request.session.get('userinfo', {}).get('client_admin_id'),
-                    "date": date,
-                    "time": str(time),
-                    "image_library": image,
-                },
-                "update_field": {
-                    "uploaded_images": {
-                        "image_library": image,
-                    },
-                },
-                "platform": "bangalore"
-            }
-            headers = {'Content-Type': 'application/json'}
-            data = json.dumps(payload)
-            try:
-                response = requests.request(
-                    "POST", url, headers=headers, data=data)
-                if response.status_code == status.HTTP_201_CREATED:
-                    return Response({"message": "Image saved successfully"}, status=status.HTTP_201_CREATED)
-                else:
-                    return Response({"error": "Failed to save image"}, status=response.status_code)
+                response = requests.post(url, headers=headers, data=payload)
+                return Response(status=response.status_code)
             except requests.RequestException as e:
                 print({"error": str(e)})
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -3583,7 +3501,7 @@ class Analytics(generics.CreateAPIView):
                 payload = {
                     'id': second_id,
                     'platforms': platform,
-                    'profileKey':key,
+                    'profileKey': key,
                 }
                 print("payload", payload)
                 headers = {

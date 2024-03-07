@@ -22,6 +22,7 @@ import { Banner } from "./_components/banner";
 function PostDetail({ show }) {
   const [isProductKey, setIsProductKey] = useState();
   const [editing, setEditing] = useState(false);
+  const [isEdited, setisEdited] = useState(false);
   const [postId, setPostId] = useState(null);
   const [iframeSrc, setIframeSrc] = useState(null);
   const [postDetailData, setPostDetailData] = useState();
@@ -29,6 +30,7 @@ function PostDetail({ show }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isEditedData, setIsEditedData] = useState("");
   const [selectedImage, setSelectedImage] = useState(postDetailData?.image);
   const [hashAndMention, sethashAndMention] = useState(false);
   const [checkPermission, setCheckPermission] = useState(false);
@@ -51,9 +53,26 @@ function PostDetail({ show }) {
 
   useEffect(() => {
     show();
-
     fetch();
   }, []);
+
+  const handleMessage = (event) => {
+    // Check the origin of the sender to ensure it's trusted
+    if (event.origin === "https://ll04-finance-dowell.github.io") {
+      // console.log("Received message from external application:", event.data);
+      const editedData = event.data;
+      setIsEditedData(editedData);
+      localStorage.setItem("editedData", editedData);
+    }
+  };
+  useEffect(() => {
+    window.addEventListener("message", handleMessage);
+
+    // Remove the event listener when the component unmounts
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [!editing]);
 
   useEffect(() => {
     const productKey = localStorage.getItem("productKey");
@@ -74,19 +93,21 @@ function PostDetail({ show }) {
     targeted_for: inputs.targeted_for,
     designed_for: inputs.designed_for,
     targeted_category: inputs.targeted_category,
-    title: title || postDetailData?.post?.title || "",
-    paragraphs:
+    title: isEditedData.title ? isEditedData.title : title || postDetailData?.post?.title || "",
+    paragraphs: isEditedData.paragraph ? isEditedData.paragraph :
       paragraph || postDetailData
         ? postDetailData.post.paragraph[0].replace(/\n\n/, "")
         : "",
     source: postDetailData ? postDetailData.post.source : "",
     image: selectedImage || postDetailData ? postDetailData.images : "",
   };
+  
   //handle next button
 
   const handleSubmit = (e) => {
+    
     // e.preventDefault();
-    console.log("clicked");
+    console.log(data);
     if (isProductKey) {
       navigate("/");
     }
@@ -172,10 +193,13 @@ function PostDetail({ show }) {
   const image_data = {
     image: selectedImage || (postDetailData ? postDetailData.images : ""),
   };
+
   const handelPopup = () => {
     axios
       .get(
-        `${import.meta.env.VITE_APP_BASEURL}/edit_post/${postId}/?image=${image_data.image}`,
+        `${import.meta.env.VITE_APP_BASEURL}/edit_post/${postId}/?image=${
+          image_data.image
+        }`,
         {
           withCredentials: true,
         }
@@ -211,28 +235,26 @@ function PostDetail({ show }) {
 
   return (
     <div className="relative">
-      <Banner />
-      <div className='m-4 mb-8 lg:m-8'>
+        <div className="">
+         <Banner />
+      </div>
+      <div className="m-4 mb-8 lg:m-8">
         {loading && <Loading />}
         {error && <ErrorMessages>{error}</ErrorMessages>}
         {success && <SuccessMessages>{success}</SuccessMessages>}
-        {/* <div className="flex flex-row-reverse">
-        <Dropdown
-          editPost={handelPopup}
-          savePost={() => setEditing(false)}
-          handleSubmit={handleSubmit}
-        />
-      </div> */}
 
-        <div className='flex items-center justify-between mt-2 mb-2 text-lg font-bold md:mb-0'>
-          <h2>
+        <div className="flex items-center justify-between mt-2 mb-2 text-lg font-bold md:mb-0">
+          <h2 className={isEditedData.title ? "hidden" : "block"}>
             {postDetailData && postDetailData.post.title}
-            {/* The team was adviced by the cyber security experts. */}
           </h2>
+          <h2 className={isEditedData.title ? "block" : "hidden"}>
+            {isEditedData.title && isEditedData.title}
+          </h2>
+           
 
           <span
             onClick={handelPopup}
-            className='cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg'
+            className="cursor-pointer text-[15px] flex gap-2 items-center bg-gray-400 hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg"
           >
             {" "}
             <FaEdit />
@@ -240,52 +262,61 @@ function PostDetail({ show }) {
           </span>
         </div>
 
-        <hr className='my-4' />
+        <hr className="my-4" />
 
-        <div className='mt-4 md:mt-8'>
+        <div className={isEditedData.paragraph ? "hidden" : "mt-4 md:mt-8 block"}>
           {postDetailData &&
             paragraph.map((p, index) => (
-              <div className='text-base' key={index}>
+              <div className="text-base" key={index}>
                 {index >= 0 && p}
               </div>
             ))}
         </div>
+        <div className={isEditedData.paragraph ? "block mt-4 md:mt-8" : " hidden"}>
+          {isEditedData.paragraph &&
+           isEditedData.paragraph}
+        </div>
 
-        <hr className='my-4' />
+        <hr className="my-4" />
 
-        <div id='post-sources' className='mt-4 md:mt-8'>
+        <div id="post-sources" className="mt-4 md:mt-8">
           <Link
-            to='https://openai.com'
-            className='text-blue-500 post-source hover:underline'
+            to="https://openai.com"
+            className="text-blue-500 post-source hover:underline"
           >
             {postDetailData && postDetailData.post.source}
           </Link>
         </div>
 
-        <hr className='my-4' />
+        <hr className="my-4" />
 
-        <div className='flex flex-col lg:flex-row md:flex-row md:gap-20 lg:gap-24'>
-          <div className='relative'>
+        <div className="flex flex-col lg:flex-row md:flex-row md:gap-20 lg:gap-24">
+          <div className="relative">
             <img
               src={postDetailData && postDetailData.images}
-              alt=''
-              className='w-full h-full img-fluid post-img'
+              alt=""
+              className={isEditedData.image ? "hidden" : "md:w-[500px] w-full h-full img-fluid post-img block"}
+            />
+            <img
+              src={isEditedData.image && isEditedData.image}
+              alt=""
+              className={isEditedData.image ? "block md:w-[500px] w-full h-full img-fluid post-img" : " hidden"}
             />
           </div>
 
-          <div className='flex flex-col gap-6 mt-5 post-options'>
-            <div className='flex flex-col lg:flex-row lg:gap-8'>
+          <div className="flex flex-col gap-6 mt-5 post-options">
+            <div className="flex flex-col lg:flex-row lg:gap-8">
               <label
-                htmlFor='content'
-                className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                htmlFor="content"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 <strong>Qualitative categorization:</strong>
               </label>
               <select
                 value={inputs.qualitative_categorization}
-                name='qualitative_categorization'
+                name="qualitative_categorization"
                 onChange={handelChange}
-                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
                 <option value={postDetailData?.qualitative_categorization}>
                   {postDetailData?.qualitative_categorization}
@@ -294,19 +325,19 @@ function PostDetail({ show }) {
               </select>
             </div>
 
-            <div className='flex flex-col lg:flex-row lg:gap-8'>
+            <div className="flex flex-col lg:flex-row lg:gap-8">
               <label
-                htmlFor='brand'
-                className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                htmlFor="brand"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 <strong>Targeted for:</strong>
               </label>
               <select
                 value={inputs.targeted_for}
-                id='brand'
+                id="brand"
                 onChange={handelChange}
-                name='targeted_for'
-                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                name="targeted_for"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
                 <option value={postDetailData?.targeted_for}>
                   {postDetailData?.targeted_for}
@@ -315,19 +346,19 @@ function PostDetail({ show }) {
               </select>
             </div>
 
-            <div className='flex flex-col lg:flex-row lg:gap-8'>
+            <div className="flex flex-col lg:flex-row lg:gap-8">
               <label
-                htmlFor='channel'
-                className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                htmlFor="channel"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 <strong>Designed for:</strong>
               </label>
               <select
                 value={inputs.designed_for}
-                id='channel'
+                id="channel"
                 onChange={handelChange}
-                name='designed_for'
-                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                name="designed_for"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
                 {designedFor.length > 0 ? (
                   designedFor?.map((socialMedia, index) => (
@@ -341,19 +372,19 @@ function PostDetail({ show }) {
               </select>
             </div>
 
-            <div className='flex flex-col lg:flex-row lg:gap-8'>
+            <div className="flex flex-col lg:flex-row lg:gap-8">
               <label
-                htmlFor='countries'
-                className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                htmlFor="countries"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 <strong>Targeted category:</strong>
               </label>
               <select
-                id='channelbrand'
+                id="channelbrand"
                 value={inputs.targeted_category}
                 onChange={handelChange}
-                name='targeted_category'
-                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                name="targeted_category"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
                 <option value={postDetailData?.targeted_category}>
                   {postDetailData?.targeted_category}
@@ -364,7 +395,7 @@ function PostDetail({ show }) {
           </div>
         </div>
 
-        <hr className='my-4' />
+        <hr className="my-4" />
 
         <Counts
           characCount={characterCount}
@@ -372,14 +403,14 @@ function PostDetail({ show }) {
           wordCount={wordCount}
         />
 
-        <div className='flex justify-center gap-20 mt-8'>
+        <div className="flex justify-center gap-20 mt-8">
           <UnstyledButton
-            text='Back'
-            className='text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center'
+            text="Back"
+            className="text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center"
           />
           <UnstyledButton
-            text='Next'
-            className='text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center'
+            text="Next"
+            className="text-base font-semibold bg-customBlue w-[128px] hover:bg-blue- text-center"
             onClick={handelCheckPermission}
           />
         </div>
@@ -392,14 +423,14 @@ function PostDetail({ show }) {
               : "hidden"
           }
         >
-          <div className=' bg-white w-full h-full 2xl:h-[750px] md:w-[900px] md:h-[600px]  text-black relative'>
+          <div className=" bg-white w-full h-full 2xl:h-[750px] md:w-[900px] md:h-[600px]  text-black relative">
             <span
-              className='absolute top-0 p-2 text-xl font-bold border border-black rounded-full cursor-pointer -right-12'
+              className="absolute top-0 p-2 text-xl font-bold border border-black rounded-full cursor-pointer -right-12"
               onClick={handelPopup}
             >
               <FaTimes />
             </span>
-            <iframe src={iframeSrc} width='100%' height='100%' />
+            <iframe src={iframeSrc} width="100%" height="100%" />
           </div>
         </div>
         {/* Editing Modal Ends */}
@@ -408,25 +439,25 @@ function PostDetail({ show }) {
           <div
             className={` bg-overlay w-full h-full fixed z-50 top-0 left-0 flex justify-center items-center `}
           >
-            <div className='bg-white md:w-[50%]  2xl:w-[40%] p-6 rounded-lg relative flex flex-col justify-center items-center'>
+            <div className="bg-white md:w-[50%]  2xl:w-[40%] p-6 rounded-lg relative flex flex-col justify-center items-center">
               <span
-                className='absolute p-2 text-xs border-2 border-gray-900 rounded-full cursor-pointer md:text-xl md:top-0 md:-right-12 right-4 top-2'
+                className="absolute p-2 text-xs border-2 border-gray-900 rounded-full cursor-pointer md:text-xl md:top-0 md:-right-12 right-4 top-2"
                 onClick={handelCheckPermission}
               >
                 <FaTimes />
               </span>
-              <div className='pt-8'>
-                <h3 className='text-lg font-semibold'>
+              <div className="pt-8">
+                <h3 className="text-lg font-semibold">
                   Do you want to add hashtags or mentions to this post?
                 </h3>
               </div>
-              <div className='flex gap-4 mt-6 w-[300px]'>
+              <div className="flex gap-4 mt-6 w-[300px]">
                 <button
                   onClick={() => {
                     handleSubmit();
                     handelCheckPermission();
                   }}
-                  className='w-full py-2 mt-4 text-center text-white rounded-lg cursor-pointer bg-customDarkpuprle hover:bg-customTextBlue'
+                  className="w-full py-2 mt-4 text-center text-white rounded-lg cursor-pointer bg-customDarkpuprle hover:bg-customTextBlue"
                 >
                   No, Save
                 </button>
@@ -435,7 +466,7 @@ function PostDetail({ show }) {
                     handleNavigation();
                     handelCheckPermission();
                   }}
-                  className='w-full py-2 mt-4 text-center text-white rounded-lg cursor-pointer bg-customBlue hover:bg-customTextBlue'
+                  className="w-full py-2 mt-4 text-center text-white rounded-lg cursor-pointer bg-customBlue hover:bg-customTextBlue"
                 >
                   Yes
                 </button>
