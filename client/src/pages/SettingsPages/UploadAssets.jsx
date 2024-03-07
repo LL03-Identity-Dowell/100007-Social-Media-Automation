@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
+import Loading from "../../components/Loading";
+import { ErrorMessages, SuccessMessages } from "../../components/Messages";
+import axios from "axios";
 
 const UploadAssets = ({ close }) => {
-    const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     close();
@@ -11,12 +17,22 @@ const UploadAssets = ({ close }) => {
   const handleFileChange = (event) => {
     const fileInput = event.target;
     const files = fileInput.files;
-
+  
     if (files.length > 0) {
       const file = files[0];
+      
+      // Check if the file size is within the limit (5MB)
+      const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSizeInBytes) {
+        setSuccess('File size exceeds the 5MB limit. Please choose a smaller file.')
+        // Optionally, you can reset the file input to clear the selected file
+        fileInput.value = null;
+        return;
+      }
+  
       setSelectedFile(file);
-    //   convertToBase64(file);
-    const reader = new FileReader();
+  
+      const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
       };
@@ -25,34 +41,44 @@ const UploadAssets = ({ close }) => {
   };
 
   const handleUpload = (e) => {
-    e.preventDefault()
+    e.preventDefault();
+    setLoading(true);
+  
     if (selectedFile) {
-      // Convert the selected image to base64
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Data = reader.result;
-        console.log("Base64 Data:", base64Data);
-
-        // Add your logic to use the base64Data as needed, for example, send it to the server
-      };
-      reader.readAsDataURL(selectedFile);
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+  
+      axios
+        .post(
+          `${import.meta.env.VITE_APP_BASEURL}/upload_image/`,
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        )
+        .then((response) => {
+          setError(null);
+          setLoading(false);
+          // Handle the server response as needed
+          let data = response.data;
+          console.log(data);
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError("Please try again later");
+          console.error("Error uploading image:", error);
+        });
     }
   };
 
-//   const convertToBase64 = (file) => {
-//     const reader = new FileReader();
-
-//     reader.onload = () => {
-//       const base64Data = reader.result;
-//       // Use the base64Data as needed, for example, send it to the server or update the state.
-//       console.log("Base64 Data:", base64Data);
-//     };
-
-//     reader.readAsDataURL(file);
-//   };
-
   return (
     <div className="bg-pens bg-cover bg-center h-[90vh] ">
+      {loading && <Loading />}
+        {error && <ErrorMessages>{error}</ErrorMessages>}
+        {success && <SuccessMessages>{success}</SuccessMessages>}
       <div className="bg-overlay max-w-5xl mx-auto my-6 h-[85vh] shadow-lg shadow-gray-400">
         <div className="flex flex-col items-center w-full h-full px-4">
           <div>
@@ -89,7 +115,12 @@ const UploadAssets = ({ close }) => {
               </div>
             )}
             <div className="mt-8">
-                <button onClick={handleUpload} className="bg-customBlue cursor-pointer text-white py-2 px-12 rounded-lg">Upload</button>
+              <button
+                onClick={handleUpload}
+                className="bg-customBlue cursor-pointer text-white py-2 px-12 rounded-lg"
+              >
+                Upload
+              </button>
             </div>
           </form>
         </div>

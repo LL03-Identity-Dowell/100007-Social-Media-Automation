@@ -66,8 +66,6 @@ function PostDetail({ show }) {
     }
   };
   useEffect(() => {
-    console.log(isEditedData.paragraph);
-    // Add an event listener when the component mounts
     window.addEventListener("message", handleMessage);
 
     // Remove the event listener when the component unmounts
@@ -109,7 +107,7 @@ function PostDetail({ show }) {
   const handleSubmit = (e) => {
     
     // e.preventDefault();
-    console.log("clicked");
+    console.log(data);
     if (isProductKey) {
       navigate("/");
     }
