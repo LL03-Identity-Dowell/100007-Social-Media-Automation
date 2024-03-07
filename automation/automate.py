@@ -275,25 +275,32 @@ class Automate:
         )
         if not credit_response.get('success'):
             return credit_response
-        start_datetime = datetime.now()
-        Rank = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', ]
-        topic_rank = 0
+
+        topic_rank = 1
         generated_articles = []
 
-        while len(generated_articles) < number_articles and topic_rank <= len(data_dic):
+        while len(generated_articles) < number_articles and topic_rank <= 12:
             # getting required data
+
+            sentence_key = f'sentence_rank_{topic_rank}'
             topic_data = {
-                'sentence': data_dic[topic_rank]['sentence']
+                'sentence': data_dic[sentence_key]['sentence_result']
             }
+
             article_data = self.generate_topic_article(topic_data)
-            if 'error' in article_data.keys():
-                return {'status': 'FAILED', 'response': article_data}
             topic_rank += 1
+            if 'error' in article_data.keys():
+                print(article_data)
+                continue
+
+            generated_articles += article_data['article_data_list']
 
         if self.approval['post'] == False:
             return {'status': 'SUCCESS', 'response': generated_articles}
 
-        for article in generated_articles:
+        client_admin_id = self.session['userinfo']['client_admin_id']
+
+        for article in generated_articles[:number_articles]:
             post_data = {
                 'post_id': article.get('id'),
                 'paragraph': article.get('paragraph'),
@@ -301,14 +308,17 @@ class Automate:
                 "username": self.session['username'],
                 "org_id": self.session['org_id'],
                 "session_id": self.session['session_id'],
-                'client_admin_id': self.session['client_admin_id'],
+                'client_admin_id': client_admin_id,
                 "title": article.get('title'),
                 "event_id": article.get('event_id'),
                 "source": article.get('source'),
             }
-            task_id = async_task(self.save_post, post_data,
-                                 hook='automation.services.hook_now')
-            article['task_id'] = task_id
+
+            # Todo: Change this
+            # task_id = async_task(self.save_post, post_data,
+            #                      hook='automation.services.hook_now')
+            # article['task_id'] = task_id
+            self.save_post(post_data)
 
         return {'status': 'SUCCESS', 'response': generated_articles}
 
@@ -317,6 +327,7 @@ class Automate:
         This method generates articles for a single topic using chatgpt
         """
         try:
+            print(f'Generating articles for sentence {str(data.get("sentence"))}')
             start_datetime = datetime.now()
             RESEARCH_QUERY = data['sentence']
             user_id = self.session['user_id']
@@ -355,7 +366,7 @@ class Automate:
             source = urllib.parse.unquote("")
             event_id = create_event()['event_id']
             user_id = self.session["user_id"]
-            client_admin_id = self.session["client_admin_id"]
+            client_admin_id = self.session['userinfo']['client_admin_id']
             hashtags_in_last_paragraph = set(
                 word.lower() for word in paragraphs[-1].split() if word.startswith('#'))
             for i in range(len(paragraphs) - 1):
@@ -416,6 +427,7 @@ class Automate:
         """
         This method saves a post to step 4. It also gets an image for the post
         """
+        print(f'Saving post')
         credit_handler = CreditHandler()
         credit_response = credit_handler.check_if_user_has_enough_credits(
             sub_service_id=STEP_3_SUB_SERVICE_ID,
@@ -423,6 +435,7 @@ class Automate:
         )
         if not credit_response.get('success'):
             return credit_response
+
         eventId = create_event()['event_id']
         time = localtime()
         test_date = str(localdate())
@@ -432,6 +445,8 @@ class Automate:
         combined_article = "\n\n".join(paragraph_list)
         paragraph_without_commas = combined_article.replace(
             '.', '. ').replace(',.', '.')
+
+        client_admin_id = self.session['userinfo']['client_admin_id']
 
         image = self.get_post_image(post_data)
 
@@ -450,7 +465,7 @@ class Automate:
                 "user_id": post_data['user_id'],
                 "session_id": post_data['session_id'],
                 "eventId": eventId,
-                'client_admin_id': post_data['client_admin_id'],
+                'client_admin_id': client_admin_id,
                 "org_id": post_data['org_id'],
                 "title": post_data['title'],
                 "paragraph": paragraph_without_commas,
@@ -475,7 +490,7 @@ class Automate:
         post_data['post_id'] = response.get('inserted_id')
         post_data['image'] = image
         credit_handler = CreditHandler()
-        credit_handler.consume_step_3_credit(user_info=post_data['user_info'])
+        credit_handler.consume_step_3_credit(user_info=self.user_info)
         async_task(self.media_post, post_data,
                    hook='automation.services.hook_now')
         return response
@@ -522,7 +537,7 @@ class Automate:
         social_without_count_restrictions = [channel for channel in linked_accounts if
                                              channel not in ['twitter', 'pintrest']]
         arguments = []
-        user_info = data['user_info']
+        user_info = self.user_info
         if social_with_count_restrictions:
             truncated_post = f'{paragraph[:235]}\n\n{logo}'
             arguments.append(
