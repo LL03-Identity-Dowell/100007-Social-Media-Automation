@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { MdArrowLeft } from 'react-icons/md';
 
 import Loading from '../../components/Loading';
 import { SuccessMessages, ErrorMessages } from '../../components/Messages';
@@ -20,6 +21,8 @@ const CommentStats = ({ show }) => {
 
   const [search] = useSearchParams();
   const { id } = useParams();
+  const nav = useNavigate();
+
   const searchPlatform = search.get('platforms');
   const platforms = searchPlatform.split(',');
 
@@ -79,8 +82,19 @@ const CommentStats = ({ show }) => {
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       {loading && <Loading />}
+      <h1 className='text-3xl font-bold text-center text-customBlue'>
+        Analytics
+      </h1>
+
+      <div className='w-[90%] m-auto p-4  text-left text-gray-500 dark:text-gray-400 flex'>
+        <button
+          onClick={() => nav(-1)}
+          className='cursor-pointer text-[15px] flex gap-2 items-center bg-customBlue hover:bg-customTextBlue text-white  py-1 px-4 rounded-lg max-w-max'>
+          <MdArrowLeft />
+          Go back
+        </button>
+      </div>
       <div className='w-full text-center'>
-        <h1 className='text-3xl font-bold text-customBlue'>Analytics</h1>
         <ul className='flex gap-x-6 pt-10 px-6 flex-wrap'>
           {stats?.twitter && (
             <TwitterAnalytics
@@ -120,6 +134,11 @@ const CommentStats = ({ show }) => {
             />
           )}
         </ul>
+        {!loading && error && (
+          <div className='text-center text-4xl font-bold text-[#333] flex justify-center items-center h-[350px] text-balance leading-10 flex-col'>
+            Analytics not found
+          </div>
+        )}
       </div>
     </div>
   );
