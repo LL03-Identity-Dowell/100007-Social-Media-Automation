@@ -20,7 +20,6 @@ from helpers import fetch_organization_user_info, create_event, save_data, check
     save_profile_key_to_post
 from react_version import settings
 from website.models import Sentences, SentenceResults, SentenceRank
-from website.views import get_client_approval
 
 
 class Automate:
@@ -35,10 +34,49 @@ class Automate:
         self.session = session
         self.pexels_api_key = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
         self.is_daily_automation = is_daily_automation
-        self.approval = get_client_approval(self.session['user_id'])
+        self.approval = self.get_client_approval(self.session['user_id'])
 
     def __str__(self):
         return f'Automate Social media posting'
+
+    def get_client_approval(self, user_id):
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": user_id},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        response_data_json = json.loads(response.json())
+
+        try:
+            for value in response_data_json['data']:
+                if 'topic' in value.keys():
+                    approval = {
+                        'topic': value.get('topic', 'False'),
+                        'post': value.get('post', 'False'),
+                        'article': value.get('article', 'False'),
+                        'schedule': value.get('schedule', 'False')
+                    }
+                    return (approval)
+            return ({'topic': 'False'})
+        except Exception as e:
+            logging.exception(e)
+            approval = {'topic': 'False'}
+        return (approval)
 
     def generate_topic_api(self, grammar_arguments=None, subject=None, verb=None, objdet=None, adjective=None,
                            object=None):
@@ -280,7 +318,6 @@ class Automate:
             user_id = self.session['user_id']
             session_id = self.session["session_id"]
             # calling user aproval
-            approval = get_client_approval(user_id)
             org_id = self.session["org_id"]
             user_selected_cities = []
             user_data = fetch_organization_user_info(org_id)
