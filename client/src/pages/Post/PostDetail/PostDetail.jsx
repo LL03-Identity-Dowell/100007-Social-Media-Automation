@@ -62,9 +62,9 @@ function PostDetail({ show }) {
       // console.log("Received message from external application:", event.data);
       const editedData = event.data;
       setIsEditedData(editedData);
-      localStorage.setItem("editedData", editedData);
     }
   };
+
   useEffect(() => {
     window.addEventListener("message", handleMessage);
 
@@ -105,7 +105,6 @@ function PostDetail({ show }) {
   //handle next button
 
   const handleSubmit = (e) => {
-    
     // e.preventDefault();
     console.log(data);
     if (isProductKey) {
