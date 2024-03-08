@@ -99,7 +99,7 @@ function PostDetail({ show }) {
         ? postDetailData.post.paragraph[0].replace(/\n\n/, "")
         : "",
     source: postDetailData ? postDetailData.post.source : "",
-    image: selectedImage || postDetailData ? postDetailData.images : "",
+    image: isEditedData.image ? isEditedData.image : selectedImage || postDetailData ? postDetailData.images : "",
   };
   
   //handle next button
