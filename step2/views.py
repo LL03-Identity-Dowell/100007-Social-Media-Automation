@@ -3531,8 +3531,8 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
 class FetchUserInfo(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
-            profile_details = request.session['portfolio_info'][0]['portfolio_name']
-            print(profile_details)
+            # profile_details = request.session['portfolio_info'][0]['portfolio_name']
+            # print(profile_details)
             user_data = fetch_user_info(request)
             return Response(user_data)
         else:
@@ -3585,7 +3585,7 @@ class ImageLibrary(generics.CreateAPIView):
                     "image_library": image,
                 },
                 "update_field": {
-                    "order_nos": 21
+                     "image_library": image,
                 },
                 "platform": "bangalore"
             }
@@ -3599,6 +3599,15 @@ class ImageLibrary(generics.CreateAPIView):
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FetchImages(AuthenticatedBaseView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            image_libraries = [item.get('image_library') for item in user_data.get('data', []) if 'image_library' in item]
+            return Response(image_libraries)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class Analytics(generics.CreateAPIView):
