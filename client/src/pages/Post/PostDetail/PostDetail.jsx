@@ -62,9 +62,9 @@ function PostDetail({ show }) {
       // console.log("Received message from external application:", event.data);
       const editedData = event.data;
       setIsEditedData(editedData);
-      localStorage.setItem("editedData", editedData);
     }
   };
+
   useEffect(() => {
     window.addEventListener("message", handleMessage);
 
@@ -99,13 +99,12 @@ function PostDetail({ show }) {
         ? postDetailData.post.paragraph[0].replace(/\n\n/, "")
         : "",
     source: postDetailData ? postDetailData.post.source : "",
-    image: selectedImage || postDetailData ? postDetailData.images : "",
+    image: isEditedData.image ? isEditedData.image : selectedImage || postDetailData ? postDetailData.images : "",
   };
   
   //handle next button
 
   const handleSubmit = (e) => {
-    
     // e.preventDefault();
     console.log(data);
     if (isProductKey) {

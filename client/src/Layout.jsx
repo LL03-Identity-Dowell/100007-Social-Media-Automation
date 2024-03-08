@@ -44,7 +44,6 @@ const Layout = ({ children, side, show, isUser }) => {
 
         // Parse the modified string as JSON
         const responseObject = JSON.parse(jsonString);
-        console.log();
         if (responseObject.success === false) {
           setIsProductStatus(true);
           setKeyInfo(responseObject.message);
@@ -59,16 +58,16 @@ const Layout = ({ children, side, show, isUser }) => {
         const saveUserInfo = { username: saveUsername, email: saveUseremail, credit: totalCredits };
         const userInfo = JSON.stringify(saveUserInfo);
         localStorage.setItem("userInfo", userInfo);
-        const userProducts = data.portfolio_info;
+        // const userProducts = data.portfolio_info;
         // Check if any product is "Social Media Automation"
-        const hasSocialMediaAutomation = userProducts.some(
-          (product) => product.product === "Social Media Automation"
-        );
-        if (!hasSocialMediaAutomation) {
-          setProduct(false);
-          console.log("You do not have a portfolio", userProducts);
-          navigate("/portfolio_check");
-        }
+        // const hasSocialMediaAutomation = userProducts.some(
+        //   (product) => product.product === "Social Media Automation"
+        // );
+        // if (!hasSocialMediaAutomation) {
+        //   setProduct(false);
+        //   console.log("You do not have a portfolio", userProducts);
+        //   navigate("/portfolio_check");
+        // }
       })
       .catch((err) => {
         console.error("Error fetching data:", err);

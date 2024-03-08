@@ -106,7 +106,7 @@ const ApprovalByClient = ({close}) => {
           let data = response.data;
           setSuccess(
             changedCheckboxes.length > 0
-              ? `${changedCheckboxes.join(", ")} approved...!`
+              ? `${changedCheckboxes.join(", ")} approved`
               : `${data.message}`
           );
 
@@ -130,7 +130,7 @@ const ApprovalByClient = ({close}) => {
           // setSuccess(`${isChecked} Approved...!`);
           setSuccess(
             changedCheckboxes.length > 0
-              ? `${changedCheckboxes.join(", ")} approved...!`
+              ? `${changedCheckboxes.join(", ")} approved`
               : "Done...!"
           );
 
