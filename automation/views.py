@@ -3,6 +3,7 @@
 
 import json
 import logging
+import uuid
 from datetime import datetime
 
 import requests
@@ -208,16 +209,78 @@ class AutomationAPIView(generics.ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         user_info = fetch_user_info(request=self.request)
         automations = user_info['data'][0].get('automations', [])
-        response = AutomationSerializer(automations, many=True)
-        return Response(response.data, status=status.HTTP_200_OK)
+        return Response(automations, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         serializer = AutomationSerializer(data=request.data)
+        email = request.session['userinfo']['email']
+        industry_serializer = IndustrySerializer(
+            email=email, data=request.data)
+        sentence_serializer = SentenceSerializer(
+            email=email, data=request.data)
+
+        if not industry_serializer.is_valid():
+            return Response(industry_serializer.errors, status=HTTP_400_BAD_REQUEST)
+        if not sentence_serializer.is_valid():
+            return Response(sentence_serializer.errors, status=HTTP_400_BAD_REQUEST)
         if not serializer.is_valid():
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        email = request.session['userinfo'].get('email')
+        user = User.objects.create(email=email)
+        industry = industry_serializer.save()
+        industry.user = user
+        industry.save()
+
+        object = sentence_serializer.data['object'].lower()
+        subject = sentence_serializer.validated_data['topic'].name
+        verb = sentence_serializer.data['verb']
+        objdet = sentence_serializer.data['object_determinant']
+        adjective = sentence_serializer.data['adjective']
+
+        userid = request.session['user_id']
+        topic = get_client_approval(userid)
+        auto_strings = {
+            "object": object,
+            "subject": subject,
+            "verb": verb,
+            "objdet": objdet,
+            "objmod": adjective,
+            "email": email,
+            'topic': sentence_serializer.validated_data['topic'].id,
+            "user": user.id,
+        }
+
+        data_dic = {
+            'target_product': industry_serializer.validated_data['target_product'],
+            'target_industry': industry_serializer.validated_data['category'].name,
+            'subject_determinant': sentence_serializer.validated_data.get('subject_determinant', ''),
+            'subject': subject,
+            'subject_number': sentence_serializer.validated_data['subject_number'],
+            'object_determinant': objdet,
+            'object': object,
+            'object_number': sentence_serializer.validated_data['object_number'],
+            'adjective': adjective,
+            'verb': verb,
+            "email": email,
+            'user_id': request.session['user_id'],
+            "session_id": request.session["session_id"],
+            "org_id": request.session['org_id'],
+            'username': request.session['username'],
+            'event_id': create_event()['event_id'],
+            'client_admin_id': request.session['userinfo']['client_admin_id'],
+        }
+        session = {**request.session}
+        session.pop('data_dictionary', None)
+        session.pop('result_ids', None)
         user_info = fetch_user_info(request=request)
         automations = user_info['data'][0].get('automations', [])
-        automations.append(serializer.validated_data)
+        automation_data = {**serializer.validated_data}
+        automation_data['id'] = str(uuid.uuid4())
+        automation_data['session'] = session
+        automation_data['auto_strings'] = auto_strings
+        automation_data['data_dic'] = data_dic
+        automations = [automation for automation in automations if automation]
+        automations.append(automation_data)
         org_id = request.session['org_id']
 
         url = "http://uxlivinglab.pythonanywhere.com"
