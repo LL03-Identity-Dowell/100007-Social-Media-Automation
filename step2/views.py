@@ -1115,9 +1115,7 @@ class SavePostView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class EditPostView(APIView):
-    permission_classes = (EditPostPermission,)
-
+class EditPostView(AuthenticatedBaseView):
     def get(self, request, post_id, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         image_url = request.GET.get('image', None)
