@@ -26,7 +26,7 @@ export const InstagramAnalytics = ({ instagramData, instagramAnalytics }) => {
         <p>Share - {instagramAnalytics?.sharesCount}</p>
         <p>Total Interactions - {instagramAnalytics?.totalInteractionsCount}</p>
         <Date
-          next={instagramData?.analytics_data?.instagram?.lastUpdated}
+          next={instagramData?.analytics_data?.instagram?.nextUpdate}
           last={instagramData?.analytics_data?.instagram?.lastUpdated}
         />
       </div>

@@ -47,7 +47,7 @@ const CommentStats = ({ show }) => {
         })
         .then((res) => {
           const { data } = res;
-          if (data.analytics_data?.code === 102) {
+          if (data.analytics_data?.status === "error") {
             setError('Post ID not found');
             setLoading(false);
 
