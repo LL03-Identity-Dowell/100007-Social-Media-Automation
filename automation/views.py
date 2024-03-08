@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime
 
 import requests
+from django_q.tasks import async_task
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
@@ -192,9 +193,8 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
         if topic['topic'] == True:
             session = {**request.session}
             automate = Automate(session=session)
-            automate.generate_topics(auto_strings, data_dic=data_di)
-            # async_task(automate.generate_topics,
-            #            auto_strings, data_di, hook='automation.services.hook_now')
+            async_task(automate.generate_topics,
+                       auto_strings, data_di, hook='automation.services.hook_now')
 
         return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
 
@@ -238,7 +238,6 @@ class AutomationAPIView(generics.ListCreateAPIView):
         adjective = sentence_serializer.data['adjective']
 
         userid = request.session['user_id']
-        topic = get_client_approval(userid)
         auto_strings = {
             "object": object,
             "subject": subject,
@@ -300,6 +299,7 @@ class AutomationAPIView(generics.ListCreateAPIView):
             "update_field": {
                 "automations": automations,
                 "org_id": org_id,
+                "has_automation": True
             },
             "platform": "bangalore"
         })

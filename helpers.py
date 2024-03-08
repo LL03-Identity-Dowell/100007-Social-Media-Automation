@@ -221,7 +221,7 @@ def get_all_automations():
         "team_member_ID": "1071",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {},
+        "field": {'has_automation': True},
         "update_field": {
             "order_nos": 21
         },
@@ -230,9 +230,11 @@ def get_all_automations():
 
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
-    response = json.loads(response.json())
-    if response.status_code == 200:
+
+    if response.status_code != 200:
         return []
+    response = json.loads(response.json())
+
     automations = []
     user_infor_list = response['data']
     for user_infor in user_infor_list:
