@@ -206,6 +206,41 @@ def fetch_user_info(request):
     return "Error Handling your request"
 
 
+def get_all_automations():
+    """
+    This method returns all automations
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "user_info",
+        "document": "user_info",
+        "team_member_ID": "1071",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+    response = json.loads(response.json())
+    if response.status_code == 200:
+        return []
+    automations = []
+    user_infor_list = response['data']
+    for user_infor in user_infor_list:
+        if 'automations' in user_infor.keys():
+            automations += user_infor['automations']
+    return automations
+
+
 def check_if_user_has_social_media_profile_in_aryshare(username):
     """
     This function checks if a user has a profile account in aryshare
@@ -570,6 +605,7 @@ def encode_json_data(data):
     @return: str
     """
     return jwt.encode(data, "secret", algorithm="HS256")
+
 
 def decode_json_data(data):
     """
