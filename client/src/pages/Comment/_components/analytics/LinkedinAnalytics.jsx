@@ -1,5 +1,5 @@
 import { linkedin } from '../../../../assets';
-import { Date } from './Dates';
+import { Dates } from './Dates';
 
 export const LinkedinAnalytics = ({ linkedinAnalytics, linkedinData }) => {
   console.log(linkedinAnalytics);
@@ -53,7 +53,7 @@ export const LinkedinAnalytics = ({ linkedinAnalytics, linkedinData }) => {
             <p>Share - 0</p>
             <p>Unique Impressions - 0</p>
             <p>Video views - 0</p>
-            <Date
+            <Dates
               next={linkedinData?.analytics_data?.linkedin?.nextUpdate}
               last={linkedinData?.analytics_data?.linkedin?.lastUpdated}
             />
