@@ -206,10 +206,10 @@ class Automate:
             }
         }
 
-        # async_task(self.selected_result, result_ids,
-        #            data_dictionary, hook='automation.services.hook_now')
+        async_task(self.selected_result, result_ids,
+                   data_dictionary, hook='automation.services.hook_now')
         # ToDo: Cahange this
-        self.selected_result(result_ids, data_dictionary)
+        # self.selected_result(result_ids, data_dictionary)
         return data_dictionary
 
     @transaction.atomic
@@ -262,9 +262,9 @@ class Automate:
             credit_handler.consume_step_1_credit(user_info=self.user_info)
             if self.approval['article'] == True:
                 # TODO: change this
-                # async_task(self.generate_article,
-                #            data_dic, hook='automation.services.hook_now')
-                self.generate_article(data_dic=data_dic)
+                async_task(self.generate_article,
+                           data_dic, hook='automation.services.hook_now')
+                # self.generate_article(data_dic=data_dic)
             return {'status': 'SUCCESS', 'response': data_dic}
 
         except Exception as e:
@@ -355,10 +355,10 @@ class Automate:
             }
 
             # Todo: Change this
-            # task_id = async_task(self.save_post, post_data,
-            #                      hook='automation.services.hook_now')
-            # article['task_id'] = task_id
-            self.save_post(post_data)
+            task_id = async_task(self.save_post, post_data,
+                                 hook='automation.services.hook_now')
+            article['task_id'] = task_id
+            # self.save_post(post_data)
 
         return {'status': 'SUCCESS', 'response': generated_articles}
 
