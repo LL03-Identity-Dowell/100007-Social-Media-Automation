@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import (AdminApproveSocialMediaRequestView, ImageLibrary, MainAPIView, UserApprovalView, GenerateArticleView,
+from .views import (AdminApproveSocialMediaRequestView, FetchImages, ImageLibrary, MainAPIView, UserApprovalView, GenerateArticleView,
                     TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
                     MentionView, MentionUpdateView, UnScheduledView, UnScheduledJsonView,
@@ -12,7 +12,7 @@ from .views import (AdminApproveSocialMediaRequestView, ImageLibrary, MainAPIVie
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
                     LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
-                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView)
+                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,NewPostGeneration)
 
 app_name = 'generate_article'
 
@@ -99,7 +99,13 @@ urlpatterns = [
          name='social-media-portfolio-endpoint'),
     path('upload_image/', ImageLibrary.as_view(),
          name='upload-image-endpoint'),
+    path('fetch_image/', FetchImages.as_view(),
+         name='fetch-image-endpoint'),
      path('post_analytics/', Analytics.as_view(),
          name='post-analytics-endpoint'),
+     path('post_generation/', NewPostGeneration.as_view(),
+         name='post-generation-endpoint'),
+     
+     
 
 ]

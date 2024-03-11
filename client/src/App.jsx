@@ -187,7 +187,7 @@ function App() {
             element={<PostDetailDropdown close={handleCloseSideBar} />}
           />
           <Route
-            path='/settings/upload-assets'
+            path='/settings/upload-image'
             element={<UploadAssets close={handleCloseSideBar} />}
           />
           <Route
