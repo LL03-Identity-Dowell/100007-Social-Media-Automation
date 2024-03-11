@@ -9,19 +9,7 @@ const dowellLoginUrl =
 //   "https://100014.pythonanywhere.com/sign-out?redirect_url=" +
 //   window.location.origin
 
-// const getUserInfoOther = async (session_id) => {
-//   const session = {
-//     session_id,
-//   };
 
-//   const res = await axios({
-//     method: "post",
-//     url: "https://100093.pythonanywhere.com/api/userinfo/",
-//     data: session,
-//   });
-
-//   sessionStorage.setItem("userInfo", JSON.stringify(res.data));
-// };
 
 export default function useDowellLogin() {
   const [loading, setLoading] = useState(false);
@@ -34,12 +22,31 @@ export default function useDowellLogin() {
   //   const localSession = sessionStorage.getItem("session_id")
   //     ? JSON.parse(sessionStorage.getItem("session_id"))
   //     : null;
+
+  const getUserInfoOther = async (session_id) => {
+    const session = {
+      session_id,
+    };
+  
+    const res = await axios({
+      method: "post",
+      url: "https://100093.pythonanywhere.com/api/userinfo/",
+      data: session,
+    });
+    console.log(res.data);
+  
+    localStorage.setItem("userInfo", JSON.stringify(res.data));
+  };
+
+
   axios.defaults.withCredentials = true;
   useEffect(() => {
     // const session_id = searchParams.get("session_id");
     // const id = searchParams.get("id");
 
     if (session_id) {
+      getUserInfoOther(session_id)
+
       localStorage.setItem("session_id", session_id);
       // sessionStorage.setItem("session_id", session_id);
 
