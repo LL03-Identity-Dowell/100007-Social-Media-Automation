@@ -78,3 +78,4 @@ class SelectedResultSerializer(serializers.Serializer):
     rank_10 = serializers.CharField(required=False)
     rank_11 = serializers.CharField(required=False)
     rank_12 = serializers.CharField(required=False)
+
