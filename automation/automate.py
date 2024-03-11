@@ -3,10 +3,11 @@ import json
 import logging
 import random
 import urllib.parse
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 
 import openai
+import pytz
 import requests
 from PIL import Image
 from django.db import transaction
@@ -270,6 +271,25 @@ class Automate:
             print(str(e))
             return {'status': 'FAILED', 'response': e}
 
+    def generate_time_intervals(self, num_intervals, start_time=None, end_time=None):
+        """
+        This method generates time intervals based on the
+        @param num_intervals:
+        @param start_time:
+        @param end_time:
+        @return:
+        """
+        # Calculate the total duration between start and end times
+        total_duration = end_time - start_time
+
+        # Calculate the interval duration
+        interval_duration = total_duration / (num_intervals - 1)
+
+        # Generate a list of time intervals
+        time_intervals = [start_time + i * interval_duration for i in range(num_intervals)]
+
+        return time_intervals
+
     @transaction.atomic
     def generate_article(self, data_dic, ):
         """
@@ -307,8 +327,19 @@ class Automate:
             return {'status': 'SUCCESS', 'response': generated_articles}
 
         client_admin_id = self.session['userinfo']['client_admin_id']
+        now = datetime.now()
+        timezone = self.session['timezone']
+        current_timezone = pytz.timezone(timezone)
+        local_time = current_timezone.localize(now)
+        end_time = local_time + timedelta(hours=1)
+        schedule_time_intervals = self.generate_time_intervals(
+            num_intervals=number_articles,
+            start_time=local_time,
+            end_time=end_time,
+        )
 
-        for article in generated_articles[:number_articles]:
+        for count, article in enumerate(generated_articles[:number_articles]):
+            schedule_time = schedule_time_intervals[count]
             post_data = {
                 'post_id': article.get('id'),
                 'paragraph': article.get('paragraph'),
@@ -320,6 +351,7 @@ class Automate:
                 "title": article.get('title'),
                 "event_id": article.get('event_id'),
                 "source": article.get('source'),
+                "schedule_time": schedule_time,
             }
 
             # Todo: Change this
@@ -545,17 +577,21 @@ class Automate:
         social_without_count_restrictions = [channel for channel in linked_accounts if
                                              channel not in ['twitter', 'pintrest']]
         arguments = []
-        user_info = self.user_info
+        schedule_time_str = None
+        if data.get('schedule_time'):
+            schedule_time = data.get('schedule_time')
+            schedule_time_str = schedule_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+
         if social_with_count_restrictions:
             truncated_post = f'{paragraph[:235]}\n\n{logo}'
             arguments.append(
                 (truncated_post, social_with_count_restrictions,
-                 key, image, org_id, post_id, user_info),
+                 key, image, org_id, post_id, schedule_time_str),
             )
         if social_without_count_restrictions:
             arguments.append(
                 (postes, social_without_count_restrictions,
-                 key, image, org_id, post_id, user_info),
+                 key, image, org_id, post_id, schedule_time_str),
             )
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -643,12 +679,14 @@ class Automate:
         images = output[0]
         return images
 
-    def post_article_to_aryshare(self, postes, platforms, key, image, org_id, post_id, user_info):
-        payload = {'post': postes,
+    def post_article_to_aryshare(self, post, platforms, key, image, org_id, post_id, schedule_date=None):
+        payload = {'post': post,
                    'platforms': platforms,
                    'profileKey': key,
                    'mediaUrls': [image],
                    }
+        if schedule_date:
+            payload['scheduleDate'] = str(schedule_date)
         headers = {'Content-Type': 'application/json',
                    'Authorization': F"Bearer {str(settings.ARYSHARE_KEY)}"}
         try:
@@ -668,7 +706,7 @@ class Automate:
             elif response_data['status'] == 'success' and 'warnings' not in response_data:
                 self.update_most_recent(post_id)
                 credit_handler = CreditHandler()
-                credit_handler.consume_step_4_credit(user_info=user_info)
+                credit_handler.consume_step_4_credit(user_info=self.user_info)
                 update = self.update_most_recent(post_id)
                 return {'success': True, 'message': 'Successfully Posted'}
             else:
