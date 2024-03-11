@@ -18,11 +18,13 @@ import { handleCharacCount } from "./_components/function";
 import { FaEdit, FaTimes } from "react-icons/fa";
 import HashtagAndMentions from "./_components/HashtagAndMentions";
 import { Banner } from "./_components/banner";
+import UploadImages from "./_components/UploadImages";
 
 function PostDetail({ show }) {
   const [isProductKey, setIsProductKey] = useState();
+  const [isUploadedImage, setIsUploadedImage] = useState();
   const [editing, setEditing] = useState(false);
-  const [isEdited, setisEdited] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [postId, setPostId] = useState(null);
   const [iframeSrc, setIframeSrc] = useState(null);
   const [postDetailData, setPostDetailData] = useState();
@@ -79,6 +81,11 @@ function PostDetail({ show }) {
     setIsProductKey(productKey);
   }, []);
 
+  useEffect(() => {
+    const uploadedImage = localStorage.getItem("uploadedImage");
+    setIsUploadedImage(uploadedImage)
+  });
+
   // handle input change
   const handelChange = (e) => {
     const { name, value } = e.target;
@@ -88,25 +95,33 @@ function PostDetail({ show }) {
       [name]: value,
     });
   };
+
   const data = {
     qualitative_categorization: inputs.qualitative_categorization,
     targeted_for: inputs.targeted_for,
     designed_for: inputs.designed_for,
     targeted_category: inputs.targeted_category,
-    title: isEditedData.title ? isEditedData.title : title || postDetailData?.post?.title || "",
-    paragraphs: isEditedData.paragraph ? isEditedData.paragraph :
-      paragraph || postDetailData
-        ? postDetailData.post.paragraph[0].replace(/\n\n/, "")
-        : "",
+    title: isEditedData.title
+      ? isEditedData.title
+      : title || postDetailData?.post?.title || "",
+    paragraphs: isEditedData.paragraph
+      ? isEditedData.paragraph
+      : paragraph || postDetailData
+      ? postDetailData.post.paragraph[0].replace(/\n\n/, "")
+      : "",
     source: postDetailData ? postDetailData.post.source : "",
-    image: isEditedData.image ? isEditedData.image : selectedImage || postDetailData ? postDetailData.images : "",
+    image: isEditedData.image
+      ? isEditedData.image
+      : isUploadedImage ? isUploadedImage : postDetailData
+      ? postDetailData.images
+      : "",
   };
-  
+
   //handle next button
 
   const handleSubmit = (e) => {
     // e.preventDefault();
-    console.log(data);
+    localStorage.removeItem("uploadedImage");
     if (isProductKey) {
       navigate("/");
     }
@@ -232,15 +247,21 @@ function PostDetail({ show }) {
     setCheckPermission(!checkPermission);
   };
 
+  const handelUploadPopup = () => {
+    setIsUploadOpen(!isUploadOpen);
+  };
+
   return (
     <div className="relative">
-        <div className="">
-         <Banner />
+      <div className="">
+        <Banner />
       </div>
       <div className="m-4 mb-8 lg:m-8">
         {loading && <Loading />}
         {error && <ErrorMessages>{error}</ErrorMessages>}
         {success && <SuccessMessages>{success}</SuccessMessages>}
+
+        {isUploadOpen && <UploadImages modal={handelUploadPopup} />}
 
         <div className="flex items-center justify-between mt-2 mb-2 text-lg font-bold md:mb-0">
           <h2 className={isEditedData.title ? "hidden" : "block"}>
@@ -249,7 +270,6 @@ function PostDetail({ show }) {
           <h2 className={isEditedData.title ? "block" : "hidden"}>
             {isEditedData.title && isEditedData.title}
           </h2>
-           
 
           <span
             onClick={handelPopup}
@@ -263,7 +283,9 @@ function PostDetail({ show }) {
 
         <hr className="my-4" />
 
-        <div className={isEditedData.paragraph ? "hidden" : "mt-4 md:mt-8 block"}>
+        <div
+          className={isEditedData.paragraph ? "hidden" : "mt-4 md:mt-8 block"}
+        >
           {postDetailData &&
             paragraph.map((p, index) => (
               <div className="text-base" key={index}>
@@ -271,9 +293,10 @@ function PostDetail({ show }) {
               </div>
             ))}
         </div>
-        <div className={isEditedData.paragraph ? "block mt-4 md:mt-8" : " hidden"}>
-          {isEditedData.paragraph &&
-           isEditedData.paragraph}
+        <div
+          className={isEditedData.paragraph ? "block mt-4 md:mt-8" : " hidden"}
+        >
+          {isEditedData.paragraph && isEditedData.paragraph}
         </div>
 
         <hr className="my-4" />
@@ -292,14 +315,22 @@ function PostDetail({ show }) {
         <div className="flex flex-col lg:flex-row md:flex-row md:gap-20 lg:gap-24">
           <div className="relative">
             <img
-              src={postDetailData && postDetailData.images}
+              src={isUploadedImage ? isUploadedImage : postDetailData && postDetailData.images}
               alt=""
-              className={isEditedData.image ? "hidden" : "md:w-[500px] w-full h-full img-fluid post-img block"}
+              className={
+                isEditedData.image
+                  ? "hidden"
+                  : "md:w-[500px] w-full h-full img-fluid post-img block"
+              }
             />
             <img
               src={isEditedData.image && isEditedData.image}
               alt=""
-              className={isEditedData.image ? "block md:w-[500px] w-full h-full img-fluid post-img" : " hidden"}
+              className={
+                isEditedData.image
+                  ? "block md:w-[500px] w-full h-full img-fluid post-img"
+                  : " hidden"
+              }
             />
           </div>
 
@@ -392,7 +423,12 @@ function PostDetail({ show }) {
               </select>
             </div>
             <div>
-              <button className="bg-customBlue py-2 px-4 rounded text-white">Upload Image</button>
+              <button
+                onClick={handelUploadPopup}
+                className="bg-customBlue py-2 px-4 rounded text-white cursor-pointer"
+              >
+                Choose Image
+              </button>
             </div>
           </div>
         </div>
