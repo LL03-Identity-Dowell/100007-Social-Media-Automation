@@ -391,6 +391,9 @@ function PostDetail({ show }) {
                 <TargetCategory />
               </select>
             </div>
+            <div>
+              <button className="bg-customBlue py-2 px-4 rounded text-white">Upload Image</button>
+            </div>
           </div>
         </div>
 
