@@ -212,7 +212,7 @@ const CreateArticle = ({ show }) => {
                           </td>
                           <td className="px-6 py-4 lg:whitespace-nowrap md:whitespace-nowrap">
                             <button
-                              className="bg-[#999999] text-white text-xs mx-3 rounded p-2 w-auto"
+                              className="bg-customBlue text-white text-xs mx-3 rounded p-2 w-auto"
                               onClick={() =>
                                 callGenerateArticleAI(item.sentence)
                               }

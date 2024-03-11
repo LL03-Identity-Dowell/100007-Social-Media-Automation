@@ -46,22 +46,26 @@ const UploadImages = ({ modal }) => {
   const ITEMS_PER_PAGE = 6;
   const offset = currentPage * ITEMS_PER_PAGE;
 
-  const displayedImages = [...images].reverse().slice(offset, offset + ITEMS_PER_PAGE);
+  const displayedImages = [...images]
+    .reverse()
+    .slice(offset, offset + ITEMS_PER_PAGE);
 
   const handleDoneButtonClick = () => {
-    setLoading(true)
+    setLoading(true);
     if (selectedImageIndex !== null) {
-        localStorage.setItem("uploadedImage", displayedImages[selectedImageIndex])
-        setSuccess("Image Added Successfully")
-        setLoading(false)
-        setTimeout(() => {
-            modal()
-            
-        }, 1000);
+      localStorage.setItem(
+        "uploadedImage",
+        displayedImages[selectedImageIndex]
+      );
+      setSuccess("Image Added Successfully");
+      setLoading(false);
+      setTimeout(() => {
+        modal();
+      }, 1000);
     } else {
-        console.log("No image selected.");
-        setError("No image selected")
-        setLoading(false)
+      console.log("No image selected.");
+      setError("No image selected");
+      setLoading(false);
     }
   };
 
@@ -94,9 +98,24 @@ const UploadImages = ({ modal }) => {
             displayedImages.map((item, index) => (
               <div key={index} className="flex flex-row-reverse gap-2">
                 <label htmlFor={index}>
-                  <img src={item} alt={item} className={`w-full md:w-[80%] rounded-lg ${selectedImageIndex === index ? 'border-4 border-customTextBlue' : ''}`} onClick={() => setSelectedImageIndex(index)}/>
+                  <img
+                    src={item}
+                    alt={item}
+                    className={`w-full md:w-[80%] rounded-lg ${
+                      selectedImageIndex === index
+                        ? "border-4 border-customTextBlue"
+                        : ""
+                    }`}
+                    onClick={() => setSelectedImageIndex(index)}
+                  />
                 </label>
-                <input type="radio" id={index} name="image" checked={selectedImageIndex === index} readOnly/>
+                <input
+                  type="radio"
+                  id={index}
+                  name="image"
+                  checked={selectedImageIndex === index}
+                  readOnly
+                />
               </div>
             ))}
         </div>
