@@ -27,7 +27,7 @@ class Automate:
     """
     __name__ = 'Automate'
 
-    def __init__(self, session: dict, is_daily_automation: bool = False):
+    def __init__(self, session: dict, is_daily_automation: bool = False, number_of_posts: int = 1):
         logging.info('Initializing automate class')
         self.credit_handler = CreditHandler()
         self.user_info = session.get('user_info')
@@ -35,6 +35,7 @@ class Automate:
         self.pexels_api_key = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
         self.is_daily_automation = is_daily_automation
         self.approval = self.get_client_approval(self.session['user_id'])
+        self.number_of_posts = number_of_posts
 
     def __str__(self):
         return f'Automate Social media posting'
@@ -143,10 +144,16 @@ class Automate:
         print(credit_response)
         if not credit_response.get('success'):
             return credit_response
+
+        user = auto_strings.get('user') or auto_strings.get('user_id')
+        if isinstance(auto_strings['topic'], int):
+            topic_id = auto_strings['topic']
+        else:
+            topic_id = auto_strings['topic'].id
         sentence_grammar = Sentences.objects.create(
-            user=auto_strings['user'],
+            user=user,
             object=auto_strings['object'],
-            topic=auto_strings['topic'],
+            topic_id=topic_id,
             verb=auto_strings['verb'],
             adjective=data_dic['adjective'],
         )
@@ -264,10 +271,11 @@ class Automate:
             return {'status': 'FAILED', 'response': e}
 
     @transaction.atomic
-    def generate_article(self, data_dic, number_articles: int = 1):
+    def generate_article(self, data_dic, ):
         """
         This method generated articles according to the number of article required. The default is one article
         """
+        number_articles = self.number_of_posts
         credit_handler = CreditHandler()
         credit_response = credit_handler.check_if_user_has_enough_credits(
             sub_service_id=STEP_2_SUB_SERVICE_ID,

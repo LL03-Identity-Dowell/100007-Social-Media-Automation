@@ -1,7 +1,6 @@
 import logging
 
 from django.core.management import BaseCommand
-from django_q.tasks import async_task
 
 from automation.automate import Automate
 from helpers import get_all_automations
@@ -20,14 +19,14 @@ class Command(BaseCommand):
         automations = get_all_automations()
         log.info(f'Found {len(automations)} automations')
         for automation in automations:
-            try:
-                auto_strings = automation['auto_strings']
-                data_di = automation['data_di']
-                automate = Automate(session=automation['session'])
-                if automate.approval.get('topic') == True:
-                    async_task(automate.generate_topics,
-                               auto_strings, data_di, hook='automation.services.hook_now')
-            except Exception as e:
 
-                import pdb
-                pdb.set_trace()
+            auto_strings = automation['auto_strings']
+            data_di = automation['data_dic']
+
+            automate = Automate(session=automation['session'],
+                                number_of_posts=automation.get('number_of_posts_per_day'))
+            if automate.approval.get('topic') == True:
+                # Todo: Remove this
+                automate.generate_topics(auto_strings, data_di)
+                # async_task(automate.generate_topics,
+                #            auto_strings, data_di, hook='automation.services.hook_now')
