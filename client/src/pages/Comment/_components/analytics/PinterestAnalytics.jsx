@@ -18,7 +18,7 @@ export const PinterestAnalytics = ({ pinterestData, pinterestAnalytics }) => {
           Quartile 95 Percent View - {pinterestAnalytics.quartile95PercentView}
         </p>
         <Date
-          next={pinterestData?.analytics_data?.pinterest?.lastUpdated}
+          next={pinterestData?.analytics_data?.pinterest?.nextUpdate}
           last={pinterestData?.analytics_data?.pinterest?.lastUpdated}
         />
       </div>

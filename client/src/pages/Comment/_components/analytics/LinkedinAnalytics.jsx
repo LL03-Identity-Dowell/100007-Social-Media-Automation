@@ -54,7 +54,7 @@ export const LinkedinAnalytics = ({ linkedinAnalytics, linkedinData }) => {
             <p>Unique Impressions - 0</p>
             <p>Video views - 0</p>
             <Date
-              next={linkedinData?.analytics_data?.linkedin?.lastUpdated}
+              next={linkedinData?.analytics_data?.linkedin?.nextUpdate}
               last={linkedinData?.analytics_data?.linkedin?.lastUpdated}
             />
           </div>
@@ -70,4 +70,3 @@ export const LinkedinAnalytics = ({ linkedinAnalytics, linkedinData }) => {
     </>
   );
 };
-

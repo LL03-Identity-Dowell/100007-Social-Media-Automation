@@ -18,7 +18,7 @@ export const FacebookAnalytics = ({ facebookData, facebookAnalytics }) => {
         <p>Reactions - {facebookAnalytics?.reactions?.total}</p>
         <p>Shares - {facebookAnalytics?.sharesCount}</p>
         <Date
-          next={facebookData?.analytics_data?.facebook?.lastUpdated}
+          next={facebookData?.analytics_data?.facebook?.nextUpdate}
           last={facebookData?.analytics_data?.facebook?.lastUpdated}
         />
       </div>
