@@ -3585,7 +3585,7 @@ class ImageLibrary(generics.CreateAPIView):
                     "image_library": image,
                 },
                 "update_field": {
-                     "image_library": image,
+                    "image_library": image,
                 },
                 "platform": "bangalore"
             }
@@ -3593,18 +3593,23 @@ class ImageLibrary(generics.CreateAPIView):
             payload = json.dumps(payload)
             try:
                 response = requests.post(url, headers=headers, data=payload)
-                return Response(status=response.status_code)
+                if response.status_code == 200:
+                    return Response({"message": "Success", "status_code": response.status_code})
+                else:
+                    return Response({"message": "Failed", "status_code": response.status_code})
             except requests.RequestException as e:
                 print({"error": str(e)})
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class FetchImages(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             user_data = fetch_user_info(request)
-            image_libraries = [item.get('image_library') for item in user_data.get('data', []) if 'image_library' in item]
+            image_libraries = [item.get('image_library') for item in user_data.get(
+                'data', []) if 'image_library' in item]
             return Response(image_libraries)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
