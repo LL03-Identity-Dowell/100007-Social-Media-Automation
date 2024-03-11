@@ -113,14 +113,20 @@ const CreateArticle = ({ show }) => {
       });
   };
 
-  const callGenerateArticleWiki = (item) => {
+  const callGenerateArticleWiki = (sentence, verb, subject) => {
     // Make an API request to GenerateArticleView
+    console.log(subject, verb, sentence);
+
+    const data = {
+      sentence: sentence,
+      verb: verb,
+      subject: subject
+    }
+    
     if (isProductKey) {
       navigate("/");
     } 
-    const data = {
-      title: item,
-    };
+    
     setLoading(true);
     axios
       .post(`${import.meta.env.VITE_APP_BASEURL}/article/wiki/`, data, {
@@ -217,7 +223,7 @@ const CreateArticle = ({ show }) => {
                             <button
                               className="bg-[#0866FF] text-white text-xs mx-3 rounded p-2 w-auto"
                               onClick={() =>
-                                callGenerateArticleWiki(item.sentence)
+                                callGenerateArticleWiki(item.sentence, item.verb, item.subject)
                               }
                             >
                               Wikipedia

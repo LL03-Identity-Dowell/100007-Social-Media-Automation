@@ -1,4 +1,4 @@
-import {  useState } from 'react';
+import { useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Home from './pages/homepage/Home';
 import Layout from './Layout';
@@ -20,26 +20,27 @@ import SocialMediaChannels from './pages/UserProfile/SocialMediaChannels';
 import ApprovalByClient from './pages/UserProfile/ApprovalByClient';
 import SpecificArticle from './pages/Article/SpecificArticle';
 // import SpecificPost from "./pages/Post/PostList/SpecificPost";
-import PostDetail from './pages/Post/PostDetail/PostDetail';
-import ClientProfile from './pages/UserProfile/ClientProfile';
-import TargetCities from './pages/UserProfile/TargetCities';
-import Fackbook from './pages/UserProfile/_components/facebook';
-import Instagram from './pages/UserProfile/_components/instagram';
-import Twitter from './pages/UserProfile/_components/twitter';
-import Youtube from './pages/UserProfile/_components/youtube';
-import Pinterest from './pages/UserProfile/_components/pinterest';
-import Linkedin from './pages/UserProfile/_components/linkedin';
-import CreateArticle from './pages/Article/CreateArticle';
-import Rank from './pages/RankPage/Rank';
-import PortfolioError from './pages/NotFound/PortfolioError';
-import Wikipidia from './pages/Article/Wikipidia';
-import WriteYourSelf from './pages/Article/WriteYourSelf';
-import PostDetailDropdown from './pages/UserProfile/PostDetailDropdown';
-import Mention from './pages/SettingsPages/Mention';
-import BaseHashMention from './pages/SettingsPages/BaseHashMention';
-import Portfolio from './pages/Portfolio/portfolio';
-import AdminApproval from './pages/UserProfile/AdminApproval';
-
+import PostDetail from "./pages/Post/PostDetail/PostDetail";
+import ClientProfile from "./pages/UserProfile/ClientProfile";
+import TargetCities from "./pages/UserProfile/TargetCities";
+import Fackbook from "./pages/UserProfile/_components/facebook";
+import Instagram from "./pages/UserProfile/_components/instagram";
+import Twitter from "./pages/UserProfile/_components/twitter";
+import Youtube from "./pages/UserProfile/_components/youtube";
+import Pinterest from "./pages/UserProfile/_components/pinterest";
+import Linkedin from "./pages/UserProfile/_components/linkedin";
+import CreateArticle from "./pages/Article/CreateArticle";
+import Rank from "./pages/RankPage/Rank";
+import PortfolioError from "./pages/NotFound/PortfolioError";
+import Wikipidia from "./pages/Article/Wikipidia";
+import WriteYourSelf from "./pages/Article/WriteYourSelf";
+import PostDetailDropdown from "./pages/UserProfile/PostDetailDropdown";
+import Mention from "./pages/SettingsPages/Mention";
+import BaseHashMention from "./pages/SettingsPages/BaseHashMention";
+import Portfolio from "./pages/Portfolio/portfolio";
+import AdminApproval from "./pages/UserProfile/AdminApproval";
+import UploadAssets from "./pages/SettingsPages/UploadAssets";
+import CommentStats from './pages/Comment/CommentStats';
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -111,6 +112,10 @@ function App() {
             element={<ViewComments show={handleOpenSideBar} />}
           />
           <Route
+            path='/comment/:id/stats'
+            element={<CommentStats show={handleOpenSideBar} />}
+          />
+          <Route
             path='/address'
             element={<Address close={handleCloseSideBar} />}
           />
@@ -180,6 +185,10 @@ function App() {
           <Route
             path='/settings/postdetaildropdowns'
             element={<PostDetailDropdown close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/settings/upload-assets'
+            element={<UploadAssets close={handleCloseSideBar} />}
           />
           <Route
             path='/target-cities'

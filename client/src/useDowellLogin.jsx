@@ -58,7 +58,7 @@ export default function useDowellLogin() {
             url: "https://100014.pythonanywhere.com/api/userinfo/",
             data: session,
           });
-          //   console.log(res);
+            console.log(res);
           const data = res.data;
           // const saveUsername = data.userinfo.username;
           // const saveUserInfo = JSON.stringify(saveUsername);

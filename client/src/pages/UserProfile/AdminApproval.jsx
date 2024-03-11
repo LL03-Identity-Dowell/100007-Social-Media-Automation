@@ -31,6 +31,7 @@ const AdminApproval = ({ close }) => {
         .then((response) => {
           setLoading(false);
           setRequests(response.data.social_media_requests);
+          setSuccess("Requests Fetched Successfully")
         })
         .catch((error) => {
           setLoading(false);
@@ -71,6 +72,7 @@ const AdminApproval = ({ close }) => {
         .then((response) => {
           setLoading(false);
           setSuccess(response.data.message);
+          location.reload();
         })
         .catch((error) => {
           setLoading(false);
@@ -107,6 +109,7 @@ const AdminApproval = ({ close }) => {
         .then((response) => {
           setLoading(false);
           setSuccess(response.data.message);
+          location.reload();
         })
         .catch((error) => {
           setLoading(false);
@@ -139,6 +142,7 @@ const AdminApproval = ({ close }) => {
         .then((response) => {
           setLoading(false);
           setSuccess(response.data.message);
+          location.reload();
         })
         .catch((error) => {
           setLoading(false);
@@ -160,6 +164,7 @@ const AdminApproval = ({ close }) => {
               Approval Admin Page
             </h2>
           </div>
+          {!requests && <p className="py-3">You do not have any requests</p>}
           <form className="text-left mt-4 w-full grid gap-2 text-customBlue">
             <div className="flex md:flex-row flex-col gap-2 md:gap-10 flex-wrap md:mt-6">
               {requests &&

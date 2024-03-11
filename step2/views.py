@@ -10,7 +10,7 @@ from datetime import datetime
 # image resizing
 from io import BytesIO
 from itertools import chain
-
+from django.db import transaction
 import jwt
 # from website.views import get_client_approval
 import openai
@@ -49,6 +49,7 @@ from helpers import (check_if_user_is_owner_of_organization, decode_json_data, d
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
 from react_version import settings
+
 from react_version.permissions import EditPostPermission
 from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
@@ -689,6 +690,118 @@ step-3 starts here
 '''
 
 
+class NewPostGeneration(AuthenticatedBaseView):
+    def post(self, request, *args, **kwargs):
+        session_id = request.GET.get('session_id', None)
+        data = "data from api"  # new dev working on this
+        email = request.session['userinfo']['email']
+        url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
+        email = request.session['userinfo'].get('email')
+        object = data['object'].lower()
+        subject = data['topic']
+        verb = data['verb']
+        adjective = data['adjective']
+
+        def api_call(grammar_arguments=None):
+            if grammar_arguments is None:
+                grammar_arguments = {}
+
+            querystring = {
+                "object": object,
+                "subject": subject,
+                "verb": verb,
+                "objmod": adjective,
+            }
+
+            iter_sentence_type = []
+            if 'tense' in grammar_arguments:
+                querystring['tense'] = grammar_arguments['tense'].capitalize()
+                iter_sentence_type.append(
+                    grammar_arguments['tense'].capitalize())
+
+            if 'progressive' in grammar_arguments:
+                querystring['progressive'] = 'progressive'
+                iter_sentence_type.append(grammar_arguments['progressive'])
+
+            if 'perfect' in grammar_arguments:
+                querystring['perfect'] = 'perfect'
+                iter_sentence_type.append(grammar_arguments['perfect'])
+
+            if 'negated' in grammar_arguments:
+                querystring['negated'] = 'negated'
+                iter_sentence_type.append(grammar_arguments['negated'])
+
+            if 'passive' in grammar_arguments:
+                querystring['passive'] = 'passive'
+                iter_sentence_type.append(grammar_arguments['passive'])
+
+            if 'modal_verb' in grammar_arguments:
+                querystring['modal'] = grammar_arguments['modal_verb']
+
+            if 'sentence_art' in grammar_arguments:
+                querystring['sentencetype'] = grammar_arguments['sentence_art']
+            iter_sentence_type.append("sentence.")
+            type_of_sentence = ' '.join(iter_sentence_type)
+
+            headers = {
+                'x-rapidapi-host': "linguatools-sentence-generating.p.rapidapi.com",
+                'x-rapidapi-key': settings.LINGUA_KEY
+            }
+            response = requests.request(
+                "GET", url, headers=headers, params=querystring).json()
+            return [response['sentence'], type_of_sentence]
+
+        data_dictionary = request.POST.dict()
+        data_dictionary["user_id"] = request.session['user_id']
+        data_dictionary["session_id"] = session_id
+        data_dictionary["org_id"] = request.session['org_id']
+        data_dictionary["username"] = request.session['username']
+        data_dictionary["session_id"] = request.session.get(
+            'session_id', None)
+        data_dictionary['event_id'] = create_event()['event_id']
+        data_dictionary['email'] = email
+
+        try:
+            data_dictionary.pop('csrfmiddlewaretoken')
+        except KeyError:
+            print('csrfmiddlewaretoken key not in data_dictionary')
+        request.session['data_dictionary'] = data_dictionary
+        tenses = ['past', 'present', 'future']
+        other_grammar = ['passive', 'progressive', 'perfect', 'negated']
+        api_results = []
+
+        for tense in tenses:
+            for grammar in other_grammar:
+                arguments = {'tense': tense, grammar: grammar}
+                api_result = api_call(arguments)
+                api_results.append(api_result)
+        else:
+            pass
+
+        # correct this once we have the data
+        RESEARCH_QUERY = data.get("topic/title")
+        prompt_limit = 3000
+        min_characters = 500
+        prompt = (
+            f"Write an article about {RESEARCH_QUERY}"
+            f" Ensure that the generated content is a minimum of {min_characters} characters in length."
+            [:prompt_limit]
+            + "..."
+        )
+        response = openai.Completion.create(
+            engine="gpt-3.5-turbo-instruct",
+            prompt=prompt,
+            temperature=0.5,
+            max_tokens=1024,
+            n=1,
+            stop=None,
+            timeout=60,
+        )
+        article = response.choices[0].text
+        # save the data to collection and use it for automation
+        return Response({"message": "Post saved successfully"}, status=status.HTTP_200_OK)
+
+
 class PostListView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
@@ -1002,9 +1115,7 @@ class SavePostView(AuthenticatedBaseView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class EditPostView(APIView):
-    permission_classes = (EditPostPermission,)
-
+class EditPostView(AuthenticatedBaseView):
     def get(self, request, post_id, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         image_url = request.GET.get('image', None)
@@ -1089,6 +1200,7 @@ class AryshareProfileView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         event_id = create_event()['event_id']
         user = request.session['username']
+        # user = request.session['portfolio_info'][0]['portfolio_name']
         payload = {'title': user}
         headers = {'Content-Type': 'application/json',
                    'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
@@ -2955,7 +3067,7 @@ class GroupHashtagView(AuthenticatedBaseView):
         org_id = request.session['org_id']
         session_id = request.GET.get("session_id", None)
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         client_admin_id = request.session['userinfo']['client_admin_id']
 
         create_hashtag_data = {
@@ -2989,7 +3101,7 @@ class GroupHashtagDetailView(AuthenticatedBaseView):
             return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
 
         group_name = serializer_data.validated_data['group_name']
-        hashtags = serializer_data.validated_data['hashtags'].split(',')
+        hashtags = serializer_data.validated_data['hashtags']
         update_type = request.GET.get('update_type', 'append')
         org_id = request.session['org_id']
 
@@ -3419,6 +3531,8 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
 class FetchUserInfo(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
+            # profile_details = request.session['portfolio_info'][0]['portfolio_name']
+            # print(profile_details)
             user_data = fetch_user_info(request)
             return Response(user_data)
         else:
@@ -3427,6 +3541,7 @@ class FetchUserInfo(AuthenticatedBaseView):
 
 class ImageLibrary(generics.CreateAPIView):
     serializer_class = ImageUploadSerializer
+
     def post(self, request):
         session_id = request.GET.get("session_id", None)
         serializer = ImageUploadSerializer(data=request.data)
@@ -3470,7 +3585,7 @@ class ImageLibrary(generics.CreateAPIView):
                     "image_library": image,
                 },
                 "update_field": {
-                    "order_nos": 21
+                     "image_library": image,
                 },
                 "platform": "bangalore"
             }
@@ -3484,6 +3599,15 @@ class ImageLibrary(generics.CreateAPIView):
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FetchImages(AuthenticatedBaseView):
+    def get(self, request):
+        if 'session_id' and 'username' in request.session:
+            user_data = fetch_user_info(request)
+            image_libraries = [item.get('image_library') for item in user_data.get('data', []) if 'image_library' in item]
+            return Response(image_libraries)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class Analytics(generics.CreateAPIView):
