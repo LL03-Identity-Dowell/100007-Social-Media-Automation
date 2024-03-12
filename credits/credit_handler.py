@@ -247,15 +247,22 @@ class CreditHandler:
             response = {}
         return self.format_steps_response(request, response)
 
-    def check_if_user_has_enough_credits(self, sub_service_id: str, request: WSGIRequest = None, user_info=None):
+    def check_if_user_has_enough_credits(self, sub_service_id: str, request: WSGIRequest = None, session: dict = None):
         """
         This method check if a user has enough credits to perform a step
         """
         credit_response = {}
-        if request.session['username'] in CREDITS_EXEMPTED_USERNAMES:
-            if request.session.get('credit_response', ):
+        session = request.session if request else session
+        if session['username'] in CREDITS_EXEMPTED_USERNAMES:
+            if request and request.session.get('credit_response', ):
                 del request.session['credit_response']
             return {'success': True, 'message': 'You have enough credits to perform this action'}
+
+        if session:
+            user_info = session['user_info']
+        else:
+            user_info = {}
+
         response = self.login(request=request, user_info=user_info)
 
         if not response.get('services'):

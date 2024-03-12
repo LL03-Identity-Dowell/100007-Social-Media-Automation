@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import mimetypes
-import os
 from pathlib import Path
 
 from decouple import config
@@ -178,9 +177,11 @@ Q_CLUSTER = {
     'retry': 350,
     'queue_limit': 50,
     'ack_failures': True,
-    'attempt_count': 1,
+    'attempt_count': 3,
     'bulk': 10,
-    'orm': 'default'}
+    'orm': 'default',
+    'max_attempts': 3,
+}
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
