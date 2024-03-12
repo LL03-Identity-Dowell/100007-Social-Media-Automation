@@ -2081,8 +2081,9 @@ class Comments(AuthenticatedBaseView):
             if not credit_response.get('success'):
                 return Response(credit_response, status=HTTP_400_BAD_REQUEST)
             user_id = request.session['user_id']
-            recent_posts = get_most_recent_posts(user_id=user_id)
-            scheduled_post = get_scheduled_posts(user_id=user_id)
+            org_id = request.session.get('org_id')
+            recent_posts = get_most_recent_posts(org_id=org_id)
+            scheduled_post = get_scheduled_posts(org_id=org_id)
             all_posts = list(chain(recent_posts, scheduled_post))
             number_of_items_per_page = 5
             page = request.GET.get('page', 1)
