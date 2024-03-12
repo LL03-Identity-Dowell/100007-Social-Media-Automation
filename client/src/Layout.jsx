@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { initFlowbite } from "flowbite";
 import Navbar from "./components/navbar/Navbar";
 import Sidebar from "./components/sidebar/Sidebar";
+import Cookies from "js-cookie"
 import { Link, useNavigate } from "react-router-dom";
 import Loading from "./components/Loading";
 import axios from "axios";
@@ -17,14 +18,17 @@ const Layout = ({ children, side, show, isUser }) => {
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
+  
   useEffect(() => {
     initFlowbite();
   }, []);
+
   const { loading, product } = useDowellLogin();
 
   const checkSession = async () => {
-    // if (!sessionCheckPerformed && session_id) {}
+
     const session_id = localStorage.getItem("session_id");
+
     axios
       .get(`${import.meta.env.VITE_APP_BASEURL}/main/`, {
         headers: {
@@ -72,6 +76,8 @@ const Layout = ({ children, side, show, isUser }) => {
       .catch((err) => {
         console.error("Error fetching data:", err);
       });
+
+      Cookies.set("session_id", session_id, {sameSite: "Lax"})
   };
 
   useEffect(() => {
