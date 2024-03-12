@@ -1,5 +1,5 @@
 import { xTwitter } from '../../../../assets';
-import { Date } from './Dates';
+import { Dates } from './Dates';
 
 export const TwitterAnalytics = ({ twitterAnalytics, twitter }) => {
   return (
@@ -20,7 +20,7 @@ export const TwitterAnalytics = ({ twitterAnalytics, twitter }) => {
         <p>Reply - {twitterAnalytics?.organicMetrics?.replyCount}</p>
         <p>Retweets - {twitterAnalytics?.organicMetrics?.retweetCount}</p>
         <p>Quote - {twitterAnalytics?.publicMetrics?.quoteCount}</p>
-        <Date
+        <Dates
           next={twitter?.analytics_data?.twitter?.nextUpdate}
           last={twitter?.analytics_data?.twitter?.lastUpdated}
         />
