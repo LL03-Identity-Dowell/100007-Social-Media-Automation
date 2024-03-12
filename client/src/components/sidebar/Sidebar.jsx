@@ -15,9 +15,7 @@ const Sidebar = () => {
     <>
       {isProductStatus === true ? (
         <ServiceKey isMessages={keyInfo} check={isProductStatus} />
-      ) : (
-        ''
-      )}
+      ) : null}
       {creditCount < 100 && (
         <ServiceKey
           isMessages='Your credits are below 100! Buy more credits'
