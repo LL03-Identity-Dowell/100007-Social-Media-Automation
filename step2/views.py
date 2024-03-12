@@ -1,4 +1,3 @@
-from rest_framework import generics
 import concurrent.futures
 import datetime
 import json
@@ -10,7 +9,7 @@ from datetime import datetime
 # image resizing
 from io import BytesIO
 from itertools import chain
-from django.db import transaction
+
 import jwt
 # from website.views import get_client_approval
 import openai
@@ -30,6 +29,7 @@ from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
+from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
@@ -40,20 +40,20 @@ from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
     STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image, download_and_upload_users_image,
+from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image,
+                     download_and_upload_users_image,
                      fetch_organization_user_info,
                      fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, check_connected_accounts,
-                     check_if_user_has_social_media_profile_in_aryshare, text_from_html,
-                     update_aryshare, get_key, get_most_recent_posts, get_post_comments, save_profile_key_to_post,
+                     check_if_user_has_social_media_profile_in_aryshare, update_aryshare, get_key,
+                     get_most_recent_posts, get_post_comments, save_profile_key_to_post,
                      get_post_by_id, post_comment_to_social_media, get_scheduled_posts, delete_post_comment,
                      encode_json_data, create_group_hashtags, filter_group_hashtag, update_group_hashtags)
 from react_version import settings
-
-from react_version.permissions import EditPostPermission
 from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
-from .serializers import (DataSerializer, PortfolioChannelsSerializer, ProfileSerializer, CitySerializer, UnScheduledJsonSerializer,
+from .serializers import (DataSerializer, PortfolioChannelsSerializer, ProfileSerializer, CitySerializer,
+                          UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
                           MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
@@ -480,7 +480,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                 if not credit_response.get('success'):
                     return Response(credit_response, status=HTTP_400_BAD_REQUEST)
 
-                title = request.data.get("title")
+                title = request.data.get("sentence")
                 org_id = request.session.get('org_id')
                 wiki_language = wikipediaapi.Wikipedia(
                     language='en', extract_format=wikipediaapi.ExtractFormat.WIKI)
@@ -539,6 +539,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
                     credit_handler = CreditHandler()
                     credit_handler.consume_step_2_credit(request)
                     return Response({'message': 'Article saved successfully'}, status=status.HTTP_201_CREATED)
+
                 if page.exists():
                     print("For Title: " + title + " Page exists.")
                     article = page.text
@@ -2080,8 +2081,9 @@ class Comments(AuthenticatedBaseView):
             if not credit_response.get('success'):
                 return Response(credit_response, status=HTTP_400_BAD_REQUEST)
             user_id = request.session['user_id']
-            recent_posts = get_most_recent_posts(user_id=user_id)
-            scheduled_post = get_scheduled_posts(user_id=user_id)
+            org_id = request.session.get('org_id')
+            recent_posts = get_most_recent_posts(org_id=org_id)
+            scheduled_post = get_scheduled_posts(org_id=org_id)
             all_posts = list(chain(recent_posts, scheduled_post))
             number_of_items_per_page = 5
             page = request.GET.get('page', 1)
@@ -3585,7 +3587,7 @@ class ImageLibrary(generics.CreateAPIView):
                     "image_library": image,
                 },
                 "update_field": {
-                     "image_library": image,
+                    "image_library": image,
                 },
                 "platform": "bangalore"
             }
@@ -3593,18 +3595,23 @@ class ImageLibrary(generics.CreateAPIView):
             payload = json.dumps(payload)
             try:
                 response = requests.post(url, headers=headers, data=payload)
-                return Response(status=response.status_code)
+                if response.status_code == 200:
+                    return Response({"message": "Success", "status_code": response.status_code})
+                else:
+                    return Response({"message": "Failed", "status_code": response.status_code})
             except requests.RequestException as e:
                 print({"error": str(e)})
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class FetchImages(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
             user_data = fetch_user_info(request)
-            image_libraries = [item.get('image_library') for item in user_data.get('data', []) if 'image_library' in item]
+            image_libraries = [item.get('image_library') for item in user_data.get(
+                'data', []) if 'image_library' in item]
             return Response(image_libraries)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)

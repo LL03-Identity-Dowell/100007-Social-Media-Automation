@@ -10,7 +10,7 @@ import BottomBar from './components/Bottombar/BottomBar';
 import { CreditContext } from './global/CreditContext';
 
 const Layout = ({ children, side, show, isUser }) => {
-  const [product, setProduct] = useState(true);
+  // const [product, setProduct] = useState(true);
   // const [loading, setLoading] = useState(false);
   const { setIsProductStatus, setKeyInfo, setCreditCount } =
     useContext(CreditContext);
@@ -20,7 +20,7 @@ const Layout = ({ children, side, show, isUser }) => {
   useEffect(() => {
     initFlowbite();
   }, []);
-  const { loading } = useDowellLogin();
+  const { loading, product } = useDowellLogin();
 
   const checkSession = async () => {
     // if (!sessionCheckPerformed && session_id) {}

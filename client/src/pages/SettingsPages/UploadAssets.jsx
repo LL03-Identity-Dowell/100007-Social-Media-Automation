@@ -64,7 +64,7 @@ const UploadAssets = ({ close }) => {
           setLoading(false);
           // Handle the server response as needed
           let data = response.data;
-          console.log(data);
+          setSuccess("Image Uploaded")
         })
         .catch((error) => {
           setLoading(false);

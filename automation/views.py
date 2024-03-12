@@ -2,6 +2,8 @@
 
 
 import json
+import logging
+import uuid
 from datetime import datetime
 
 import requests
@@ -10,6 +12,9 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from automation.automate import Automate
+from automation.serializers import AutomationSerializer
+from helpers import fetch_user_info
 from step2.views import create_event
 from website.models import User
 from website.permissions import HasBeenAuthenticated
@@ -72,6 +77,7 @@ def insert_form_data(data_dict):
     response = requests.post(url, json=data, headers=headers)
     return response.json()
 
+
 def get_client_approval(user):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
@@ -97,14 +103,17 @@ def get_client_approval(user):
 
     try:
         for value in response_data_json['data']:
-            aproval = {
-                'topic': value['topic'],
-                'post': value['post'],
-                'article': value['article'],
-                'schedule': value['schedule']
-            }
-        return (aproval)
-    except:
+            if 'topic' in value.keys():
+                aproval = {
+                    'topic': value.get('topic', 'False'),
+                    'post': value.get('post', 'False'),
+                    'article': value.get('article', 'False'),
+                    'schedule': value.get('schedule', 'False')
+                }
+                return (aproval)
+        return ({'topic': 'False'})
+    except Exception as e:
+        logging.exception(e)
         aproval = {'topic': 'False'}
     return (aproval)
 
@@ -182,6 +191,122 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
             'user_info': request.session.get('userinfo'),
         }
         if topic['topic'] == True:
-            async_task("automation.services.generate_topics",
+            session = {**request.session}
+            automate = Automate(session=session)
+            async_task(automate.generate_topics,
                        auto_strings, data_di, hook='automation.services.hook_now')
+
         return Response({"message": "Topics saved successfully"}, status=status.HTTP_200_OK)
+
+
+class AutomationAPIView(generics.ListCreateAPIView):
+    """
+
+    """
+    permission_classes = (HasBeenAuthenticated,)
+    serializer_class = AutomationSerializer
+
+    def get(self, request, *args, **kwargs):
+        user_info = fetch_user_info(request=self.request)
+        automations = user_info['data'][0].get('automations', [])
+        return Response(automations, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = AutomationSerializer(data=request.data)
+        email = request.session['userinfo']['email']
+        industry_serializer = IndustrySerializer(
+            email=email, data=request.data)
+        sentence_serializer = SentenceSerializer(
+            email=email, data=request.data)
+
+        if not industry_serializer.is_valid():
+            return Response(industry_serializer.errors, status=HTTP_400_BAD_REQUEST)
+        if not sentence_serializer.is_valid():
+            return Response(sentence_serializer.errors, status=HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        email = request.session['userinfo'].get('email')
+        user = User.objects.create(email=email)
+        industry = industry_serializer.save()
+        industry.user = user
+        industry.save()
+
+        object = sentence_serializer.data['object'].lower()
+        subject = sentence_serializer.validated_data['topic'].name
+        verb = sentence_serializer.data['verb']
+        objdet = sentence_serializer.data['object_determinant']
+        adjective = sentence_serializer.data['adjective']
+
+        userid = request.session['user_id']
+        auto_strings = {
+            "object": object,
+            "subject": subject,
+            "verb": verb,
+            "objdet": objdet,
+            "objmod": adjective,
+            "email": email,
+            'topic': sentence_serializer.validated_data['topic'].id,
+            "user": user.id,
+        }
+
+        data_dic = {
+            'target_product': industry_serializer.validated_data['target_product'],
+            'target_industry': industry_serializer.validated_data['category'].name,
+            'subject_determinant': sentence_serializer.validated_data.get('subject_determinant', ''),
+            'subject': subject,
+            'subject_number': sentence_serializer.validated_data['subject_number'],
+            'object_determinant': objdet,
+            'object': object,
+            'object_number': sentence_serializer.validated_data['object_number'],
+            'adjective': adjective,
+            'verb': verb,
+            "email": email,
+            'user_id': request.session['user_id'],
+            "session_id": request.session["session_id"],
+            "org_id": request.session['org_id'],
+            'username': request.session['username'],
+            'event_id': create_event()['event_id'],
+            'client_admin_id': request.session['userinfo']['client_admin_id'],
+        }
+        session = {**request.session}
+        session.pop('data_dictionary', None)
+        session.pop('result_ids', None)
+        user_info = fetch_user_info(request=request)
+        automations = user_info['data'][0].get('automations', [])
+        automation_data = {**serializer.validated_data}
+        automation_data['id'] = str(uuid.uuid4())
+        automation_data['session'] = session
+        automation_data['auto_strings'] = auto_strings
+        automation_data['data_dic'] = data_dic
+        automations = [automation for automation in automations if automation]
+        automations.append(automation_data)
+        org_id = request.session['org_id']
+
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+
+            "field": {
+                'user_id': request.session['user_id'],
+            },
+            "update_field": {
+                "automations": automations,
+                "org_id": org_id,
+                "has_automation": True
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.json())
+        return Response({"message": "Automation saved successfully"}, status=status.HTTP_200_OK)

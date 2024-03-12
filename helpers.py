@@ -41,6 +41,7 @@ def download_and_upload_image(image_url):
     except Exception as e:
         return {'file_url': image_url}
 
+
 def download_and_upload_users_image(image_url):
     try:
         files = {'image': image_url}
@@ -48,6 +49,7 @@ def download_and_upload_users_image(image_url):
         return upload_response.json()
     except Exception as e:
         return {'error': str(e)}
+
 
 def save_data(collection, document, field, team_member_ID):
     url = "http://uxlivinglab.pythonanywhere.com"
@@ -213,6 +215,43 @@ def fetch_user_info(request):
     return "Error Handling your request"
 
 
+def get_all_automations():
+    """
+    This method returns all automations
+    """
+    url = "http://uxlivinglab.pythonanywhere.com/"
+    headers = {'content-type': 'application/json'}
+
+    payload = {
+        "cluster": "socialmedia",
+        "database": "socialmedia",
+        "collection": "user_info",
+        "document": "user_info",
+        "team_member_ID": "1071",
+        "function_ID": "ABCDE",
+        "command": "fetch",
+        "field": {'has_automation': True},
+        "update_field": {
+            "order_nos": 21
+        },
+        "platform": "bangalore"
+    }
+
+    data = json.dumps(payload)
+    response = requests.request("POST", url, headers=headers, data=data)
+
+    if response.status_code != 200:
+        return []
+    response = json.loads(response.json())
+
+    automations = []
+    user_infor_list = response['data']
+    for user_infor in user_infor_list:
+        if 'automations' in user_infor.keys():
+            automations += user_infor['automations']
+    return automations
+
+
 def check_if_user_has_social_media_profile_in_aryshare(username):
     """
     This function checks if a user has a profile account in aryshare
@@ -372,7 +411,7 @@ def delete_post_comment(comment_id: str, profile_key: str, platform: str):
     return r.json()
 
 
-def get_most_recent_posts(user_id):
+def get_most_recent_posts(org_id):
     """
     This function returns the most recent posts made by a user
     """
@@ -387,7 +426,7 @@ def get_most_recent_posts(user_id):
         "team_member_ID": "1163",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {"user_id": user_id},
+        "field": {"org_id": org_id},
         "update_field": {
             "order_nos": 21
         },
@@ -403,7 +442,7 @@ def get_most_recent_posts(user_id):
 
     for row in posts['data']:
 
-        if user_id == str(row['user_id']):
+        if org_id == str(row['org_id']):
             try:
                 if status == row['status']:
                     data = {
@@ -424,7 +463,7 @@ def get_most_recent_posts(user_id):
     return user_post
 
 
-def get_scheduled_posts(user_id):
+def get_scheduled_posts(org_id):
     url = "http://uxlivinglab.pythonanywhere.com/"
     headers = {'content-type': 'application/json'}
 
@@ -436,7 +475,7 @@ def get_scheduled_posts(user_id):
         "team_member_ID": "1163",
         "function_ID": "ABCDE",
         "command": "fetch",
-        "field": {"user_id": user_id},
+        "field": {"org_id": org_id},
         "update_field": {
             "order_nos": 21
         },
@@ -451,7 +490,7 @@ def get_scheduled_posts(user_id):
     post_data = []
 
     for row in posts['data']:
-        if user_id == str(row['user_id']):
+        if org_id == str(row['org_id']):
             try:
                 if status == row['status']:
                     data = {
@@ -577,6 +616,7 @@ def encode_json_data(data):
     @return: str
     """
     return jwt.encode(data, "secret", algorithm="HS256")
+
 
 def decode_json_data(data):
     """
