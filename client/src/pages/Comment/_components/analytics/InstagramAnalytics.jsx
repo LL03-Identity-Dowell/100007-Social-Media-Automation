@@ -1,5 +1,5 @@
 import { instagram } from '../../../../assets';
-import { Date } from './Dates';
+import { Dates } from './Dates';
 
 export const InstagramAnalytics = ({ instagramData, instagramAnalytics }) => {
   return (
@@ -25,7 +25,7 @@ export const InstagramAnalytics = ({ instagramData, instagramAnalytics }) => {
         <p>Play - {instagramAnalytics?.playsCount}</p>
         <p>Share - {instagramAnalytics?.sharesCount}</p>
         <p>Total Interactions - {instagramAnalytics?.totalInteractionsCount}</p>
-        <Date
+        <Dates
           next={instagramData?.analytics_data?.instagram?.nextUpdate}
           last={instagramData?.analytics_data?.instagram?.lastUpdated}
         />

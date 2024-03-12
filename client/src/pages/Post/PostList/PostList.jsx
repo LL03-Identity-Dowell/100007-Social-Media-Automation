@@ -39,40 +39,6 @@ const PostList = ({ show }) => {
     setIsProductKey(productKey);
   }, []);
 
-  // const fetch = () => {
-  //   setLoading(true);
-
-  //   // Make a GET request to the API endpoint with the session_id
-  //   axios
-  //     .get(
-  //       `${import.meta.env.VITE_APP_BASEURL}/post_list/?page=${page + 1}&order=newest`,
-  //       {
-  //         withCredentials: true,
-  //       }
-  //     )
-  //     .then((response) => {
-  //       setError(null);
-  //       setLoading(false);
-  //       let data = response.data;
-
-  //       if(data.total_items <= 0){
-  //         setIsEmpty("You do not have any posts")
-  //       }
-  //       setPostData(data.posts);
-  //       setCount(data.total_items);
-  //       setPageCount(Math.ceil(data.total_items / perPage));
-  //       setShowMorePages(pageCount > pagesToDisplay);
-  //       window.scrollTo(0, 0);
-  //     })
-  //     .catch((error) => {
-  //       setLoading(false);
-  //       setError("Server error, Please try again later");
-  //       console.error("Error fetching article:", error);
-  //     });
-  // };
-
-  // handle navigation to post-detail page
-  
   const page = parseInt(new URLSearchParams(location.search).get("page")) || 0;
 
   const {

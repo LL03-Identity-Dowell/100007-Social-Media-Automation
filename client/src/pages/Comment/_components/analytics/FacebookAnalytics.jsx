@@ -1,4 +1,5 @@
 import { facebook } from '../../../../assets';
+import { Dates } from './Dates';
 
 export const FacebookAnalytics = ({ facebookData, facebookAnalytics }) => {
   return (
@@ -17,7 +18,7 @@ export const FacebookAnalytics = ({ facebookData, facebookAnalytics }) => {
         <p>Avg Watch Time - {facebookAnalytics?.postVideoAvgTimeWatched}</p>
         <p>Reactions - {facebookAnalytics?.reactions?.total}</p>
         <p>Shares - {facebookAnalytics?.sharesCount}</p>
-        <Date
+        <Dates
           next={facebookData?.analytics_data?.facebook?.nextUpdate}
           last={facebookData?.analytics_data?.facebook?.lastUpdated}
         />
