@@ -1027,7 +1027,7 @@ class PostDetailView(AuthenticatedBaseView):
                              'images': images, 'profile': profile, 'targeted_category': targeted_category,
                              'qualitative_categorization': qualitative_categorization,
                              'targeted_for': targeted_for,
-                             "message": "You are limited to use only images from Samanta AI due to security and privacy policy"}
+                             }
             return Response(response_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -1200,8 +1200,8 @@ class EditPostView(AuthenticatedBaseView):
 class AryshareProfileView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         event_id = create_event()['event_id']
-        user = request.session['username']
-        # user = request.session['portfolio_info'][0]['portfolio_name']
+        # user = request.session['username']
+        user = request.session['portfolio_info'][0]['portfolio_name']
         payload = {'title': user}
         headers = {'Content-Type': 'application/json',
                    'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
@@ -1255,6 +1255,8 @@ class AryshareProfileView(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 class LinkMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
+        if not check_if_user_is_owner_of_organization(request):
+            return Response({'message': 'Only the owner of the organization can connect/add social media channels'})
         session_id = request.GET.get("session_id", None)
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
@@ -1308,7 +1310,8 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
         try:
             title = request.session['portfolio_info'][0]['owner_name']
         except KeyError:
-            title = request.session['username']
+            title = request.session['portfolio_info'][0]['portfolio_name']
+            # title = request.session['username']
 
         user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
             title)
