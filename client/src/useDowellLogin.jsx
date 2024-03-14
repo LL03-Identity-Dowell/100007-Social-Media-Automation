@@ -31,7 +31,7 @@ export default function useDowellLogin() {
     });
     console.log(res.data);
 
-    sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+    // sessionStorage.setItem("userInfo", JSON.stringify(res.data));
     setLoading(false)
   };
 
@@ -69,7 +69,6 @@ export default function useDowellLogin() {
     axios.defaults.withCredentials = true;
     if (session_id) {
       localStorage.setItem("session_id", session_id);
-      sessionStorage.setItem("session_id", session_id);
 
       const newUrl = window.location.href.split("?")[0];
       window.history.replaceState({}, document.title, newUrl);

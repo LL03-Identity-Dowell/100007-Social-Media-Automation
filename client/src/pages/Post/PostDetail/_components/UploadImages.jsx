@@ -27,6 +27,7 @@ const UploadImages = ({ modal }) => {
           setError(null);
           setLoading(false);
           let data = response.data;
+          console.log(data);
           setImages(data);
           setSuccess(data.message);
         })
@@ -75,7 +76,7 @@ const UploadImages = ({ modal }) => {
       {error && <ErrorMessages>{error}</ErrorMessages>}
       {success && <SuccessMessages>{success}</SuccessMessages>}
       <span
-        className="absolute  top-4 p-2 md:text-xl font-bold border border-black rounded-full cursor-pointer right-4 md:right-20"
+        className="absolute  top-4 p-2 md:text-xl font-bold border-2 border-black rounded-full cursor-pointer right-4 md:right-20"
         onClick={modal}
       >
         <FaTimes />

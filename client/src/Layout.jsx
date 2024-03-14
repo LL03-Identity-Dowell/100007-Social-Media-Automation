@@ -77,7 +77,6 @@ const Layout = ({ children, side, show, isUser }) => {
         console.error("Error fetching data:", err);
       });
 
-      Cookies.set("session_id", session_id, {sameSite: "Lax"})
   };
 
   useEffect(() => {
