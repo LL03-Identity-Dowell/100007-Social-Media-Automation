@@ -1,10 +1,11 @@
-import * as Dialog from "@radix-ui/react-dialog";
-import { Cross2Icon } from "@radix-ui/react-icons";
+import * as Dialog from '@radix-ui/react-dialog';
+import { Cross2Icon } from '@radix-ui/react-icons';
 import {
   SocialComponentForPost,
   SocialComponentForSchedule,
-} from "./SocialComponent";
-import { useEffect, useState } from "react";
+} from './SocialComponent';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const PostModal = ({
   article,
@@ -15,11 +16,13 @@ export const PostModal = ({
 }) => {
   const [open, setOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const productKey = localStorage.getItem("productKey");
+    const productKey = localStorage.getItem('productKey');
     if (productKey) {
-      navigate("/");
-    } 
+      navigate('/');
+    }
   }, []);
 
   return (
@@ -27,8 +30,7 @@ export const PostModal = ({
       <Dialog.Trigger asChild>
         <button
           type='button'
-          className='w-24 h-10 text-sm text-center text-white rounded-md hover:opacity-95 bg-customBlue '
-        >
+          className='w-24 h-10 text-sm text-center text-white rounded-md hover:opacity-95 bg-customBlue '>
           Post Now
         </button>
       </Dialog.Trigger>
@@ -38,8 +40,7 @@ export const PostModal = ({
           <Dialog.Close asChild>
             <button
               className='text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none'
-              aria-label='Close'
-            >
+              aria-label='Close'>
               <Cross2Icon />
             </button>
           </Dialog.Close>
@@ -70,10 +71,10 @@ export const ScheduleModal = ({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const productKey = localStorage.getItem("productKey");
+    const productKey = localStorage.getItem('productKey');
     if (productKey) {
-      navigate("/");
-    } 
+      navigate('/');
+    }
   }, []);
 
   return (
@@ -81,8 +82,7 @@ export const ScheduleModal = ({
       <Dialog.Trigger asChild>
         <button
           type='button'
-          className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-[#5c6388] text-center'
-        >
+          className='w-24 h-10 text-sm text-white rounded-md hover:opacity-95 bg-[#5c6388] text-center'>
           Schedule
         </button>
       </Dialog.Trigger>
@@ -92,8 +92,7 @@ export const ScheduleModal = ({
           <Dialog.Close asChild>
             <button
               className='text-violet11 hover:bg-violet4 focus:shadow-violet7 absolute top-[10px] right-[10px] inline-flex h-[25px] w-[25px] appearance-none items-center justify-center rounded-full focus:shadow-[0_0_0_2px] focus:outline-none'
-              aria-label='Close'
-            >
+              aria-label='Close'>
               <Cross2Icon />
             </button>
           </Dialog.Close>
