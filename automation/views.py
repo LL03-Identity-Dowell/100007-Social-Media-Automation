@@ -200,11 +200,14 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
 
 
 class AutomationAPIView(generics.ListCreateAPIView):
-    """
 
-    """
     permission_classes = (HasBeenAuthenticated,)
     serializer_class = AutomationSerializer
+
+    def get_queryset(self):
+        user_info = fetch_user_info(request=self.request)
+        automations = user_info['data'][0].get('automations', [])
+        return automations
 
     def get(self, request, *args, **kwargs):
         user_info = fetch_user_info(request=self.request)
