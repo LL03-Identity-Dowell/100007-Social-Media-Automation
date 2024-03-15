@@ -12,7 +12,7 @@ from .views import (AdminApproveSocialMediaRequestView, FetchImages, ImageLibrar
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
                     LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
-                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,NewPostGeneration,LogoutUser)
+                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,NewPostGeneration, LogoutUser)
 
 app_name = 'generate_article'
 
@@ -83,7 +83,7 @@ urlpatterns = [
          CanPostOnSocialMedia.as_view(), name='can-post'),
     path('link/linkusers/', AryshareProfileView.as_view(), name='can-post'),
     path('link/', LinkMediaChannelsView.as_view(), name='can-post'),
-    path('logout/', LogoutUser.as_view(), name='logout'),
+     path('logout/', LogoutUser.as_view(), name='logout'),
     path('comments/', Comments.as_view(), name='comments-endpoint'),
     path('comments/create/<str:post_id>/',
          CreatePostComments.as_view(), name='create-comments-endpoint'),

@@ -30,6 +30,7 @@ const PostList = ({ show }) => {
 
   useEffect(() => {
     show();
+    localStorage.removeItem("uploadedImage");
 
     // fetch();
   }, []);
