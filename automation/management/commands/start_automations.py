@@ -3,7 +3,7 @@ import logging
 from django.core.management import BaseCommand
 
 from automation.automate import Automate
-from helpers import get_all_automations
+from helpers import filter_all_automations
 
 log = logging.getLogger(__name__)
 
@@ -16,14 +16,26 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         log.info('Starting automations')
-        automations = get_all_automations()
+        automations = filter_all_automations()
         log.info(f'Found {len(automations)} automations')
 
         for count, automation in enumerate(automations):
             try:
                 print(f'Running automation {str(count + 1)}/{len(automations)}')
-                automate = Automate(session=automation['session'],
-                                    number_of_posts=automation.get('number_of_posts_per_day'))
+                days_run = automation.get('days_run', 0)
+                number_of_days = automation.get('days_run', 0)
+
+                automate = Automate(
+                    session=automation['session'],
+                    number_of_posts=automation.get('number_of_posts_per_day'),
+                    automation_id=automation.get('id')
+                )
+
+                if days_run >= number_of_days:
+                    print(f'Automation has run for the required days. Skipping...')
+                    continue
+                automate.update_automation_data()
+
                 if 'auto_string' in automation.keys():
                     continue
                     auto_strings = automation['auto_string']

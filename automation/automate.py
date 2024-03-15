@@ -19,7 +19,7 @@ from pexels_api.api import API
 from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
 from helpers import fetch_organization_user_info, create_event, save_data, check_connected_accounts, get_key, \
-    save_profile_key_to_post
+    save_profile_key_to_post, filter_all_automations
 from react_version import settings
 from website.models import Sentences, SentenceResults, SentenceRank
 
@@ -29,7 +29,8 @@ class Automate:
     """
     __name__ = 'Automate'
 
-    def __init__(self, session: dict, is_daily_automation: bool = False, number_of_posts: int = 1):
+    def __init__(self, session: dict, is_daily_automation: bool = False, number_of_posts: int = 1,
+                 automation_id: str = ''):
         logging.info('Initializing automate class')
         self.credit_handler = CreditHandler()
         self.user_info = session.get('user_info')
@@ -38,9 +39,57 @@ class Automate:
         self.is_daily_automation = is_daily_automation
         self.approval = self.get_client_approval(self.session['user_id'])
         self.number_of_posts = number_of_posts
+        self.automation_id = automation_id
 
     def __str__(self):
         return f'Automate Social media posting'
+
+    def update_automation_data(self):
+        """
+
+        @return:
+        """
+        organization_automations = filter_all_automations({'org_id': self.session['org_id']})
+        if self.automation_id == '':
+            print('No automation id has been provided. Skipping....')
+            return
+        updated_automation_list = []
+
+        for automation in organization_automations:
+            if automation.get('id') == self.automation_id:
+                updated_automation = {**automation}
+                days_run = automation.get('days_run', 0)
+                updated_automation['days_run'] = days_run + 1
+                updated_automation_list.append(updated_automation)
+            else:
+                updated_automation_list.append(automation)
+        url = "http://uxlivinglab.pythonanywhere.com"
+
+        payload = json.dumps({
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "user_info",
+            "document": "user_info",
+            "team_member_ID": "1071",
+            "function_ID": "ABCDE",
+            "command": "update",
+            "field": {
+                'user_id': self.session['user_id'],
+            },
+            "update_field": {
+                "automations": updated_automation_list,
+                "org_id": self.session['org_id'],
+                "has_automation": True
+            },
+            "platform": "bangalore"
+        })
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload)
+        print(response.json())
+        return updated_automation_list
 
     def get_client_approval(self, user_id):
         url = "http://uxlivinglab.pythonanywhere.com/"
