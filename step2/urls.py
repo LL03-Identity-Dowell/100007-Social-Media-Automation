@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import (AdminApproveSocialMediaRequestView, FetchImages, ImageLibrary, MainAPIView, UserApprovalView, GenerateArticleView,
+from .views import (AdminApproveSocialMediaRequestView, ChannelViewAccess, FetchImages, ImageLibrary, MainAPIView, UserApprovalView, GenerateArticleView,
                     TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
                     MentionView, MentionUpdateView, UnScheduledView, UnScheduledJsonView,
@@ -75,6 +75,8 @@ urlpatterns = [
     path('recent_posts/', MostRecentJSON.as_view(), name='recent_post'),
     path('social_media_channels/approve/',
          AdminApproveSocialMediaRequestView.as_view(), name='approve_social_media_channels'),
+    path('social_media_access_view_channels/',
+         ChannelViewAccess.as_view(), name='social_media_access_view_channels'),
     path('social_media_channels/',
          SocialMediaChannelsView.as_view(), name='social_media_channels'),
     path('linked-account/',
