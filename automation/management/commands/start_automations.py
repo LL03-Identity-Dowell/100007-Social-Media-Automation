@@ -18,15 +18,18 @@ class Command(BaseCommand):
         log.info('Starting automations')
         automations = get_all_automations()
         log.info(f'Found {len(automations)} automations')
-        for automation in automations:
-
-            auto_strings = automation['auto_strings']
-            data_di = automation['data_dic']
-
+        for count, automation in enumerate(automations):
+            print(f'Running automation {str(count + 1)}/{len(automations)}')
             automate = Automate(session=automation['session'],
                                 number_of_posts=automation.get('number_of_posts_per_day'))
-            if automate.approval.get('topic') == True:
-                # Todo: Remove this
-                automate.generate_topics(auto_strings, data_di)
-                # async_task(automate.generate_topics,
-                #            auto_strings, data_di, hook='automation.services.hook_now')
+            if 'auto_string' in automation.keys():
+                continue
+                auto_strings = automation['auto_string']
+                data_di = automation['data_di']
+                if automate.approval.get('topic') == True:
+                    # Todo: Remove this
+                    automate.generate_topics(auto_strings, data_di)
+                    # async_task(automate.generate_topics,
+                    #            auto_strings, data_di, hook='automation.services.hook_now')
+            elif 'session' in automation.keys():
+                automate.generate_article(data_dic=None)
