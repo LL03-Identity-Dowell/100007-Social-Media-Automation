@@ -2,6 +2,7 @@ import concurrent.futures
 import json
 import logging
 import random
+import traceback
 import urllib.parse
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -290,13 +291,80 @@ class Automate:
 
         return time_intervals
 
+    def get_user_topics(self):
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "socialmedia",
+            "document": "socialmedia",
+            "team_member_ID": "345678977",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"org_id": self.session['org_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request(
+            "POST", url, headers=headers, data=data)
+        results = json.loads(response.json())
+
+        try:
+            user_org_id_list = [portfolio_info.get(
+                'org_id') for portfolio_info in self.session['portfolio_info'] if
+                portfolio_info.get('org_id', None)]
+
+            datas = results['data']
+
+            array = []
+            for row in datas:
+                try:
+                    org_id = row.get('org_id')
+                    if org_id in user_org_id_list:
+                        array.append(row)
+                except Exception as e:
+                    traceback.print_exc()
+
+            topics = []
+
+            array.reverse()
+            for counter, data in enumerate(array):
+                for key in data.keys():
+                    if key.startswith("sentence_rank_") and data[key]['sentence_rank'] is not None:
+                        topic = {
+                            "ranks": data[key]['sentence_rank'],
+                            "sentence": data[key]['sentence_result'],
+                            "key": key,
+                            'created_by': data.get('username', 'NA'),
+                            'subject': data.get('subject'),
+                            'verb': data.get('verb'),
+                        }
+                        topics.append(topic)
+            return topics
+        except Exception as e:
+            print(e)
+            return []
+
     @transaction.atomic
-    def generate_article(self, data_dic, ):
+    def generate_article(self, data_dic=None, ):
         """
         This method generated articles according to the number of article required. The default is one article
         """
+        if data_dic is None:
+            print('Getting topics from already created topics')
+            topics = self.get_user_topics()[:10]
+            data_dic = {}
+            for count, topic in enumerate(topics):
+                data_dic[f'sentence_rank_{str(count)}'] = {'sentence_result': topic['sentence']}
+
         number_articles = self.number_of_posts
         credit_handler = CreditHandler()
+
         credit_response = credit_handler.check_if_user_has_enough_credits(
             sub_service_id=STEP_2_SUB_SERVICE_ID,
             session=self.session,
@@ -331,7 +399,7 @@ class Automate:
         timezone = self.session['timezone']
         current_timezone = pytz.timezone(timezone)
         local_time = current_timezone.localize(now)
-        end_time = local_time + timedelta(hours=1)
+        end_time = local_time + timedelta(hours=5)
         schedule_time_intervals = self.generate_time_intervals(
             num_intervals=number_articles,
             start_time=local_time,
