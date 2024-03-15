@@ -1300,42 +1300,27 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
         return redirect(link['url'])
 
 
-class ChannelViewAccess(generics.CreateAPIView):
-    serializer_class = ChannelAccessSerializer
+class ChannelViewAccess(AuthenticatedBaseView):
+    def get(self, request, *args, **kwargs):
+        try:
+            username = request.session['portfolio_info'][0]['portfolio_name']
+        except KeyError:
+            return Response({'error': 'Portfolio name not found in session'}, status=400)
+        linked_accounts = check_connected_accounts(username)
 
-    def post(self, request, *args, **kwargs):
-        portfolio_info_list = request.session['portfolio_info']
-        username = request.session['username']
-
-        if not portfolio_info_list or not username:
-            return Response({'error': 'Invalid request'}, status=400)
-
-        is_owner = False
-        is_team_member = False
-
-        is_owner = False
-        is_team_member = False
-
-        for portfolio_info in portfolio_info_list:
-            if 'member_type' in portfolio_info and 'username' in portfolio_info:
-                if portfolio_info['member_type'] == 'owner' and username in portfolio_info['username']:
-                    is_owner = True
-                elif portfolio_info['member_type'] == 'team_member' and portfolio_info['username'] == username:
-                    is_team_member = True
-
-        access = {
-            'is_owner': is_owner,
-            'is_team_member': is_team_member
+        context_data = {
+            'portfolio_name': username,
+            'linked_accounts': linked_accounts
         }
 
-        return Response(access)
+        return Response(context_data)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SocialMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         if not check_if_user_is_owner_of_organization(request):
-            return Response({'message': 'Only the owner of the organization can connect and view channels of an organization'})
+            return Response({'message': 'Only the owner of the organization can connect and view channels of this organization'})
         step_2_manager = Step2Manager()
 
         try:
