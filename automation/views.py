@@ -200,7 +200,6 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
 
 
 class AutomationAPIView(generics.ListCreateAPIView):
-
     permission_classes = (HasBeenAuthenticated,)
     serializer_class = AutomationSerializer
 
@@ -224,6 +223,8 @@ class AutomationAPIView(generics.ListCreateAPIView):
         automations = user_info['data'][0].get('automations', [])
         automation_data = {**serializer.validated_data}
         automation_data['id'] = str(uuid.uuid4())
+        session = {**request.session}
+        automation_data['session'] = session
         automations = [automation for automation in automations if automation]
         automations.append(automation_data)
         org_id = request.session['org_id']
