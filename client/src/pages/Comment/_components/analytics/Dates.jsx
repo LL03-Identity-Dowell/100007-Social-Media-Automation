@@ -1,12 +1,12 @@
 import { getDate } from '../../utils/getDate';
 
-export const Date = ({ next, last }) => {
-  const lastDate = getDate(last);
-  const nextDate = getDate(next);
+export const Dates = ({ next, last }) => {
+  const lastUpdatedLocalTime = getDate(last);
+  const nextUpdatedLocalTime = getDate(next);
   return (
     <>
-      <p>Last update - {lastDate}</p>
-      <p>Next update - {nextDate}</p>
+      <p>Last update - {lastUpdatedLocalTime}</p>
+      <p>Next update - {nextUpdatedLocalTime}</p>
     </>
   );
 };

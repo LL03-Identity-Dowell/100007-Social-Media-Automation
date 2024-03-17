@@ -13,6 +13,7 @@ import {
 } from '../../assets';
 
 import CommentItem from './_components/CommentItem';
+import { getDate } from './utils/getDate';
 
 function ViewComments({ show }) {
   const [error, setError] = useState('');
@@ -26,18 +27,7 @@ function ViewComments({ show }) {
   const nav = useNavigate();
 
   const parsedDatetime = comment?.nextUpdateTwitter;
-  const datetime = new Date(parsedDatetime);
-  const options = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-    hour12: false,
-  };
-  const humanReadableDatetime = datetime.toLocaleString(datetime, options);
-
+  const datetime = getDate(parsedDatetime);
   useEffect(() => {
     show();
   }, []);
@@ -130,7 +120,7 @@ function ViewComments({ show }) {
 
         {parsedDatetime && (
           <div className='text-center text-sm font-bold text-rose-500 flex justify-center items-center text-balance'>
-            Please wait for the next update: {humanReadableDatetime}
+            Please wait for the next update: {datetime}
           </div>
         )}
         {hasComment
