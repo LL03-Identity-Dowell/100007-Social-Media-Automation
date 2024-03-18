@@ -1027,7 +1027,7 @@ class PostDetailView(AuthenticatedBaseView):
                              'images': images, 'profile': profile, 'targeted_category': targeted_category,
                              'qualitative_categorization': qualitative_categorization,
                              'targeted_for': targeted_for,
-                             "message": "You are limited to use only images from Samanta AI due to security and privacy policy"}
+                             }
             return Response(response_data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
