@@ -1198,7 +1198,7 @@ class EditPostView(AuthenticatedBaseView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AryshareProfileView(AuthenticatedBaseView):
-    def get(self, request, title, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         event_id = create_event()['event_id']
         user = request.session['portfolio_info'][0]['portfolio_name']
         payload = {'title': user}
