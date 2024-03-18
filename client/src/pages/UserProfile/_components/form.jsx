@@ -7,12 +7,12 @@ export const Form = ({ name }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [status, setStatus] = useState('');
 
   const postMethod = async (data) => {
-  
     const res = await axios.post(
       `${import.meta.env.VITE_APP_AUTOMATIONURLL}/automation/`,
-      {data},
+      data,
       {
         withCredentials: true,
       }
@@ -23,21 +23,20 @@ export const Form = ({ name }) => {
   const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
+    setSuccess('');
 
     const data = Object.fromEntries(new FormData(e.currentTarget));
+    const channel = name.toLowerCase();
 
     try {
-      const res = await postMethod({ ...data, name.toLowerCase() });
+      const res = await postMethod({ ...data, channel });
+      console.log(res.data);
       setSuccess(res?.data?.message);
     } catch (error) {
       setError('Request failed');
-      console.log(error);
     } finally {
       setLoading(false);
-      setTimeout(() => {
-        setSuccess('');
-        setError('');
-      }, 3000);
     }
   };
 
@@ -54,13 +53,13 @@ export const Form = ({ name }) => {
 
         const { data } = res;
         if (data?.length === 0) {
-          console.log('insert');
+          setStatus('insert');
         }
         if (data?.length > 0) {
-          console.log('update');
+          setStatus('update');
         }
       } catch (error) {
-        console.log(error);
+        setError(error);
       }
     };
 

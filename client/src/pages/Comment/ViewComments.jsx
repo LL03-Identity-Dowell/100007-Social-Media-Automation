@@ -4,13 +4,6 @@ import axios from 'axios';
 import { ErrorMessages, SuccessMessages } from '../../components/Messages';
 import Loading from '../../components/Loading';
 import { MdArrowLeft } from 'react-icons/md';
-import {
-  facebook,
-  instagram,
-  linkedin,
-  pinterest,
-  xTwitter,
-} from '../../assets';
 
 import CommentItem from './_components/CommentItem';
 import { getDate } from './utils/getDate';
@@ -89,7 +82,6 @@ function ViewComments({ show }) {
       })
       .then((response) => {
         if (response.statusText === 'OK') {
-          console.log('Hitt');
           setSuccess('Comment deleted successfully.');
           setError('');
         }
