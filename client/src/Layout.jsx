@@ -1,13 +1,16 @@
+import Cookies from "js-cookie"
+import { Link, useNavigate } from "react-router-dom";
+import { ServiceKey } from "./components/ServiceKey";
 import { useContext, useEffect, useState } from 'react';
 import { initFlowbite } from 'flowbite';
 import Navbar from './components/navbar/Navbar';
 import Sidebar from './components/sidebar/Sidebar';
-import { useNavigate } from 'react-router-dom';
 import Loading from './components/Loading';
 import axios from 'axios';
 import useDowellLogin from './useDowellLogin';
 import BottomBar from './components/Bottombar/BottomBar';
 import { CreditContext } from './global/CreditContext';
+
 
 const Layout = ({ children, side, show, isUser }) => {
   // const [product, setProduct] = useState(true);
@@ -17,9 +20,11 @@ const Layout = ({ children, side, show, isUser }) => {
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
+  
   useEffect(() => {
     initFlowbite();
   }, []);
+
   const { loading, product } = useDowellLogin();
 
   const checkSession = async () => {
@@ -80,6 +85,7 @@ const Layout = ({ children, side, show, isUser }) => {
       .catch((err) => {
         console.error('Error fetching data:', err);
       });
+
   };
 
   useEffect(() => {
