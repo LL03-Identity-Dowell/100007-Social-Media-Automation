@@ -16,7 +16,7 @@ class CreditHandler:
         data = response
         credit_response = {}
 
-        if request.session['username'] in CREDITS_EXEMPTED_USERNAMES:
+        if request and request.session['username'] in CREDITS_EXEMPTED_USERNAMES:
             if request.session.get('credit_response', ):
                 del request.session['credit_response']
             response['success'] = True
@@ -259,7 +259,7 @@ class CreditHandler:
             return {'success': True, 'message': 'You have enough credits to perform this action'}
 
         if session:
-            user_info = session['user_info']
+            user_info = session['userinfo']
         else:
             user_info = {}
 
