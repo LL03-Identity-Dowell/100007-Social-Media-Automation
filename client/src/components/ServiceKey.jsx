@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useLocation } from "react-router";
 
@@ -11,16 +11,14 @@ export const ServiceKey = ({ isMessages, check }) => {
   };
 
   useEffect(() => {
-    console.log(check, location);
     if (location) {
         setIsOpen(check);  
     }
     
     setInterval(() => {
         setIsOpen(check);
-        
     }, 10000);
-   
+
   }, [location]);
 
   return (
