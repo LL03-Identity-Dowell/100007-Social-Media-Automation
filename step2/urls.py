@@ -1,18 +1,20 @@
 from django.urls import path
 
-from .views import (AdminApproveSocialMediaRequestView, ChannelViewAccess, FetchImages, ImageLibrary, MainAPIView, UserApprovalView, GenerateArticleView,
+from .views import (AdminApproveSocialMediaRequestView, ChannelViewAccess, FetchImages, ImageLibrary, MainAPIView,
+                    UserApprovalView, GenerateArticleView,
                     TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
                     MentionView, MentionUpdateView, UnScheduledView, UnScheduledJsonView,
                     ScheduledJsonView, IndexView, MostRecentJSON, FacebookFormAPI,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
                     ClientProfileFormView, ListArticleView,
-                    ArticleDetailView, Analytics,PostListView, PostDetailView, SavePostView,
+                    ArticleDetailView, Analytics, PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
                     LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
-                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,NewPostGeneration, LogoutUser)
+                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,
+                    NewPostGeneration, LogoutUser, OwnerAryshareProfilesView)
 
 app_name = 'generate_article'
 
@@ -83,6 +85,7 @@ urlpatterns = [
          LinkedAccountsJson.as_view(), name='linked-account'),
     path('can-post/',
          CanPostOnSocialMedia.as_view(), name='can-post'),
+    path('link/profiles/', OwnerAryshareProfilesView.as_view(), name='can-post'),
     path('link/linkusers/', AryshareProfileView.as_view(), name='can-post'),
     path('link/', LinkMediaChannelsView.as_view(), name='can-post'),
      path('logout/', LogoutUser.as_view(), name='logout'),

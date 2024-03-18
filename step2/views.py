@@ -40,7 +40,7 @@ from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
 from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
     STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import (check_if_user_can_view_org_channels, check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image,
+from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image,
                      download_and_upload_users_image,
                      fetch_organization_user_info,
                      fetch_user_portfolio_data,
@@ -52,7 +52,7 @@ from helpers import (check_if_user_can_view_org_channels, check_if_user_is_owner
 from react_version import settings
 from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
-from .serializers import (ChannelAccessSerializer, DataSerializer, PortfolioChannelsSerializer, ProfileSerializer, CitySerializer,
+from .serializers import (DataSerializer, PortfolioChannelsSerializer, ProfileSerializer, CitySerializer,
                           UnScheduledJsonSerializer,
                           ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
                           EditPostSerializer,
@@ -1252,6 +1252,33 @@ class AryshareProfileView(AuthenticatedBaseView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+class OwnerAryshareProfilesView(AuthenticatedBaseView):
+    def get(self, request, *args, **kwargs):
+        if not check_if_user_is_owner_of_organization(request):
+            return Response({'message': 'Only the owner of the organization can connect/add social media channels'})
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        print(response.json())
+        post = json.loads(response.json())
+        return Response(post['data'])
+@method_decorator(csrf_exempt, name='dispatch')
 class LinkMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         if not check_if_user_is_owner_of_organization(request):
@@ -1282,7 +1309,8 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
             if posts['user_id'] == request.session['user_id']:
                 key = posts['profileKey']
                 print(key)
-        with open(r'C:\Users\HP 250\Desktop\code\100007-Social-Media-Automation\dowellresearch.key') as f:
+        # TODO:Change this
+        with open(r'dowellresearch.key') as f:
             privateKey = f.read()
 
         payload = {'domain': 'dowellresearch',
@@ -1297,6 +1325,8 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
                           json=payload,
                           headers=headers)
         link = r.json()
+        import pdb
+        pdb.set_trace()
         return redirect(link['url'])
 
 
