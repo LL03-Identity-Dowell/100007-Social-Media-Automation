@@ -1198,7 +1198,7 @@ class EditPostView(AuthenticatedBaseView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AryshareProfileView(AuthenticatedBaseView):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, title, *args, **kwargs):
         event_id = create_event()['event_id']
         user = request.session['portfolio_info'][0]['portfolio_name']
         payload = {'title': user}
@@ -1280,42 +1280,17 @@ class OwnerAryshareProfilesView(AuthenticatedBaseView):
         return Response(post['data'])
 @method_decorator(csrf_exempt, name='dispatch')
 class LinkMediaChannelsView(AuthenticatedBaseView):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, profileKey, *args, **kwargs):
         if not check_if_user_is_owner_of_organization(request):
             return Response({'message': 'Only the owner of the organization can connect/add social media channels'})
-        session_id = request.GET.get("session_id", None)
-        url = "http://uxlivinglab.pythonanywhere.com/"
-        headers = {'content-type': 'application/json'}
 
-        payload = {
-            "cluster": "socialmedia",
-            "database": "socialmedia",
-            "collection": "ayrshare_info",
-            "document": "ayrshare_info",
-            "team_member_ID": "100007001",
-            "function_ID": "ABCDE",
-            "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
-            "update_field": {
-                "order_nos": 21
-            },
-            "platform": "bangalore"
-        }
-        data = json.dumps(payload)
-        response = requests.request("POST", url, headers=headers, data=data)
-        print(response.json())
-        post = json.loads(response.json())
-        for posts in post['data']:
-            if posts['user_id'] == request.session['user_id']:
-                key = posts['profileKey']
-                print(key)
         # TODO:Change this
         with open(r'dowellresearch.key') as f:
             privateKey = f.read()
 
         payload = {'domain': 'dowellresearch',
                    'privateKey': privateKey,
-                   'profileKey': key,
+                   'profileKey': profileKey,
                    'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
                    }
         headers = {'Content-Type': 'application/json',
@@ -1325,8 +1300,6 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
                           json=payload,
                           headers=headers)
         link = r.json()
-        import pdb
-        pdb.set_trace()
         return redirect(link['url'])
 
 
