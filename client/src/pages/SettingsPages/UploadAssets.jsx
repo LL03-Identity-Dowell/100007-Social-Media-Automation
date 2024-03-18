@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Loading from "../../components/Loading";
 import { ErrorMessages, SuccessMessages } from "../../components/Messages";
 import axios from "axios";
@@ -9,6 +9,7 @@ const UploadAssets = ({ close }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     close();
@@ -61,10 +62,14 @@ const UploadAssets = ({ close }) => {
         )
         .then((response) => {
           setError(null);
-          setLoading(false);
-          // Handle the server response as needed
-          let data = response.data;
           setSuccess("Image Uploaded")
+          setLoading(false);
+          setSelectedFile(null)
+          setPreview(null)
+
+          if (fileInputRef.current) {
+            fileInputRef.current.value = null;
+          }
         })
         .catch((error) => {
           setLoading(false);
@@ -101,6 +106,7 @@ const UploadAssets = ({ close }) => {
               type="file"
               required
               onChange={handleFileChange}
+              ref={fileInputRef}
             />
             {preview && (
               <div className="mt-4 ">
