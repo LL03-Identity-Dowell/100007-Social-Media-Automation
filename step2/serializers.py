@@ -124,3 +124,17 @@ class ImageUploadSerializer(serializers.Serializer):
 class DataSerializer(serializers.Serializer):
     id = serializers.CharField()
     platform = serializers.CharField()
+    
+class ChannelAccessSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    portfolio_info = serializers.ListField(
+        child=serializers.DictField(
+            child=serializers.CharField()
+        )
+    )
+
+    def validate_portfolio_info(self, value):
+        for portfolio in value:
+            if 'member_type' not in portfolio or 'username' not in portfolio:
+                raise serializers.ValidationError("Each portfolio must have 'member_type' and 'username' fields.")
+        return value

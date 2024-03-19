@@ -221,8 +221,7 @@ class AutomationAPIView(generics.ListCreateAPIView):
 
         user_info = fetch_user_info(request=request)
         automations = user_info['data'][0].get('automations', [])
-        automation_data = {**serializer.validated_data}
-        automation_data['id'] = str(uuid.uuid4())
+        automation_data = {**serializer.validated_data, 'id': str(uuid.uuid4())}
         session = {**request.session}
         automation_data['session'] = session
         automations = [automation for automation in automations if automation]

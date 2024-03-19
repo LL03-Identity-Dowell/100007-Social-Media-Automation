@@ -30,7 +30,7 @@ class Automate:
     __name__ = 'Automate'
 
     def __init__(self, session: dict, is_daily_automation: bool = False, number_of_posts: int = 1,
-                 automation_id: str = ''):
+                 automation_id: str = '', **kwargs):
         logging.info('Initializing automate class')
         self.credit_handler = CreditHandler()
         self.user_info = session.get('user_info')
@@ -39,7 +39,8 @@ class Automate:
         self.is_daily_automation = is_daily_automation
         self.approval = self.get_client_approval(self.session['user_id'])
         self.number_of_posts = number_of_posts
-        self.automation_id = automation_id
+        self.automation_id = automation_id or kwargs.get('id', '')
+        self.kwargs = kwargs
 
     def __str__(self):
         return f'Automate Social media posting'
@@ -662,7 +663,10 @@ class Automate:
         if not credit_response.get('success'):
             return credit_response
         username = self.session['username']
+
         linked_accounts = check_connected_accounts(username)
+        if self.kwargs.get('channel'):
+            linked_accounts = [self.kwargs.get('channel'), ]
         start_datetime = datetime.now()
         title = data['title']
         paragraph = data['paragraph']
@@ -677,13 +681,11 @@ class Automate:
         # Splitting the content and logo into separate paragraphs
         postes_paragraph1 = f"{paragraph[0:2000]}."
         postes_paragraph2 = logo
-
+        links = self.kwargs.get('links', [])
+        target_cities = self.kwargs.get('target_cities', [])
         # Combining the paragraphs with a newline character
-        postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
+        postes = f"{postes_paragraph1}\n{','.join(links)}{','.join(target_cities)}\n\n{postes_paragraph2}"
 
-        twitter_post_paragraph1 = paragraph2
-
-        twitter_post = f"{twitter_post_paragraph1}\n\n{logo}."
         org_id = data['org_id']
 
         user_id = data['user_id']
@@ -700,7 +702,7 @@ class Automate:
             schedule_time_str = schedule_time.strftime('%Y-%m-%dT%H:%M:%SZ')
 
         if social_with_count_restrictions:
-            truncated_post = f'{paragraph[:235]}\n\n{logo}'
+            truncated_post = f'{paragraph[:235]}\n{",".join(links)}{",".join(target_cities)}\n\n{logo}'
             arguments.append(
                 (truncated_post, social_with_count_restrictions,
                  key, image, org_id, post_id, schedule_time_str),
