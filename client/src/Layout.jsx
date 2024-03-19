@@ -1,7 +1,5 @@
-import Cookies from "js-cookie"
-import { Link, useNavigate } from "react-router-dom";
-import { ServiceKey } from "./components/ServiceKey";
-import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useContext, useEffect } from 'react';
 import { initFlowbite } from 'flowbite';
 import Navbar from './components/navbar/Navbar';
 import Sidebar from './components/sidebar/Sidebar';
@@ -11,7 +9,6 @@ import useDowellLogin from './useDowellLogin';
 import BottomBar from './components/Bottombar/BottomBar';
 import { CreditContext } from './global/CreditContext';
 
-
 const Layout = ({ children, side, show, isUser }) => {
   // const [product, setProduct] = useState(true);
   // const [loading, setLoading] = useState(false);
@@ -20,7 +17,7 @@ const Layout = ({ children, side, show, isUser }) => {
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
-  
+
   useEffect(() => {
     initFlowbite();
   }, []);
@@ -44,6 +41,7 @@ const Layout = ({ children, side, show, isUser }) => {
       .then((res) => {
         const data = res.data;
         const saveUsername = data?.userinfo?.username;
+        const operationalRights = data?.operations_right;
         const productServiceStatus = data.product_service_status;
         const jsonString = productServiceStatus
           .replace(/\'/g, '"')
@@ -61,6 +59,7 @@ const Layout = ({ children, side, show, isUser }) => {
           localStorage.removeItem('productKey');
           setIsProductStatus(false);
           setKeyInfo(null);
+          localStorage.setItem('rights', operationalRights);
         }
         const totalCredits = responseObject.total_credits;
         const saveUseremail = data?.userinfo?.email;
@@ -85,7 +84,6 @@ const Layout = ({ children, side, show, isUser }) => {
       .catch((err) => {
         console.error('Error fetching data:', err);
       });
-
   };
 
   useEffect(() => {
