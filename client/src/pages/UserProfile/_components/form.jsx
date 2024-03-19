@@ -7,7 +7,6 @@ export const Form = ({ name }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [status, setStatus] = useState('');
 
   const postMethod = async (data) => {
     const res = await axios.post(
@@ -53,10 +52,12 @@ export const Form = ({ name }) => {
 
         const { data } = res;
         if (data?.length === 0) {
-          setStatus('insert');
+          // setStatus('insert');
+          console.log('insert');
         }
         if (data?.length > 0) {
-          setStatus('update');
+          // setStatus('update');
+          console.log('update');
         }
       } catch (error) {
         setError(error);
