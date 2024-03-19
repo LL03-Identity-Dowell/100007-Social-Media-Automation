@@ -1,18 +1,20 @@
 from django.urls import path
 
-from .views import (AdminApproveSocialMediaRequestView, FetchImages, ImageLibrary, MainAPIView, UserApprovalView, GenerateArticleView,
+from .views import (AdminApproveSocialMediaRequestView, ChannelViewAccess, FetchImages, ImageLibrary, MainAPIView,
+                    UserApprovalView, GenerateArticleView,
                     TargetedCitiesUpdateView,
                     TargetedCitiesCreateView, TargetedCitiesListView,
                     MentionView, MentionUpdateView, UnScheduledView, UnScheduledJsonView,
                     ScheduledJsonView, IndexView, MostRecentJSON, FacebookFormAPI,
                     InstaFormAPI, XFormAPI, LinkedInFormAPI, YoutubeFormView, PinterestFormView,
                     ClientProfileFormView, ListArticleView,
-                    ArticleDetailView, Analytics,PostListView, PostDetailView, SavePostView,
+                    ArticleDetailView, Analytics, PostListView, PostDetailView, SavePostView,
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
                     LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
-                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,NewPostGeneration, LogoutUser)
+                    FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,
+                    NewPostGeneration, LogoutUser, OwnerAryshareProfilesView)
 
 app_name = 'generate_article'
 
@@ -75,13 +77,17 @@ urlpatterns = [
     path('recent_posts/', MostRecentJSON.as_view(), name='recent_post'),
     path('social_media_channels/approve/',
          AdminApproveSocialMediaRequestView.as_view(), name='approve_social_media_channels'),
+    path('social_media_access_view_channels/',
+         ChannelViewAccess.as_view(), name='social_media_access_view_channels'),
     path('social_media_channels/',
          SocialMediaChannelsView.as_view(), name='social_media_channels'),
     path('linked-account/',
          LinkedAccountsJson.as_view(), name='linked-account'),
     path('can-post/',
          CanPostOnSocialMedia.as_view(), name='can-post'),
+    path('link/profiles/', OwnerAryshareProfilesView.as_view(), name='can-post'),
     path('link/linkusers/', AryshareProfileView.as_view(), name='can-post'),
+    path('link/profile/<str:profileKey>/', LinkMediaChannelsView.as_view(), name='link-profile'),
     path('link/', LinkMediaChannelsView.as_view(), name='can-post'),
      path('logout/', LogoutUser.as_view(), name='logout'),
     path('comments/', Comments.as_view(), name='comments-endpoint'),
