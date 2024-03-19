@@ -681,15 +681,11 @@ class Automate:
         # Splitting the content and logo into separate paragraphs
         postes_paragraph1 = f"{paragraph[0:2000]}."
         postes_paragraph2 = logo
-
-        # Combining the paragraphs with a newline character
-        postes = f"{postes_paragraph1}\n\n{postes_paragraph2}"
-
-        twitter_post_paragraph1 = paragraph2
-
         links = self.kwargs.get('links', [])
+        target_cities = self.kwargs.get('target_cities', [])
+        # Combining the paragraphs with a newline character
+        postes = f"{postes_paragraph1}\n{','.join(links)}{','.join(target_cities)}\n\n{postes_paragraph2}"
 
-        twitter_post = f"{twitter_post_paragraph1}\n{''.join(links)}\n\n{logo}."
         org_id = data['org_id']
 
         user_id = data['user_id']
@@ -706,7 +702,7 @@ class Automate:
             schedule_time_str = schedule_time.strftime('%Y-%m-%dT%H:%M:%SZ')
 
         if social_with_count_restrictions:
-            truncated_post = f'{paragraph[:235]}\n\n{logo}'
+            truncated_post = f'{paragraph[:235]}\n{",".join(links)}{",".join(target_cities)}\n\n{logo}'
             arguments.append(
                 (truncated_post, social_with_count_restrictions,
                  key, image, org_id, post_id, schedule_time_str),
