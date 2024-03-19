@@ -181,7 +181,6 @@ def create_event():
     else:
         return json.loads(r.text)['error']
 
-
 @csrf_exempt
 def fetch_user_info(request):
     if 'session_id' and 'username' in request.session:
@@ -197,7 +196,7 @@ def fetch_user_info(request):
             "team_member_ID": "1071",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": request.session['org_id']},
             "update_field": {
                 "order_nos": 21
             },
