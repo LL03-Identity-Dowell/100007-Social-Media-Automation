@@ -88,6 +88,7 @@ urlpatterns = [
     path('link/profiles/', OwnerAryshareProfilesView.as_view(), name='can-post'),
     path('link/linkusers/', AryshareProfileView.as_view(), name='can-post'),
     path('link/profile/<str:profileKey>/', LinkMediaChannelsView.as_view(), name='link-profile'),
+    path('link/', LinkMediaChannelsView.as_view(), name='can-post'),
      path('logout/', LogoutUser.as_view(), name='logout'),
     path('comments/', Comments.as_view(), name='comments-endpoint'),
     path('comments/create/<str:post_id>/',

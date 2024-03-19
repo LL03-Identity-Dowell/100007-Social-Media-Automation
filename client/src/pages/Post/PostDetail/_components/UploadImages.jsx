@@ -7,12 +7,14 @@ import {
 } from "../../../../components/Messages";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
+import {Link} from "react-router-dom"
 
 const UploadImages = ({ modal }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [images, setImages] = useState([]);
+  const [isEmpty, setIsEmpty] = useState();
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
@@ -28,6 +30,9 @@ const UploadImages = ({ modal }) => {
           setLoading(false);
           let data = response.data;
           console.log(data);
+          if (data.length < 0) {
+            setIsEmpty("You don't have any images to select from")
+          }
           setImages(data);
           setSuccess(data.message);
         })
@@ -82,7 +87,7 @@ const UploadImages = ({ modal }) => {
         <FaTimes />
       </span>
       <div className="bg-white h-[85%] w-[80%] relative rounded-lg p-4 md:p-8 overflow-x-auto ">
-        <div className="flex justify-between items-center pb-4 md:mb-10">
+        <div className="flex justify-between items-center pb-4 md:mb-10 sticky top-0 bg-white">
           <p className=" font-semibold md:text-2xl">
             Select one image for your post
           </p>
@@ -94,7 +99,15 @@ const UploadImages = ({ modal }) => {
             Done
           </button>
         </div>
-        <div className="grid md:grid-cols-3 place-items-center justify-items-center gap-4 md:gap-6">
+        <div>
+          {
+            isEmpty && (
+              <p className="text-center">{isEmpty} <br /> <Link to="/settings/upload-image" className="py-2 px-6 bg-customBlue text-white">Upload Image</Link></p>
+            )
+          }
+          
+        </div>
+        <div className="grid md:grid-cols-3 place-items-center justify-items-center gap-4 md:gap-6 2xl:gap-10">
           {displayedImages &&
             displayedImages.map((item, index) => (
               <div key={index} className="flex flex-row-reverse gap-2">
@@ -102,7 +115,7 @@ const UploadImages = ({ modal }) => {
                   <img
                     src={item}
                     alt={item}
-                    className={`w-full md:w-[80%] rounded-lg ${
+                    className={`w-full md:w-[80%] h-[150px] 2xl:h-[200px] rounded-lg ${
                       selectedImageIndex === index
                         ? "border-4 border-customTextBlue"
                         : ""
@@ -120,7 +133,7 @@ const UploadImages = ({ modal }) => {
               </div>
             ))}
         </div>
-        <div className="py-4">
+        <div className="py-4 2xl:mt-10">
           <ReactPaginate
             pageCount={Math.ceil(images.length / ITEMS_PER_PAGE)}
             pageRangeDisplayed={5} // Adjust the number of pages to display in the pagination bar
