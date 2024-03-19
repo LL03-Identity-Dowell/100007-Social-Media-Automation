@@ -1,4 +1,7 @@
 from django.db import models, transaction
+from django.db.models import Q
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 class BaseModel(models.Model):
@@ -19,10 +22,11 @@ class User(models.Model):
     email = models.EmailField(blank=False)
 
     def __str__(self):
-        return str(self.email)
+        return self.email
 
     class Meta:
         verbose_name_plural = 'Users'
+
 
 class Category(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='categories')
@@ -33,6 +37,11 @@ class Category(BaseModel):
         return self.name
 
 
+@receiver(pre_save, sender=Category)
+def validate_category_save(sender, instance, **kwargs):
+    if not instance.user and instance.is_default == False:
+        raise ValueError('A category which is not default has to be assigned to a user!')
+
 class UserTopic(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='user_topic')
     name = models.CharField(max_length=1000, blank=False, null=False)
@@ -40,6 +49,12 @@ class UserTopic(BaseModel):
 
     def __str__(self):
         return self.name
+
+
+@receiver(pre_save, sender=UserTopic)
+def validate_category_save(sender, instance, **kwargs):
+    if not instance.user and instance.is_default == False:
+        raise ValueError('A category which is not default has to be assigned to a user!')
 
 class IndustryData(BaseModel):
     CHOICES = (
@@ -65,20 +80,10 @@ class IndustryData(BaseModel):
     target_product = models.CharField(max_length=100, blank=False)
 
     def __str__(self):
-        return self.user.email
+        return self.user
 
 
-class Sentences(BaseModel):
-    SUBJECT_CHOICES = (
-        ('Livinglab', 'Livinglab'),
-        ('Innovation', 'Innovation'),
-        ('User experience', 'User experience'),
-        ('Storytelling', 'Storytelling'),
-        ('Consumer Behaviour', 'Consumer Behaviour'),
-        ('Behavioral economics', 'Behavioral economics'),
-        ('Consumer Insights', 'Consumer Insights'),
-        ('Statistics', 'Statistics'),
-    )
+class Sentences(models.Model):
 
     DETERMINANTS = (
         ('-', ''),
@@ -104,25 +109,17 @@ class Sentences(BaseModel):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     subject_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS,
                                            default=DETERMINANTS[0][0])
-    #subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
+    # subject = models.CharField(max_length=100, blank=False, choices=SUBJECT_CHOICES, default=SUBJECT_CHOICES[0][0])
     topic = models.ForeignKey(UserTopic, on_delete=models.PROTECT, null=True, blank=True,
                               related_name='sentence')
     subject_number = models.CharField(max_length=100, blank=True, null=True)
-    object_determinant = models.CharField(max_length=100, blank=False, choices=DETERMINANTS, default=DETERMINANTS[0][0])
+    object_determinant = models.CharField(max_length=100, blank=True, null=True, choices=DETERMINANTS,
+                                          default=DETERMINANTS[0][0])
     object = models.CharField(max_length=100, blank=False)
     object_number = models.CharField(max_length=100, blank=False)
     verb = models.CharField(max_length=100, blank=True, null=True)
     adjective = models.CharField(max_length=100, blank=True, null=True)
-
-    # sentence = models.TextField(max_length=400)# single sentence got from database
-    #     for part two of the Modelform
-    # tense = models.CharField(max_length=100, blank=False, choices=TENSES, default=TENSES[0][0])
-    # sentence_art = models.CharField(max_length=100, blank=False, choices=SENTENCE_ARTS, default=SENTENCE_ARTS[0][0])
-    # modal_verb = models.CharField(max_length=100, blank=False, choices=MODAL_VERBS, default=MODAL_VERBS[0][0])
-    # progressive = models.BooleanField(default=False)
-    # negated = models.BooleanField(default=False)
-    # perfect = models.BooleanField(default=False)
-    # passive = models.BooleanField(default=False)
+    
     def __str__(self):
         return self.pk.__str__()
 
@@ -134,9 +131,7 @@ class SentenceResults(models.Model):
     sentence_grammar = models.ForeignKey(Sentences, on_delete=models.CASCADE)
     sentence = models.TextField(max_length=400)
     sentence_type = models.CharField(max_length=100)
-
-    # sentence_art = models.CharField(max_length=100, blank=False, choices=SENTENCE_ARTS, default=SENTENCE_ARTS[0][0])
-    # modal_verb = models.CharField(max_length=100, blank=False, choices=MODAL_VERBS, default=MODAL_VERBS[0][0])
+    
     def __str__(self):
         return self.sentence
 
@@ -146,55 +141,38 @@ class SentenceResults(models.Model):
 
 class SentenceRank(models.Model):
     sentence_result = models.ForeignKey(SentenceResults, on_delete=models.CASCADE)
-    sentence_rank = models.CharField(null=True,max_length=2)
+    sentence_rank = models.CharField(null=True, max_length=2)
 
     def __str__(self):
         return self.sentence_result.sentence
 
-#to not to be used
-class Topic (models.Model):
-    owner = models.CharField(max_length=100,primary_key=True,default=None)
-    rank= models.CharField(null=True,max_length=2)
+
+# not to be used
+class Topic(models.Model):
+    owner = models.CharField(max_length=100, primary_key=True, default=None)
+    rank = models.CharField(null=True, max_length=2)
     sentence = models.TextField(max_length=400)
-    key = models.CharField(null=True,max_length=100,blank=True)
+    key = models.CharField(null=True, max_length=100, blank=True)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.owner
 
     class Meta:
-         ordering = ['-updated']
+        ordering = ['-updated']
 
-
-# class MyTopic (models.Model):
-#     owner = models.CharField(max_length=100,primary_key=True,default=None)
-#     ranks = models.IntegerField(blank=True,null=True)
-#     sentence = models.TextField(max_length=400)
-#     keyes = models.CharField(null=True,max_length=100,blank=True)
-#     username=models.CharField(null=True,max_length=100,blank=True)
-#     updated = models.DateTimeField(auto_now=True)
-
-
-#     def __str__(self):
-#         return self.owner
-
-#     class Meta:
-#          ordering = ['-updated']
-
-class MTopic (models.Model):
-    username=models.CharField(null=True,max_length=100,blank=True)
-    ranks = models.IntegerField(blank=True,null=True)
+class MTopic(models.Model):
+    username = models.CharField(null=True, max_length=100, blank=True)
+    ranks = models.IntegerField(blank=True, null=True)
     sentence = models.TextField(max_length=400)
-    keyes = models.CharField(null=True,max_length=100,blank=True)
+    keyes = models.CharField(null=True, max_length=100, blank=True)
     updated = models.DateTimeField(auto_now=True)
-
 
     def __str__(self):
         return self.username
 
     class Meta:
-         ordering = ['-updated']
-
+        ordering = ['-updated']
 
 
 class WebsiteManager:
@@ -237,13 +215,15 @@ class WebsiteManager:
         """
         This method returns categories created by a user
         """
-        return Category.objects.filter(user__email=data.get('email'))
+        q_filter = Q(user__email=data.get('email')) | Q(is_default=True)
+        return Category.objects.filter(q_filter)
 
     def get_user_topics_by_email(self, data):
         """
         This method returns topics created by a user
         """
-        return UserTopic.objects.filter(user__email=data.get('email'))
+        q_filter = Q(user__email=data.get('email')) | Q(is_default=True)
+        return UserTopic.objects.filter(q_filter)
 
     def get_or_create_user(self, data):
         """
@@ -253,9 +233,3 @@ class WebsiteManager:
         if user:
             return user.last()
         return User.objects.create(email=data.get('email'))
-
-
-
-
-
-

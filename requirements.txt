@@ -26,6 +26,7 @@ django-picklefield==3.1
 django-q==1.3.9
 django-silk==5.0.3
 django-tempus-dominus==5.1.2.17
+django-translations==1.3.0
 djangorestframework==3.14.0
 djongo==1.3.6
 dnspython==2.3.0
@@ -37,6 +38,7 @@ huggingface-hub==0.20.2
 idna==3.4
 Jinja2==3.1.3
 jinxed==1.2.0
+lxml==4.9.3
 Markdown==3.4.3
 MarkupSafe==2.1.3
 mega.py==1.0.8
@@ -46,6 +48,7 @@ networkx==3.2.1
 numpy==1.26.3
 openai==0.27.7
 packaging==23.2
+pandas==2.2.0
 pathlib==1.0.1
 pexels-api==1.0.1
 Pillow==9.5.0
@@ -56,12 +59,12 @@ PyJWT==2.8.0
 pymongo==4.3.3
 python-dateutil==2.8.2
 python-decouple==3.8
+python-docx==1.1.0
 pytz==2023.3
 PyYAML==6.0.1
 redis==3.5.3
 regex==2023.12.25
 requests==2.31.0
-safetensors==0.4.1
 six==1.16.0
 social-post-api==1.1.1
 sorl-thumbnail==12.9.0
@@ -71,11 +74,10 @@ sympy==1.12
 tenacity==5.1.5
 tokenizers==0.15.0
 tomli==2.0.1
-torch==2.1.2+cpu
-torchvision==0.16.2+cpu
 tqdm==4.65.0
 transformers==4.36.2
 typing_extensions==4.6.3
+tzdata==2023.4
 urllib3==2.0.2
 wcwidth==0.2.6
 Wikipedia-API==0.5.8

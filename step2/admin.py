@@ -7,13 +7,18 @@ admin.site.register(paragraph)
 admin.site.register(stepFour)
 
 
-@admin.register(SocialMediaRequest)
 class SocialMediaRequestAdmin(admin.ModelAdmin):
-    """
-    SocialMediaRequest Admin
-    """
-    list_display = ('id', 'username', 'is_approved', 'created_datetime', 'modified_datetime')
-    list_display_links = ('id',)
-    search_fields = ('id', 'created_datetime', 'modified_datetime')
-    ordering = ('-created_datetime',)
-    readonly_fields = ('modified_by',)
+    list_display = ('username', 'email', 'name', 'is_approved')
+
+    actions = ['approve_selected', 'reject_selected']
+
+    def approve_selected(self, request, queryset):
+        queryset.update(is_approved=True)
+    approve_selected.short_description = "Approve selected items"
+
+    def reject_selected(self, request, queryset):
+        queryset.update(is_approved=False)
+    reject_selected.short_description = "Reject selected items"
+
+
+admin.site.register(SocialMediaRequest, SocialMediaRequestAdmin)

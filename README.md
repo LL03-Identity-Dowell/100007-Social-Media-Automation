@@ -1,10 +1,7 @@
 # 100007-Social-Media-Automation
 
-
->
 > All this steps assumes that you have python installed in your pc/macOS
-> Also you should have your favorite IDE installed. 
-
+> Also you should have your favorite IDE installed.
 
 ## Clone the Code
 
@@ -24,7 +21,6 @@ Follow the instructions below to clone the code repository to your local machine
 git clone <repository_url>
 
 ```
-
 
 Replace `<repository_url>` with the actual URL you copied in the previous step.
 
@@ -49,6 +45,7 @@ This command creates a virtual environment named 'venv' in the current directory
 2. Activate the virtual environment depending on the terminal and operating system you are using:
 
 - For macOS and Linux:
+
   ```
   source venv/bin/activate
   ```
@@ -62,7 +59,6 @@ Activating the virtual environment isolates the Python environment for your proj
 
 ## Installations
 
-
 install the required packages using the following command:
 
 ```
@@ -70,15 +66,12 @@ install the required packages using the following command:
 pip install -r requirements.txt
 
 ```
-> 
->
-> For this crucial step to work you have to be in the directory where the file `requirements.txt` resides. 
+
+> For this crucial step to work you have to be in the directory where the file `requirements.txt` resides.
 
 ## Create and Switch to a Branch
 
-> 
-> In our case the `branchnames` will be your name, check the repo for the way your names have been added to avoid confusion. 
-
+> In our case the `branchnames` will be your name, check the repo for the way your names have been added to avoid confusion.
 
 1. In the terminal or command prompt, use the following command to create a branch
 
@@ -103,9 +96,7 @@ Example: `git checkout feature-xyz`
 
 You are now on the new branch and can start making changes to the code.
 
->
 > This steps are important. Make sure to follow it carefully.
-
 
 Now you have cloned the code repository, set up a virtual environment, and created a new branch for your development work. You are ready to start working on the code in an isolated environment.
 
@@ -133,9 +124,11 @@ python3 manage.py runserver
 ```
 
 ## errors
-you are bound to run into one error with this file depending on your OS ```..\100007-Social-Media-Automation\venv\Lib\site-packages\tenacity\_asyncio.py```
+
+you are bound to run into one error with this file depending on your OS `..\100007-Social-Media-Automation\venv\Lib\site-packages\tenacity\_asyncio.py`
 
 if you do, replace the contents of the file with:
+
 ```
 # -*- coding: utf-8 -*-
 # Copyright 2016 Étienne Bersac
@@ -177,7 +170,7 @@ if asyncio:
             super(AsyncRetrying, self).__init__(**kwargs)
             self.sleep = sleep
 
-    
+
         async def call(self, fn, *args, **kwargs):
             self.begin(fn)
 
@@ -199,16 +192,32 @@ if asyncio:
                     return do
 ```
 
-In case you run into any other errors at this point check back with your team lead for further assistance. 
+In case you run into any other errors at this point check back with your team lead for further assistance.
 
 ### Happy Coding 😊
 
 ## Folder structure
-Folder Structure 
-============================
+
+# Folder Structure
 
 > Social-media-automation folder structure
 
+# How to authenticate a user
+
+When a user logs in, a url parameter called session_id is present in the redirected url.
+For example http://localhost:5173/?session_id=ep0hu5u2msqv6sk24afcztnga7to48c3
+
+You can store this session_id for future authentication. Whenever you get 403 permission error, you can sent the
+session_id as a url parameter to an endpoint.
+For example website/api/v1/category/?session_id=ep0hu5u2msqv6sk24afcztnga7to48c3
+Doing this will create a new session for the user. In subsequent calls to the backend please send the credential headers
+in the request to maintain a user's session
+
+## API Documentation
+
+See [API_DOCUMENTATION.md](API_DOCUMENTATION.md) for detailed information on backend APIs.
+
 ## License
+
 <http://www.apache.org/licenses/>
 (https://choosealicense.com/licenses/apche/)
