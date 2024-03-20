@@ -18,7 +18,7 @@ from pexels_api.api import API
 
 from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import fetch_organization_user_info, create_event, save_data, check_connected_accounts, get_key, \
+from helpers import fetch_organization_user_info, create_event, save_data, check_connected_accounts, \
     save_profile_key_to_post, filter_all_automations
 from react_version import settings
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -657,6 +657,42 @@ class Automate:
                    hook='automation.services.hook_now')
         return response
 
+    def get_aryshare_profile_key(self):
+        """
+        This method returns share profile key
+        @return:
+        """
+        try:
+            username = self.session['portfolio_info'][0]['portfolio_name']
+        except KeyError as e:
+            username = self.session['username']
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"title": username},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        aryshare_profiles = json.loads(response.json())
+        profile_key = ''
+        for profile in aryshare_profiles['data']:
+            if profile['profileKey'] == username:
+                profile_key = profile['profileKey']
+                break
+        return profile_key
+
     def media_post(self, data: dict):
         credit_handler = CreditHandler()
         credit_response = credit_handler.check_if_user_has_enough_credits(
@@ -666,7 +702,10 @@ class Automate:
 
         if not credit_response.get('success'):
             return credit_response
-        username = self.session['username']
+        try:
+            username = self.session['portfolio_info'][0]['portfolio_name']
+        except KeyError as e:
+            username = self.session['username']
 
         linked_accounts = check_connected_accounts(username)
         if self.kwargs.get('channel'):
@@ -695,8 +734,9 @@ class Automate:
 
         org_id = data['org_id']
 
-        user_id = data['user_id']
-        key = get_key(user_id)
+        key = self.get_aryshare_profile_key()
+        print('This is the profile key')
+        print(key)
 
         social_with_count_restrictions = [
             channel for channel in linked_accounts if channel in ['twitter', 'pintrest']]
