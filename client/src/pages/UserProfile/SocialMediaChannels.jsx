@@ -27,10 +27,12 @@ const SocialMediaChannels = ({ close }) => {
     info: "Click to activate",
   });
   const [username, setUserName] = useState();
+  const [memberType, setMemberType] = useState();
 
   useEffect(() => {
     let user = JSON.parse(localStorage.getItem("userInfo"));
     setUserName(user?.username);
+    setMemberType(user?.memberType);
     close();
   }, []);
 
@@ -172,7 +174,7 @@ const SocialMediaChannels = ({ close }) => {
             >
               Request Connection
             </button>
-          ) : (
+          ) : memberType && (
             <Link
               onClick={() => setVisible(true)}
               to=""

@@ -46,6 +46,25 @@ const PotfolioOwner = ({ close }) => {
     fetch();
   }, []);
 
+  const handleConnect = (profileKey) => {
+    setLoading(true);
+    axios
+      .get(`${import.meta.env.VITE_APP_BASEURL}/link/profile/${profileKey}/`, {
+        withCredentials: true,
+      })
+      .then((response) => {
+        setError(null);
+        setLoading(false);
+        let data = response.data;
+       
+      })
+      .catch((error) => {
+        setLoading(false);
+        setError("Server error, Please try again later");
+        console.error("Error fetching post:", error);
+      });
+  };
+
   return (
     <div className="bg-pens bg-cover bg-center h-[100vh] ">
       {loading && <Loading />}
@@ -76,9 +95,9 @@ const PotfolioOwner = ({ close }) => {
                 <div className="flex justify-between items-center pt-2 ">
                   <div className="flex gap-2">
                     {!item.aryshare_details && (
-                        <p className="text-sm text-red-600">No accounts linked</p>
-                      )}
-                      
+                      <p className="text-sm text-red-600">No accounts linked</p>
+                    )}
+
                     {item.aryshare_details &&
                       item.aryshare_details.social_platforms &&
                       item.aryshare_details.social_platforms.includes(
@@ -90,44 +109,31 @@ const PotfolioOwner = ({ close }) => {
                       item.aryshare_details.social_platforms &&
                       item.aryshare_details.social_platforms.includes(
                         "instagram"
-                      ) && (
-                        <FaInstagram className="text-2xl text-pink-600 " />
-                      )}
+                      ) && <FaInstagram className="text-2xl text-pink-600 " />}
                     {item.aryshare_details &&
                       item.aryshare_details.social_platforms &&
                       item.aryshare_details.social_platforms.includes(
-                        "linkdin"
-                      ) && (
-                        <FaLinkedin className="text-2xl text-blue-800 " />
-                      )}
+                        "linkedin"
+                      ) && <FaLinkedin className="text-2xl text-blue-800 " />}
                     {item.aryshare_details &&
                       item.aryshare_details.social_platforms &&
                       item.aryshare_details.social_platforms.includes(
                         "youtube"
-                      ) && (
-                        <FaYoutube className="text-2xl text-red-700 " />
-                      )}
+                      ) && <FaYoutube className="text-2xl text-red-700 " />}
                     {item.aryshare_details &&
                       item.aryshare_details.social_platforms &&
                       item.aryshare_details.social_platforms.includes(
                         "twitter"
-                      ) && (
-                    <FaTwitter className="text-2xl text-blue-500 " />
-                      )}
+                      ) && <FaTwitter className="text-2xl text-blue-500 " />}
                     {item.aryshare_details &&
                       item.aryshare_details.social_platforms &&
                       item.aryshare_details.social_platforms.includes(
                         "pinterest"
-                      ) && (
-                      <FaPinterest className="text-2xl text-red-600 " />
-                      )}
-
-                    
-                    
-                    
+                      ) && <FaPinterest className="text-2xl text-red-600 " />}
                   </div>
                   <button
                     type="button"
+                    onClick={()=>handleConnect(item.profileKey)}
                     className="bg-customBlue text-white py-1 px-2 rounded-lg cursor-pointer"
                   >
                     Connect
