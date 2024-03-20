@@ -688,7 +688,7 @@ class Automate:
         aryshare_profiles = json.loads(response.json())
         profile_key = ''
         for profile in aryshare_profiles['data']:
-            if profile['profileKey'] == username:
+            if profile['title'] == username:
                 profile_key = profile['profileKey']
                 break
         return profile_key
@@ -735,8 +735,10 @@ class Automate:
         org_id = data['org_id']
 
         key = self.get_aryshare_profile_key()
+
         print('This is the profile key')
         print(key)
+        print(username)
 
         social_with_count_restrictions = [
             channel for channel in linked_accounts if channel in ['twitter', 'pintrest']]
