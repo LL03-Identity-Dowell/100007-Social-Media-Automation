@@ -4,6 +4,8 @@ import axios from 'axios';
 import { ErrorMessages, SuccessMessages } from '/src/components/Messages';
 import Loading from '/src/components/Loading.jsx';
 
+import { FaTimes } from 'react-icons/fa';
+
 export const Form = ({ name }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -11,11 +13,18 @@ export const Form = ({ name }) => {
 
   const [selectOptions, setSelectOptions] = useState();
   const [isFetched, setIsFetched] = useState('');
-  const [socialLinksList, setSocialLinksList] = useState();
+  const [socialLinksList, setSocialLinksList] = useState([]);
   const [IsFetchedCities, setIsFetchedCities] = useState();
   const [checkedHashtagList, setCheckedHashtagList] = useState([]);
   const [checkedCitiesList, setCheckedCitiesList] = useState([]);
   const [socialInput, setSocialInputValue] = useState('');
+
+  const addToList = () => {
+    if (socialInput) {
+      setSocialLinksList((prev) => [...prev, socialInput]);
+      setSocialInputValue('');
+    }
+  };
 
   const postMethod = async (data) => {
     const res = await axios.post(
@@ -33,31 +42,31 @@ export const Form = ({ name }) => {
     setLoading(true);
     setError('');
     setSuccess('');
-    let data;
-
-    data.group_name = selectOptions.group_name;
-
-    if (selectOptions && selectOptions.hashtags) {
-      data.hashtags = selectOptions.hashtags.filter(
-        (_, i) => checkedHashtagList[i]
-      );
-    }
-    data.target_city = IsFetchedCities.filter((_, i) => checkedCitiesList[i]);
-
-    const selectedHashtags = data.hashtags
-      .map((hashtag) => `${hashtag}`)
-      .join(' ');
-    const selectedCities = data.target_city.map((city) => `#${city}`).join(' ');
-
-    data.paragraphs += ` ${selectedHashtags} ${selectedCities}`;
 
     const formData = Object.fromEntries(new FormData(e.currentTarget));
     const channel = name.toLowerCase();
+    const data = {
+      ...formData,
+      channel,
+      links: socialLinksList,
+      // hashtag: checkedHashtagList,
+      // target_cities: checkedCitiesList,
+    };
+
+    data.hashtag = selectOptions.hashtags.filter(
+      (_, i) => checkedHashtagList[i]
+    );
+    data.target_cities = IsFetchedCities.filter((_, i) => checkedCitiesList[i]);
 
     try {
-      const res = await postMethod({ ...formData, channel });
+      const res = await postMethod(data);
       console.log(res.data);
       setSuccess(res?.data?.message);
+
+      setSocialLinksList([]);
+      setCheckedHashtagList(Array(selectOptions.hashtags.length).fill(false));
+      setCheckedCitiesList(Array(IsFetchedCities.length).fill(false));
+      setSocialInputValue('');
     } catch (error) {
       setError('Request failed');
     } finally {
@@ -129,12 +138,14 @@ export const Form = ({ name }) => {
   const handleCheckboxHashtagChange = (index) => {
     const updatedChecked = [...checkedHashtagList];
     updatedChecked[index] = !updatedChecked[index];
+    console.log(updatedChecked);
     setCheckedHashtagList(updatedChecked);
   };
 
   const handleCheckboxCitiesChange = (index) => {
     const updatedChecked = [...checkedCitiesList];
     updatedChecked[index] = !updatedChecked[index];
+    console.log(updatedChecked);
     setCheckedCitiesList(updatedChecked);
   };
 
@@ -165,33 +176,41 @@ export const Form = ({ name }) => {
                   Include links you would like to target for this post
                 </p>
               </div>
+
               <button
+                onClick={addToList}
                 type='button'
-                onClick={() =>
-                  setSocialLinksList((prev) => {
-                    if (prev?.length > 1) {
-                      return [...prev, socialInput];
-                    } else {
-                      return [socialInput];
-                    }
-                  })
-                }
                 className='float-right border rounded-xl hover:bg-customTextBlue bg-customBlue cursor-pointer text-white py-1 px-2 text-xs'>
                 Add link
               </button>
             </div>
             <input
+              onChange={(e) => setSocialInputValue(e.target.value)}
+              value={socialInput}
               type='text'
               className='flex-grow rounded-md '
-              onChange={(e) => setSocialInputValue(e.value)}
-              value={socialInput}
             />
 
-            <ul className='flex flex-wrap'>
-              {socialLinksList?.map((each) => {
+            <ul className='flex flex-col mt-2 gap-y-1'>
+              {socialLinksList?.map((each, index) => {
                 return (
-                  <li className='flex flex-col' key={each}>
-                    {each}
+                  <li
+                    className='flex justify-between text-gray-600 bg-blue-200 pl-2 rounded-sm flex-[50%] '
+                    key={index}>
+                    <p>
+                      {each.length < 78 ? each : `${each.substring(0, 78)}...`}
+                    </p>
+                    <button
+                      type='button'
+                      onClick={() =>
+                        setSocialLinksList((prev) => {
+                          const filtered = prev?.filter((_, i) => i !== index);
+                          return filtered;
+                        })
+                      }
+                      className='mr-8 underline text-sm font-semibold text-red-600 p-1 border-red-700 cursor-pointer rounded-md'>
+                      <FaTimes />
+                    </button>
                   </li>
                 );
               })}
@@ -215,9 +234,6 @@ export const Form = ({ name }) => {
                 Add hastags
               </Link>
             </div>
-            {/* {
-              isFetched ? () : "Please add a hastag"
-            } */}
             <select
               name=''
               id=''
