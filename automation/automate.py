@@ -671,6 +671,9 @@ class Automate:
         linked_accounts = check_connected_accounts(username)
         if self.kwargs.get('channel'):
             linked_accounts = [self.kwargs.get('channel'), ]
+        hashtags = None
+        if self.kwargs.get('hashtags'):
+            hashtags = [self.kwargs.get('hashtags'), ]
         start_datetime = datetime.now()
         title = data['title']
         paragraph = data['paragraph']
@@ -706,7 +709,17 @@ class Automate:
             schedule_time_str = schedule_time.strftime('%Y-%m-%dT%H:%M:%SZ')
 
         if social_with_count_restrictions:
-            truncated_post = f'{paragraph[:235]}\n{",".join(links)}{",".join(target_cities)}\n\n{logo}'
+            added_text = '\n'
+            if links:
+                added_text = added_text.join(links)
+            if target_cities:
+                added_text = added_text.join(target_cities)
+            if hashtags:
+                added_text = added_text.join(hashtags)
+            added_text = f'{str(added_text)}\n\n{logo}'
+            added_text_count = len(added_text)
+            remaining_text_count = 280 - added_text_count
+            truncated_post = f'{paragraph[:remaining_text_count]}{str(added_text)}'
             arguments.append(
                 (truncated_post, social_with_count_restrictions,
                  key, image, org_id, post_id, schedule_time_str),
