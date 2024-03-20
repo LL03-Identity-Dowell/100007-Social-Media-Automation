@@ -332,9 +332,11 @@ class Automate:
         """
         # Calculate the total duration between start and end times
         total_duration = end_time - start_time
-
-        # Calculate the interval duration
-        interval_duration = total_duration / (num_intervals - 1)
+        try:
+            # Calculate the interval duration
+            interval_duration = total_duration / (num_intervals - 1)
+        except ZeroDivisionError:
+            return [start_time]
 
         # Generate a list of time intervals
         time_intervals = [start_time + i * interval_duration for i in range(num_intervals)]
@@ -449,7 +451,9 @@ class Automate:
         timezone = self.session['timezone']
         current_timezone = pytz.timezone(timezone)
         local_time = current_timezone.localize(now)
+        print('Adding time ')
         end_time = local_time + timedelta(hours=5)
+
         schedule_time_intervals = self.generate_time_intervals(
             num_intervals=number_articles,
             start_time=local_time,
