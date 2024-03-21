@@ -2375,7 +2375,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "error": " Oops! Something went wrong."
   }
 
-### 18.2 FetchUserInfo View
+### 19 FetchUserInfo View
 - **Endpoint:** `GET api/v2/fetch_user_settings_data/`
 - **Description:** Retrieves users' settings/data from the collection. 
 
@@ -2415,7 +2415,86 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 
-### 20. Feedback
+### 20 SocialMediaPortfolio View
+- **Endpoint:** `GET api/v2/social-media-portfolio/`
+- **Description:** Retrieves portfolios in a given organization. 
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+    curl -X GET -H "session_id: YOUR_SESSION_ID" -d https://www.socialmediaautomation.uxlivinglab.online/api/v2/social-media-portfolio/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "portfolio_info_list": "portfolio_info_list",
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "Oops! Something went wrong."
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 20.1 SocialMediaPortfolio View
+- **Endpoint:** `POST api/v2/social-media-portfolio/`
+- **Description:** Assign channels to a given portfolio. 
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"portfolio_code_channel_mapping": "portfolio_code_channel_mapping",}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/social-media-portfolio/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "portfolio_code_channel_mapping": "portfolio_code_channel_mapping",
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "Oops! Something went wrong."
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Authentication credentials were not provided."
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+
+### 21. Feedback
 If you have any questions or need assistance, please contact the backend team.
 
 
