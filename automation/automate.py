@@ -18,7 +18,7 @@ from pexels_api.api import API
 
 from credits.constants import STEP_1_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, STEP_4_SUB_SERVICE_ID
 from credits.credit_handler import CreditHandler
-from helpers import fetch_organization_user_info, create_event, save_data, check_connected_accounts, get_key, \
+from helpers import fetch_organization_user_info, create_event, save_data, check_connected_accounts, \
     save_profile_key_to_post, filter_all_automations
 from react_version import settings
 from website.models import Sentences, SentenceResults, SentenceRank
@@ -332,9 +332,11 @@ class Automate:
         """
         # Calculate the total duration between start and end times
         total_duration = end_time - start_time
-
-        # Calculate the interval duration
-        interval_duration = total_duration / (num_intervals - 1)
+        try:
+            # Calculate the interval duration
+            interval_duration = total_duration / (num_intervals - 1)
+        except ZeroDivisionError:
+            return [start_time]
 
         # Generate a list of time intervals
         time_intervals = [start_time + i * interval_duration for i in range(num_intervals)]
@@ -449,7 +451,9 @@ class Automate:
         timezone = self.session['timezone']
         current_timezone = pytz.timezone(timezone)
         local_time = current_timezone.localize(now)
+        print('Adding time ')
         end_time = local_time + timedelta(hours=5)
+
         schedule_time_intervals = self.generate_time_intervals(
             num_intervals=number_articles,
             start_time=local_time,
@@ -653,6 +657,42 @@ class Automate:
                    hook='automation.services.hook_now')
         return response
 
+    def get_aryshare_profile_key(self):
+        """
+        This method returns share profile key
+        @return:
+        """
+        try:
+            username = self.session['portfolio_info'][0]['portfolio_name']
+        except KeyError as e:
+            username = self.session['username']
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"title": username},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        aryshare_profiles = json.loads(response.json())
+        profile_key = ''
+        for profile in aryshare_profiles['data']:
+            if profile['title'] == username:
+                profile_key = profile['profileKey']
+                break
+        return profile_key
+
     def media_post(self, data: dict):
         credit_handler = CreditHandler()
         credit_response = credit_handler.check_if_user_has_enough_credits(
@@ -662,11 +702,17 @@ class Automate:
 
         if not credit_response.get('success'):
             return credit_response
-        username = self.session['username']
+        try:
+            username = self.session['portfolio_info'][0]['portfolio_name']
+        except KeyError as e:
+            username = self.session['username']
 
         linked_accounts = check_connected_accounts(username)
         if self.kwargs.get('channel'):
             linked_accounts = [self.kwargs.get('channel'), ]
+        hashtags = None
+        if self.kwargs.get('hashtags'):
+            hashtags = [self.kwargs.get('hashtags'), ]
         start_datetime = datetime.now()
         title = data['title']
         paragraph = data['paragraph']
@@ -688,8 +734,11 @@ class Automate:
 
         org_id = data['org_id']
 
-        user_id = data['user_id']
-        key = get_key(user_id)
+        key = self.get_aryshare_profile_key()
+
+        print('This is the profile key')
+        print(key)
+        print(username)
 
         social_with_count_restrictions = [
             channel for channel in linked_accounts if channel in ['twitter', 'pintrest']]
@@ -702,7 +751,17 @@ class Automate:
             schedule_time_str = schedule_time.strftime('%Y-%m-%dT%H:%M:%SZ')
 
         if social_with_count_restrictions:
-            truncated_post = f'{paragraph[:235]}\n{",".join(links)}{",".join(target_cities)}\n\n{logo}'
+            added_text = '\n'
+            if links:
+                added_text = added_text.join(links)
+            if target_cities:
+                added_text = added_text.join(target_cities)
+            if hashtags:
+                added_text = added_text.join(hashtags)
+            added_text = f'{str(added_text)}\n\n{logo}'
+            added_text_count = len(added_text)
+            remaining_text_count = 280 - added_text_count
+            truncated_post = f'{paragraph[:remaining_text_count]}{str(added_text)}'
             arguments.append(
                 (truncated_post, social_with_count_restrictions,
                  key, image, org_id, post_id, schedule_time_str),
