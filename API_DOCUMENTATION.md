@@ -219,9 +219,9 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "detail": "Failed to update Targeted cities"
   }
 
-##  5. Hash Tags and Mentions API
+##  5. Mentions API
 
-### 5.1 Save Hash Tags and Mentions
+### 5.1 Save Mentions
 - **Endpoint:** `GET /api/v2/hash-tags-and-mentions/`
 - **Description:** Retrieves status of the form. Whether to update or insert data.
 
@@ -250,7 +250,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 5.1 Save Hash Tags and Mentions
 - **Endpoint:** `POST /api/v2/hash-tags-and-mentions/`
-- **Description:** Saves hash tags and mentions.
+- **Description:** Saves and mentions.
 
 #### Request
 
@@ -261,30 +261,29 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 - **Body:**
   ```json
   {
-    "hashtag_list": "#welcome",
     "mentions_list": "@welcome",
   }
 
 
 - **Usage:**
     ```bash
-    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{"hashtag_list": #welcome, "mentions_list": @welcome}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/hash-tags-and-mentions/
+    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{ "mentions_list": @welcome}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/hash-tags-and-mentions/
 
 #### Response
 - **Status 200 OK**
   ```json
   {
-    "message" : "hash tags and mentions updated successfully"
+    "message" : "mentions updated successfully"
   }
 
 - **Status 500 Internal Server Error**
   ```json
   {
-    "detail": "Failed to update hash tags and mentions"
+    "detail": "Failed to update and mentions"
   }
 
 
-### 5.2 Update Hash Tags and Mentions
+### 5.2 Mentions
 - **Endpoint:** PUT /api/v2/update-hash-tags-and-mentions/
 - **Description:** Updates hash tags and mentions.
 
@@ -297,24 +296,23 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 - **Body:**
   ```json
   {
-    "hashtag_list": "#thankyou",
     "mentions_list": "@bye",
   }
 - **Usage:**
     ```bash
-    curl -X PUT -H "session_id: YOUR_SESSION_ID" -d '{"hashtag_list": #thankyou, "mentions_list": @bye}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/update-hash-tags-and-mentions/
+    curl -X PUT -H "session_id: YOUR_SESSION_ID" -d '{"mentions_list": @bye}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/update-hash-tags-and-mentions/
 
 #### Response
 - **Status 200 OK**
   ```json
   {
-    "message" : "hash tags and mentions updated successfully"
+    "message" : " mentions updated successfully"
   }
 
 - **Status 500 Internal Server Error**
   ```json
   {
-    "detail": "Failed to update hash tags and mentions"
+    "detail": "Failed to update mentions"
   }
 
 
