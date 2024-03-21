@@ -222,7 +222,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 ##  5. Mentions API
 
 ### 5.1 Save Mentions
-- **Endpoint:** `GET /api/v2/hash-tags-and-mentions/`
+- **Endpoint:** `GET /api/v2/mentions/`
 - **Description:** Retrieves status of the form. Whether to update or insert data.
 
 #### Request
@@ -233,7 +233,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
     ```bash
-    curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/hash-tags-and-mentions/
+    curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/mentions/
 
 #### Response
 - **Status 200 OK**
@@ -248,8 +248,8 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "detail": "Unauthorized"
   }
 
-### 5.1 Save Hash Tags and Mentions
-- **Endpoint:** `POST /api/v2/hash-tags-and-mentions/`
+### 5.1 Save Mentions
+- **Endpoint:** `POST /api/v2/mentions/`
 - **Description:** Saves and mentions.
 
 #### Request
@@ -267,7 +267,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
     ```bash
-    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{ "mentions_list": @welcome}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/hash-tags-and-mentions/
+    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{ "mentions_list": @welcome}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/mentions/
 
 #### Response
 - **Status 200 OK**
@@ -284,8 +284,8 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 
 ### 5.2 Mentions
-- **Endpoint:** PUT /api/v2/update-hash-tags-and-mentions/
-- **Description:** Updates hash tags and mentions.
+- **Endpoint:** PUT /api/v2/update-mentions/
+- **Description:** Updates mentions.
 
 #### Request
 
@@ -300,7 +300,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
     ```bash
-    curl -X PUT -H "session_id: YOUR_SESSION_ID" -d '{"mentions_list": @bye}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/update-hash-tags-and-mentions/
+    curl -X PUT -H "session_id: YOUR_SESSION_ID" -d '{"mentions_list": @bye}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/update-mentions/
 
 #### Response
 - **Status 200 OK**
@@ -2492,7 +2492,138 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 
-### 21. Feedback
+##  21. GroupHashtag API
+
+### 21.1 Retrieves Hashtags
+- **Endpoint:** `GET /api/v2/group-hashtags/`
+- **Description:** Retrieves group hashtags list.
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+    ```bash
+    curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/group-hashtags/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "group_hastag_list":"group_hastag_list"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+### 21.2 Save Hashtags
+- **Endpoint:** `POST /api/v2/group-hashtags/`
+- **Description:** Saves Hashtags.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "group_name": "group_name",
+    "hashtags": "hashtags",
+  }
+
+
+- **Usage:**
+    ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{ "group_name":group_name,"hashtags":hashtags, }' https://www.socialmediaautomation.uxlivinglab.online/api/v2/group-hashtags/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message" : "Hashtags updated successfully"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "detail": "Failed to update and hashtags"
+  }
+
+##  22. GroupHashtagDetailView API
+
+### 22.1 Retrieves specific Group Hashtags
+- **Endpoint:** `GET /api/v2/group-hashtags/<str:group_hashtag_id>/`
+- **Description:** Retrieves specific group hashtags list for Editing
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+    ```bash
+    curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/group-hashtags/<str:group_hashtag_id>/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "group_hashtag_id":"group_hashtag_id"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+### 22.2 Save Hashtags
+- **Endpoint:** `POST /api/v2/group-hashtags/<str:group_hashtag_id>/`
+- **Description:** Saves updated Hashtags Group.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "group_hashtag_id": "group_hashtag_id",
+    "group_name": "group_name",
+    "hashtags": "hashtags",
+    "update_type": "update_type",
+  }
+
+
+- **Usage:**
+    ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{ "group_hashtag_id":group_hashtag_id,"group_name":group_name,"update_type":update_type,  }' https://www.socialmediaautomation.uxlivinglab.online/api/v2/group-hashtags/<str:group_hashtag_id>/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message" : "Hashtags updated successfully"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "detail": "Failed to update Group hashtags"
+  }
+
+
+### 23. Feedback
 If you have any questions or need assistance, please contact the backend team.
 
 
