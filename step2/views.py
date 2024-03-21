@@ -1003,7 +1003,7 @@ class PostDetailView(AuthenticatedBaseView):
             if len(output) == 0:
                 return Response({'message': 'No images found please try again!'}, status=status.HTTP_404_NOT_FOUND)
             images = output[0]
-            username = request.session['username']
+            username = request.session['portfolio_info'][0]['portfolio_name']
             linked_accounts = check_connected_accounts(username)
             targeted_category = []
             qualitative_categorization = []
@@ -1200,8 +1200,7 @@ class EditPostView(AuthenticatedBaseView):
 class AryshareProfileView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         event_id = create_event()['event_id']
-        user = request.session['username']
-        # user = request.session['portfolio_info'][0]['portfolio_name']
+        user = request.session['portfolio_info'][0]['portfolio_name']
         payload = {'title': user}
         headers = {'Content-Type': 'application/json',
                    'Authorization': "Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G"}
@@ -1253,9 +1252,10 @@ class AryshareProfileView(AuthenticatedBaseView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class LinkMediaChannelsView(AuthenticatedBaseView):
+class OwnerAryshareProfilesView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
-        session_id = request.GET.get("session_id", None)
+        if not check_if_user_is_owner_of_organization(request):
+            return Response({'message': 'Only the owner of the organization can connect/add social media channels'})
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 
@@ -1277,16 +1277,20 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
         response = requests.request("POST", url, headers=headers, data=data)
         print(response.json())
         post = json.loads(response.json())
-        for posts in post['data']:
-            if posts['user_id'] == request.session['user_id']:
-                key = posts['profileKey']
-                print(key)
-        with open(r'/home/100007/dowellresearch.key') as f:
+        return Response(post['data'])
+@method_decorator(csrf_exempt, name='dispatch')
+class LinkMediaChannelsView(AuthenticatedBaseView):
+    def get(self, request, profileKey, *args, **kwargs):
+        if not check_if_user_is_owner_of_organization(request):
+            return Response({'message': 'Only the owner of the organization can connect/add social media channels'})
+
+        # TODO:Change this
+        with open(r'dowellresearch.key') as f:
             privateKey = f.read()
 
         payload = {'domain': 'dowellresearch',
                    'privateKey': privateKey,
-                   'profileKey': key,
+                   'profileKey': profileKey,
                    'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
                    }
         headers = {'Content-Type': 'application/json',
@@ -1299,16 +1303,33 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
         return redirect(link['url'])
 
 
+class ChannelViewAccess(AuthenticatedBaseView):
+    def get(self, request, *args, **kwargs):
+        try:
+            username = request.session['portfolio_info'][0]['portfolio_name']
+        except KeyError:
+            return Response({'error': 'Portfolio name not found in session'}, status=400)
+        linked_accounts = check_connected_accounts(username)
+
+        context_data = {
+            'portfolio_name': username,
+            'linked_accounts': linked_accounts
+        }
+
+        return Response(context_data)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class SocialMediaChannelsView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
-
+        if not check_if_user_is_owner_of_organization(request):
+            return Response({'message': 'Only the owner of the organization can connect and view channels of this organization'})
         step_2_manager = Step2Manager()
 
         try:
             title = request.session['portfolio_info'][0]['owner_name']
         except KeyError:
-            title = request.session['username']
+            title = request.session['portfolio_info'][0]['portfolio_name']
 
         user_has_social_media_profile = check_if_user_has_social_media_profile_in_aryshare(
             title)
@@ -1355,6 +1376,7 @@ class SocialMediaChannelsView(AuthenticatedBaseView):
             'name': name,
             'org_id': org_id,
         }
+        print("Here I have", data)
         step_2_manager.create_social_media_request(data)
         return Response(
             {'message': 'Social media request was saved successfully. Wait for the admin to accept the request'})
@@ -1432,7 +1454,7 @@ class CanPostOnSocialMedia(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 class LinkedAccountsJson(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
-        username = request.session['username']
+        username = request.session['portfolio_info'][0]['portfolio_name']
         linked_accounts = check_connected_accounts(username)
 
         return Response({'response': linked_accounts})
@@ -1884,7 +1906,7 @@ class UnScheduledView(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' in request.session and 'username' in request.session:
             profile = request.session['operations_right']
-            username = request.session['username']
+            username = request.session['portfolio_info'][0]['portfolio_name']
             userid = request.session['user_id']
             update_aryshare(username, userid)
             return Response({'profile': profile})
@@ -3533,8 +3555,8 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
 class FetchUserInfo(AuthenticatedBaseView):
     def get(self, request):
         if 'session_id' and 'username' in request.session:
-            # profile_details = request.session['portfolio_info'][0]['portfolio_name']
-            # print(profile_details)
+            profile_details = request.session['portfolio_info'][0]['portfolio_name']
+            print("Here I have", profile_details)
             user_data = fetch_user_info(request)
             return Response(user_data)
         else:

@@ -23,12 +23,10 @@ class Command(BaseCommand):
             try:
                 print(f'Running automation {str(count + 1)}/{len(automations)}')
                 days_run = automation.get('days_run', 0)
-                number_of_days = automation.get('days_run', 0)
+                number_of_days = automation.get('number_of_posts_per_day', 0)
 
                 automate = Automate(
-                    session=automation['session'],
-                    number_of_posts=automation.get('number_of_posts_per_day'),
-                    automation_id=automation.get('id')
+                    **automation
                 )
 
                 if days_run >= number_of_days:
@@ -37,7 +35,7 @@ class Command(BaseCommand):
                 automate.update_automation_data()
 
                 if 'auto_string' in automation.keys():
-
+                    continue
                     auto_strings = automation['auto_string']
                     data_di = automation['data_di']
                     if automate.approval.get('topic') == True:
@@ -46,7 +44,8 @@ class Command(BaseCommand):
                         # async_task(automate.generate_topics,
                         #            auto_strings, data_di, hook='automation.services.hook_now')
                 elif 'session' in automation.keys():
-
+                    if automation['session'].get('username') != 'wilfex':
+                        continue
                     automate.generate_article(data_dic=None)
             except Exception as e:
                 print(e)

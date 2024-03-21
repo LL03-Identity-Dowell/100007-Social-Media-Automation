@@ -181,7 +181,6 @@ def create_event():
     else:
         return json.loads(r.text)['error']
 
-
 @csrf_exempt
 def fetch_user_info(request):
     if 'session_id' and 'username' in request.session:
@@ -197,7 +196,7 @@ def fetch_user_info(request):
             "team_member_ID": "1071",
             "function_ID": "ABCDE",
             "command": "fetch",
-            "field": {"user_id": request.session['user_id']},
+            "field": {"org_id": request.session['org_id']},
             "update_field": {
                 "order_nos": 21
             },
@@ -846,6 +845,18 @@ def check_if_user_is_owner_of_organization(request):
                 return True
     return False
 
+def check_if_user_can_view_org_channels(request):
+    portfolio_info_list = request.session['portfolio_info']
+    username = request.session['username']
+    if not portfolio_info_list:
+        return False
+    for portfolio_info in portfolio_info_list:
+        if portfolio_info.get('product') == 'Social Media Automation':
+            if portfolio_info.get('member_type') == 'owner':
+                return True
+            if portfolio_info.get('member_type') == 'team_member' and portfolio_info.get('owner_name') == username:
+                return True
+    return False
 
 def fetch_user_portfolio_data(request):
     session_id = request.session.get("session_id")
