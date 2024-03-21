@@ -209,7 +209,7 @@ For example http://localhost:5173/?session_id=ep0hu5u2msqv6sk24afcztnga7to48c3
 
 You can store this session_id for future authentication. Whenever you get 403 permission error, you can sent the
 session_id as a url parameter to an endpoint.
-For example website/api/v1/category/?session_id=ep0hu5u2msqv6sk24afcztnga7to48c3
+For example website/api/v2/category/?session_id=ep0hu5u2msqv6sk24afcztnga7to48c3
 Doing this will create a new session for the user. In subsequent calls to the backend please send the credential headers
 in the request to maintain a user's session
 
