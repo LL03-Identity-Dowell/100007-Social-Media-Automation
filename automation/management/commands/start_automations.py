@@ -1,6 +1,7 @@
 import logging
 
 from django.core.management import BaseCommand
+from django_q.tasks import async_task
 
 from automation.automate import Automate
 from helpers import filter_all_automations
@@ -35,14 +36,13 @@ class Command(BaseCommand):
                 automate.update_automation_data()
 
                 if 'auto_string' in automation.keys():
-                    continue
                     auto_strings = automation['auto_string']
                     data_di = automation['data_di']
                     if automate.approval.get('topic') == True:
                         # Todo: Remove this
-                        automate.generate_topics(auto_strings, data_di)
-                        # async_task(automate.generate_topics,
-                        #            auto_strings, data_di, hook='automation.services.hook_now')
+                        # automate.generate_topics(auto_strings, data_di)
+                        async_task(automate.generate_topics,
+                                   auto_strings, data_di, hook='automation.services.hook_now')
                 elif 'session' in automation.keys():
                     if automation['session'].get('username') != 'wilfex':
                         continue
