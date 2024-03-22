@@ -30,7 +30,7 @@ const UploadImages = ({ modal }) => {
           setLoading(false);
           let data = response.data;
           console.log(data);
-          if (data.length < 0) {
+          if (data.length <= 0) {
             setIsEmpty("You don't have any images to select from")
           }
           setImages(data);
@@ -102,7 +102,13 @@ const UploadImages = ({ modal }) => {
         <div>
           {
             isEmpty && (
-              <p className="text-center">{isEmpty} <br /> <Link to="/settings/upload-image" className="py-2 px-6 bg-customBlue text-white">Upload Image</Link></p>
+              <div className="flex flex-col gap-4 justify-center items-center mt-6">
+
+              <p className="text-center">{isEmpty} 
+              </p>
+              <Link to="/settings/upload-image" className="py-2 px-6 bg-customBlue text-white rounded-lg">Upload Image</Link>
+
+              </div>
             )
           }
           
@@ -115,6 +121,7 @@ const UploadImages = ({ modal }) => {
                   <img
                     src={item}
                     alt={item}
+                    loading="lazy"
                     className={`w-full md:w-[80%] h-[150px] 2xl:h-[200px] rounded-lg ${
                       selectedImageIndex === index
                         ? "border-4 border-customTextBlue"
@@ -141,7 +148,7 @@ const UploadImages = ({ modal }) => {
             onPageChange={handlePageChange}
             previousLabel={currentPage === 0 ? null : "Previous"}
             nextLabel={
-              currentPage === Math.ceil(images.length / ITEMS_PER_PAGE) - 1
+              currentPage === Math.ceil(images.length / ITEMS_PER_PAGE) - 0
                 ? null
                 : "Next"
             }

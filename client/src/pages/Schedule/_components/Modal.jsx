@@ -69,6 +69,7 @@ export const ScheduleModal = ({
   socialArr,
 }) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const productKey = localStorage.getItem('productKey');
