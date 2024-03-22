@@ -1305,32 +1305,6 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
     
 @method_decorator(csrf_exempt, name='dispatch')
 class LinkMediaChannelsOwnerView(AuthenticatedBaseView):
-    def get(self, request, profileKey, *args, **kwargs):
-        if not check_if_user_is_owner_of_organization(request):
-            return Response({'message': 'Only the owner of the organization can connect/add social media channels'})
-
-        # TODO:Change this during production
-        with open(r'dowellresearch.key') as f:
-            privateKey = f.read()
-
-        payload = {'domain': 'dowellresearch',
-                   'privateKey': privateKey,
-                   'profileKey': profileKey,
-                   'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
-                   }
-        headers = {'Content-Type': 'application/json',
-                   'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
-
-        r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
-                          json=payload,
-                          headers=headers)
-        link = r.json()
-
-        return Response(link)
-    
-
-@method_decorator(csrf_exempt, name='dispatch')
-class LinkMediaChannelsOwnerView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         session_id = request.GET.get("session_id", None)
         url = "http://uxlivinglab.pythonanywhere.com/"
