@@ -12,7 +12,7 @@ from .views import (AdminApproveSocialMediaRequestView, ChannelViewAccess, Fetch
                     GenerateArticleWikiView, WriteYourselfView, MediaScheduleView,
                     MediaPostView, SocialMediaChannelsView, LinkedAccountsJson, CanPostOnSocialMedia,
                     Comments, PostComments, CreatePostComments, EditPostView,
-                    LinkMediaChannelsView, AryshareProfileView, PostDetailDropdownView, DeletePostComment,
+                    LinkMediaChannelsView, LinkMediaChannelsOwnerView,AryshareProfileView, PostDetailDropdownView, DeletePostComment,
                     FetchUserInfo, GroupHashtagView, GroupHashtagDetailView, SocialMediaPortfolioView,
                     NewPostGeneration, LogoutUser, OwnerAryshareProfilesView)
 
@@ -88,7 +88,7 @@ urlpatterns = [
     path('link/profiles/', OwnerAryshareProfilesView.as_view(), name='can-post'),
     path('link/linkusers/', AryshareProfileView.as_view(), name='can-post'),
     path('link/profile/<str:profileKey>/', LinkMediaChannelsView.as_view(), name='link-profile'),
-    path('link/', LinkMediaChannelsView.as_view(), name='can-post'),
+    path('link/', LinkMediaChannelsOwnerView.as_view(), name='can-post'),
      path('logout/', LogoutUser.as_view(), name='logout'),
     path('comments/', Comments.as_view(), name='comments-endpoint'),
     path('comments/create/<str:post_id>/',
@@ -115,3 +115,5 @@ urlpatterns = [
      
 
 ]
+
+
