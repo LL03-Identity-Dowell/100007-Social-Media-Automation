@@ -56,6 +56,9 @@ const PotfolioOwner = ({ close }) => {
         setError(null);
         setLoading(false);
         let data = response.data;
+        console.log(data.url);
+        const redirectUrl = data.url
+        window.open(redirectUrl, "_blank");
        
       })
       .catch((error) => {
