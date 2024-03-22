@@ -9,3 +9,4 @@ class AutomationSerializer(serializers.Serializer):
     channel = serializers.ChoiceField(required=True, choices=SOCIAL_PLATFORM_CHOICES)
     links = serializers.ListSerializer(child=serializers.CharField(), required=True)
     target_cities = serializers.ListSerializer(child=serializers.CharField(), required=True)
+    hashtags = serializers.ListSerializer(child=serializers.CharField(), required=True)
