@@ -3103,7 +3103,7 @@ class GroupHashtagView(AuthenticatedBaseView):
             'hashtags': hashtags,
         }
         response = create_group_hashtags(create_hashtag_data)
-        return Response({'detail': 'Hashtags and Mentions created successfully'}, status=status.HTTP_201_CREATED)
+        return Response({'detail': 'Hashtags created successfully'}, status=status.HTTP_201_CREATED)
 
 
 class GroupHashtagDetailView(AuthenticatedBaseView):

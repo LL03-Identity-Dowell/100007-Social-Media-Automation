@@ -10,7 +10,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 2.1 Get Main Data
 
-- **Endpoint:** `GET /api/v1/main/`
+- **Endpoint:** `GET /api/v2/main/`
 - **Description:** Retrieves main data.
 
 #### Request
@@ -20,7 +20,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/main/
+  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/main/
 
 #
  ### ii. User Settings Endpoints
@@ -30,7 +30,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 3.1 Approve User
 
-- **Endpoint:**  `GET /api/v1/user-approval/`
+- **Endpoint:**  `GET /api/v2/user-approval/`
 - **Description:** Retrieves the status of the user approvals, indicating whether to insert or update data.
 
 #### Request
@@ -40,7 +40,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash                                                                                                                                   
-  curl -X  GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/user-approval/
+  curl -X  GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/user-approval/
 
 #### Response
 - **Status 200 OK**
@@ -57,7 +57,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 3.2 Approve User
 
-- **Endpoint:**  `POST /api/v1/user-approval/`
+- **Endpoint:**  `POST /api/v2/user-approval/`
 - **Description:** `False` is default and `True` is set to automate the various steps of the projects.
 
 #### Request
@@ -77,7 +77,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash                                                      
-  curl -X  POST -H "session_id: YOUR_SESSION_ID"-d '{"topic": true, "article": false, "post": true, "schedule": false}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/user-approval/
+  curl -X  POST -H "session_id: YOUR_SESSION_ID"-d '{"topic": true, "article": false, "post": true, "schedule": false}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/user-approval/
 
 #### Response
 - **Status 200 OK**
@@ -94,7 +94,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 3.3 Approve User
 
-- **Endpoint:**  `PUT /api/v1/user-approval/`
+- **Endpoint:**  `PUT /api/v2/user-approval/`
 - **Description:** `False` is default and `True` is set to automate the various steps of the projects.
 #### Request
 
@@ -113,7 +113,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash                                                      
-  curl -X  PUT -H "session_id: YOUR_SESSION_ID"-d '{"topic": true, "article": false, "post": true, "schedule": false}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/user-approval/
+  curl -X  PUT -H "session_id: YOUR_SESSION_ID"-d '{"topic": true, "article": false, "post": true, "schedule": false}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/user-approval/
 
 
 #### Response
@@ -134,11 +134,11 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 4.1 List Targeted Cities
 
-- **Endpoint:** `GET /api/v1/targeted_cities/`
+- **Endpoint:** `GET /api/v2/targeted_cities/`
 - **Description:** Retrieves a list of targeted cities and status.
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/targeted_cities/
+  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/targeted_cities/
 
 #### Response
 - **Status 200 OK**
@@ -154,7 +154,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 ### 4.2 Create Targeted City(TargetedCitiesCreateView)
-- **Endpoint:** `POST /api/v1/targeted_cities/create/`
+- **Endpoint:** `POST /api/v2/targeted_cities/create/`
 - **Description:** Creates a new targeted city.
 
 #### Request
@@ -171,7 +171,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
     ```bash
-    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{"target_cities": "Nairobi, Istanbul"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/targeted_cities/create/
+    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{"target_cities": "Nairobi, Istanbul"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/targeted_cities/create/
 
 #### Response
 - **Status 200 OK**
@@ -187,7 +187,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 ### 4.3 Update Targeted City
-- **Endpoint:**  `PUT /api/v1/targeted_cities/update/`
+- **Endpoint:**  `PUT /api/v2/targeted_cities/update/`
 - **Description:** Updates an existing targeted city.
 
 #### Request
@@ -204,7 +204,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
     ```bash
-    curl -X PUT  -H "session_id: YOUR_SESSION_ID" -d '{"target_cities": "Bujumbura"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/targeted_cities/update/
+    curl -X PUT  -H "session_id: YOUR_SESSION_ID" -d '{"target_cities": "Bujumbura"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/targeted_cities/update/
 
 #### Response
 - **Status 200 OK**
@@ -219,10 +219,10 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "detail": "Failed to update Targeted cities"
   }
 
-##  5. Hash Tags and Mentions API
+##  5. Mentions API
 
-### 5.1 Save Hash Tags and Mentions
-- **Endpoint:** `GET /api/v1/hash-tags-and-mentions/`
+### 5.1 Save Mentions
+- **Endpoint:** `GET /api/v2/mentions/`
 - **Description:** Retrieves status of the form. Whether to update or insert data.
 
 #### Request
@@ -233,7 +233,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
     ```bash
-    curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/hash-tags-and-mentions/
+    curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/mentions/
 
 #### Response
 - **Status 200 OK**
@@ -248,9 +248,9 @@ Welcome to the documentation for the backend APIs. This guide provides informati
     "detail": "Unauthorized"
   }
 
-### 5.1 Save Hash Tags and Mentions
-- **Endpoint:** `POST /api/v1/hash-tags-and-mentions/`
-- **Description:** Saves hash tags and mentions.
+### 5.1 Save Mentions
+- **Endpoint:** `POST /api/v2/mentions/`
+- **Description:** Saves and mentions.
 
 #### Request
 
@@ -261,32 +261,31 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 - **Body:**
   ```json
   {
-    "hashtag_list": "#welcome",
     "mentions_list": "@welcome",
   }
 
 
 - **Usage:**
     ```bash
-    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{"hashtag_list": #welcome, "mentions_list": @welcome}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/hash-tags-and-mentions/
+    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{ "mentions_list": @welcome}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/mentions/
 
 #### Response
 - **Status 200 OK**
   ```json
   {
-    "message" : "hash tags and mentions updated successfully"
+    "message" : "mentions updated successfully"
   }
 
 - **Status 500 Internal Server Error**
   ```json
   {
-    "detail": "Failed to update hash tags and mentions"
+    "detail": "Failed to update and mentions"
   }
 
 
-### 5.2 Update Hash Tags and Mentions
-- **Endpoint:** PUT /api/v1/update-hash-tags-and-mentions/
-- **Description:** Updates hash tags and mentions.
+### 5.2 Mentions
+- **Endpoint:** PUT /api/v2/update-mentions/
+- **Description:** Updates mentions.
 
 #### Request
 
@@ -297,24 +296,23 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 - **Body:**
   ```json
   {
-    "hashtag_list": "#thankyou",
     "mentions_list": "@bye",
   }
 - **Usage:**
     ```bash
-    curl -X PUT -H "session_id: YOUR_SESSION_ID" -d '{"hashtag_list": #thankyou, "mentions_list": @bye}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/update-hash-tags-and-mentions/
+    curl -X PUT -H "session_id: YOUR_SESSION_ID" -d '{"mentions_list": @bye}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/update-mentions/
 
 #### Response
 - **Status 200 OK**
   ```json
   {
-    "message" : "hash tags and mentions updated successfully"
+    "message" : " mentions updated successfully"
   }
 
 - **Status 500 Internal Server Error**
   ```json
   {
-    "detail": "Failed to update hash tags and mentions"
+    "detail": "Failed to update mentions"
   }
 
 
@@ -322,7 +320,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 6.1 Get Facebook Form Status
 
-- **Endpoint:** `GET /api/v1/facebook-form/`
+- **Endpoint:** `GET /api/v2/facebook-form/`
 - **Description:** Retrieves the status of the Facebook form, indicating whether to insert or update data.
 #### Request
 
@@ -332,7 +330,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/facebook-form/
+  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/facebook-form/
 
 #### Response
 - **Status 200 OK**
@@ -350,7 +348,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 6.2 Update Facebook Form
 
-- **Endpoint:** `PUT /api/v1/facebook-form/`
+- **Endpoint:** `PUT /api/v2/facebook-form/`
 - **Description:** Updates Facebook form data.
 
 #### Request
@@ -369,7 +367,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/facebook-form/
+  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/facebook-form/
 
 #### Response
 - **Status 200 OK**
@@ -387,7 +385,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 6.3 Create Facebook Form
 
-- **Endpoint:** `POST /api/v1/facebook-form/`
+- **Endpoint:** `POST /api/v2/facebook-form/`
 - **Description:** Creates Facebook form data.
 
 #### Request
@@ -406,7 +404,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/facebook-form/
+    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/facebook-form/
 
 #### Response
 - **Status 200 OK**
@@ -425,7 +423,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 7.1 Get Instagram Form Status
 
-- **Endpoint:** `GET api/v1/instagram-form/`
+- **Endpoint:** `GET api/v2/instagram-form/`
 - **Description:** Retrieves the status of the Instagram form, indicating whether to insert or update data.
 #### Request
 
@@ -435,7 +433,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/instagram-form/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/instagram-form/
 
 #### Response
 - **Status 200 OK**
@@ -453,7 +451,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 7.2 Update Instagram Form
 
-- **Endpoint:** `PUT api/v1/instagram-form/`
+- **Endpoint:** `PUT api/v2/instagram-form/`
 - **Description:** Updates Instagram form data.
 
 #### Request
@@ -472,7 +470,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/instagram-form/
+  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/instagram-form/
 
 #### Response
 - **Status 200 OK**
@@ -490,7 +488,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 7.3 Create Instagram Form
 
-- **Endpoint:** `POST api/v1/instagram-form/`
+- **Endpoint:** `POST api/v2/instagram-form/`
 - **Description:** Creates Instagram form data.
 
 #### Request
@@ -509,7 +507,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/instagram-form/
+    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/instagram-form/
 
 #### Response
 - **Status 200 OK**
@@ -528,7 +526,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 8.1 Get X Form Status
 
-- **Endpoint:** `GET api/v1/X-form/`
+- **Endpoint:** `GET api/v2/X-form/`
 - **Description:** Retrieves the status of the X form, indicating whether to insert or update data.
 
 #### Request
@@ -538,7 +536,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/X-form/
+  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/X-form/
 
 #### Response
 - **Status 200 OK**
@@ -556,7 +554,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 8.2 Update X Form
 
-- **Endpoint:** `PUT api/v1/X-form/`
+- **Endpoint:** `PUT api/v2/X-form/`
 - **Description:** Updates X form data.
 
 #### Request
@@ -576,7 +574,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/X-form/
+  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/X-form/
 
 
 #### Response
@@ -595,7 +593,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 8.3 Create X Form
 
-- **Endpoint:** `POST api/v1/X-form/`
+- **Endpoint:** `POST api/v2/X-form/`
 - **Description:** Creates X form data.
 #### Request
 
@@ -613,7 +611,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/X-form/
+    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/X-form/
 
 #### Response
 - **Status 200 OK**
@@ -632,7 +630,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 9.1 Get LinkedIn Form Status
 
-- **Endpoint:** `GET api/v1/linkedIn-form/`
+- **Endpoint:** `GET api/v2/linkedIn-form/`
 - **Description:** Retrieves the status of the LinkedIn form, indicating whether to insert or update data.
 
 #### Request
@@ -642,7 +640,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/linkedIn-form/
+  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/linkedIn-form/
 
 #### Response
 - **Status 200 OK**
@@ -660,7 +658,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 9.2 Update LinkedIn Form
 
-- **Endpoint:** `PUT api/v1/linkedIn-form/`
+- **Endpoint:** `PUT api/v2/linkedIn-form/`
 - **Description:** Updates LinkedIn form data.
 
 #### Request
@@ -680,7 +678,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/linkedIn-form/
+  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/linkedIn-form/
 
 #### Response
 - **Status 200 OK**
@@ -698,7 +696,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 9.3 Create LinkedIn Form
 
-- **Endpoint:** `POST api/v1/linkedIn-form/`
+- **Endpoint:** `POST api/v2/linkedIn-form/`
 - **Description:** Creates LinkedIn form data.
 
 #### Request
@@ -718,7 +716,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/linkedIn-form/
+    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/linkedIn-form/
 
 #### Response
 - **Status 200 OK**
@@ -737,7 +735,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 10.1 Get Pinterest Form Status
 
-- **Endpoint:** `GET api/v1/pinterest-form/`
+- **Endpoint:** `GET api/v2/pinterest-form/`
 - **Description:** Retrieves the status of the Pinterest form, indicating whether to insert or update data.
 
 
@@ -747,7 +745,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/pinterest-form/
+  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/pinterest-form/
 
 #### Response
 - **Status 200 OK**
@@ -765,7 +763,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 10.2 Update Pinterest Form
 
-- **Endpoint:** `PUT api/v1/pinterest-form/`
+- **Endpoint:** `PUT api/v2/pinterest-form/`
 - **Description:** Updates Pinterest form data.
 
 #### Request
@@ -784,7 +782,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/pinterest-form/
+  curl -X PUT -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/pinterest-form/
 
 #### Response
 - **Status 200 OK**
@@ -802,7 +800,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 10.3 Create Pinterest Form
 
-- **Endpoint:** `POST api/v1/pinterest-form/`
+- **Endpoint:** `POST api/v2/pinterest-form/`
 - **Description:** Creates Pinterest form data.
 
 #### Request
@@ -822,7 +820,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   
 - **Usage:**
   ```bash
-    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/pinterest-form/
+    curl -X POST -H "session_id: YourSessionID" -d '{"page_id=your_page_id&page_link=your_page_link&page_password=your_page_password&posts_no=your_posts_no"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/pinterest-form/
 
 #### Response
 - **Status 200 OK**
@@ -842,7 +840,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 11.1 Get Client Profile Form Status
 
-- **Endpoint:** `GET api/v1/client-form/`
+- **Endpoint:** `GET api/v2/client-form/`
 - **Description:** Retrieves the status of the Client Profile form, indicating whether to insert or update data.
 
 #### Request
@@ -853,7 +851,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/client-form/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/client-form/
 
 #### Response
 - **Status 200 OK**
@@ -871,7 +869,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 11.2 Update Client Profile Form
 
-- **Endpoint:** `PUT api/v1/client-form/`
+- **Endpoint:** `PUT api/v2/client-form/`
 - **Description:** Updates Client Profile form data.
 
 #### Request
@@ -890,7 +888,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X PUT -H "session_id:YourSessionID" -d '{"address=your_address&business=your_business_name&product=your_product"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/client-form/
+  curl -X PUT -H "session_id:YourSessionID" -d '{"address=your_address&business=your_business_name&product=your_product"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/client-form/
 
 #### Response
 - **Status 200 OK**
@@ -908,7 +906,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 11.3 Create Client Profile Form
 
-- **Endpoint:** `POST api/v1/client-form/`
+- **Endpoint:** `POST api/v2/client-form/`
 - **Description:** Creates Client Profile form data.
 
 #### Request
@@ -928,7 +926,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-    curl -X POST -H "session_id:YourSessionID" -d '{"address=your_address&business=your_business_name&product=your_product"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/client-form/
+    curl -X POST -H "session_id:YourSessionID" -d '{"address=your_address&business=your_business_name&product=your_product"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/client-form/
 
 #### Response
 - **Status 200 OK**
@@ -948,7 +946,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 12.1 Get Post Detail DropdownForm Status
 
-- **Endpoint:** `GET api/v1/post-detail-dropdowns/`
+- **Endpoint:** `GET api/v2/post-detail-dropdowns/`
 - **Description:** Retrieves the status of the Post Detail Dropdown form, indicating whether to insert or update data.
 #### Request
 
@@ -958,7 +956,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/post-detail-dropdowns/
+  curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/post-detail-dropdowns/
 
 #### Response
 - **Status 200 OK**
@@ -976,7 +974,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 12.2 Update Post Detail Dropdown Form
 
-- **Endpoint:** `PUT api/v1/post-detail-dropdowns/`
+- **Endpoint:** `PUT api/v2/post-detail-dropdowns/`
 - **Description:** Updates Post Detail Dropdown form data.
 
 #### Request
@@ -995,7 +993,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X PUT -H "session_id: YourSessionID" -d '{"qualitative_categorization=your_qualitative_categorization&targeted_for=your_targeted_for&targeted_category=your_targeted_category" }' https://www.socialmediaautomation.uxlivinglab.online/api/v1/post-detail-dropdowns/
+  curl -X PUT -H "session_id: YourSessionID" -d '{"qualitative_categorization=your_qualitative_categorization&targeted_for=your_targeted_for&targeted_category=your_targeted_category" }' https://www.socialmediaautomation.uxlivinglab.online/api/v2/post-detail-dropdowns/
 
 #### Response
 - **Status 200 OK**
@@ -1013,7 +1011,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 12.3 Create Post Detail Dropdown Form
 
-- **Endpoint:** `POST api/v1/post-detail-dropdowns/`
+- **Endpoint:** `POST api/v2/post-detail-dropdowns/`
 - **Description:** Creates Post Detail Dropdown form data.
 
 #### Request
@@ -1031,7 +1029,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YourSessionID" -d '{"qualitative_categorization=your_qualitative_categorization&targeted_for=your_targeted_for&targeted_category=your_targeted_category"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/post-detail-dropdowns/
+  curl -X POST -H "session_id: YourSessionID" -d '{"qualitative_categorization=your_qualitative_categorization&targeted_for=your_targeted_for&targeted_category=your_targeted_category"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/post-detail-dropdowns/
 
 #### Response
 - **Status 200 OK**
@@ -1053,7 +1051,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 13.1 Generate Topics
 
-- **Endpoint:** `POST website/api/v1/generate/`
+- **Endpoint:** `POST website/api/v2/generate/`
 - **Description:** Generates sentences based on provided parameters. 
 
 #### Request
@@ -1073,7 +1071,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YourSessionID" -d '{"object": "object_value", "topic": "topic_value", "verb": "verb_value", "object_determinant": "object_determinant_value", "adjective": "adjective_value"}' https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/generate/
+  curl -X POST -H "session_id: YourSessionID" -d '{"object": "object_value", "topic": "topic_value", "verb": "verb_value", "object_determinant": "object_determinant_value", "adjective": "adjective_value"}' https://www.socialmediaautomation.uxlivinglab.online/website/api/v2/generate/
 
 #### Response
 - **Status 200 OK**
@@ -1113,7 +1111,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 13.2 Categories API View
 
-- **Endpoint:** `POST website/api/v1/category/`
+- **Endpoint:** `POST website/api/v2/category/`
 - **Description:** Creates user categories. 
 
 #### Request
@@ -1129,7 +1127,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YourSessionID" -d '{"name": "Category1,Category2"}'https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/category/
+  curl -X POST -H "session_id: YourSessionID" -d '{"name": "Category1,Category2"}'https://www.socialmediaautomation.uxlivinglab.online/website/api/v2/category/
 
 #### Response
 - **Status 200 OK**
@@ -1156,7 +1154,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 
-- **Endpoint:** `GET website/api/v1/category/`
+- **Endpoint:** `GET website/api/v2/category/`
 - **Description:** Retrieves user categories. 
 
 #### Request
@@ -1167,7 +1165,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/category/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/website/api/v2/category/
 
 #### Response
 - **Status 200 OK**
@@ -1198,7 +1196,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   
 ### 13.3 Topics API View
 
-- **Endpoint:** `POST website/api/v1/topic/`
+- **Endpoint:** `POST website/api/v2/topic/`
 - **Description:** Creates user topics. 
 
 #### Request
@@ -1214,7 +1212,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YourSessionID" -d '{"name": "Topic1,Topic2"}'https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/topic/
+  curl -X POST -H "session_id: YourSessionID" -d '{"name": "Topic1,Topic2"}'https://www.socialmediaautomation.uxlivinglab.online/website/api/v2/topic/
 
 #### Response
 - **Status 200 OK**
@@ -1241,7 +1239,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 
-- **Endpoint:** `GET website/api/v1/topic/`
+- **Endpoint:** `GET website/api/v2/topic/`
 - **Description:** Retrieves user topics. 
 
 #### Request
@@ -1252,7 +1250,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/website/api/v1/topic/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/website/api/v2/topic/
 
 #### Response
 - **Status 200 OK**
@@ -1283,7 +1281,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 13.3 Selected Result API View
 
-- **Endpoint:** `POST website/api/v1/selected_result/`
+- **Endpoint:** `POST website/api/v2/selected_result/`
 - **Description:** Ranks selected sentences.
 
 #### Request
@@ -1301,7 +1299,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YourSessionID" -d '{"rank_1": 2, "rank_2": 1, "rank_3": 3}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/selected_result/
+  curl -X POST -H "session_id: YourSessionID" -d '{"rank_1": 2, "rank_2": 1, "rank_3": 3}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/selected_result/
 
 #### Response
 - **Status 200 OK**
@@ -1336,7 +1334,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 14.1 Get User Articles(ListArticleView)
 
-- **Endpoint:** `GET api/v1/list-articles/`
+- **Endpoint:** `GET api/v2/list-articles/`
 - **Description:** Retrieves a list of articles created by the user in step-1 
 
 #### Request
@@ -1347,7 +1345,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/list-articles/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/list-articles/
 
 #### Response
 - **Status 200 OK**
@@ -1369,7 +1367,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 ### 14.2 Article Detail View(ArticleDetailView)
-- **Endpoint:** `POST /api/v1/article-detail/`
+- **Endpoint:** `POST /api/v2/article-detail/`
 - **Description:** Submits an article detail request.
 
 #### Request
@@ -1389,7 +1387,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"article_id": "article_id", "title": "title", "paragraph": "paragraph","source": "source" }' https://www.socialmediaautomation.uxlivinglab.online/api/v1/article-detail/
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"article_id": "article_id", "title": "title", "paragraph": "paragraph","source": "source" }' https://www.socialmediaautomation.uxlivinglab.online/api/v2/article-detail/
 
 
 #### Response
@@ -1419,11 +1417,11 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 14.3 Get User Topics(IndexView)
 
-- **Endpoint:** `GET api/v1/article/generate/`
+- **Endpoint:** `GET api/v2/article/generate/`
 - **Description:** Retrieves a list of topics created by the user in step-1 
 - **Usage:**
   ```bash
-  curl -X GET https://www.socialmediaautomation.uxlivinglab.online/api/v1/article/generate/
+  curl -X GET https://www.socialmediaautomation.uxlivinglab.online/api/v2/article/generate/
 
 #### Response
 - **Status 200 OK**
@@ -1445,7 +1443,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 ### 14.4 Generate Articles Using OpenAI(GenerateArticleView)
-- **Endpoint:** `POST /api/v1/article/AI/`
+- **Endpoint:** `POST /api/v2/article/AI/`
 - **Description:** Generates an article using OpenAI's GPT-3 based on user preferences.
 
 #### Request
@@ -1462,7 +1460,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Article Title"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/article/AI/
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Article Title"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/article/AI/
 
 
 
@@ -1493,7 +1491,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
   
 ### 14.5 Generate Articles Using Wikipedia(GenerateArticleWikiView)
-- **Endpoint:** `POST /api/v1/article/wiki/`
+- **Endpoint:** `POST /api/v2/article/wiki/`
 - **Description:** Generates an article using wikipediaapi based on user preferences.
 
 #### Request
@@ -1510,7 +1508,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Article Title"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/article/wiki/
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Article Title"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/article/wiki/
 
 
 
@@ -1541,7 +1539,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
   
 ### 14.6 Generate Articles Manually (WriteYourselfView)
-- **Endpoint:** `POST /api/v1/article/write_yourself/`
+- **Endpoint:** `POST /api/v2/article/write_yourself/`
 - **Description:** Allows users to manually write their own article.
 
 #### Request
@@ -1560,7 +1558,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Article Title", "articletextarea": "Your article content...", "url": "https://your-source-url.com"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/article/write_yourself/
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Article Title", "articletextarea": "Your article content...", "url": "https://your-source-url.com"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/article/write_yourself/
 
 
 
@@ -1599,7 +1597,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 15.1 Post List View
 
-- **Endpoint:** `GET api/v1/post_list/`
+- **Endpoint:** `GET api/v2/post_list/`
 - **Description:** Retrieves a list of posts
 
 #### Request
@@ -1610,7 +1608,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/post_list/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/post_list/
 
 #### Response
 - **Status 200 OK**
@@ -1634,7 +1632,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 15.2 Post Detail View
 
-- **Endpoint:** `POST api/v1/post-detail/`
+- **Endpoint:** `POST api/v2/post-detail/`
 - **Description:**  Submits a post detail request.
 
 #### Request
@@ -1645,7 +1643,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"post_id": "post_id", "title": "title", "source": "source" }' https://www.socialmediaautomation.uxlivinglab.online/api/v1/post-detail/
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"post_id": "post_id", "title": "title", "source": "source" }' https://www.socialmediaautomation.uxlivinglab.online/api/v2/post-detail/
 
 #### Response
 - **Status 200 OK**
@@ -1674,7 +1672,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 15.2 Save Post View
 
-- **Endpoint:** `POST api/v1/save_post/`
+- **Endpoint:** `POST api/v2/save_post/`
 - **Description:**  Save a post to step4_data collection
 
 #### Request
@@ -1685,7 +1683,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "title","source": "source", "qualitative_categorization": "qualitative_categorization","targeted_for": "targeted_for","designed_for": "designed_for","targeted_category": "targeted_category","image": "image","paragraphs": "paragraphs"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/save_post/
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "title","source": "source", "qualitative_categorization": "qualitative_categorization","targeted_for": "targeted_for","designed_for": "designed_for","targeted_category": "targeted_category","image": "image","paragraphs": "paragraphs"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/save_post/
 
 #### Response
 - **Status 200 OK**
@@ -1714,7 +1712,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 15.3 Edit Post View
 
-- **Endpoint:** `GET api/v1/edit_post/<str:post_id>/`
+- **Endpoint:** `GET api/v2/edit_post/<str:post_id>/`
 - **Description:**  Edit a post using dowell Editor
 
 #### Request
@@ -1725,7 +1723,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YOUR_SESSION_ID" -d '{"token": "token"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/edit_post/<str:post_id>/
+  curl -X GET -H "session_id: YOUR_SESSION_ID" -d '{"token": "token"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/edit_post/<str:post_id>/
 
 #### Response
 - **Status 200 OK**
@@ -1759,7 +1757,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 16.1 Aryshare Profile View
 
-- **Endpoint:** `GET api/v1/link/linkusers/`
+- **Endpoint:** `GET api/v2/link/linkusers/`
 - **Description:** Retrieves and links Aryshare profile information.
 
 #### Request
@@ -1770,7 +1768,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/link/linkusers/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/link/linkusers/
 
 #### Response
 - **Status 200 OK**
@@ -1800,7 +1798,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 16.2 Link Media Channels View
 
-- **Endpoint:** `GET api/v1/link/`
+- **Endpoint:** `GET api/v2/link/`
 - **Description:** Retrieves and links media channels using Ayrshare.
 
 #### Request
@@ -1811,7 +1809,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/link/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/link/
 
 #### Response
 - **Status: 302 Found (Redirect)**
@@ -1829,7 +1827,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 16.3 Linked Accounts View
 
-- **Endpoint:** `GET api/v1/linked-account/`
+- **Endpoint:** `GET api/v2/linked-account/`
 - **Description:** Retrieves information about linked accounts.
 
 #### Request
@@ -1840,7 +1838,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/linked-account/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/linked-account/
 
 #### Response
 
@@ -1876,7 +1874,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 16.2 Most Recent
 
-- **Endpoint:** `GET api/v1/recent_posts/`
+- **Endpoint:** `GET api/v2/recent_posts/`
 - **Description:** Retrieves a list of recently posted posts
 
 #### Request
@@ -1887,7 +1885,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/recent_posts/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/recent_posts/
 
 #### Response
 - **Status 200 OK**
@@ -1910,7 +1908,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 16.3 Scheduled Json View
 
-- **Endpoint:** `GET api/v1/scheduled-json/`
+- **Endpoint:** `GET api/v2/scheduled-json/`
 - **Description:** Retrieves a list of recently Scheduled posts
 
 #### Request
@@ -1921,7 +1919,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/scheduled-json/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/scheduled-json/
 
 #### Response
 - **Status 200 OK**
@@ -1944,7 +1942,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 16.4 UnScheduled Json View
 
-- **Endpoint:** `GET api/v1/unscheduled/`
+- **Endpoint:** `GET api/v2/unscheduled/`
 - **Description:** Retrieves a list of recently UnScheduled posts
 
 #### Request
@@ -1955,7 +1953,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/unscheduled/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/unscheduled/
 
 #### Response
 - **Status 200 OK**
@@ -1978,7 +1976,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 16.5 MediaPost View
 
-- **Endpoint:** `POST api/v1/media_post/`
+- **Endpoint:** `POST api/v2/media_post/`
 - **Description:** Creates and posts media content on various social media platforms.
 
 #### Request
@@ -1999,7 +1997,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Post Title", "paragraph": "Your post content...", "image": "https://your-image-url.com", "PK": "YourPostID", "social": ["Facebook", "Twitter"], "special": ["SpecialPlatform"]}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/media_post/
+  curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Post Title", "paragraph": "Your post content...", "image": "https://your-image-url.com", "PK": "YourPostID", "social": ["Facebook", "Twitter"], "special": ["SpecialPlatform"]}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/media_post/
 
 #### Response
 - **Status 200 OK**
@@ -2022,7 +2020,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 ### 16.6 Media Schedule View
 
-- **Endpoint:** `POST api/v1/media_schedule/`
+- **Endpoint:** `POST api/v2/media_schedule/`
 - **Description:** Creates and posts media content on various social media platforms.
 
 #### Request
@@ -2044,7 +2042,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 - **Usage:**
   ```bash
-    curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Post Title", "paragraph": "Your post content...", "image": "https://your-image-url.com", "PK": "YourPostID", "social": ["Facebook", "Twitter"], "special": ["SpecialPlatform"], "schedule": "MM/DD/YYYY HH:MM:SS"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/media_schedule/
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"title": "Your Post Title", "paragraph": "Your post content...", "image": "https://your-image-url.com", "PK": "YourPostID", "social": ["Facebook", "Twitter"], "special": ["SpecialPlatform"], "schedule": "MM/DD/YYYY HH:MM:SS"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/media_schedule/
 
 #### Response
 - **Status 200 OK**
@@ -2072,7 +2070,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 ## 17. COMMENTS API
 
 ### 17.1 Posted and scheduled Posts
-- **Endpoint:** `GET api/v1/comments/`
+- **Endpoint:** `GET api/v2/comments/`
 - **Description:** Retrieves posts for most recent and scheduled posts.
 
 #### Request
@@ -2083,7 +2081,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v1/comments/
+  curl -X GET -H "session_id: YourSessionID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/comments/
 
 #### Response
 - **Status 200 OK**
@@ -2105,7 +2103,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 ### 17.2 Post Comments View
-- **Endpoint:** `GET api/v1/comments/create/<str:post_id>/`
+- **Endpoint:** `GET api/v2/comments/create/<str:post_id>/`
 - **Description:** Retrieves comments for a specific post.
 
 #### Request
@@ -2116,7 +2114,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-    curl -X GET -H "session_id: YOUR_SESSION_ID" -d https://www.socialmediaautomation.uxlivinglab.online/api/v1/comments/get-post-comments/{post_id}/
+    curl -X GET -H "session_id: YOUR_SESSION_ID" -d https://www.socialmediaautomation.uxlivinglab.online/api/v2/comments/get-post-comments/{post_id}/
 
 #### Response
 - **Status 200 OK**
@@ -2151,7 +2149,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 ### 17.3 Create Comments View
-- **Endpoint:** `POST api/v1/comments/create/<str:post_id>/`
+- **Endpoint:** `POST api/v2/comments/create/<str:post_id>/`
 - **Description:** Retrieves comments for a specific post.
 
 #### Request
@@ -2169,7 +2167,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-    curl -X POST -H "session_id: YOUR_SESSION_ID" -d  '{"platforms": ["platform1", "platform2"], "comment": "Your comment content..."}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/comments/create/<str:post_id>/
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d  '{"platforms": ["platform1", "platform2"], "comment": "Your comment content..."}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/comments/create/<str:post_id>/
 
 #### Response
 - **Status 200 OK**
@@ -2198,7 +2196,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 
 ### 17.4 Delete Comments View
-- **Endpoint:** `POST api/v1/comments/delete-comment/<str:post_id>/`
+- **Endpoint:** `POST api/v2/comments/delete-comment/<str:post_id>/`
 - **Description:** Deletes a specific comment on a post.
 
 #### Request
@@ -2217,7 +2215,7 @@ Welcome to the documentation for the backend APIs. This guide provides informati
 
 - **Usage:**
   ```bash
-    curl -X POST -H "session_id: YOUR_SESSION_ID" -d  '{"platform": "platform_name", "comment_id": "comment_id_to_delete"}' https://www.socialmediaautomation.uxlivinglab.online/api/v1/comments/delete-comment/<str:post_id>/
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d  '{"platform": "platform_name", "comment_id": "comment_id_to_delete"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/comments/delete-comment/<str:post_id>/
 
 #### Response
 - **Status 200 OK**
@@ -2244,7 +2242,388 @@ Welcome to the documentation for the backend APIs. This guide provides informati
   }
 
 
-### 18. Feedback
+
+### 17.5 Analytics View
+- **Endpoint:** `POST api/v2/comments/post_analytics/`
+- **Description:** Fetch the analytics of a given post.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "platform": "platform_name",
+    "id": "id"
+  }
+
+
+- **Usage:**
+  ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d  '{"platform(s)": "platform_name(s)", "id": "id"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/post_analytics/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message": "Analytics fetched successfully."
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "The post does not have aryshare ID"
+  }
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+## 18. IMAGE LIBRARY
+### 18.1 ImageLibraryView
+- **Endpoint:** `POST api/v2/upload_image/`
+- **Description:** Upload and update users' image library.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "image": "image",
+  }
+
+- **Usage:**
+  ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d  '{"image": "image"}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/upload_image/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message": "Image uploaded successfully."
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "Invalid image format. Only PNG and JPEG are allowed."
+  }
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": "Failed to process the image."
+  }
+
+### 18.2 FetchImages View
+- **Endpoint:** `GET api/v2/fetch_image/`
+- **Description:** Retrieves users' images from the library.
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+    curl -X GET -H "session_id: YOUR_SESSION_ID" -d https://www.socialmediaautomation.uxlivinglab.online/api/v2/fetch_image/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "image_library(s)": "image(s) link(s)",
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "No images"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 19 FetchUserInfo View
+- **Endpoint:** `GET api/v2/fetch_user_settings_data/`
+- **Description:** Retrieves users' settings/data from the collection. 
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+    curl -X GET -H "session_id: YOUR_SESSION_ID" -d https://www.socialmediaautomation.uxlivinglab.online/api/v2/fetch_user_settings_data/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "user_data": "user_data",
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "No data"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+
+### 20 SocialMediaPortfolio View
+- **Endpoint:** `GET api/v2/social-media-portfolio/`
+- **Description:** Retrieves portfolios in a given organization. 
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+    curl -X GET -H "session_id: YOUR_SESSION_ID" -d https://www.socialmediaautomation.uxlivinglab.online/api/v2/social-media-portfolio/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "portfolio_info_list": "portfolio_info_list",
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "Oops! Something went wrong."
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+### 20.1 SocialMediaPortfolio View
+- **Endpoint:** `POST api/v2/social-media-portfolio/`
+- **Description:** Assign channels to a given portfolio. 
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+  ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID" -d '{"portfolio_code_channel_mapping": "portfolio_code_channel_mapping",}' https://www.socialmediaautomation.uxlivinglab.online/api/v2/social-media-portfolio/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "portfolio_code_channel_mapping": "portfolio_code_channel_mapping",
+  }
+
+- **Status 400 Bad Request**
+  ```json
+  {
+    "message": "Oops! Something went wrong."
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Authentication credentials were not provided."
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "error": " Oops! Something went wrong."
+  }
+
+
+##  21. GroupHashtag API
+
+### 21.1 Retrieves Hashtags
+- **Endpoint:** `GET /api/v2/group-hashtags/`
+- **Description:** Retrieves group hashtags list.
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+    ```bash
+    curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/group-hashtags/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "group_hastag_list":"group_hastag_list"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+### 21.2 Save Hashtags
+- **Endpoint:** `POST /api/v2/group-hashtags/`
+- **Description:** Saves Hashtags.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "group_name": "group_name",
+    "hashtags": "hashtags",
+  }
+
+
+- **Usage:**
+    ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{ "group_name":group_name,"hashtags":hashtags, }' https://www.socialmediaautomation.uxlivinglab.online/api/v2/group-hashtags/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message" : "Hashtags updated successfully"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "detail": "Failed to update and hashtags"
+  }
+
+##  22. GroupHashtagDetailView API
+
+### 22.1 Retrieves specific Group Hashtags
+- **Endpoint:** `GET /api/v2/group-hashtags/<str:group_hashtag_id>/`
+- **Description:** Retrieves specific group hashtags list for Editing
+
+#### Request
+
+- **Method:** `GET`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Usage:**
+    ```bash
+    curl -X GET -H "session_id: YOUR_SESSION_ID" https://www.socialmediaautomation.uxlivinglab.online/api/v2/group-hashtags/<str:group_hashtag_id>/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "group_hashtag_id":"group_hashtag_id"
+  }
+
+- **Status 401 Unauthorized**
+  ```json
+  {
+    "detail": "Unauthorized"
+  }
+
+### 22.2 Save Hashtags
+- **Endpoint:** `POST /api/v2/group-hashtags/<str:group_hashtag_id>/`
+- **Description:** Saves updated Hashtags Group.
+
+#### Request
+
+- **Method:** `POST`
+- **Headers:**
+  - `session_id`: YourSessionID
+
+- **Body:**
+  ```json
+  {
+    "group_hashtag_id": "group_hashtag_id",
+    "group_name": "group_name",
+    "hashtags": "hashtags",
+    "update_type": "update_type",
+  }
+
+
+- **Usage:**
+    ```bash
+    curl -X POST -H "session_id: YOUR_SESSION_ID"-d '{ "group_hashtag_id":group_hashtag_id,"group_name":group_name,"update_type":update_type,  }' https://www.socialmediaautomation.uxlivinglab.online/api/v2/group-hashtags/<str:group_hashtag_id>/
+
+#### Response
+- **Status 200 OK**
+  ```json
+  {
+    "message" : "Hashtags updated successfully"
+  }
+
+- **Status 500 Internal Server Error**
+  ```json
+  {
+    "detail": "Failed to update Group hashtags"
+  }
+
+
+### 23. Feedback
 If you have any questions or need assistance, please contact the backend team.
 
 
