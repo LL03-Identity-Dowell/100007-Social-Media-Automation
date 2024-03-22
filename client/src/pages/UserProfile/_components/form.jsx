@@ -10,7 +10,6 @@ export const Form = ({ name }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
   const [selectOptions, setSelectOptions] = useState();
   const [isFetched, setIsFetched] = useState('');
   const [socialLinksList, setSocialLinksList] = useState([]);

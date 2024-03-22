@@ -1300,7 +1300,8 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
                           json=payload,
                           headers=headers)
         link = r.json()
-        return redirect(link['url'])
+
+        return Response(link)
 
 
 class ChannelViewAccess(AuthenticatedBaseView):

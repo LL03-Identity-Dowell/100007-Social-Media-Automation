@@ -4,10 +4,11 @@ import { FaUser } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const rights = localStorage.getItem('rights');
+const rights = localStorage.getItem("rights");
 function Navbar() {
   const [username, setUserName] = useState();
   const [userEmail, setUserEmail] = useState();
+  const [memberType, setMemberType] = useState();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isSecondDropdownOpen, setSecondDropdownOpen] = useState(false);
 
@@ -16,6 +17,7 @@ function Navbar() {
     if (user && user.username && user.email) {
       setUserName(user.username);
       setUserEmail(user.email);
+      setMemberType(user.memberType);
     }
   });
 
@@ -348,12 +350,13 @@ function Navbar() {
                           handleSecondLinkClick();
                           handleLinkClick();
                         }}
-                        className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'>
+                        className="block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white"
+                      >
                         Portfolio Approvals
                       </Link>
                     </li>
                   )}
-                  {username === 'uxliveadmin' && (
+                  {username === "uxliveadmin" && (
                     <li>
                       <Link
                         to='/admin-approval'
@@ -363,6 +366,20 @@ function Navbar() {
                         }}
                         className='block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white'>
                         Admin Approvals
+                      </Link>
+                    </li>
+                  )}
+                  {memberType && (
+                    <li>
+                      <Link
+                        to="/settings/owner-portfolio"
+                        onClick={() => {
+                          handleSecondLinkClick();
+                          handleLinkClick();
+                        }}
+                        className="block px-4 py-2 hover:bg-gray-100 dark:hover-bg-gray-600 dark:hover-text-white"
+                      >
+                        Connect Social Media
                       </Link>
                     </li>
                   )}
