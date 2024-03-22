@@ -1284,7 +1284,7 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
         if not check_if_user_is_owner_of_organization(request):
             return Response({'message': 'Only the owner of the organization can connect/add social media channels'})
 
-        # TODO:Change this
+        # TODO:Change this during production
         with open(r'dowellresearch.key') as f:
             privateKey = f.read()
 
@@ -1300,9 +1300,56 @@ class LinkMediaChannelsView(AuthenticatedBaseView):
                           json=payload,
                           headers=headers)
         link = r.json()
+
+        return Response(link)
+    
+@method_decorator(csrf_exempt, name='dispatch')
+class LinkMediaChannelsOwnerView(AuthenticatedBaseView):
+    def get(self, request, *args, **kwargs):
+        session_id = request.GET.get("session_id", None)
+        url = "http://uxlivinglab.pythonanywhere.com/"
+        headers = {'content-type': 'application/json'}
+
+        payload = {
+            "cluster": "socialmedia",
+            "database": "socialmedia",
+            "collection": "ayrshare_info",
+            "document": "ayrshare_info",
+            "team_member_ID": "100007001",
+            "function_ID": "ABCDE",
+            "command": "fetch",
+            "field": {"user_id": request.session['user_id']},
+            "update_field": {
+                "order_nos": 21
+            },
+            "platform": "bangalore"
+        }
+        data = json.dumps(payload)
+        response = requests.request("POST", url, headers=headers, data=data)
+        print(response.json())
+        post = json.loads(response.json())
+        for posts in post['data']:
+            if posts['user_id'] == request.session['user_id']:
+                key = posts['profileKey']
+                print(key)
+        # TODO:Change this during production
+        with open(r'dowellresearch.key') as f:
+            privateKey = f.read()
+
+        payload = {'domain': 'dowellresearch',
+                   'privateKey': privateKey,
+                   'profileKey': key,
+                   'redirect': 'https://profile.ayrshare.com/social-accounts?domain=dowellresearch'
+                   }
+        headers = {'Content-Type': 'application/json',
+                   'Authorization': 'Bearer 8DTZ2DF-H8GMNT5-JMEXPDN-WYS872G'}
+
+        r = requests.post('https://app.ayrshare.com/api/profiles/generateJWT',
+                          json=payload,
+                          headers=headers)
+        link = r.json()
         return redirect(link['url'])
-
-
+    
 class ChannelViewAccess(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
         try:

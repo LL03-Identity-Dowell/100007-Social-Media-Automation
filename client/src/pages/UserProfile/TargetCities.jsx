@@ -1,19 +1,19 @@
-import { useState, useRef, useEffect } from "react";
-import UserWrapper from "./UserWrapper";
-import axios from "axios";
+import { useState, useRef, useEffect } from 'react';
+import UserWrapper from './UserWrapper';
+import axios from 'axios';
 
-import Loading from "/src/components/Loading.jsx";
-import { ErrorMessages, SuccessMessages } from "/src/components/Messages";
+import Loading from '/src/components/Loading.jsx';
+import { ErrorMessages, SuccessMessages } from '/src/components/Messages';
 
 const TargetCities = ({ close }) => {
   const [cityList, setCityList] = useState([]);
   const [filteredCityList, setFilteredCityList] = useState([]);
-  const [status, setStatus] = useState("");
-  const [inputValue, setInputValue] = useState("");
+  const [status, setStatus] = useState('');
+  const [inputValue, setInputValue] = useState('');
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const formRef = useRef();
 
@@ -25,11 +25,11 @@ const TargetCities = ({ close }) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const citiesArray = Array.from(formData.entries())
-      .filter(([key, value]) => value === "on")
+      .filter(([key, value]) => value === 'on')
       .map(([key]) => key);
 
     setLoading(true);
-    if (status === "update") {
+    if (status === 'update') {
       const res = await axios.put(
         `${import.meta.env.VITE_APP_BASEURL}/targeted_cities/update/`,
         citiesArray,
@@ -39,15 +39,15 @@ const TargetCities = ({ close }) => {
       );
 
       if (res.status !== 200) {
-        setError("Error updating the cities");
-        setSuccess("");
+        setError('Error updating the cities');
+        setSuccess('');
         return;
       }
       const { data } = res;
       setSuccess(data.detail);
-      setError("");
+      setError('');
       formRef.current.reset();
-    } else if (status === "insert") {
+    } else if (status === 'insert') {
       const res = await axios.post(
         `${import.meta.env.VITE_APP_BASEURL}/targeted_cities/create/`,
         citiesArray,
@@ -56,14 +56,14 @@ const TargetCities = ({ close }) => {
         }
       );
 
-      if (res.status !== 200) {
-        setError("Error inserting the cities");
-        setSuccess("");
+      if (res.status !== 201) {
+        setError('Error inserting the cities');
+        setSuccess('');
         return;
       }
       const { data } = res;
       setSuccess(data.detail);
-      setError("");
+      setError('');
 
       formRef.current.reset();
     }
@@ -86,8 +86,8 @@ const TargetCities = ({ close }) => {
           setStatus(data.status);
         })
         .catch(() => {
-          setError("Failed to fetch city list");
-          setSuccess("");
+          setError('Failed to fetch city list');
+          setSuccess('');
         });
       setLoading(false);
     };
@@ -97,8 +97,8 @@ const TargetCities = ({ close }) => {
 
   useEffect(() => {
     setTimeout(() => {
-      setSuccess("");
-      setError("");
+      setSuccess('');
+      setError('');
     }, 2000);
   }, [success, error]);
 
@@ -113,15 +113,14 @@ const TargetCities = ({ close }) => {
   return (
     <UserWrapper>
       <div className='w-[70%] mx-auto  h-[600px] pt-14 pb-3.5'>
-        {error !== "" && <ErrorMessages>{error}</ErrorMessages>}
-        {success !== "" && <SuccessMessages>{success}</SuccessMessages>}
+        {error !== '' && <ErrorMessages>{error}</ErrorMessages>}
+        {success !== '' && <SuccessMessages>{success}</SuccessMessages>}
         {loading ? <Loading /> : null}
         <div className='flex items-center justify-between h-14 mb-2.5 gap-30 w-full'>
           <button
             type='button'
             className='search-container-btns'
-            id='search-btn'
-          >
+            id='search-btn'>
             <div className='icons8-search' />
           </button>
           <input
@@ -136,10 +135,9 @@ const TargetCities = ({ close }) => {
             type='reset'
             className='search-container-btns'
             onClick={() => {
-              setInputValue("");
+              setInputValue('');
               setCityList(cityList);
-            }}
-          >
+            }}>
             <div className='icons8-cancel'></div>
           </button>
         </div>
@@ -151,8 +149,7 @@ const TargetCities = ({ close }) => {
                 <label
                   key={each.id}
                   className='city-label cursor-pointer w-full py-2.5 px-10 text-xl text-[#333] bg-transparent'
-                  htmlFor={each.id}
-                >
+                  htmlFor={each.id}>
                   {each.name}
                   <input
                     id={each.id}
@@ -165,8 +162,7 @@ const TargetCities = ({ close }) => {
             </ul>
             <button
               type='submit'
-              className='self-center w-32 mt-3 text-base font-semibold text-center text-white rounded-md h-11 bg-customBlue'
-            >
+              className='self-center w-32 mt-3 text-base font-semibold text-center text-white rounded-md h-11 bg-customBlue'>
               save
             </button>
           </form>

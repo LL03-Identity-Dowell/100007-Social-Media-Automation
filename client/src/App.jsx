@@ -41,6 +41,7 @@ import Portfolio from "./pages/Portfolio/portfolio";
 import AdminApproval from "./pages/UserProfile/AdminApproval";
 import UploadAssets from "./pages/SettingsPages/UploadAssets";
 import CommentStats from './pages/Comment/CommentStats';
+import PotfolioOwner from './pages/SettingsPages/PotfolioOwner';
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -189,6 +190,10 @@ function App() {
           <Route
             path='/settings/upload-image'
             element={<UploadAssets close={handleCloseSideBar} />}
+          />
+          <Route
+            path='/settings/owner-portfolio'
+            element={<PotfolioOwner close={handleCloseSideBar} />}
           />
           <Route
             path='/target-cities'

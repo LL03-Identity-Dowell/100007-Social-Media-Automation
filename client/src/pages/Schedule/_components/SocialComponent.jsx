@@ -1,7 +1,7 @@
-import * as Dialog from "@radix-ui/react-dialog";
-import axios from "axios";
+import * as Dialog from '@radix-ui/react-dialog';
+import axios from 'axios';
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import {
   facebook,
   instagram,
@@ -9,8 +9,8 @@ import {
   pinterest,
   xTwitter,
   youtube,
-} from "../../../assets";
-import { checkProperty } from "./function";
+} from '../../../assets';
+import { checkProperty } from './function';
 
 export const SocialComponentForPost = ({
   article,
@@ -25,22 +25,22 @@ export const SocialComponentForPost = ({
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    setError("");
-    setSuccessMessage("");
+    setError('');
+    setSuccessMessage('');
 
     const paragraph = Array.isArray(article.paragraph)
-      ? article.paragraph.join(" ")
+      ? article.paragraph.join(' ')
       : article.paragraph;
 
     const editedArticle = { ...article, paragraph };
 
     const formData = new FormData(e.currentTarget);
     const socialArray = Array.from(formData.entries())
-      .filter(([key, value]) => value === "on")
+      .filter(([key, value]) => value === 'on')
       .map(([key]) => key);
 
     if (socialArr.length === 0) {
-      setError("No social channel linked! Please link atleast one.");
+      setError('No social channel linked! Please link atleast one.');
       setOpen(false);
       return;
     }
@@ -49,15 +49,15 @@ export const SocialComponentForPost = ({
     );
 
     if (missingItems.length > 0) {
-      setError(`${missingItems.join(", ")} not linked`);
+      setError(`${missingItems.join(', ')} not linked`);
       return;
     }
 
     const filteredSocial = socialArray.filter(
-      (social) => social !== "twitter" && social !== "pinterest"
+      (social) => social !== 'twitter' && social !== 'pinterest'
     );
 
-    const specialArray = ["twitter", "pinterest"].filter((social) =>
+    const specialArray = ['twitter', 'pinterest'].filter((social) =>
       socialArray.includes(social)
     );
 
@@ -77,26 +77,26 @@ export const SocialComponentForPost = ({
       .then((res) => {
         const { isExist = false, data } = checkProperty(
           res?.data,
-          "not_approved_channels"
+          'not_approved_channels'
         );
 
         if (isExist) {
-          setError(`You don't have permission to post to ${data?.join(" ")}`);
+          setError(`You don't have permission to post to ${data?.join(' ')}`);
           return;
         }
-        setSuccessMessage("Successfully submit for post");
+        setSuccessMessage('Successfully submit for post');
         setLoading(false);
         setTimeout(() => {
-          navigate("/recent");
+          navigate('/recent');
         }, 700);
       })
       .catch((error) => {
         if (error?.response?.data?.success === false) {
           setSuccessMessage(error?.response?.data?.message);
         } else {
-          setError("Server error, Please try again later");
+          setError('Server error, Please try again later');
         }
-        console.error("Error making posts:", error);
+        console.error('Error making posts:', error);
         setLoading(false);
       });
     setOpen(false);
@@ -108,8 +108,7 @@ export const SocialComponentForPost = ({
         <div className='flex justify-between gap-4 mb-6'>
           <label
             htmlFor='facebook'
-            className='flex flex-row-reverse items-center'
-          >
+            className='flex flex-row-reverse items-center'>
             <img
               src={facebook}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-customBlue'
@@ -124,8 +123,7 @@ export const SocialComponentForPost = ({
           </label>
           <label
             htmlFor='twitter'
-            className='flex flex-row-reverse items-center'
-          >
+            className='flex flex-row-reverse items-center'>
             <img
               src={xTwitter}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-black'
@@ -140,8 +138,7 @@ export const SocialComponentForPost = ({
           </label>
           <label
             htmlFor='instagram'
-            className='flex flex-row-reverse items-center'
-          >
+            className='flex flex-row-reverse items-center'>
             <img
               src={instagram}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#b003c7]'
@@ -156,8 +153,7 @@ export const SocialComponentForPost = ({
           </label>
           <label
             htmlFor='linkedin'
-            className='flex flex-row-reverse items-center'
-          >
+            className='flex flex-row-reverse items-center'>
             <img
               src={linkedin}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#0000ff]'
@@ -173,8 +169,7 @@ export const SocialComponentForPost = ({
 
           <label
             htmlFor='youtube'
-            className='flex flex-row-reverse items-center'
-          >
+            className='flex flex-row-reverse items-center'>
             {/* <div className='icons8-youtube-logo md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 object-cover'></div> */}
             <img
               src={youtube}
@@ -190,8 +185,7 @@ export const SocialComponentForPost = ({
           </label>
           <label
             htmlFor='pinterest'
-            className='flex flex-row-reverse items-center'
-          >
+            className='flex flex-row-reverse items-center'>
             <img
               src={pinterest}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#e60023]'
@@ -208,8 +202,7 @@ export const SocialComponentForPost = ({
         <div className='flex justify-center mt-8'>
           <button
             type='submit'
-            className='cursor-pointer text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95 text-center'
-          >
+            className='cursor-pointer text-base font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95 text-center'>
             Done
           </button>
         </div>
@@ -224,27 +217,26 @@ export const SocialComponentForSchedule = ({
   setLoading,
   setSuccessMessage,
   setOpen,
-  // socialArr,
+  socialArr,
 }) => {
-  const socialArr = ["twitter"];
   const navigate = useNavigate();
 
   const onSubmit = async (e) => {
     e.preventDefault();
 
     const paragraph = Array.isArray(article.paragraph)
-      ? article.paragraph.join(" ")
+      ? article.paragraph.join(' ')
       : article.paragraph;
 
     const editedArticle = { ...article, paragraph };
 
     const formData = new FormData(e.currentTarget);
     const socialArray = Array.from(formData.entries())
-      .filter(([key, value]) => value === "on")
+      .filter(([_, value]) => value === 'on')
       .map(([key]) => key);
 
     if (socialArr.length === 0) {
-      setError("No social channel linked! Please link atleast one.");
+      setError('No social channel linked! Please link atleast one.');
       setOpen(false);
       return;
     }
@@ -253,26 +245,26 @@ export const SocialComponentForSchedule = ({
     );
 
     if (missingItems.length > 0) {
-      setError(`${missingItems.join(", ")} not linked`);
+      setError(`${missingItems.join(', ')} not linked`);
       return;
     }
 
     const filteredSocial = socialArray.filter(
-      (social) => social !== "twitter" && social !== "pinterest"
+      (social) => social !== 'twitter' && social !== 'pinterest'
     );
 
-    const specialArray = ["twitter", "pinterest"].filter((social) =>
+    const specialArray = ['twitter', 'pinterest'].filter((social) =>
       socialArray.includes(social)
     );
 
-    const datetimeInput = formData.get("datetime");
+    const datetimeInput = formData.get('datetime');
 
     const mergedData = {
       ...editedArticle,
       time: datetimeInput,
       social: filteredSocial,
       special: specialArray,
-      schedule: "11/23/2023 21:27:00",
+      schedule: '11/23/2023 21:27:00',
     };
 
     const url = `${import.meta.env.VITE_APP_BASEURL}/media_schedule/`;
@@ -284,20 +276,20 @@ export const SocialComponentForSchedule = ({
         withCredentials: true,
       })
       .then((res) => {
-        setError(null);
-        setSuccessMessage("Successfully submit for schedule");
+        setSuccessMessage('Successfully submit for schedule');
+        console.log(res);
         setLoading(false);
         setTimeout(() => {
-          navigate("/unscheduled");
+          navigate('/unscheduled');
         }, 1000);
       })
       .catch((error) => {
         if (error?.response?.data?.success === false) {
           setSuccessMessage(error?.response?.data?.message);
         } else {
-          setError("Server error, Please try again later");
+          setError('Server error, Please try again later');
         }
-        console.error("Error making posts:", error);
+        console.error('Error making posts:', error);
         setLoading(false);
       });
     setOpen(false);
@@ -309,8 +301,7 @@ export const SocialComponentForSchedule = ({
         <div className='flex items-center gap-4 mb-6 md:justify-between'>
           <label
             htmlFor='facebook'
-            className='flex flex-row-reverse items-center w-full'
-          >
+            className='flex flex-row-reverse items-center w-full'>
             <img
               src={facebook}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-customBlue'
@@ -325,8 +316,7 @@ export const SocialComponentForSchedule = ({
           </label>
           <label
             htmlFor='twitter'
-            className='flex flex-row-reverse items-center w-full'
-          >
+            className='flex flex-row-reverse items-center w-full'>
             <img
               src={xTwitter}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-black'
@@ -341,8 +331,7 @@ export const SocialComponentForSchedule = ({
           </label>
           <label
             htmlFor='instagram'
-            className='flex flex-row-reverse items-center w-full'
-          >
+            className='flex flex-row-reverse items-center w-full'>
             <img
               src={instagram}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#b003c7]'
@@ -357,8 +346,7 @@ export const SocialComponentForSchedule = ({
           </label>
           <label
             htmlFor='linkedin'
-            className='flex flex-row-reverse items-center w-full'
-          >
+            className='flex flex-row-reverse items-center w-full'>
             <img
               src={linkedin}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#0000ff]'
@@ -374,8 +362,7 @@ export const SocialComponentForSchedule = ({
 
           <label
             htmlFor='youtube'
-            className='flex flex-row-reverse items-center w-full '
-          >
+            className='flex flex-row-reverse items-center w-full '>
             {/* <div className='icons8-youtube-logo md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 object-cover'></div> */}
             <img
               src={youtube}
@@ -391,8 +378,7 @@ export const SocialComponentForSchedule = ({
           </label>
           <label
             htmlFor='pinterest'
-            className='flex flex-row-reverse items-center w-full'
-          >
+            className='flex flex-row-reverse items-center w-full'>
             <img
               src={pinterest}
               className='md:w-20 md:h-[90px] w-[50px] h-[50px] ml-1 md:p-5 p-2 rounded-2xl bg-[#e60023]'
@@ -411,16 +397,14 @@ export const SocialComponentForSchedule = ({
           <Dialog.Close asChild>
             <button
               type='button'
-              className='w-28 h-[46px] rounded-lg text-center text-base font-medium text-white bg-[#464646] hover:opacity-95'
-            >
+              className='w-28 h-[46px] rounded-lg text-center text-base font-medium text-white bg-[#464646] hover:opacity-95'>
               Remove
             </button>
           </Dialog.Close>
 
           <button
             type='submit'
-            className='text-base text-center font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95'
-          >
+            className='text-base text-center font-medium text-white rounded-md h-[46px] w-28 bg-customBlue hover:opacity-95'>
             Done
           </button>
         </div>
