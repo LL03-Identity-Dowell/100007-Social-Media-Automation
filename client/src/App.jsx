@@ -20,27 +20,28 @@ import SocialMediaChannels from './pages/UserProfile/SocialMediaChannels';
 import ApprovalByClient from './pages/UserProfile/ApprovalByClient';
 import SpecificArticle from './pages/Article/SpecificArticle';
 // import SpecificPost from "./pages/Post/PostList/SpecificPost";
-import PostDetail from "./pages/Post/PostDetail/PostDetail";
-import ClientProfile from "./pages/UserProfile/ClientProfile";
-import TargetCities from "./pages/UserProfile/TargetCities";
-import Fackbook from "./pages/UserProfile/_components/facebook";
-import Instagram from "./pages/UserProfile/_components/instagram";
-import Twitter from "./pages/UserProfile/_components/twitter";
-import Youtube from "./pages/UserProfile/_components/youtube";
-import Pinterest from "./pages/UserProfile/_components/pinterest";
-import Linkedin from "./pages/UserProfile/_components/linkedin";
-import CreateArticle from "./pages/Article/CreateArticle";
-import Rank from "./pages/RankPage/Rank";
-import PortfolioError from "./pages/NotFound/PortfolioError";
-import Wikipidia from "./pages/Article/Wikipidia";
-import WriteYourSelf from "./pages/Article/WriteYourSelf";
-import PostDetailDropdown from "./pages/UserProfile/PostDetailDropdown";
-import Mention from "./pages/SettingsPages/Mention";
-import BaseHashMention from "./pages/SettingsPages/BaseHashMention";
-import Portfolio from "./pages/Portfolio/portfolio";
-import AdminApproval from "./pages/UserProfile/AdminApproval";
-import UploadAssets from "./pages/SettingsPages/UploadAssets";
+import PostDetail from './pages/Post/PostDetail/PostDetail';
+import ClientProfile from './pages/UserProfile/ClientProfile';
+import TargetCities from './pages/UserProfile/TargetCities';
+import Fackbook from './pages/UserProfile/_components/facebook';
+import Instagram from './pages/UserProfile/_components/instagram';
+import Twitter from './pages/UserProfile/_components/twitter';
+import Youtube from './pages/UserProfile/_components/youtube';
+import Pinterest from './pages/UserProfile/_components/pinterest';
+import Linkedin from './pages/UserProfile/_components/linkedin';
+import CreateArticle from './pages/Article/CreateArticle';
+import Rank from './pages/RankPage/Rank';
+import PortfolioError from './pages/NotFound/PortfolioError';
+import Wikipidia from './pages/Article/Wikipidia';
+import WriteYourSelf from './pages/Article/WriteYourSelf';
+import PostDetailDropdown from './pages/UserProfile/PostDetailDropdown';
+import Mention from './pages/SettingsPages/Mention';
+import BaseHashMention from './pages/SettingsPages/BaseHashMention';
+import Portfolio from './pages/Portfolio/portfolio';
+import AdminApproval from './pages/UserProfile/AdminApproval';
+import UploadAssets from './pages/SettingsPages/UploadAssets';
 import CommentStats from './pages/Comment/CommentStats';
+import TopicAutomation from './pages/Topic/_components/TopicAutomation';
 
 function App() {
   const [showSidebar, setShowSidebar] = useState(false);
@@ -61,6 +62,10 @@ function App() {
         <Routes>
           <Route index element={<Home close={handleCloseSideBar} />} />
           <Route path='/topic' element={<Topic show={handleOpenSideBar} />} />
+          <Route
+            path='/topic/automation'
+            element={<TopicAutomation show={handleOpenSideBar} />}
+          />
           <Route path='/rank' element={<Rank show={handleCloseSideBar} />} />
           <Route
             path='/article'
