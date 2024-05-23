@@ -183,7 +183,7 @@ def create_event():
 
 @csrf_exempt
 def fetch_user_info(request):
-    if 'session_id' and 'username' in request.session:
+    if 'session_id' in request.session and 'username' in request.session:
         url = "http://uxlivinglab.pythonanywhere.com/"
         headers = {'content-type': 'application/json'}
 

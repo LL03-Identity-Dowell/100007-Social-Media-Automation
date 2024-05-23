@@ -1,10 +1,9 @@
 # Create your views here.
-
-
 import json
 import logging
 import uuid
 from datetime import datetime
+from decouple import config
 
 import requests
 from django_q.tasks import async_task
@@ -24,7 +23,7 @@ from website.serializers import SentenceSerializer, IndustrySerializer, Selected
 def get_event_id():
     dd = datetime.now()
     time = dd.strftime("%d:%m:%Y,%H:%M:%S")
-    url = "https://100003.pythonanywhere.com/event_creation"
+    url = config('EVENT_CREATION_URL')
     data = {"platformcode": "FB", "citycode": "101", "daycode": "0",
             "dbcode": "pfm", "ip_address": "192.168.0.41",
             "login_id": "lav", "session_id": "new",
@@ -39,8 +38,7 @@ def get_event_id():
 
 
 def get_dowellclock():
-    response_dowell = requests.get(
-        'https://100009.pythonanywhere.com/dowellclock')
+    response_dowell = requests.get(config('DOWELLCLOCK_URL'))
     data = response_dowell.json()
     return data['t1']
 
@@ -142,7 +140,7 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
         except:
             profile = 'member'
 
-        url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
+        url = config('LINGU_URL')
         email = request.session['userinfo'].get('email')
         user = User.objects.create(email=email)
         industry = industry_serializer.save()
@@ -190,7 +188,7 @@ class SelectedAutomationResultAPIView(generics.CreateAPIView):
             'client_admin_id': request.session['userinfo']['client_admin_id'],
             'user_info': request.session.get('userinfo'),
         }
-        if topic['topic'] == True:
+        if topic.get('topic') == "True":
             session = {**request.session}
             automate = Automate(session=session)
             async_task(automate.generate_topics,

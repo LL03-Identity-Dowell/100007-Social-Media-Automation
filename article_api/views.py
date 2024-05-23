@@ -11,99 +11,75 @@ from react_version import settings
 from website.models import User, Sentences, SentenceResults
 
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from decouple import config
+import logging
 
+# Fetch configuration from environment variables
+API_KEY_ENDPOINT = config('API_KEY_ENDPOINT', 'https://100105.pythonanywhere.com/api/v1/process-api-key/')
+API_SERVICE_ID = config('API_SERVICE_ID', 'DOWELL10015')
 
 @method_decorator(csrf_exempt, name='dispatch')
 class APIKeyProcessor(APIView):
     def __init__(self):
-        self.api_key_endpoint = 'https://100105.pythonanywhere.com/api/v1/process-api-key/'
-        self.api_service_id = 'DOWELL10015'  # Hardcoded API service ID
+        self.api_key_endpoint = API_KEY_ENDPOINT
+        self.api_service_id = API_SERVICE_ID
 
     def validate_api_data(self, api_key):
-        payload = {
-            'service_id': self.api_service_id
-        }
-
-        response = requests.post(self.api_key_endpoint, json=payload)
-        api_key_data = response.json()
-        print("api_key_data", api_key_data)
-        print(api_key_data.get('success'))  # Returns "False"
-        print(api_key_data.get('message'))  # Returns "Limit exceeded"
-        print(response.status_code)  # Returns a 401
+        payload = {'service_id': self.api_service_id}
+        
+        try:
+            response = requests.post(self.api_key_endpoint, json=payload, timeout=10)
+            response.raise_for_status()
+            api_key_data = response.json()
+        except requests.RequestException as e:
+            logging.error(f"API request failed: {e}")
+            return False, {"success": False, "message": "API request failed"}
 
         if response.status_code == 200 and api_key_data.get('success'):
             return True, {
                 "success": True,
-                "message": "Credits was successfully consumed",
+                "message": "Credits successfully consumed",
                 "total_credits": api_key_data.get('total_credits')
-            }
-        elif response.status_code == 400 and api_key_data.get('message') == 'Service is not active':
-            return False, {
-                "success": False,
-                "message": "Service is not active"
-            }
-        elif response.status_code == 404 and api_key_data.get('message') == 'Service not found':
-            return False, {
-                "success": False,
-                "message": "Service not found"
-            }
-        elif response.status_code == 404 and api_key_data.get('message') == 'API key not found':
-            return False, {
-                "success": False,
-                "message": "API key not found"
             }
         else:
             return False, {
                 "success": False,
-                "message": "Unknown error occurred"
+                "message": api_key_data.get('message', 'Unknown error occurred')
             }
+
 
     def post(self, request):
         api_key = request.data.get('api_key')
         if not api_key:
             raise AuthenticationFailed('API key is required.')
 
-        validation_endpoint = 'https://100105.pythonanywhere.com/api/v3/process-services/?type=api_service&api_key={}'.format(
-            api_key)
-        print(api_key)
-        print(validation_endpoint)
-        response = requests.post(validation_endpoint, json={
-                                 "service_id": self.api_service_id})
-        api_key_data = response.json()
-        print("here is", api_key_data)
-
+        validation_endpoint = f'https://100105.pythonanywhere.com/api/v3/process-services/?type=api_service&api_key={api_key}'
+        
+        try:
+            response = requests.post(validation_endpoint, json={"service_id": self.api_service_id}, timeout=10)
+            response.raise_for_status()
+            api_key_data = response.json()
+        except requests.RequestException as e:
+            logging.error(f"API request failed: {e}")
+            return Response({"success": False, "message": "API request failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         if response.status_code == 200 and api_key_data.get('success'):
             total_credits = api_key_data.get('total_credits')
             return Response({
                 'success': True,
-                'message': 'Credits was successfully consumed',
+                'message': 'Credits successfully consumed',
                 'total_credits': total_credits
             }, status=status.HTTP_200_OK)
-        elif response.status_code == 400 and api_key_data.get('message') == 'Service is not active':
-            return Response({
-                'success': False,
-                'message': 'Service is not active'
-            }, status=status.HTTP_401_UNAUTHORIZED)
-        elif response.status_code == 404 and api_key_data.get('message') == 'Service not found':
-            return Response({
-                'success': False,
-                'message': 'Service not found'
-            }, status=status.HTTP_401_UNAUTHORIZED)
-        elif response.status_code == 404 and api_key_data.get('message') == 'API key not found':
-            return Response({
-                'success': False,
-                'message': 'API key not found'
-            }, status=status.HTTP_401_UNAUTHORIZED)
         else:
+            error_message = api_key_data.get('message', 'Unknown error occurred')
             return Response({
                 'success': False,
-                'message': 'Unknown error occurred'
-            }, status=status.HTTP_401_UNAUTHORIZED)
+                'message': error_message
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GenerateSentencesAPIView(generics.CreateAPIView):

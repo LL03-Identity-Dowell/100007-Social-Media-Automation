@@ -41,7 +41,7 @@ class paragraph(models.Model):
 class stepFour(models.Model):
     title = models.CharField(max_length=130)
     paragraph = models.TextField(max_length=2000)
-    source = models.TextField(max_length=2000, blank=False, null=True)
+    source = models.TextField(max_length=2000, null=True)
     qualitative_categorization = models.CharField(max_length=130)
     targeted_for = models.CharField(max_length=130)
     designed_for = models.CharField(max_length=130)
@@ -50,9 +50,9 @@ class stepFour(models.Model):
 
 
 class SocialMediaRequest(BaseModel):
-    username = models.CharField(max_length=500, null=False, blank=False)
-    email = models.CharField(max_length=500, null=False, blank=False)
-    name = models.CharField(max_length=500, null=False, blank=False)
+    username = models.CharField(max_length=500, null=False)
+    email = models.CharField(max_length=500, null=False)
+    name = models.CharField(max_length=500, null=False)
     org_id = models.CharField(max_length=500, null=True, blank=True)
     is_approved = models.BooleanField(default=False)
 

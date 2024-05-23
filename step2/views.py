@@ -1,9 +1,7 @@
 import concurrent.futures
-import datetime
 import json
 import random
 import traceback
-import urllib
 import urllib.parse
 from datetime import datetime
 # image resizing
@@ -19,7 +17,6 @@ import requests
 import wikipediaapi
 from PIL import Image
 from django.contrib import messages
-from django.core import cache
 from django.core.cache import cache
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
@@ -29,21 +26,18 @@ from django.utils.timezone import localdate, localtime
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from pexels_api import API
-from rest_framework import generics
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 # rest(React endpoints)
 from rest_framework.views import APIView
 
 from config_master import SOCIAL_MEDIA_ADMIN_APPROVE_USERNAME
-from credits.constants import COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, \
-    STEP_4_SUB_SERVICE_ID
+from credits.constants import (COMMENTS_SUB_SERVICE_ID, STEP_2_SUB_SERVICE_ID, STEP_3_SUB_SERVICE_ID, 
+                               STEP_4_SUB_SERVICE_ID)
 from credits.credit_handler import CreditHandler
 from helpers import (check_if_user_is_owner_of_organization, decode_json_data, download_and_upload_image,
-                     download_and_upload_users_image,
-                     fetch_organization_user_info,
-                     fetch_user_portfolio_data,
+                     download_and_upload_users_image, fetch_organization_user_info, fetch_user_portfolio_data,
                      save_data, create_event, fetch_user_info, check_connected_accounts,
                      check_if_user_has_social_media_profile_in_aryshare, update_aryshare, get_key,
                      get_most_recent_posts, get_post_comments, save_profile_key_to_post,
@@ -53,16 +47,27 @@ from react_version import settings
 from react_version.views import AuthenticatedBaseView
 from .models import Step2Manager
 from .serializers import (DataSerializer, PortfolioChannelsSerializer, ProfileSerializer, CitySerializer,
-                          UnScheduledJsonSerializer,
-                          ScheduledJsonSerializer, ListArticleSerializer, RankedTopicListSerializer,
-                          EditPostSerializer,
-                          MostRecentJsonSerializer, PostCommentSerializer, DeletePostCommentSerializer,
-                          GroupHashtagSerializer, SocialMediaRequestSerializer, ImageUploadSerializer)
+                          UnScheduledJsonSerializer, ScheduledJsonSerializer, ListArticleSerializer, 
+                          RankedTopicListSerializer, EditPostSerializer, MostRecentJsonSerializer, 
+                          PostCommentSerializer, DeletePostCommentSerializer, GroupHashtagSerializer, 
+                          SocialMediaRequestSerializer, ImageUploadSerializer)
+
+from decouple import config
 
 global PEXELS_API_KEY
 
-PEXELS_API_KEY = '563492ad6f91700001000001e4bcde2e91f84c9b91cffabb3cf20c65'
+#Reading URLs and api key from .env
 
+PEXELS_API_KEY = config('PEXELS_API_KEY')
+MAIN_URL = config('MAIN_URL')
+HOME_URL = config("HOME_URL")
+SIGN_OUT_URL = config("SIGN_OUT_URL")
+USER_INFO_1 = config("USER_INFO_1")
+USER_INFO_2 = config("USER_INFO_2")
+
+LINGU_URL = config("LINGU_URL")
+
+UXLIVINGLAB_URL = config("UXLIVINGLAB_URL")
 
 @method_decorator(csrf_exempt, name='dispatch')
 def frontend_api_request(request):
@@ -81,9 +86,9 @@ def dowell_login(request):
     session_id = request.GET.get("session_id", None)
     if session_id:
         request.session["session_id"] = session_id
-        return redirect("https://100007.pythonanywhere.com/api/v2/main/")
+        return redirect(MAIN_URL)
     else:
-        return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com/")
+        return redirect(HOME_URL)
 
 
 class LogoutUser(APIView):
@@ -92,13 +97,11 @@ class LogoutUser(APIView):
         if session_id:
             try:
                 del request.session["session_id"]
-                return redirect(
-                    "https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
+                return redirect(SIGN_OUT_URL)
             except:
-                return redirect(
-                    "https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
+                return redirect(SIGN_OUT_URL)
         else:
-            return redirect("https://100014.pythonanywhere.com/sign-out?returnurl=https://100007.pythonanywhere.com")
+            return redirect(SIGN_OUT_URL)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -107,7 +110,7 @@ class MainAPIView(AuthenticatedBaseView):
         if request.session.get("session_id"):
             user_map = {}
             redirect_to_living_lab = True
-            url_1 = "https://100093.pythonanywhere.com/api/userinfo/"
+            url_1 = USER_INFO_1
             session_id = request.session["session_id"]
             response_1 = requests.post(url_1, data={"session_id": session_id})
             if response_1.status_code == 200 and "portfolio_info" in response_1.json():
@@ -116,7 +119,7 @@ class MainAPIView(AuthenticatedBaseView):
                 user_map[profile_details['userinfo']['userID']
                          ] = profile_details['userinfo']['username']
             else:
-                url_2 = "https://100014.pythonanywhere.com/api/userinfo/"
+                url_2 = USER_INFO_2
                 response_2 = requests.post(
                     url_2, data={"session_id": session_id})
                 if response_2.status_code == 200 and "portfolio_info" in response_2.json():
@@ -167,7 +170,7 @@ class MainAPIView(AuthenticatedBaseView):
             return Response(serializer.data)
 
         else:
-            return redirect("https://100014.pythonanywhere.com/?redirect_url=https://100007.pythonanywhere.com")
+            return redirect(HOME_URL)
 
 
 '''
@@ -177,7 +180,7 @@ step-2 starts here
 
 class ListArticleView(AuthenticatedBaseView):
     def get(self, request, *args, **kwargs):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
 
@@ -245,7 +248,7 @@ class ListArticleView(AuthenticatedBaseView):
 
 class ArticleDetailView(AuthenticatedBaseView):
     def post(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             profile = request.session['operations_right']
             print(profile)
             if request.method != "POST":
@@ -274,7 +277,7 @@ class ArticleDetailView(AuthenticatedBaseView):
 
 class IndexView(AuthenticatedBaseView):
     def get(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             credit_handler = CreditHandler()
             credit_response = credit_handler.check_if_user_has_enough_credits(
                 sub_service_id=STEP_2_SUB_SERVICE_ID,
@@ -589,7 +592,7 @@ class GenerateArticleWikiView(AuthenticatedBaseView):
 class WriteYourselfView(AuthenticatedBaseView):
     def post(self, request):
         session_id = request.GET.get('session_id', None)
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             if request.method != "POST":
                 return Response({'error': 'You have to choose a sentence first to write its article.'}, status=400)
             else:
@@ -696,7 +699,7 @@ class NewPostGeneration(AuthenticatedBaseView):
         session_id = request.GET.get('session_id', None)
         data = "data from api"  # new dev working on this
         email = request.session['userinfo']['email']
-        url = "https://linguatools-sentence-generating.p.rapidapi.com/realise"
+        url = LINGU_URL
         email = request.session['userinfo'].get('email')
         object = data['object'].lower()
         subject = data['topic']
@@ -805,7 +808,7 @@ class NewPostGeneration(AuthenticatedBaseView):
 
 class PostListView(AuthenticatedBaseView):
     def get(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
             org_id = request.session.get('org_id')
@@ -908,7 +911,7 @@ class PostListView(AuthenticatedBaseView):
 
 class PostDetailView(AuthenticatedBaseView):
     def post(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             credit_handler = CreditHandler()
             credit_response = credit_handler.check_if_user_has_enough_credits(
                 sub_service_id=STEP_3_SUB_SERVICE_ID,
@@ -1036,7 +1039,7 @@ class PostDetailView(AuthenticatedBaseView):
 class SavePostView(AuthenticatedBaseView):
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             time = localtime()
             test_date = str(localdate())
             date_obj = datetime.strptime(test_date, '%Y-%m-%d')
@@ -1120,7 +1123,7 @@ class EditPostView(AuthenticatedBaseView):
     def get(self, request, post_id, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
         image_url = request.GET.get('image', None)
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             post_data = {
                 "product_name": "Social Media Automation",
                 "details": {
@@ -1214,7 +1217,7 @@ class AryshareProfileView(AuthenticatedBaseView):
             return Response(data['message'], status=status.HTTP_400_BAD_REQUEST)
         else:
 
-            url = "http://uxlivinglab.pythonanywhere.com"
+            url = UXLIVINGLAB_URL
             test_date = str(localdate())
 
             payload = json.dumps({
@@ -1463,7 +1466,7 @@ class LinkedAccountsJson(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 class MostRecentJSON(APIView):
     def get(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
 
@@ -1714,7 +1717,7 @@ def api_call_schedule(postes, platforms, key, image, request, post_id, formart):
 class MediaPostView(AuthenticatedBaseView):
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             credit_handler = CreditHandler()
             credit_response = credit_handler.check_if_user_has_enough_credits(
                 sub_service_id=STEP_4_SUB_SERVICE_ID,
@@ -1807,7 +1810,7 @@ class MediaPostView(AuthenticatedBaseView):
 class MediaScheduleView(AuthenticatedBaseView):
     def post(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id', None)
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             credit_handler = CreditHandler()
             credit_response = credit_handler.check_if_user_has_enough_credits(
                 sub_service_id=STEP_4_SUB_SERVICE_ID,
@@ -1918,7 +1921,7 @@ class UnScheduledView(AuthenticatedBaseView):
 @method_decorator(xframe_options_exempt, name='dispatch')
 class UnScheduledJsonView(AuthenticatedBaseView):
     def get(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
 
@@ -1989,7 +1992,7 @@ class UnScheduledJsonView(AuthenticatedBaseView):
 @method_decorator(xframe_options_exempt, name='dispatch')
 class ScheduledJsonView(AuthenticatedBaseView):
     def get(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             url = "http://uxlivinglab.pythonanywhere.com/"
             headers = {'content-type': 'application/json'}
             org_id = request.session.get('org_id')
@@ -2064,7 +2067,7 @@ class ScheduledJsonView(AuthenticatedBaseView):
 class CreatePostComments(AuthenticatedBaseView):
 
     def post(self, request, post_id):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             serializer_data = PostCommentSerializer(data=request.data)
             if not serializer_data.is_valid():
                 return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
@@ -2094,7 +2097,7 @@ class CreatePostComments(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 class Comments(AuthenticatedBaseView):
     def get(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             credit_handler = CreditHandler()
             credit_response = credit_handler.check_if_user_has_enough_credits(
                 sub_service_id=COMMENTS_SUB_SERVICE_ID,
@@ -2135,7 +2138,7 @@ class Comments(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 class PostComments(AuthenticatedBaseView):
     def get(self, request, post_id):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             user_id = request.session.get('user_id')
             post_data = get_post_by_id(post_id=post_id, user_id=user_id)
             user_id = request.session['user_id']
@@ -2156,7 +2159,7 @@ class PostComments(AuthenticatedBaseView):
 @method_decorator(csrf_exempt, name='dispatch')
 class DeletePostComment(AuthenticatedBaseView):
     def post(self, request, post_id):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             serializer_data = DeletePostCommentSerializer(data=request.data)
             if not serializer_data.is_valid():
                 return Response(serializer_data.errors, status=HTTP_400_BAD_REQUEST)
@@ -3554,7 +3557,7 @@ class SocialMediaPortfolioView(AuthenticatedBaseView):
 
 class FetchUserInfo(AuthenticatedBaseView):
     def get(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             profile_details = request.session['portfolio_info'][0]['portfolio_name']
             print("Here I have", profile_details)
             user_data = fetch_user_info(request)
@@ -3630,7 +3633,7 @@ class ImageLibrary(generics.CreateAPIView):
 
 class FetchImages(AuthenticatedBaseView):
     def get(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             user_data = fetch_user_info(request)
             image_libraries = [item.get('image_library') for item in user_data.get(
                 'data', []) if 'image_library' in item]
@@ -3643,7 +3646,7 @@ class Analytics(generics.CreateAPIView):
     serializer_class = DataSerializer
 
     def post(self, request):
-        if 'session_id' and 'username' in request.session:
+        if 'session_id' in request.session and 'username' in request.session:
             user_id = request.session['user_id']
             key = get_key(user_id)
             data = request.data
