@@ -344,6 +344,7 @@ class IndexView(AuthenticatedBaseView):
                             }
                             topics.append(topic)
                 paginator = Paginator(topics, number_of_items_per_page)
+                
                 try:
                     topics = paginator.page(page)
                 except PageNotAnInteger:

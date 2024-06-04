@@ -206,7 +206,7 @@ def fetch_user_info(request):
         data = json.dumps(payload)
         response = requests.request("POST", url, headers=headers, data=data)
         if response.status_code == 200:
-            user_data = json.loads(response.json())
+            user_data = response.json()
             return user_data
         else:
             # where the request to the database fails
@@ -245,7 +245,7 @@ def filter_all_automations(filters=None):
 
     if response.status_code != 200:
         return []
-    response = json.loads(response.json())
+    response = response.json()
 
     automations = []
     user_infor_list = response['data']
@@ -352,7 +352,7 @@ def get_key(user_id):
     }
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
-    post = json.loads(response.json())
+    post = response.json()
     for article in post['data']:
         key = article['profileKey']
     return key
@@ -438,7 +438,7 @@ def get_most_recent_posts(org_id):
     data = json.dumps(payload)
     response = requests.request(
         "POST", url, headers=headers, data=data)
-    posts = json.loads(response.json())
+    posts = response.json()
 
     status = 'posted'
     user_post = []
@@ -487,7 +487,7 @@ def get_scheduled_posts(org_id):
     data = json.dumps(payload)
     response = requests.request(
         "POST", url, headers=headers, data=data)
-    posts = json.loads(response.json())
+    posts = response.json()
 
     status = 'scheduled'
     post_data = []
@@ -537,7 +537,7 @@ def get_post_by_id(post_id, user_id):
     data = json.dumps(payload)
     response = requests.request(
         "POST", url, headers=headers, data=data)
-    posts = json.loads(response.json())
+    posts = response.json()
 
     status = 'posted'
 
@@ -627,7 +627,7 @@ def decode_json_data(data):
     @param data: {}
     @return: str
     """
-    return jwt.encode(data, "secret", algorithm="HS256")
+    return jwt.decode(data, "secret", algorithm="HS256")
 
 
 def edit_article(data: dict):
@@ -823,7 +823,7 @@ def filter_group_hashtag(data: dict):
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
     print(response.json())
-    response_data = json.loads(response.json())
+    response_data = response.json()
     group_hastag_pd = pd.DataFrame(response_data.get('data'))
     try:
         filtered_pd = group_hastag_pd[group_hastag_pd['org_id'] == org_id]
@@ -891,7 +891,7 @@ def fetch_organization_user_info(org_id):
     data = json.dumps(payload)
     response = requests.request("POST", url, headers=headers, data=data)
     if response.status_code == 200:
-        user_data = json.loads(response.json())
+        user_data = response.json()
         return user_data
     else:
         return None
